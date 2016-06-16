@@ -1,0 +1,460 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="AggregateShapeBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AggregateShapeBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DeleteBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DeleteBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DesignEditorBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DesignEditorBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="GroupBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\GroupBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Invisible" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Invisible.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LibrariesBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LibrariesBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LockIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LockIcon.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PointerIconLarge" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PointerIconLarge.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PointerIconSmall" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PointerIconSmall.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="RedoBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\RedoBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="RenameBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\RenameBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SplitShapeAggregationBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SplitShapeAggregationBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="UndoBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UndoBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="UngroupBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UngroupBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="UnlockIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UnlockIcon.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Visible" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Visible.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="MovePointCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MovePointCursor.cur;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="MoveShapeCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MoveShapeCursor.cur;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="PenCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PenCursor.cur;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="RotateCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\RotateCursor.cur;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="FreehandIconLarge" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\FreehandIconLarge.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FreehandIconSmall" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\FreehandIconSmall.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="HandCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\HandCursor.cur;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="ActionDeniedCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ActionDeniedCursor.cur;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="CrossCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CrossCursor.cur;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="EditTextCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EditTextCursor.cur;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="CopyBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CopyBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CutBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CutBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PasteBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PasteBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ToBackground" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ToBackground.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ToForeground" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ToForeground.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DiagramPropertiesBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DiagramPropertiesBtn.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DefaultBitmapLarge" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DefaultBitmapLarge.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DefaultBitmapSmall" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DefaultBitmapSmall.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Disabled.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Enabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Enabled.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="NewLayer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\NewLayer.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FindShapes" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\FindShapes.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PenPlusCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PenPlusCursor.cur;System.Byte[], mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Text_CategoryGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="MessageTxt_YouHaveToClickOnTheLineInOrderToInsertNewPoints" xml:space="preserve">
+    <value>You have to click on the line in order to insert new points</value>
+  </data>
+  <data name="CaptionTxt_InsertPoint" xml:space="preserve">
+    <value>Insert Point</value>
+  </data>
+  <data name="MessageTxt_NoControlPointWasClicked" xml:space="preserve">
+    <value>No control point was clicked</value>
+  </data>
+  <data name="MessageTxt_GlueControlPointsMayNotBeRemoved" xml:space="preserve">
+    <value>Glue control points may not be removed.</value>
+  </data>
+  <data name="CaptionTxt_RemovePoint" xml:space="preserve">
+    <value>Remove Point</value>
+  </data>
+  <data name="MessageTxt_TheLineAlreadyHasTheMaximumNumberOfVertices" xml:space="preserve">
+    <value>The line already has the maximum number of vertices</value>
+  </data>
+  <data name="CaptionTxt_InsertVertex" xml:space="preserve">
+    <value>Insert Vertex</value>
+  </data>
+  <data name="CaptionTxt_InsertConnectionPoint" xml:space="preserve">
+    <value>Insert Connection Point</value>
+  </data>
+  <data name="MessageTxt_MinimumVertexCountReached" xml:space="preserve">
+    <value>Minimum vertex count reached</value>
+  </data>
+  <data name="MessageTxt_ControlPointIsConnected" xml:space="preserve">
+    <value>Control point is connected</value>
+  </data>
+  <data name="MessageTxt_NoResizePointWasClicked" xml:space="preserve">
+    <value>No resize point was clicked</value>
+  </data>
+  <data name="CaptionTxt_RemoveVertex" xml:space="preserve">
+    <value>Remove Vertex</value>
+  </data>
+  <data name="MessageTxt_ConnectionPointIsConnected" xml:space="preserve">
+    <value>Connection point is connected</value>
+  </data>
+  <data name="MessageTxt_NoConnectionPointWasClicked" xml:space="preserve">
+    <value>No connection point was clicked</value>
+  </data>
+  <data name="CaptionTxt_RemoveConnectionPoint" xml:space="preserve">
+    <value>Remove Connection Point</value>
+  </data>
+  <data name="MessageTxt_AddANewLayerToTheDiagram" xml:space="preserve">
+    <value>Add a new layer to the diagram</value>
+  </data>
+  <data name="MessageTxt_MaximumNumberOfLayersReached" xml:space="preserve">
+    <value>Maximum number of layers reached</value>
+  </data>
+  <data name="CaptionTxt_AddLayer" xml:space="preserve">
+    <value>Add Layer</value>
+  </data>
+  <data name="MessageFmt_Delete0Layers" xml:space="preserve">
+    <value>Delete {0} layers</value>
+  </data>
+  <data name="MessageTxt_NoLayersSelected" xml:space="preserve">
+    <value>No layers selected</value>
+  </data>
+  <data name="Text_Layers" xml:space="preserve">
+    <value>layers</value>
+  </data>
+  <data name="CaptionTxt_DeleteLayer" xml:space="preserve">
+    <value>Delete Layer</value>
+  </data>
+  <data name="Text_Layer" xml:space="preserve">
+    <value>layer</value>
+  </data>
+  <data name="MessageFmt_RenameLayer0" xml:space="preserve">
+    <value>Rename layer '{0}'</value>
+  </data>
+  <data name="MessageTxt_TooManyLayersSelected" xml:space="preserve">
+    <value>Too many layers selected</value>
+  </data>
+  <data name="CaptionTxt_RenameLayer" xml:space="preserve">
+    <value>Rename Layer</value>
+  </data>
+  <data name="MessageFmt_Activate01" xml:space="preserve">
+    <value>Activate {0} {1}</value>
+  </data>
+  <data name="MessageFmt_Deactivate01" xml:space="preserve">
+    <value>Deactivate {0} {1}</value>
+  </data>
+  <data name="CaptionFmt_Deactivate0" xml:space="preserve">
+    <value>Deactivate {0}</value>
+  </data>
+  <data name="MessageFmt_Show01" xml:space="preserve">
+    <value>Show {0} {1}</value>
+  </data>
+  <data name="CaptionFmt_Show0" xml:space="preserve">
+    <value>Show {0}</value>
+  </data>
+  <data name="MessageFmt_Hide01" xml:space="preserve">
+    <value>Hide {0} layer{1}</value>
+  </data>
+  <data name="CaptionFmt_Hide0" xml:space="preserve">
+    <value>Hide {0}</value>
+  </data>
+  <data name="MessageTxt_CreateANewTemplate" xml:space="preserve">
+    <value>Create a new template.</value>
+  </data>
+  <data name="CaptionTxt_CreateTemplate" xml:space="preserve">
+    <value>Create Template</value>
+  </data>
+  <data name="CaptjonTxt_CreateTemplateWithDialog" xml:space="preserve">
+    <value>Create Template...</value>
+  </data>
+  <data name="MessageFmt_Delete0ModelObjects" xml:space="preserve">
+    <value>Delete {0} model objects.</value>
+  </data>
+  <data name="MessageFmt_DeleteModelObject" xml:space="preserve">
+    <value>Delete model object</value>
+  </data>
+  <data name="MessageTxt_OneOrMoreChildModelObjectsAreAttachedToShapes" xml:space="preserve">
+    <value>One or more child model objects are attached to shapes.</value>
+  </data>
+  <data name="MessageTxt_NoModelObjectsSelected" xml:space="preserve">
+    <value>No model objects selected</value>
+  </data>
+  <data name="CaptionTxt_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="MessageFmt_Copy0ModelObjects" xml:space="preserve">
+    <value>Copy {0} model objects.</value>
+  </data>
+  <data name="MessageTxt_CopyModelObject" xml:space="preserve">
+    <value>Copy model object</value>
+  </data>
+  <data name="CaptionTxt_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="MessageFmt_Paste0ModelObjects" xml:space="preserve">
+    <value>Paste {0} model objects.</value>
+  </data>
+  <data name="MessageTxt_PasteModelObject" xml:space="preserve">
+    <value>Paste model object</value>
+  </data>
+  <data name="MessageTxt_NoModelObjectsCopied" xml:space="preserve">
+    <value>No model objects copied.</value>
+  </data>
+  <data name="CaptionTxt_Paste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="MessageTxt_FindAndSelectAllAssignedShapes" xml:space="preserve">
+    <value>Find and select all assigned shapes.</value>
+  </data>
+  <data name="MessageTxt_FindAssignedShapes" xml:space="preserve">
+    <value>Find assigned shapes</value>
+  </data>
+  <data name="CaptionTxt_DeleteLayers" xml:space="preserve">
+    <value>Delete Layers</value>
+  </data>
+  <data name="MessageFmt_EditTemplate0" xml:space="preserve">
+    <value>Edit Template '{0}'</value>
+  </data>
+  <data name="MessageTxt_NoTemplateToolSelected" xml:space="preserve">
+    <value>No template tool selected</value>
+  </data>
+  <data name="CaptionTxt_EditTemplate" xml:space="preserve">
+    <value>Edit Template...</value>
+  </data>
+  <data name="MessageFmt_DeleteTemplate0" xml:space="preserve">
+    <value>Delete Template '{0}'</value>
+  </data>
+  <data name="MessageFmt_Template0IsInUse" xml:space="preserve">
+    <value>Template '{0}' is in use.</value>
+  </data>
+  <data name="CaptionTxt_DeleteTemplate" xml:space="preserve">
+    <value>Delete Template...</value>
+  </data>
+  <data name="MessageTxt_EditTheCurrentDesignOrCreateNewDesigns" xml:space="preserve">
+    <value>Edit the current design or create new designs</value>
+  </data>
+  <data name="CaptionTxt_ShowDesignEditor" xml:space="preserve">
+    <value>Show Design Editor...</value>
+  </data>
+  <data name="MessageTxt_LoadAndUnloadShapeAndOrModelLibraries" xml:space="preserve">
+    <value>Load and unload shape and/or model libraries</value>
+  </data>
+  <data name="CaptionTxt_ShowLibraryManager" xml:space="preserve">
+    <value>Show Library Manager...</value>
+  </data>
+  <data name="CaptionFmt_Activate0" xml:space="preserve">
+    <value>Activate {0}</value>
+  </data>
+  <data name="MessageFmt_Permission0NotGranted" xml:space="preserve">
+    <value>Permission {0} not granted.</value>
+  </data>
+  <data name="MessageTxt_DiagramAlreadyContainsAtLeastOneOfTheShapesToBeInserted" xml:space="preserve">
+    <value>Diagram already contains at least one of the shapes to be inserted.</value>
+  </data>
+  <data name="MessageTxt_NoShapesCutOrCopied" xml:space="preserve">
+    <value>No shapes cut/copied.</value>
+  </data>
+  <data name="MessageTxt_ShapeIsNotAGroupShape" xml:space="preserve">
+    <value>Shape is not a group shape.</value>
+  </data>
+  <data name="MessageFmt_NoShapesToUngroup" xml:space="preserve">
+    <value>No shapes to ungroup</value>
+  </data>
+  <data name="MessageFmt_NoShapesSelected" xml:space="preserve">
+    <value>No shapes selected.</value>
+  </data>
+  <data name="MessageFmt_NotEnoughShapesSelected" xml:space="preserve">
+    <value>Not enough shapes selected.</value>
+  </data>
+  <data name="MessageTxt_GroupsCannotBeAggregated" xml:space="preserve">
+    <value>Groups cannot be aggregated.</value>
+  </data>
+  <data name="MessageTxt_TooManyShapesSelected" xml:space="preserve">
+    <value>Too many shapes selected.</value>
+  </data>
+  <data name="MessageTxt_GroupsCannotBeDisaggregated" xml:space="preserve">
+    <value>Groups cannot be disaggregated.</value>
+  </data>
+  <data name="MessageTxt_ShapeIsNotACompositeShape" xml:space="preserve">
+    <value>Shape is not a composite shape.</value>
+  </data>
+</root>

@@ -1,0 +1,614 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<dataweb_nshape version="2">
+  <project id="8b165864-e698-46d6-a758-1f986a792a6d" last_saved_utc="2014-04-08 08:57:47">
+    <libraries>
+      <library name="GeneralShapes" assembly_name="Dataweb.NShape.GeneralShapes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1512080cd664963c" repository_version="2" />
+      <library name="ElectricalShapes" assembly_name="Dataweb.NShape.ElectricalShapes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1512080cd664963c" repository_version="2" />
+      <library name="FlowChartShapes" assembly_name="Dataweb.NShape.FlowChartShapes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1512080cd664963c" repository_version="2" />
+      <library name="SoftwareArchitectureShapes" assembly_name="Dataweb.NShape.SoftwareArchitectureShapes, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1512080cd664963c" repository_version="2" />
+    </libraries>
+    <color_styles>
+      <color_style id="ab59fcd5-dc41-4782-9903-d28462fe36d2" name="Background" color="-4144960" transparency="0"></color_style>
+      <color_style id="31dce526-5a82-4549-99c3-93a8e4590bc9" name="Black" color="-16777216" transparency="0"></color_style>
+      <color_style id="d0fd90db-e85e-4c90-998e-1f99d9eba595" name="Blue" color="-12156236" transparency="0"></color_style>
+      <color_style id="38a7df2c-d0ea-44ed-8c3b-98046b0da7c0" name="Gray" color="-8355712" transparency="0"></color_style>
+      <color_style id="411622a4-15e5-414f-89f0-4576ea1ab1e1" name="Green" color="-13726889" transparency="0"></color_style>
+      <color_style id="b8684350-9cba-4832-b82d-e2bc2b2358e1" name="Highlight" color="-29696" transparency="0"></color_style>
+      <color_style id="f27a6c49-4757-4431-b979-46c12ecd1964" name="HighlightText" color="-16777088" transparency="0"></color_style>
+      <color_style id="f2b4673b-5687-4390-8ab7-5541552213cf" name="LightBlue" color="-5192482" transparency="0"></color_style>
+      <color_style id="194f6cdf-d538-43b8-b6f9-5be450f21ec4" name="LightGray" color="-2894893" transparency="0"></color_style>
+      <color_style id="3d3b9f85-210f-42da-8f77-b75ddcaa890e" name="LightGreen" color="-7357301" transparency="0"></color_style>
+      <color_style id="dfc8c9ad-f09e-4954-b5a5-7f0556ce6add" name="LightRed" color="-24454" transparency="0"></color_style>
+      <color_style id="3b347811-6fd2-4977-83d0-46cef9f9bf63" name="LightYellow" color="-329006" transparency="0"></color_style>
+      <color_style id="d7bbebe6-f104-4508-9dd6-30aa12ca3693" name="Red" color="-5103070" transparency="0"></color_style>
+      <color_style id="ec24e15e-b834-4b13-89ff-06547eace0cb" name="Text" color="-16777216" transparency="0"></color_style>
+      <color_style id="5f75ad0d-cb6e-49e5-8580-d5887cf4471b" name="Transparent" color="16777215" transparency="100"></color_style>
+      <color_style id="4eabc820-23f6-4cf1-8c6e-152e54ea1804" name="White" color="-1" transparency="0"></color_style>
+      <color_style id="d7f2e610-d5fb-4d1c-b94b-3c91117ee1fd" name="Yellow" color="-10496" transparency="0"></color_style>
+      <color_style id="70836d42-f583-4b7a-8d82-069224077c13" name="Purple" color="-8388480" transparency="0"></color_style>
+    </color_styles>
+    <cap_styles>
+      <cap_style id="f28f0a5b-e7ee-4372-9de2-dff541211200" name="ArrowClosed" cap_shape="1" cap_size="12" color_style="5f75ad0d-cb6e-49e5-8580-d5887cf4471b"></cap_style>
+      <cap_style id="ec2e7583-c37f-4813-9e66-66a0284d94f7" name="ArrowOpen" cap_shape="2" cap_size="12" color_style="31dce526-5a82-4549-99c3-93a8e4590bc9"></cap_style>
+      <cap_style id="00ac1f29-91a6-4924-9cfd-f322fb9a5662" name="None" cap_shape="0" cap_size="12" color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804"></cap_style>
+      <cap_style id="f380869e-bf64-4f70-85b7-52caf6a4e10d" name="Special1" cap_shape="3" cap_size="6" color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804"></cap_style>
+      <cap_style id="a9ea2a68-a508-4519-9501-52376ba3a6ca" name="Special2" cap_shape="5" cap_size="6" color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804"></cap_style>
+      <cap_style id="ad355ea1-ef90-44fb-a18a-7d1d9a77cad8" name="ArrowSolid" cap_shape="1" cap_size="10" color_style="00000000-0000-0000-0000-000000000000"></cap_style>
+    </cap_styles>
+    <character_styles>
+      <character_style id="56498d42-f40b-4e72-aa4f-03a0b291b0cb" name="Caption" font_name="Tahoma" size="1000" decoration="0" color_style="ec24e15e-b834-4b13-89ff-06547eace0cb"></character_style>
+      <character_style id="4b91d245-cba0-4818-843c-12eff64ebc05" name="Heading1" font_name="Tahoma" size="3600" decoration="1" color_style="ec24e15e-b834-4b13-89ff-06547eace0cb"></character_style>
+      <character_style id="febb3fc9-e2d4-4d91-9197-6f61cfa36d07" name="Heading2" font_name="Tahoma" size="2400" decoration="1" color_style="ec24e15e-b834-4b13-89ff-06547eace0cb"></character_style>
+      <character_style id="cb5dcb4e-6508-4a74-90d0-c80797736276" name="Heading3" font_name="Tahoma" size="1600" decoration="1" color_style="ec24e15e-b834-4b13-89ff-06547eace0cb"></character_style>
+      <character_style id="57fadee7-579e-4126-942a-d0bbf462fbec" name="Normal" font_name="Tahoma" size="1200" decoration="0" color_style="ec24e15e-b834-4b13-89ff-06547eace0cb"></character_style>
+      <character_style id="002f1719-8fdc-4474-b143-dee3569c90df" name="Subtitle" font_name="Tahoma" size="1200" decoration="1" color_style="ec24e15e-b834-4b13-89ff-06547eace0cb"></character_style>
+      <character_style id="778542b9-4c81-4710-b936-dabf0b7364be" name="Caption2" font_name="Tahoma" size="825" decoration="0" color_style="31dce526-5a82-4549-99c3-93a8e4590bc9"></character_style>
+    </character_styles>
+    <fill_styles>
+      <fill_style id="21de51c5-4711-415f-96df-0caea1ec370e" name="Black" base_color_style="31dce526-5a82-4549-99c3-93a8e4590bc9" additional_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" fill_mode="1" fill_pattern="3" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="81402051-b745-4e6b-9732-79eae5910942" name="Blue" base_color_style="d0fd90db-e85e-4c90-998e-1f99d9eba595" additional_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" fill_mode="1" fill_pattern="3" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="5442c5b2-7b2b-43cf-a8c3-53a685f19013" name="Green" base_color_style="411622a4-15e5-414f-89f0-4576ea1ab1e1" additional_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" fill_mode="1" fill_pattern="3" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="f0dfce3b-a2d1-4b63-9044-4c450d91b440" name="Red" base_color_style="d7bbebe6-f104-4508-9dd6-30aa12ca3693" additional_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" fill_mode="1" fill_pattern="3" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="552d9970-f0d9-4bbd-b590-df9692872402" name="Transparent" base_color_style="5f75ad0d-cb6e-49e5-8580-d5887cf4471b" additional_color_style="5f75ad0d-cb6e-49e5-8580-d5887cf4471b" fill_mode="1" fill_pattern="3" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="a8bffb6c-c1b1-4597-b5b4-36c6f3102e7e" name="White" base_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" additional_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" fill_mode="1" fill_pattern="3" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="73f3f424-56f9-4742-a3e6-5c092c61dc35" name="Yellow" base_color_style="d7f2e610-d5fb-4d1c-b94b-3c91117ee1fd" additional_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" fill_mode="1" fill_pattern="3" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="36335793-d189-4daf-906b-8c38c49a949a" name="Purple" base_color_style="70836d42-f583-4b7a-8d82-069224077c13" additional_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" fill_mode="1" fill_pattern="3" image_layout="3" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="2fd600f7-f21b-4d08-9a3e-21f38a102561" name="Orange" base_color_style="b8684350-9cba-4832-b82d-e2bc2b2358e1" additional_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" fill_mode="1" fill_pattern="3" image_layout="3" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+    </fill_styles>
+    <line_styles>
+      <line_style id="3af9f5e4-fcdc-4e4c-a0ac-a417dd2c02e7" name="Blue" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="d0fd90db-e85e-4c90-998e-1f99d9eba595"></line_style>
+      <line_style id="2ccc52e9-4e55-4601-86a7-b87da4323678" name="Dashed" line_width="1" dash_type="1" dash_cap="2" line_join="2" color_style="31dce526-5a82-4549-99c3-93a8e4590bc9"></line_style>
+      <line_style id="c29eb1b2-1d84-4398-95af-acc5bc4dca9c" name="Dotted" line_width="1" dash_type="2" dash_cap="2" line_join="2" color_style="31dce526-5a82-4549-99c3-93a8e4590bc9"></line_style>
+      <line_style id="ad745369-05d4-48ce-9c17-32d76cd7fbd5" name="Green" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="411622a4-15e5-414f-89f0-4576ea1ab1e1"></line_style>
+      <line_style id="201af8bf-1777-4f03-b0e5-ac83629602e0" name="Highlight" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="b8684350-9cba-4832-b82d-e2bc2b2358e1"></line_style>
+      <line_style id="f0557ddd-e35e-4ca2-805b-c51d802b1a1f" name="HighlightDashed" line_width="1" dash_type="1" dash_cap="2" line_join="2" color_style="b8684350-9cba-4832-b82d-e2bc2b2358e1"></line_style>
+      <line_style id="afb83299-019e-4d00-8377-6830edfdf7c7" name="HighlightDotted" line_width="1" dash_type="2" dash_cap="2" line_join="2" color_style="b8684350-9cba-4832-b82d-e2bc2b2358e1"></line_style>
+      <line_style id="26796bf3-2f0f-4675-8c87-05ef60946a7b" name="HighlightThick" line_width="3" dash_type="0" dash_cap="2" line_join="2" color_style="b8684350-9cba-4832-b82d-e2bc2b2358e1"></line_style>
+      <line_style id="e44d5942-4835-4ac9-85a7-d31cb77c315c" name="None" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="5f75ad0d-cb6e-49e5-8580-d5887cf4471b"></line_style>
+      <line_style id="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" name="Normal" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="31dce526-5a82-4549-99c3-93a8e4590bc9"></line_style>
+      <line_style id="f6ef3748-05d2-4648-8083-73e6c2835bea" name="Red" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="d7bbebe6-f104-4508-9dd6-30aa12ca3693"></line_style>
+      <line_style id="51f6474d-0e2e-4ec0-bf49-e542d9005eef" name="Special1" line_width="1" dash_type="3" dash_cap="2" line_join="2" color_style="31dce526-5a82-4549-99c3-93a8e4590bc9"></line_style>
+      <line_style id="04340b0f-544a-49b7-b314-762a630119e3" name="Special2" line_width="1" dash_type="4" dash_cap="2" line_join="2" color_style="31dce526-5a82-4549-99c3-93a8e4590bc9"></line_style>
+      <line_style id="510501b2-8dab-4eb9-b0d9-e35edfe87adf" name="Thick" line_width="3" dash_type="0" dash_cap="2" line_join="2" color_style="31dce526-5a82-4549-99c3-93a8e4590bc9"></line_style>
+      <line_style id="d8498d31-893e-461a-8317-83466b3ee047" name="Yellow" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="d7f2e610-d5fb-4d1c-b94b-3c91117ee1fd"></line_style>
+      <line_style id="42138206-c4b0-4bda-a2b4-2947647051d5" name="Purple" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="70836d42-f583-4b7a-8d82-069224077c13"></line_style>
+    </line_styles>
+    <paragraph_styles>
+      <paragraph_style id="2c752464-8a63-46cb-88da-0acff20d9b01" name="Label" alignment="16" trimming="3" padding_left="3" padding_top="3" padding_right="3" padding_bottom="3" word_wrap="False"></paragraph_style>
+      <paragraph_style id="f1430332-0b3d-41c1-a876-96499bea6094" name="Text" alignment="1" trimming="3" padding_left="3" padding_top="3" padding_right="3" padding_bottom="3" word_wrap="True"></paragraph_style>
+      <paragraph_style id="53fe01a1-3e0b-4c93-94d8-3548c0117890" name="Title" alignment="32" trimming="3" padding_left="3" padding_top="3" padding_right="3" padding_bottom="3" word_wrap="True"></paragraph_style>
+    </paragraph_styles>
+	<shape_styles></shape_styles>
+    <model id="d8b1ea4f-ff33-4e19-982f-9307a0e946eb">
+      <model_objects></model_objects>
+    </model>
+    <templates>
+      <template id="bde70df8-a19c-4e7b-aef2-dcd2e3bbe21f" name="Polyline" title="" description="">
+        <no_model></no_model>
+        <polyline id="94ef851c-5ef2-4b40-8e24-fe9d6233601c" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" start_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662" end_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662">
+          <vertices>
+            <vertex point_index="0" point_id="1" x="0" y="0" />
+            <vertex point_index="1" point_id="2" x="20" y="20" />
+          </vertices>
+        </polyline>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="bcd4943f-4b28-4af2-8015-fc2282a45d79" name="CircularArc" title="" description="">
+        <no_model></no_model>
+        <circular_arc id="809c19f9-3b82-4d3d-90c6-18fc8275216e" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" start_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662" end_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662">
+          <vertices>
+            <vertex point_index="0" point_id="1" x="0" y="0" />
+            <vertex point_index="1" point_id="2" x="10" y="10" />
+          </vertices>
+        </circular_arc>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="214ada4a-b9bb-4c66-b2b7-7349c7781e48" name="Text" title="" description="">
+        <no_model></no_model>
+        <text id="99a47b75-a886-4b77-9edb-ec5b0da95c2b" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="e44d5942-4835-4ac9-85a7-d31cb77c315c" angle="0" fill_style="552d9970-f0d9-4bbd-b590-df9692872402" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Text" width="44" height="28" auto_size="True"></text>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="8d9d7c39-346f-47cf-8e7f-6b074da922bc" name="Label" title="" description="">
+        <no_model></no_model>
+        <label id="f57d8944-5049-4b7a-a56e-c9a270a63008" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="e44d5942-4835-4ac9-85a7-d31cb77c315c" angle="0" fill_style="552d9970-f0d9-4bbd-b590-df9692872402" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Text" width="44" height="28" auto_size="True" glue_point_x="-32" glue_point_y="-24"></label>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="cd5091af-c264-4c19-9700-4216ade0c945" name="IsoscelesTriangle" title="" description="">
+        <no_model></no_model>
+        <isosceles_triangle id="de5dca8f-d716-4dfe-ab65-8c2c4c8ed108" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></isosceles_triangle>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="bca25224-c13a-463a-930b-52bd27354ffc" name="Circle" title="" description="">
+        <no_model></no_model>
+        <circle id="26f36975-176c-43c3-a062-e0b2667bcffd" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" diameter="40"></circle>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="948cb4c9-5630-4d13-89c6-977783c1a078" name="Ellipse" title="" description="">
+        <no_model></no_model>
+        <ellipse id="fd5c366b-d9ae-416f-9710-09aaf447e59e" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></ellipse>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="1d300c82-ea08-40e6-ba19-a42453e5457f" name="Square" title="" description="">
+        <no_model></no_model>
+        <square id="3de40d2a-3658-4e46-b001-d89f1abc9a5e" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" diameter="40"></square>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="d58e0a92-ecc7-49f0-8291-831940b11412" name="Box" title="" description="">
+        <no_model></no_model>
+        <box id="9e35d18a-55fe-4bd7-908a-b24e5d170572" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></box>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="f6928d7a-c7d3-45c5-92c6-574be61f1620" name="RoundedBox" title="" description="">
+        <no_model></no_model>
+        <rounded_box id="2b3b2ed6-4866-44d3-98a2-94819e033e0f" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></rounded_box>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="83516c17-4495-49b2-aaf3-86d039e5b0e9" name="Diamond" title="" description="">
+        <no_model></no_model>
+        <diamond id="23464d38-24fb-4ddd-af5a-bdc7b7dceac4" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></diamond>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="a6b659b4-b9e5-4e9a-9d36-10d30c4d42c9" name="ThickArrow" title="" description="">
+        <no_model></no_model>
+        <thick_arrow id="a25537f1-931e-4538-97e9-9c987293c042" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40" head_width="30" body_height="13"></thick_arrow>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="1f80ae38-ddf7-4c41-a0e9-aa02931cf184" name="Picture" title="" description="">
+        <no_model></no_model>
+        <picture id="9bd18748-9e6f-485f-a9fa-781b6b49eb8a" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="552d9970-f0d9-4bbd-b590-df9692872402" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40" image_layout="3" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" convert_to_gray_scale="False" image_file_name="Station" image="Station (9bd18748-9e6f-485f-a9fa-781b6b49eb8a).emf" image_transparent_color="0"></picture>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="d0bf9610-72ba-4dcd-9099-5d32fa1b8b4a" name="BusBar" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._bus_bar id="f1b7f9cd-5b7c-41ab-a80c-d6fdd3098602" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" start_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662" end_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662">
+          <vertices>
+            <vertex point_index="0" point_id="1" x="0" y="0" />
+            <vertex point_index="1" point_id="2" x="20" y="20" />
+          </vertices>
+        </electrical_shapes._bus_bar>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="6820cde5-38aa-4bc8-933b-1eb1cc36b51e" name="Disconnector" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._disconnector id="5a2e4e3d-1e87-4d08-a7d0-4bb8e1b2232d" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" diameter="40"></electrical_shapes._disconnector>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="dadcd31f-4c0b-475b-b0f1-3e2f800ccc06" name="AutoDisconnector" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._auto_disconnector id="cfcc8fa6-1a44-4412-ab49-8a2b1c5c2e2e" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" diameter="40"></electrical_shapes._auto_disconnector>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="e5f78530-ad62-4038-a8e4-347067d30cbe" name="AutoSwitch" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._auto_switch id="82b27397-9502-42e5-b65e-3245d5be31b3" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" diameter="40"></electrical_shapes._auto_switch>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="075a363d-b5c3-4d83-a887-8b4719f8d3f2" name="Switch" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._switch id="10d1bed2-1ba3-41b0-8911-54ee76991c77" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" diameter="40"></electrical_shapes._switch>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="e05c4e92-d4c3-41f9-82b3-e807c45743b8" name="Transformer" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._transformer id="2083bd30-1f28-4b8a-861e-7fca38e45c47" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="552d9970-f0d9-4bbd-b590-df9692872402" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="70"></electrical_shapes._transformer>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="2947cf49-c955-4422-bfa7-fa9d58f58fa1" name="Earth" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._earth id="f1dbf2b2-6c54-4087-a883-b9d79654fbb5" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></electrical_shapes._earth>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="36ac59de-fa6a-41f8-be29-1f2dfb5bb428" name="Feeder" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._feeder id="6acdc401-160f-43ef-aa0e-9e1aeea94ed0" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></electrical_shapes._feeder>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="ce1b068f-f112-48f4-98a1-40d04a4f43cc" name="Rectifier" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._rectifier id="a6170793-171a-40e2-a678-2c15455a1e99" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></electrical_shapes._rectifier>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="fb42a620-ed14-41fc-8c97-e7712001a815" name="DisconnectingPoint" title="" description="">
+        <no_model></no_model>
+        <electrical_shapes._disconnecting_point id="1a7371de-68cc-4ebb-bc04-5c6ba79a6ead" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></electrical_shapes._disconnecting_point>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="c14769b3-d8c0-4ec5-ba82-a10ff6d12fe1" name="Terminator" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._terminator id="0361cadd-5e6e-4f25-9425-f313bd6c1da5" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._terminator>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="f3288bb6-77fa-4b2e-bdbb-c4cc25251984" name="Process" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._process id="f47cd2e6-c3d4-46e2-a8aa-a19387d8da5c" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._process>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="49186078-1f90-4d72-8948-b67e32e3d254" name="Decision" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._decision id="ab6e26f2-d6ab-4db3-97d7-46af545d4e7a" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._decision>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="58e1ad16-1275-479b-b63f-2550dd07d32b" name="InputOutput" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._input_output id="12b6c5bc-7819-4cb6-9587-47c240d2f90a" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._input_output>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="eeaad85f-2c60-4150-bfe4-0f9280c2f134" name="Document" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._document id="98540853-7587-47bc-98e9-d377406a5665" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._document>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="fa866515-97c1-46a1-bbb9-8893a802afc2" name="OffpageConnector" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._offpage_connector id="56ee5ea8-5798-4cdf-aa8b-232a7449045c" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._offpage_connector>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="ce828eb9-0a80-47e1-8e55-9fd070398ee2" name="Connector" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._connector id="0670a707-2148-4210-862c-190c5639af78" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" diameter="40"></flow_chart_shapes._connector>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="38fa7cfc-46f8-4fc3-b52b-cbd1d355cf2d" name="PredefinedProcess" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._predefined_process id="83e4c04f-d0c7-4360-9dcd-e09559cfb54e" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._predefined_process>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="6d13e41d-c204-4946-8328-e448e6c46c27" name="Extract" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._extract id="71dd2d5c-ba8a-4675-8ea8-d60be3172ea0" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></flow_chart_shapes._extract>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="5739155c-4d46-413b-b144-f40e8775d520" name="Merge" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._merge id="3e65d787-be1b-44fd-b513-e84edeff4447" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></flow_chart_shapes._merge>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="6e9d1be7-d3db-433c-95cd-77b317abd259" name="OnlineStorage" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._online_storage id="8cfb1a92-8a3c-4547-b8bf-c785a9690682" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._online_storage>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="6b8a87ec-e478-47c0-9738-946310bfc821" name="OfflineStorage" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._offline_storage id="0531b04f-ec18-4e48-a55c-d32f71b027fd" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></flow_chart_shapes._offline_storage>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="2208e9e3-2e60-46a0-b51b-2893b54e3027" name="DrumStorage" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._drum_storage id="cb5cb1ed-382d-42dc-88cf-a591cb4be43e" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._drum_storage>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="c0d42858-9330-46de-a125-ab43582406c3" name="DiskStorage" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._disk_storage id="0ffe14ac-d237-412c-b58a-edab338d0351" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></flow_chart_shapes._disk_storage>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="41894c0e-263f-4b12-abc7-d40e1c71bf66" name="TapeStorage" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._tape_storage id="07ab0d68-0c90-4a7e-8b66-07dc8b660ce0" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" diameter="40"></flow_chart_shapes._tape_storage>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="0b191404-51ef-44fc-90b4-695ff1c91cc0" name="Preparation" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._preparation id="3ec02119-4ac3-409f-9917-39f23010f5a5" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._preparation>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="4ec6420f-b4a3-4a80-a654-ce2d0f897591" name="ManualInput" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._manual_input id="90768352-4901-44dc-9b37-a4cd0c62274e" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._manual_input>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="58e33b28-c684-4976-9aac-d948fb79dccb" name="Core" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._core id="08cb0e1a-bf97-49ed-9bf2-a2f871cec135" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._core>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="d3a69add-e8a8-4c8a-91b2-564dea020270" name="Display" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._display id="ca5e3f45-8cb1-4568-97a6-c6fcc2095563" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._display>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="8cff5fb9-8354-42d9-8435-d3a47f7736b1" name="Tape" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._tape id="f3d46cda-1e8d-4c43-9636-183f00911877" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._tape>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="a5b33750-1698-4f16-adca-188a3bcf355a" name="ManualOperation" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._manual_operation id="a2ca28b2-14b8-4308-8479-623586786952" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._manual_operation>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="a4e804ba-b6b6-441a-8dd2-90dda2778560" name="Sort" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._sort id="076c3d4c-e21b-4f39-bf7d-e042df8bd2fb" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></flow_chart_shapes._sort>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="0dc2fc97-91f0-4192-90f0-5d6637aa8d0c" name="Collate" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._collate id="fdf3efc9-2c70-4ea8-be65-32de1c4081b5" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="40" height="40"></flow_chart_shapes._collate>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="ea9063dc-6aa1-4edc-8564-0a94e88e14b5" name="Card" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._card id="5d956838-afba-45ad-8304-9c65a28d17e5" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></flow_chart_shapes._card>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="82ceeb64-e58d-4679-820c-bb42d62a11b5" name="CommLink" title="" description="">
+        <no_model></no_model>
+        <flow_chart_shapes._comm_link id="74663d44-bd05-42b1-98b6-6240bfea0039" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="20" height="60"></flow_chart_shapes._comm_link>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="110447f8-88e8-4009-9f54-5635ff1012e7" name="DataFlow" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._data_flow id="b8854a03-30f6-4b93-9307-9d799742101b" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" start_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662" end_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662">
+          <vertices>
+            <vertex point_index="0" point_id="1" x="0" y="0" />
+            <vertex point_index="1" point_id="2" x="20" y="20" />
+          </vertices>
+        </software_architecture_shapes._data_flow>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="28eaefc9-ccaf-44e1-aab7-7f3637b90779" name="Dependency" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._dependency id="2184b9d6-372a-4d06-a7ff-592c2ca0fe43" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" start_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662" end_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662">
+          <vertices>
+            <vertex point_index="0" point_id="1" x="0" y="0" />
+            <vertex point_index="1" point_id="2" x="20" y="20" />
+          </vertices>
+        </software_architecture_shapes._dependency>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="27e4e57d-10a8-4435-ba03-90c7b9c27840" name="Database" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._database id="295efbca-3ee7-443e-97d0-7ce2e57cc610" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="80" height="80"></software_architecture_shapes._database>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="d5a231b2-1b03-4903-8bd0-4a167887e5e3" name="Entity" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._entity id="029705c5-7c53-49c8-b9e1-2ba29a61ab19" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Table" width="80" height="120" column_background_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" column_character_style="56498d42-f40b-4e72-aa4f-03a0b291b0cb" column_paragraph_style="2c752464-8a63-46cb-88da-0acff20d9b01" column_count="0">
+          <table_columns />
+        </software_architecture_shapes._entity>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="90c19e48-f557-4370-9502-33dd6db87a90" name="Annotation" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._annotation id="bca3754b-2c0b-414a-85b9-ead07faa4817" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="73f3f424-56f9-4742-a3e6-5c092c61dc35" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="120" height="80"></software_architecture_shapes._annotation>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="df667053-6458-4217-8786-c8dceead885e" name="Cloud" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._cloud id="3a248a1a-92de-4237-97a8-7542665139a5" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="120" height="80"></software_architecture_shapes._cloud>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="5174ed9a-3868-4c48-b1fb-0edae8def4a3" name="Class" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._class id="a4b2f2e5-0a79-42a5-b411-af004d1d36e6" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Class" width="80" height="120" column_background_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" column_character_style="56498d42-f40b-4e72-aa4f-03a0b291b0cb" column_paragraph_style="2c752464-8a63-46cb-88da-0acff20d9b01" column_count="0">
+          <table_columns />
+        </software_architecture_shapes._class>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="dfa4aa6d-3a39-4271-989b-ad0929e0dc26" name="Component" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._component id="db88b95a-864a-4ba7-a308-7554c5b78b1b" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="60" height="40"></software_architecture_shapes._component>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="a601d41f-5728-44fb-96cd-6d9336f091be" name="File" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._document id="21c897ce-c88f-490b-b85f-54a4bd009918" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" angle="0" fill_style="81402051-b745-4e6b-9732-79eae5910942" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="" width="42" height="60"></software_architecture_shapes._document>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="ff45c137-0baa-4400-abb3-dfee59161d50" name="Interface" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._interface id="41fb4e41-0562-46c9-845e-a5969efc20a2" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" start_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662" end_cap_style="f380869e-bf64-4f70-85b7-52caf6a4e10d">
+          <vertices>
+            <vertex point_index="0" point_id="1" x="0" y="0" />
+            <vertex point_index="1" point_id="2" x="20" y="20" />
+          </vertices>
+        </software_architecture_shapes._interface>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="bac2299d-b862-4aae-9d2c-1d0d704cc2e9" name="InterfaceUsage" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._interface_usage id="a101f33b-f8d1-4c82-ba01-e4d03c84031f" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" start_cap_style="00ac1f29-91a6-4924-9cfd-f322fb9a5662" end_cap_style="a9ea2a68-a508-4519-9501-52376ba3a6ca">
+          <vertices>
+            <vertex point_index="0" point_id="1" x="0" y="0" />
+            <vertex point_index="1" point_id="2" x="20" y="20" />
+          </vertices>
+        </software_architecture_shapes._interface_usage>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="d0c2e001-a881-4b38-ba77-0c8bb233d284" name="Server" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._server id="4578201c-a5bb-4214-9af0-d762a07785c1" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="50" y="50" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" fill_style="f0dfce3b-a2d1-4b63-9044-4c450d91b440" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Server" width="100" height="226"></software_architecture_shapes._server>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="74713f23-3469-47c5-91d9-c7094bc8fddc" name="RTU" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._r_t_u id="29a4927a-cde3-4c00-81c0-5b04dff9ae5f" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="50" y="50" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" fill_style="f0dfce3b-a2d1-4b63-9044-4c450d91b440" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="RTU" width="304" height="100"></software_architecture_shapes._r_t_u>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="5270e32f-e104-4c4e-8ab3-2be88cd8da32" name="Actor" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._actor id="cdedee6b-65ce-4ec0-b22e-5195cbf94680" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="50" y="50" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" fill_style="f0dfce3b-a2d1-4b63-9044-4c450d91b440" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Actor" width="100" height="208"></software_architecture_shapes._actor>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="9bae6577-78fb-47ac-b08f-80758e3f83bf" name="Monitor" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._monitor id="bea094ad-1250-4d75-ae42-1075b569f9ea" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="50" y="50" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" fill_style="f0dfce3b-a2d1-4b63-9044-4c450d91b440" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Monitor" width="137" height="100"></software_architecture_shapes._monitor>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="11e08965-ac89-4e4a-b225-dad2ea2acf39" name="PC" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._p_c id="a464120c-91f3-4906-b6cf-0937fa2fe4cc" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="50" y="50" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" fill_style="f0dfce3b-a2d1-4b63-9044-4c450d91b440" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="PC" width="144" height="100"></software_architecture_shapes._p_c>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="c45f6314-431e-47d8-b4b9-77cb63cb67e7" name="Tower" title="" description="">
+        <no_model></no_model>
+        <software_architecture_shapes._tower id="0c8bccd9-a86b-4c94-9c29-48e284010b3c" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="50" y="50" z_order="0" layers="0" security_domain_name="A" line_style="56a34a17-f9dc-459d-b4c1-f3dbba7cae7c" fill_style="f0dfce3b-a2d1-4b63-9044-4c450d91b440" character_style="57fadee7-579e-4126-942a-d0bbf462fbec" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Tower" width="100" height="226"></software_architecture_shapes._tower>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+    </templates>
+    <diagrams>
+      <diagram id="ca37df1c-c7a5-48e3-92f5-ff6c1fb4212b" name="Diagram 1" width="794" height="1123" background_color="-4128832" background_gradient_end_color="-64" background_image_file_name="Background Bitmap" background_image="Background Bitmap (ca37df1c-c7a5-48e3-92f5-ff6c1fb4212b).jpeg" image_layout="4" image_gamma="3" image_transparency="50" image_gray_scale="False" image_transparent_color="0">
+        <layers />
+        <shapes>
+          <polyline id="b1c8717a-d8b7-4c8b-b458-623fafc2f105" template="bde70df8-a19c-4e7b-aef2-dcd2e3bbe21f" model_object="00000000-0000-0000-0000-000000000000" x="400" y="60" z_order="0" layers="0" security_domain_name="A" line_style="42138206-c4b0-4bda-a2b4-2947647051d5" start_cap_style="00000000-0000-0000-0000-000000000000" end_cap_style="00000000-0000-0000-0000-000000000000">
+            <vertices>
+              <vertex point_index="0" point_id="1" x="400" y="60" />
+              <vertex point_index="1" point_id="2" x="400" y="93" />
+            </vertices>
+          </polyline>
+          <circle id="06a8f370-1a1d-422e-8970-46c4531976c8" template="bca25224-c13a-463a-930b-52bd27354ffc" model_object="00000000-0000-0000-0000-000000000000" x="400" y="40" z_order="20" layers="0" security_domain_name="A" line_style="42138206-c4b0-4bda-a2b4-2947647051d5" angle="0" fill_style="36335793-d189-4daf-906b-8c38c49a949a" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></circle>
+          <isosceles_triangle id="034330b7-5ac5-4f56-9664-a7e3aba2653d" template="cd5091af-c264-4c19-9700-4216ade0c945" model_object="00000000-0000-0000-0000-000000000000" x="192" y="167" z_order="50" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></isosceles_triangle>
+          <circle id="efd3b235-4d92-4639-b2da-2b882f2db02f" template="bca25224-c13a-463a-930b-52bd27354ffc" model_object="00000000-0000-0000-0000-000000000000" x="255" y="160" z_order="60" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></circle>
+          <ellipse id="2723d46c-1f9f-452f-ae94-ec610a396d1a" template="948cb4c9-5630-4d13-89c6-977783c1a078" model_object="00000000-0000-0000-0000-000000000000" x="324" y="160" z_order="70" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></ellipse>
+          <square id="92fceaca-7244-4c10-af9f-207e077df8b0" template="1d300c82-ea08-40e6-ba19-a42453e5457f" model_object="00000000-0000-0000-0000-000000000000" x="394" y="160" z_order="80" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></square>
+          <box id="2723c76c-6b06-41f8-91c6-d1be3f75d508" template="d58e0a92-ecc7-49f0-8291-831940b11412" model_object="00000000-0000-0000-0000-000000000000" x="464" y="160" z_order="90" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></box>
+          <diamond id="647d37f0-208c-48fb-9f86-f744b11846f5" template="83516c17-4495-49b2-aaf3-86d039e5b0e9" model_object="00000000-0000-0000-0000-000000000000" x="544" y="160" z_order="100" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></diamond>
+          <thick_arrow id="00653419-00c2-4b6d-a2d2-b27f879915e1" template="a6b659b4-b9e5-4e9a-9d36-10d30c4d42c9" model_object="00000000-0000-0000-0000-000000000000" x="624" y="160" z_order="110" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40" head_width="30" body_height="13"></thick_arrow>
+          <picture id="f3d382c4-c823-4713-a401-3da7a0fc028f" template="1f80ae38-ddf7-4c41-a0e9-aa02931cf184" model_object="00000000-0000-0000-0000-000000000000" x="704" y="160" z_order="120" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40" image_layout="3" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" convert_to_gray_scale="False" image_file_name="ASR Explorer Icon" image="ASR Explorer Icon (f3d382c4-c823-4713-a401-3da7a0fc028f).emf" image_transparent_color="0"></picture>
+          <electrical_shapes._disconnector id="447df5c3-b265-4500-9366-b22cfe1bf9da" template="6820cde5-38aa-4bc8-933b-1eb1cc36b51e" model_object="00000000-0000-0000-0000-000000000000" x="60" y="280" z_order="130" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></electrical_shapes._disconnector>
+          <electrical_shapes._auto_disconnector id="be4f488a-3e33-427d-8152-3a0b93d9214c" template="dadcd31f-4c0b-475b-b0f1-3e2f800ccc06" model_object="00000000-0000-0000-0000-000000000000" x="120" y="280" z_order="140" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></electrical_shapes._auto_disconnector>
+          <electrical_shapes._auto_switch id="6fc1f506-e700-46d0-bc9a-ad903ddedfe6" template="e5f78530-ad62-4038-a8e4-347067d30cbe" model_object="00000000-0000-0000-0000-000000000000" x="181" y="280" z_order="150" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></electrical_shapes._auto_switch>
+          <electrical_shapes._switch id="7f658fa4-6da6-462c-bf02-ea58718f6e88" template="075a363d-b5c3-4d83-a887-8b4719f8d3f2" model_object="00000000-0000-0000-0000-000000000000" x="240" y="280" z_order="160" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></electrical_shapes._switch>
+          <electrical_shapes._transformer id="8a4fe76c-9b38-48e8-b8b1-7c5a5877211e" template="e05c4e92-d4c3-41f9-82b3-e807c45743b8" model_object="00000000-0000-0000-0000-000000000000" x="300" y="295" z_order="170" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="70"></electrical_shapes._transformer>
+          <electrical_shapes._earth id="c2f1cd9f-f374-4a73-a85b-48d18b211860" template="2947cf49-c955-4422-bfa7-fa9d58f58fa1" model_object="00000000-0000-0000-0000-000000000000" x="360" y="280" z_order="180" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></electrical_shapes._earth>
+          <electrical_shapes._feeder id="38c21c37-5a20-4fcb-bf0d-074cf5d20751" template="36ac59de-fa6a-41f8-be29-1f2dfb5bb428" model_object="00000000-0000-0000-0000-000000000000" x="420" y="287" z_order="190" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></electrical_shapes._feeder>
+          <electrical_shapes._rectifier id="256f2515-3310-4b60-8e71-b1e213e0c4ba" template="ce1b068f-f112-48f4-98a1-40d04a4f43cc" model_object="00000000-0000-0000-0000-000000000000" x="480" y="287" z_order="200" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></electrical_shapes._rectifier>
+          <electrical_shapes._disconnecting_point id="e71075e3-481d-4a8b-9af3-22caf3a61723" template="fb42a620-ed14-41fc-8c97-e7712001a815" model_object="00000000-0000-0000-0000-000000000000" x="550" y="280" z_order="210" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></electrical_shapes._disconnecting_point>
+          <flow_chart_shapes._terminator id="aea80548-3d0f-4cac-8a9c-de7a10b52f33" template="c14769b3-d8c0-4ec5-ba82-a10ff6d12fe1" model_object="00000000-0000-0000-0000-000000000000" x="70" y="400" z_order="220" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._terminator>
+          <flow_chart_shapes._process id="83a75370-6679-40c2-881a-53df0e624de8" template="f3288bb6-77fa-4b2e-bdbb-c4cc25251984" model_object="00000000-0000-0000-0000-000000000000" x="150" y="400" z_order="230" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._process>
+          <flow_chart_shapes._decision id="5fe2afee-af47-4804-8466-1fbdb830a778" template="49186078-1f90-4d72-8948-b67e32e3d254" model_object="00000000-0000-0000-0000-000000000000" x="230" y="400" z_order="240" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._decision>
+          <flow_chart_shapes._input_output id="b77a2476-37c7-4cb2-8b62-280155d1088b" template="58e1ad16-1275-479b-b63f-2550dd07d32b" model_object="00000000-0000-0000-0000-000000000000" x="310" y="400" z_order="250" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._input_output>
+          <flow_chart_shapes._document id="56296dc1-316c-4f74-b1b6-54cd50dff85b" template="eeaad85f-2c60-4150-bfe4-0f9280c2f134" model_object="00000000-0000-0000-0000-000000000000" x="390" y="400" z_order="260" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._document>
+          <flow_chart_shapes._offpage_connector id="9630eddb-be73-4e0a-af0a-c4617ea2b1dd" template="fa866515-97c1-46a1-bbb9-8893a802afc2" model_object="00000000-0000-0000-0000-000000000000" x="470" y="400" z_order="270" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._offpage_connector>
+          <flow_chart_shapes._connector id="b994fa3f-482f-44c2-8dcf-07e62e276260" template="ce828eb9-0a80-47e1-8e55-9fd070398ee2" model_object="00000000-0000-0000-0000-000000000000" x="540" y="400" z_order="280" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></flow_chart_shapes._connector>
+          <flow_chart_shapes._predefined_process id="11ebd1b0-b924-4ea0-8160-d2aa1af575a8" template="38fa7cfc-46f8-4fc3-b52b-cbd1d355cf2d" model_object="00000000-0000-0000-0000-000000000000" x="610" y="400" z_order="290" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._predefined_process>
+          <flow_chart_shapes._extract id="1cdf7e2b-76c0-4d8d-9a7d-12face5b22a6" template="6d13e41d-c204-4946-8328-e448e6c46c27" model_object="00000000-0000-0000-0000-000000000000" x="680" y="407" z_order="300" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></flow_chart_shapes._extract>
+          <flow_chart_shapes._merge id="0165603b-0c49-43f3-b146-316ad1fdea83" template="5739155c-4d46-413b-b144-f40e8775d520" model_object="00000000-0000-0000-0000-000000000000" x="740" y="393" z_order="310" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></flow_chart_shapes._merge>
+          <flow_chart_shapes._online_storage id="2b79363b-25e1-4625-ba45-c91460859ccb" template="6e9d1be7-d3db-433c-95cd-77b317abd259" model_object="00000000-0000-0000-0000-000000000000" x="70" y="460" z_order="320" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._online_storage>
+          <flow_chart_shapes._offline_storage id="e777622d-1b6c-4c57-8962-a602328f5b3c" template="6b8a87ec-e478-47c0-9738-946310bfc821" model_object="00000000-0000-0000-0000-000000000000" x="140" y="453" z_order="330" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></flow_chart_shapes._offline_storage>
+          <flow_chart_shapes._drum_storage id="46454c44-b49b-4d98-a19c-076247b60ab0" template="2208e9e3-2e60-46a0-b51b-2893b54e3027" model_object="00000000-0000-0000-0000-000000000000" x="210" y="460" z_order="340" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._drum_storage>
+          <flow_chart_shapes._disk_storage id="e709a22b-a0f8-4d8c-9ae6-e7876a6f0167" template="c0d42858-9330-46de-a125-ab43582406c3" model_object="00000000-0000-0000-0000-000000000000" x="280" y="460" z_order="350" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></flow_chart_shapes._disk_storage>
+          <flow_chart_shapes._tape_storage id="a7ba7dce-01b5-45d7-849b-a5c4e94b0225" template="41894c0e-263f-4b12-abc7-d40e1c71bf66" model_object="00000000-0000-0000-0000-000000000000" x="340" y="460" z_order="360" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></flow_chart_shapes._tape_storage>
+          <flow_chart_shapes._preparation id="c74f633f-6dad-4274-8357-b5a1a1f38eb1" template="0b191404-51ef-44fc-90b4-695ff1c91cc0" model_object="00000000-0000-0000-0000-000000000000" x="410" y="460" z_order="370" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._preparation>
+          <flow_chart_shapes._manual_input id="7cb0ffc6-5778-4f6d-98e2-e9350a4da979" template="4ec6420f-b4a3-4a80-a654-ce2d0f897591" model_object="00000000-0000-0000-0000-000000000000" x="490" y="460" z_order="380" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._manual_input>
+          <flow_chart_shapes._core id="528a6450-65e2-4dc8-a024-156b8c422ea2" template="58e33b28-c684-4976-9aac-d948fb79dccb" model_object="00000000-0000-0000-0000-000000000000" x="570" y="460" z_order="390" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._core>
+          <flow_chart_shapes._display id="e6b152e7-c7c6-411a-8001-8a97c4a3df6b" template="d3a69add-e8a8-4c8a-91b2-564dea020270" model_object="00000000-0000-0000-0000-000000000000" x="650" y="460" z_order="400" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._display>
+          <flow_chart_shapes._tape id="d18b92dd-d149-4c4c-a705-fc4e5bcce00c" template="8cff5fb9-8354-42d9-8435-d3a47f7736b1" model_object="00000000-0000-0000-0000-000000000000" x="730" y="460" z_order="410" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._tape>
+          <flow_chart_shapes._manual_operation id="ea5590ba-88a2-447b-be20-1e3406efcffc" template="a5b33750-1698-4f16-adca-188a3bcf355a" model_object="00000000-0000-0000-0000-000000000000" x="70" y="520" z_order="420" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._manual_operation>
+          <flow_chart_shapes._sort id="af307925-d458-4800-b771-a096eb70ff80" template="a4e804ba-b6b6-441a-8dd2-90dda2778560" model_object="00000000-0000-0000-0000-000000000000" x="140" y="520" z_order="430" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></flow_chart_shapes._sort>
+          <flow_chart_shapes._collate id="fb499a9c-fe74-4729-9fb6-6494e4a03e87" template="0dc2fc97-91f0-4192-90f0-5d6637aa8d0c" model_object="00000000-0000-0000-0000-000000000000" x="200" y="520" z_order="440" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></flow_chart_shapes._collate>
+          <flow_chart_shapes._card id="afdd421a-90a6-48ff-b603-7a29a643ee33" template="ea9063dc-6aa1-4edc-8564-0a94e88e14b5" model_object="00000000-0000-0000-0000-000000000000" x="267" y="520" z_order="450" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></flow_chart_shapes._card>
+          <flow_chart_shapes._comm_link id="1e76f28b-f3bb-4d29-9ddc-627130ffaf0c" template="82ceeb64-e58d-4679-820c-bb42d62a11b5" model_object="00000000-0000-0000-0000-000000000000" x="330" y="530" z_order="460" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="20" height="60"></flow_chart_shapes._comm_link>
+          <software_architecture_shapes._database id="993f93cc-a994-4c99-b045-faa2bc418ebb" template="27e4e57d-10a8-4435-ba03-90c7b9c27840" model_object="00000000-0000-0000-0000-000000000000" x="80" y="660" z_order="470" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="80" height="80"></software_architecture_shapes._database>
+          <software_architecture_shapes._entity id="f4ba737c-022b-4087-935b-041c4cb89003" template="d5a231b2-1b03-4903-8bd0-4a167887e5e3" model_object="00000000-0000-0000-0000-000000000000" x="180" y="680" z_order="480" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Table" width="80" height="120" column_background_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" column_character_style="778542b9-4c81-4710-b936-dabf0b7364be" column_paragraph_style="2c752464-8a63-46cb-88da-0acff20d9b01" column_count="2">
+            <table_columns>
+              <column column_index="0" column_name="Column 1" />
+              <column column_index="1" column_name="Column 2" />
+            </table_columns>
+          </software_architecture_shapes._entity>
+          <software_architecture_shapes._annotation id="a5fa73da-3b01-4843-8978-f328b6bacc04" template="90c19e48-f557-4370-9502-33dd6db87a90" model_object="00000000-0000-0000-0000-000000000000" x="300" y="660" z_order="490" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="120" height="80"></software_architecture_shapes._annotation>
+          <software_architecture_shapes._cloud id="7146c191-c976-4676-8c84-14873f17e5ad" template="df667053-6458-4217-8786-c8dceead885e" model_object="00000000-0000-0000-0000-000000000000" x="440" y="660" z_order="500" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="120" height="80"></software_architecture_shapes._cloud>
+          <software_architecture_shapes._class id="5d73c661-70ea-4508-b704-3df9b71181b5" template="5174ed9a-3868-4c48-b1fb-0edae8def4a3" model_object="00000000-0000-0000-0000-000000000000" x="560" y="680" z_order="510" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Class" width="80" height="120" column_background_color_style="4eabc820-23f6-4cf1-8c6e-152e54ea1804" column_character_style="778542b9-4c81-4710-b936-dabf0b7364be" column_paragraph_style="2c752464-8a63-46cb-88da-0acff20d9b01" column_count="1">
+            <table_columns>
+              <column column_index="0" column_name="Column 1" />
+            </table_columns>
+          </software_architecture_shapes._class>
+          <software_architecture_shapes._component id="c0c8d1f2-5270-4426-9869-d2d466131cce" template="dfa4aa6d-3a39-4271-989b-ad0929e0dc26" model_object="00000000-0000-0000-0000-000000000000" x="650" y="640" z_order="520" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></software_architecture_shapes._component>
+          <software_architecture_shapes._document id="623b96e8-6809-4413-89cb-8ae06b10a253" template="a601d41f-5728-44fb-96cd-6d9336f091be" model_object="00000000-0000-0000-0000-000000000000" x="721" y="650" z_order="530" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="42" height="60"></software_architecture_shapes._document>
+          <software_architecture_shapes._server id="f07c5bc0-8167-43e6-8679-4206b3bd3245" template="d0c2e001-a881-4b38-ba77-0c8bb233d284" model_object="00000000-0000-0000-0000-000000000000" x="90" y="853" z_order="540" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Server" width="100" height="226"></software_architecture_shapes._server>
+          <software_architecture_shapes._r_t_u id="b3baaad6-c510-41b9-b184-6015a2786325" template="74713f23-3469-47c5-91d9-c7094bc8fddc" model_object="00000000-0000-0000-0000-000000000000" x="312" y="810" z_order="550" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="RTU" width="304" height="100"></software_architecture_shapes._r_t_u>
+          <software_architecture_shapes._actor id="8ce1e25e-40ae-4c0e-a676-5771510c231f" template="5270e32f-e104-4c4e-8ab3-2be88cd8da32" model_object="00000000-0000-0000-0000-000000000000" x="530" y="864" z_order="560" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Actor" width="100" height="208"></software_architecture_shapes._actor>
+          <software_architecture_shapes._monitor id="aa0c1557-9ae9-4bf2-842f-7c98cb6440eb" template="9bae6577-78fb-47ac-b08f-80758e3f83bf" model_object="00000000-0000-0000-0000-000000000000" x="668" y="810" z_order="570" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Monitor" width="137" height="100"></software_architecture_shapes._monitor>
+          <software_architecture_shapes._p_c id="e168396d-e29e-416c-b5a3-db7e2c419d34" template="11e08965-ac89-4e4a-b225-dad2ea2acf39" model_object="00000000-0000-0000-0000-000000000000" x="228" y="910" z_order="580" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="PC" width="144" height="100"></software_architecture_shapes._p_c>
+          <software_architecture_shapes._tower id="9e22278b-5870-41e4-8f2a-ad77ff84bb1b" template="c45f6314-431e-47d8-b4b9-77cb63cb67e7" model_object="00000000-0000-0000-0000-000000000000" x="370" y="973" z_order="590" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="53fe01a1-3e0b-4c93-94d8-3548c0117890" text="Tower" width="100" height="226"></software_architecture_shapes._tower>
+          <polyline id="ad7e3f2f-ca05-4276-b297-76a895d7fe4d" template="bde70df8-a19c-4e7b-aef2-dcd2e3bbe21f" model_object="00000000-0000-0000-0000-000000000000" x="419" y="45" z_order="0" layers="0" security_domain_name="A" line_style="42138206-c4b0-4bda-a2b4-2947647051d5" start_cap_style="00000000-0000-0000-0000-000000000000" end_cap_style="00000000-0000-0000-0000-000000000000">
+            <vertices>
+              <vertex point_index="0" point_id="1" x="419" y="45" />
+              <vertex point_index="1" point_id="3" x="480" y="60" />
+              <vertex point_index="2" point_id="2" x="500" y="80" />
+            </vertices>
+          </polyline>
+          <polyline id="bf2ccb9c-3658-476d-9c68-5e47e1e62494" template="bde70df8-a19c-4e7b-aef2-dcd2e3bbe21f" model_object="00000000-0000-0000-0000-000000000000" x="381" y="45" z_order="0" layers="0" security_domain_name="A" line_style="42138206-c4b0-4bda-a2b4-2947647051d5" start_cap_style="00000000-0000-0000-0000-000000000000" end_cap_style="00000000-0000-0000-0000-000000000000">
+            <vertices>
+              <vertex point_index="0" point_id="1" x="381" y="45" />
+              <vertex point_index="1" point_id="3" x="320" y="60" />
+              <vertex point_index="2" point_id="2" x="300" y="80" />
+            </vertices>
+          </polyline>
+        </shapes>
+        <shape_connections>
+          <shape_connection active_shape="bf2ccb9c-3658-476d-9c68-5e47e1e62494" glue_point="-1" passive_shape="06a8f370-1a1d-422e-8970-46c4531976c8" connection_point="0"></shape_connection>
+          <shape_connection active_shape="ad7e3f2f-ca05-4276-b297-76a895d7fe4d" glue_point="-1" passive_shape="06a8f370-1a1d-422e-8970-46c4531976c8" connection_point="0"></shape_connection>
+          <shape_connection active_shape="b1c8717a-d8b7-4c8b-b458-623fafc2f105" glue_point="-1" passive_shape="06a8f370-1a1d-422e-8970-46c4531976c8" connection_point="0"></shape_connection>
+        </shape_connections>
+      </diagram>
+    </diagrams>
+  </project>
+</dataweb_nshape>

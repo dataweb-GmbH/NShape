@@ -1,0 +1,4 @@
+www.google.de;www.dataweb.de/NShape.html;425
+www.dataweb.de/index.html;www.dataweb.de/NShape.html;217
+www.dataweb.de/NShape.html;www.dataweb.de/TurboDBManaged.html;24
+www.dataweb.de/index.html;www.dataweb.de/TurboDBManaged.html;108

@@ -1,0 +1,380 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<dataweb_nshape version="3">
+  <project id="84d81a82-af9b-42e3-82be-026456dd0e61" last_saved_utc="2014-04-09 08:45:50">
+    <libraries>
+      <library name="GeneralShapes" assembly_name="Dataweb.NShape.GeneralShapes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1512080cd664963c" repository_version="3" />
+    </libraries>
+    <color_styles>
+      <color_style id="98296778-cc12-450b-8e63-a23027c8dfe2" name="Background" title="" color="-4144960" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="1205ce8c-6fe6-46cb-8905-9a5f18c80d88" name="Black" title="" color="-16777216" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="2aaf8df9-89a6-4051-91f8-10f4fa373ea0" name="Blue" title="" color="-12156236" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="727987cf-8474-43d2-9a5c-7fe78fc4bb5b" name="Gray" title="" color="-8355712" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="398d7058-8d8e-43b2-94f5-4ce98a6bfb18" name="Green" title="" color="-13726889" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="a5e731e8-e4f3-4d8b-9eca-d9b67a5aefcf" name="Highlight" title="" color="-29696" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="7fd111c6-3286-4a82-b0de-ecae2c1570a4" name="HighlightText" title="" color="-16777088" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="faaa96fd-c1a8-46f1-a876-548f94157a98" name="LightBlue" title="" color="-5192482" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="b5edaf46-4c77-4ffd-b3f5-07d1dc813ddb" name="LightGray" title="" color="-2894893" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="fc168698-d197-4e37-b74b-e0d8b7c1ca08" name="LightGreen" title="" color="-7357301" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="8aa7bebe-19ee-49b1-b651-5c2d093caea6" name="LightRed" title="" color="-24454" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="9c5e09f3-a7a1-4bad-ba6d-b4b34d41a50b" name="LightYellow" title="" color="-329006" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="354697b1-1b2e-4ead-bfe9-9cb5423fd6b4" name="Red" title="" color="-5103070" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="6b163417-7664-43b5-a819-af0196c87e5f" name="Text" title="" color="-16777216" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="d97ae415-8c9b-4371-92da-ec692a1f28c0" name="Transparent" title="" color="16777215" transparency="100" convert_to_gray="False"></color_style>
+      <color_style id="959102fa-02cb-4ebc-be8f-7c4c09da241d" name="White" title="" color="-1" transparency="0" convert_to_gray="False"></color_style>
+      <color_style id="82ad6da8-d33a-4016-9a6e-e198a90812ea" name="Yellow" title="" color="-10496" transparency="0" convert_to_gray="False"></color_style>
+    </color_styles>
+    <cap_styles>
+      <cap_style id="b4be6416-4a1e-420d-b9f8-d77d27d2a504" name="Arrow" title="" cap_shape="1" cap_size="12" color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d"></cap_style>
+      <cap_style id="cf80316f-f661-4938-a040-0a523db203ad" name="None" title="" cap_shape="0" cap_size="12" color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d"></cap_style>
+      <cap_style id="b3bc5928-7d84-4597-97a3-75d349e4a880" name="Special1" title="" cap_shape="3" cap_size="6" color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d"></cap_style>
+      <cap_style id="d3c5c05e-b59f-48ea-a4b1-7d20d15b3f47" name="Special2" title="" cap_shape="5" cap_size="6" color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d"></cap_style>
+    </cap_styles>
+    <character_styles>
+      <character_style id="84d29dee-32ce-4967-aa7a-c4c41056be27" name="Caption" title="" font_name="Tahoma" size="1000" decoration="0" color_style="6b163417-7664-43b5-a819-af0196c87e5f"></character_style>
+      <character_style id="f44ecbf9-a6d8-4899-a3dc-b9754f6001b4" name="Heading1" title="" font_name="Tahoma" size="3600" decoration="1" color_style="6b163417-7664-43b5-a819-af0196c87e5f"></character_style>
+      <character_style id="bba3dda0-cbdd-4042-ab1e-cf1f94cdd2e2" name="Heading2" title="" font_name="Tahoma" size="2400" decoration="1" color_style="6b163417-7664-43b5-a819-af0196c87e5f"></character_style>
+      <character_style id="9fe5065b-8ea9-431b-ab66-62f35c9d3aa4" name="Heading3" title="" font_name="Tahoma" size="1600" decoration="1" color_style="6b163417-7664-43b5-a819-af0196c87e5f"></character_style>
+      <character_style id="48c0d4b7-b369-4b04-991a-b3fd552a45c4" name="Normal" title="" font_name="Tahoma" size="825" decoration="0" color_style="6b163417-7664-43b5-a819-af0196c87e5f"></character_style>
+      <character_style id="9f34a13f-5e74-45c7-96c1-327efa9b67b5" name="Subtitle" title="" font_name="Tahoma" size="1200" decoration="1" color_style="6b163417-7664-43b5-a819-af0196c87e5f"></character_style>
+    </character_styles>
+    <fill_styles>
+      <fill_style id="4d1da170-ddf1-46d1-989c-be720bdde58b" name="Black" title="" base_color_style="1205ce8c-6fe6-46cb-8905-9a5f18c80d88" additional_color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d" fill_mode="1" fill_pattern="3" convert_to_gray_scale="False" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="6d355e97-18ea-4ebb-866b-b5a1d54fafa9" name="Blue" title="" base_color_style="2aaf8df9-89a6-4051-91f8-10f4fa373ea0" additional_color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d" fill_mode="1" fill_pattern="3" convert_to_gray_scale="False" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="69a4a5d8-d975-4f8f-a240-266ff0d61d0a" name="Green" title="" base_color_style="398d7058-8d8e-43b2-94f5-4ce98a6bfb18" additional_color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d" fill_mode="1" fill_pattern="3" convert_to_gray_scale="False" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="1e48b39d-d5f0-422d-96aa-e3a268f1ef66" name="Red" title="" base_color_style="354697b1-1b2e-4ead-bfe9-9cb5423fd6b4" additional_color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d" fill_mode="1" fill_pattern="3" convert_to_gray_scale="False" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="00e2e3c8-e8a4-4998-8182-7b28cdfe450b" name="Transparent" title="" base_color_style="d97ae415-8c9b-4371-92da-ec692a1f28c0" additional_color_style="d97ae415-8c9b-4371-92da-ec692a1f28c0" fill_mode="1" fill_pattern="3" convert_to_gray_scale="False" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="b746fffd-1be6-492f-9e7f-b0d10a1d3152" name="White" title="" base_color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d" additional_color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d" fill_mode="1" fill_pattern="3" convert_to_gray_scale="False" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+      <fill_style id="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" name="Yellow" title="" base_color_style="82ad6da8-d33a-4016-9a6e-e198a90812ea" additional_color_style="959102fa-02cb-4ebc-be8f-7c4c09da241d" fill_mode="1" fill_pattern="3" convert_to_gray_scale="False" image_layout="5" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" image_file_name="" image=""></fill_style>
+    </fill_styles>
+    <line_styles>
+      <line_style id="47fbc6d3-fc56-4400-95a4-bdb95f8740ab" name="Blue" title="" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="2aaf8df9-89a6-4051-91f8-10f4fa373ea0"></line_style>
+      <line_style id="4f3217f5-7ffc-4bcd-ad71-b3aedf3482fc" name="Dashed" title="" line_width="1" dash_type="1" dash_cap="2" line_join="2" color_style="1205ce8c-6fe6-46cb-8905-9a5f18c80d88"></line_style>
+      <line_style id="7b85730b-97c6-4a09-9ea2-f80bb443c08d" name="Dotted" title="" line_width="1" dash_type="2" dash_cap="2" line_join="2" color_style="1205ce8c-6fe6-46cb-8905-9a5f18c80d88"></line_style>
+      <line_style id="fdc06b5e-a8ad-40bd-861b-69d3abbf974e" name="Green" title="" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="398d7058-8d8e-43b2-94f5-4ce98a6bfb18"></line_style>
+      <line_style id="0a7362b9-dd63-4c4f-83e4-572a4654ead7" name="Highlight" title="" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="a5e731e8-e4f3-4d8b-9eca-d9b67a5aefcf"></line_style>
+      <line_style id="197d8021-19ea-4e43-869e-b121ca0a866c" name="HighlightDashed" title="" line_width="1" dash_type="1" dash_cap="2" line_join="2" color_style="a5e731e8-e4f3-4d8b-9eca-d9b67a5aefcf"></line_style>
+      <line_style id="8fd47030-0c47-4a49-9a9f-112759965cfe" name="HighlightDotted" title="" line_width="1" dash_type="2" dash_cap="2" line_join="2" color_style="a5e731e8-e4f3-4d8b-9eca-d9b67a5aefcf"></line_style>
+      <line_style id="83d12114-8365-473b-aacc-855d1523adf9" name="HighlightThick" title="" line_width="3" dash_type="0" dash_cap="2" line_join="2" color_style="a5e731e8-e4f3-4d8b-9eca-d9b67a5aefcf"></line_style>
+      <line_style id="3eb9c9d4-7d93-4df9-85b7-682534514354" name="None" title="" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="d97ae415-8c9b-4371-92da-ec692a1f28c0"></line_style>
+      <line_style id="6033b2ec-35e9-4331-b17b-84d5de00b64a" name="Normal" title="" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="1205ce8c-6fe6-46cb-8905-9a5f18c80d88"></line_style>
+      <line_style id="d9ea0f13-3443-4303-ae62-3d0ca5694113" name="Red" title="" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="354697b1-1b2e-4ead-bfe9-9cb5423fd6b4"></line_style>
+      <line_style id="d0dcd981-c0c3-4d94-8418-e499d3bca7fb" name="Special1" title="" line_width="1" dash_type="3" dash_cap="2" line_join="2" color_style="1205ce8c-6fe6-46cb-8905-9a5f18c80d88"></line_style>
+      <line_style id="abe8d791-a016-42b6-aced-1a422959c97b" name="Special2" title="" line_width="1" dash_type="4" dash_cap="2" line_join="2" color_style="1205ce8c-6fe6-46cb-8905-9a5f18c80d88"></line_style>
+      <line_style id="afe029dd-cdc6-4c78-b87d-ac0e6c455ae7" name="Thick" title="" line_width="3" dash_type="0" dash_cap="2" line_join="2" color_style="1205ce8c-6fe6-46cb-8905-9a5f18c80d88"></line_style>
+      <line_style id="211f34c8-c760-4a95-9a03-19d92f3e2591" name="Yellow" title="" line_width="1" dash_type="0" dash_cap="2" line_join="2" color_style="82ad6da8-d33a-4016-9a6e-e198a90812ea"></line_style>
+    </line_styles>
+    <paragraph_styles>
+      <paragraph_style id="10d91460-a1ed-45f4-aeba-506671b08ae8" name="Label" title="" alignment="16" trimming="3" padding_left="3" padding_top="3" padding_right="3" padding_bottom="3" word_wrap="False"></paragraph_style>
+      <paragraph_style id="6a130863-2370-43fa-a477-05060c278d4c" name="Text" title="" alignment="1" trimming="3" padding_left="3" padding_top="3" padding_right="3" padding_bottom="3" word_wrap="True"></paragraph_style>
+      <paragraph_style id="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" name="Title" title="" alignment="32" trimming="3" padding_left="3" padding_top="3" padding_right="3" padding_bottom="3" word_wrap="True"></paragraph_style>
+    </paragraph_styles>
+    <model id="00000000-0000-0000-0000-000000000001">
+      <model_objects>
+        <generic_model_object id="c9a4d0d3-a4f3-41cb-9dc0-80a8dd3cc5fd" name="Model 1" integer_value="0" float_value="500" string_value=""></generic_model_object>
+        <generic_model_object id="640cff37-922a-4ad2-81d3-d392dbcf3121" name="Model 3" integer_value="0" float_value="800" string_value=""></generic_model_object>
+        <generic_model_object id="119a865a-4c31-4804-8660-e5c89fc90cdf" name="Model 2" integer_value="0" float_value="300" string_value=""></generic_model_object>
+        <generic_model_object id="4f05fbbd-ad88-497e-8194-398587c8f059" name="Model 4" integer_value="0" float_value="100" string_value=""></generic_model_object>
+        <generic_model_object id="e2cce3b5-f7f4-4fca-a973-5077fbf45120" name="Model 5" integer_value="0" float_value="900" string_value=""></generic_model_object>
+        <generic_model_object id="dd59a19f-19b0-422f-8919-0291f15a3a38" name="Model 6" integer_value="0" float_value="0" string_value=""></generic_model_object>
+        <generic_model_object id="a988f9c8-be17-402a-8f2a-32318037902b" name="Model 7" integer_value="0" float_value="0" string_value=""></generic_model_object>
+        <generic_model_object id="ac60e403-40af-4eac-9fd7-8c0db74b3915" name="Model 8" integer_value="0" float_value="0" string_value=""></generic_model_object>
+        <generic_model_object id="5e7c30c4-fbc4-45d7-aae3-040dc97eef32" name="Model 9" integer_value="0" float_value="0" string_value=""></generic_model_object>
+        <generic_model_object id="b5234f3c-0d57-4bbd-a156-8d856cb26e6d" name="Model 10" integer_value="0" float_value="0" string_value=""></generic_model_object>
+      </model_objects>
+    </model>
+    <templates>
+      <template id="b3475499-7f87-45a7-a3fe-9a6289d050ec" name="Polyline" title="" description="">
+        <no_model></no_model>
+        <polyline id="b88e5f7e-4fa3-4afc-8a0b-6ff1e5976389" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" start_cap_style="cf80316f-f661-4938-a040-0a523db203ad" end_cap_style="cf80316f-f661-4938-a040-0a523db203ad">
+          <vertices>
+            <vertex point_index="0" point_id="1" x="0" y="0" />
+            <vertex point_index="1" point_id="2" x="20" y="20" />
+          </vertices>
+        </polyline>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="35c69682-8ede-452f-8019-366d53786945" name="CircularArc" title="" description="">
+        <no_model></no_model>
+        <circular_arc id="cbcdd7f2-4b32-450d-ad4b-74335adf226f" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" start_cap_style="cf80316f-f661-4938-a040-0a523db203ad" end_cap_style="cf80316f-f661-4938-a040-0a523db203ad">
+          <vertices>
+            <vertex point_index="0" point_id="1" x="0" y="0" />
+            <vertex point_index="1" point_id="2" x="0" y="0" />
+          </vertices>
+        </circular_arc>
+        <connection_point_mappings />
+        <model_mappings></model_mappings>
+      </template>
+      <template id="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" name="Text" title="" description="">
+        <no_model></no_model>
+        <text id="72aa391d-d4e2-49d1-81d0-4cfce7b94132" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="3eb9c9d4-7d93-4df9-85b7-682534514354" angle="0" fill_style="00e2e3c8-e8a4-4998-8182-7b28cdfe450b" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="Text" width="32" height="21" auto_size="True"></text>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="9" terminal_id="0" />
+        </connection_point_mappings>
+        <model_mappings></model_mappings>
+      </template>
+      <template id="c4c959f8-760c-4103-8d91-06af7349bdbf" name="Label" title="" description="">
+        <no_model></no_model>
+        <label id="1f922d87-df58-4fe2-9dba-27be382bbe1e" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="3eb9c9d4-7d93-4df9-85b7-682534514354" angle="0" fill_style="00e2e3c8-e8a4-4998-8182-7b28cdfe450b" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="Text" width="32" height="21" auto_size="True" glue_point_x="-25" glue_point_y="-17" maintain_orientation="False"></label>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="9" terminal_id="0" />
+        </connection_point_mappings>
+        <model_mappings></model_mappings>
+      </template>
+      <template id="8a6fe101-85c6-4fc1-af25-99286a417122" name="IsoscelesTriangle" title="" description="">
+        <generic_model_object id="0c9c57a5-f1f3-4234-b42d-e719a3f0dc86" name="" integer_value="0" float_value="0" string_value=""></generic_model_object>
+        <isosceles_triangle id="5a8f8313-7b11-441e-aabb-62c78ec9aa6c" template="00000000-0000-0000-0000-000000000000" model_object="0c9c57a5-f1f3-4234-b42d-e719a3f0dc86" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" angle="0" fill_style="4d1da170-ddf1-46d1-989c-be720bdde58b" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="" width="40" height="40"></isosceles_triangle>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="1" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="2" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="3" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="4" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="5" terminal_id="-2147483648" />
+        </connection_point_mappings>
+        <model_mappings>
+          <numeric_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47c7" shape_property_id="3" model_property_id="2" mapping_type="0" intercept="0" slope="1"></numeric_model_mapping>
+          <format_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47c9" shape_property_id="4" model_property_id="4" mapping_type="1" format="{0:F2}"></format_model_mapping>
+          <style_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47c8" shape_property_id="3" model_property_id="3" mapping_type="0" default_style_type="0" default_style="00000000-0000-0000-0000-000000000000">
+            <value_ranges>
+              <range value="-100" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="-10" style_type="4" style="69a4a5d8-d975-4f8f-a240-266ff0d61d0a" />
+              <range value="11" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="101" style_type="4" style="1e48b39d-d5f0-422d-96aa-e3a268f1ef66" />
+            </value_ranges>
+          </style_model_mapping>
+        </model_mappings>
+      </template>
+      <template id="5b8baafc-a7b5-41d1-9c9d-c6b90abe1b90" name="Ellipse" title="" description="">
+        <generic_model_object id="ec308000-1bbb-4030-9998-d5c3f0138c85" name="" integer_value="0" float_value="0" string_value=""></generic_model_object>
+        <ellipse id="29195605-b9b9-402b-bb66-05136731eebb" template="00000000-0000-0000-0000-000000000000" model_object="ec308000-1bbb-4030-9998-d5c3f0138c85" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" angle="0" fill_style="1e48b39d-d5f0-422d-96aa-e3a268f1ef66" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="" width="60" height="40"></ellipse>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="2" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="4" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="5" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="7" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="9" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="10" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="11" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="12" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="13" terminal_id="-2147483648" />
+        </connection_point_mappings>
+        <model_mappings>
+          <numeric_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47a7" shape_property_id="3" model_property_id="2" mapping_type="0" intercept="0" slope="1"></numeric_model_mapping>
+          <format_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47a9" shape_property_id="4" model_property_id="4" mapping_type="1" format="{0:F2}"></format_model_mapping>
+          <style_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47a8" shape_property_id="3" model_property_id="3" mapping_type="0" default_style_type="0" default_style="00000000-0000-0000-0000-000000000000">
+            <value_ranges>
+              <range value="-100" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="-10" style_type="4" style="69a4a5d8-d975-4f8f-a240-266ff0d61d0a" />
+              <range value="11" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="101" style_type="4" style="1e48b39d-d5f0-422d-96aa-e3a268f1ef66" />
+            </value_ranges>
+          </style_model_mapping>
+        </model_mappings>
+      </template>
+      <template id="06d9b834-f609-422c-afd3-8b4a449a9dc2" name="Circle" title="" description="">
+        <generic_model_object id="9fb856ef-6587-4ed3-b9b2-9788b30b1e82" name="" integer_value="0" float_value="0" string_value=""></generic_model_object>
+        <circle id="d6daf985-e9f4-44b1-a350-1cdb1927cff7" template="00000000-0000-0000-0000-000000000000" model_object="9fb856ef-6587-4ed3-b9b2-9788b30b1e82" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" angle="0" fill_style="6d355e97-18ea-4ebb-866b-b5a1d54fafa9" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="" diameter="40"></circle>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="2" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="4" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="5" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="7" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="9" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="10" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="11" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="12" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="13" terminal_id="-2147483648" />
+        </connection_point_mappings>
+        <model_mappings>
+          <numeric_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47b7" shape_property_id="3" model_property_id="2" mapping_type="0" intercept="0" slope="1"></numeric_model_mapping>
+          <format_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47b9" shape_property_id="4" model_property_id="4" mapping_type="1" format="{0:F2}"></format_model_mapping>
+          <style_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47b8" shape_property_id="3" model_property_id="3" mapping_type="0" default_style_type="0" default_style="00000000-0000-0000-0000-000000000000">
+            <value_ranges>
+              <range value="-100" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="-10" style_type="4" style="69a4a5d8-d975-4f8f-a240-266ff0d61d0a" />
+              <range value="11" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="101" style_type="4" style="1e48b39d-d5f0-422d-96aa-e3a268f1ef66" />
+            </value_ranges>
+          </style_model_mapping>
+        </model_mappings>
+      </template>
+      <template id="ccac1838-9194-4982-80f5-75114bf0cbed" name="Box" title="" description="">
+        <generic_model_object id="b2e5fbb9-1f0e-427b-9b4d-36c37987160b" name="" integer_value="0" float_value="0" string_value=""></generic_model_object>
+        <box id="8b6e39fc-11f6-42d9-8fd8-3a2dd1df3af3" template="00000000-0000-0000-0000-000000000000" model_object="b2e5fbb9-1f0e-427b-9b4d-36c37987160b" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" angle="0" fill_style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="" width="60" height="40"></box>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="1" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="2" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="3" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="4" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="5" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="6" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="7" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="8" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="9" terminal_id="-2147483648" />
+        </connection_point_mappings>
+        <model_mappings>
+          <numeric_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47d7" shape_property_id="3" model_property_id="2" mapping_type="0" intercept="0" slope="1"></numeric_model_mapping>
+          <format_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47d9" shape_property_id="4" model_property_id="4" mapping_type="1" format="{0:F2}"></format_model_mapping>
+          <style_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47d8" shape_property_id="3" model_property_id="3" mapping_type="0" default_style_type="0" default_style="00000000-0000-0000-0000-000000000000">
+            <value_ranges>
+              <range value="-100" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="-10" style_type="4" style="69a4a5d8-d975-4f8f-a240-266ff0d61d0a" />
+              <range value="11" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="101" style_type="4" style="1e48b39d-d5f0-422d-96aa-e3a268f1ef66" />
+            </value_ranges>
+          </style_model_mapping>
+        </model_mappings>
+      </template>
+      <template id="74a8ebf4-ca2a-43dc-84d6-76f5ffd5eb4a" name="Square" title="" description="">
+        <no_model></no_model>
+        <square id="cfbc07e8-8907-468f-a963-cc6cef8c11d2" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" angle="0" fill_style="6d355e97-18ea-4ebb-866b-b5a1d54fafa9" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="" diameter="40"></square>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="1" terminal_id="0" />
+          <connection_point_mapping point_id="2" terminal_id="0" />
+          <connection_point_mapping point_id="3" terminal_id="0" />
+          <connection_point_mapping point_id="4" terminal_id="0" />
+          <connection_point_mapping point_id="5" terminal_id="0" />
+          <connection_point_mapping point_id="6" terminal_id="0" />
+          <connection_point_mapping point_id="7" terminal_id="0" />
+          <connection_point_mapping point_id="8" terminal_id="0" />
+          <connection_point_mapping point_id="9" terminal_id="0" />
+        </connection_point_mappings>
+        <model_mappings></model_mappings>
+      </template>
+      <template id="c287707e-966b-4a68-bdae-d75934fff77e" name="Diamond" title="" description="">
+        <no_model></no_model>
+        <diamond id="861be304-ddbd-4ef8-b8f2-1f9dce1b7018" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" angle="0" fill_style="6d355e97-18ea-4ebb-866b-b5a1d54fafa9" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="" width="60" height="40"></diamond>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="2" terminal_id="0" />
+          <connection_point_mapping point_id="4" terminal_id="0" />
+          <connection_point_mapping point_id="5" terminal_id="0" />
+          <connection_point_mapping point_id="7" terminal_id="0" />
+          <connection_point_mapping point_id="9" terminal_id="0" />
+          <connection_point_mapping point_id="10" terminal_id="0" />
+          <connection_point_mapping point_id="11" terminal_id="0" />
+          <connection_point_mapping point_id="12" terminal_id="0" />
+          <connection_point_mapping point_id="13" terminal_id="0" />
+        </connection_point_mappings>
+        <model_mappings></model_mappings>
+      </template>
+      <template id="42c6f4d4-8992-49ee-b9ca-b6572ee7260c" name="RoundedBox" title="" description="">
+        <generic_model_object id="5fcd3a53-a846-49b9-a78c-507d4ad07a5f" name="" integer_value="0" float_value="0" string_value=""></generic_model_object>
+        <rounded_box id="eef96f2a-9fda-4087-903f-3b55bd9dca23" template="00000000-0000-0000-0000-000000000000" model_object="5fcd3a53-a846-49b9-a78c-507d4ad07a5f" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" angle="0" fill_style="69a4a5d8-d975-4f8f-a240-266ff0d61d0a" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="" width="60" height="40"></rounded_box>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="1" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="2" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="3" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="4" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="5" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="6" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="7" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="8" terminal_id="-2147483648" />
+          <connection_point_mapping point_id="9" terminal_id="-2147483648" />
+        </connection_point_mappings>
+        <model_mappings>
+          <numeric_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47e7" shape_property_id="3" model_property_id="2" mapping_type="0" intercept="0" slope="1"></numeric_model_mapping>
+          <format_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47e9" shape_property_id="4" model_property_id="4" mapping_type="1" format="{0:F2}"></format_model_mapping>
+          <style_model_mapping id="104ff8b6-22a0-4ebf-964c-85e85f7a47e8" shape_property_id="3" model_property_id="3" mapping_type="0" default_style_type="0" default_style="00000000-0000-0000-0000-000000000000">
+            <value_ranges>
+              <range value="-100" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="-10" style_type="4" style="69a4a5d8-d975-4f8f-a240-266ff0d61d0a" />
+              <range value="11" style_type="4" style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" />
+              <range value="101" style_type="4" style="1e48b39d-d5f0-422d-96aa-e3a268f1ef66" />
+            </value_ranges>
+          </style_model_mapping>
+        </model_mappings>
+      </template>
+      <template id="b5890afa-ce94-4564-ae89-9df05336f08b" name="ThickArrow" title="" description="">
+        <no_model></no_model>
+        <thick_arrow id="1c0a087f-32b3-4c26-9f14-4d721ac40768" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" angle="0" fill_style="b746fffd-1be6-492f-9e7f-b0d10a1d3152" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="" width="60" height="40" head_width="30" body_height="13"></thick_arrow>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="2" terminal_id="2" />
+          <connection_point_mapping point_id="3" terminal_id="3" />
+          <connection_point_mapping point_id="4" terminal_id="4" />
+          <connection_point_mapping point_id="5" terminal_id="5" />
+          <connection_point_mapping point_id="7" terminal_id="7" />
+        </connection_point_mappings>
+        <model_mappings></model_mappings>
+      </template>
+      <template id="c9b4369c-27ff-4eb0-a091-1ae5941e9ec8" name="Picture" title="" description="">
+        <no_model></no_model>
+        <picture id="b00865e4-2137-4c21-a796-7b4ed26e778d" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" layers="0" security_domain_name="A" line_style="6033b2ec-35e9-4331-b17b-84d5de00b64a" angle="0" fill_style="6d355e97-18ea-4ebb-866b-b5a1d54fafa9" character_style="48c0d4b7-b369-4b04-991a-b3fd552a45c4" paragraph_style="8eef9663-b95f-4ac4-9c19-b2b9bae2b586" text="" width="60" height="40" image_layout="3" image_transparency="0" image_gamma_correction="1" image_compression_quality="100" convert_to_gray_scale="False" image_file_name="" image="" image_transparent_color="0"></picture>
+        <connection_point_mappings>
+          <connection_point_mapping point_id="1" terminal_id="0" />
+          <connection_point_mapping point_id="2" terminal_id="0" />
+          <connection_point_mapping point_id="3" terminal_id="0" />
+          <connection_point_mapping point_id="4" terminal_id="0" />
+          <connection_point_mapping point_id="5" terminal_id="0" />
+          <connection_point_mapping point_id="6" terminal_id="0" />
+          <connection_point_mapping point_id="7" terminal_id="0" />
+          <connection_point_mapping point_id="8" terminal_id="0" />
+          <connection_point_mapping point_id="9" terminal_id="0" />
+        </connection_point_mappings>
+        <model_mappings></model_mappings>
+      </template>
+    </templates>
+    <diagrams>
+      <diagram id="4e5abb7d-8d49-4174-92f2-3f29b6de4d89" name="Diagram 1" title="" width="1000" height="1000" background_color="-1" background_gradient_end_color="-1" background_image_file_name="" background_image="" image_layout="0" image_gamma="1" image_transparency="0" image_gray_scale="False" image_transparent_color="0">
+        <layers />
+        <shapes>
+          <ellipse id="1e6313be-59d6-460c-9f9e-41c8a0826050" template="5b8baafc-a7b5-41d1-9c9d-c6b90abe1b90" model_object="c9a4d0d3-a4f3-41cb-9dc0-80a8dd3cc5fd" x="638" y="360" z_order="10" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="500,00" width="120" height="40"></ellipse>
+          <rounded_box id="99548f69-a28b-4657-b890-16724d670391" template="42c6f4d4-8992-49ee-b9ca-b6572ee7260c" model_object="640cff37-922a-4ad2-81d3-d392dbcf3121" x="638" y="500" z_order="20" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="800,00" width="120" height="40"></rounded_box>
+          <box id="1c55578d-dd70-4a27-81d2-15bb655c578c" template="ccac1838-9194-4982-80f5-75114bf0cbed" model_object="119a865a-4c31-4804-8660-e5c89fc90cdf" x="638" y="420" z_order="30" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="300,00" width="120" height="40"></box>
+          <circle id="56b01544-ad8f-4cef-a27f-b2497142818a" template="06d9b834-f609-422c-afd3-8b4a449a9dc2" model_object="4f05fbbd-ad88-497e-8194-398587c8f059" x="638" y="580" z_order="40" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="100,00" diameter="80"></circle>
+          <isosceles_triangle id="f2677a1f-83ee-46fe-bd77-9b99c56f30db" template="8a6fe101-85c6-4fc1-af25-99286a417122" model_object="e2cce3b5-f7f4-4fca-a973-5077fbf45120" x="638" y="707" z_order="50" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="900,00" width="80" height="100"></isosceles_triangle>
+          <text id="afe149dd-a2f1-49d1-b9af-90fef8bd0312" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="409" y="680" z_order="100" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="This shape is assigned to Model 6" width="260" height="40" auto_size="False"></text>
+          <text id="64fe2344-e668-4468-8982-a8069c647e3a" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="409" y="580" z_order="90" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="This shape is assigned to Model 4" width="260" height="40" auto_size="False"></text>
+          <text id="b67beec0-1fc1-4c1e-b708-da7795299d58" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="409" y="500" z_order="80" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="This shape is assigned to Model 3" width="260" height="40" auto_size="False"></text>
+          <text id="8aa8f33b-18a8-4a30-84b2-34eb44a3c5c7" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="408" y="420" z_order="70" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="This shape is assigned to Model 2" width="260" height="40" auto_size="False"></text>
+          <text id="bff7d949-7952-40dc-8a66-d852bcff5f73" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="408" y="360" z_order="60" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="This shape is assigned to Model 1" width="260" height="40" auto_size="False"></text>
+          <text id="a38670d5-141e-45e1-b249-b2a6098dfebc" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="510" y="280" z_order="110" layers="0" security_domain_name="A" line_style="47fbc6d3-fc56-4400-95a4-bdb95f8740ab" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="All shapes in this diagram, that are connected to model objects, display their model's &quot;FloatValue&quot; property as text." width="460" height="80" auto_size="False"></text>
+          <text id="a2928b10-e56c-4fa5-af26-ef4f94c2f643" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="510" y="180" z_order="120" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="This diagram demonstrates the usage of models assigned to one (or more) shape(s).&#xA;&#xA;On the left side of the NShape Designer's main window, there is a tree of all models in the repository.&#xA;A model can be assigned to one or more shapes. &#xA;The shape's template defines if the property  of the model that will be represented by the shape.&#xA;" width="540" height="80" auto_size="False"></text>
+        </shapes>
+        <shape_connections></shape_connections>
+      </diagram>
+      <diagram id="c44f104a-7409-4215-9afa-0a48556cce52" name="Diagram 2" title="" width="1000" height="1000" background_color="-1" background_gradient_end_color="-1" background_image_file_name="" background_image="" image_layout="0" image_gamma="1" image_transparency="0" image_gray_scale="False" image_transparent_color="0">
+        <layers />
+        <shapes>
+          <isosceles_triangle id="1c2f5cb3-cd29-44f3-9bb5-a153a38e441f" template="8a6fe101-85c6-4fc1-af25-99286a417122" model_object="dd59a19f-19b0-422f-8919-0291f15a3a38" x="580" y="367" z_order="10" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="40" height="40"></isosceles_triangle>
+          <ellipse id="d2b8355d-d87c-4da3-b2ca-f14f91bd9f6c" template="5b8baafc-a7b5-41d1-9c9d-c6b90abe1b90" model_object="a988f9c8-be17-402a-8f2a-32318037902b" x="590" y="440" z_order="20" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></ellipse>
+          <circle id="9effe6b9-f276-4ca1-9fa6-df57ec64320e" template="06d9b834-f609-422c-afd3-8b4a449a9dc2" model_object="ac60e403-40af-4eac-9fd7-8c0db74b3915" x="580" y="520" z_order="30" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" diameter="40"></circle>
+          <box id="d797b64e-79be-418e-b042-a0626feb6f48" template="ccac1838-9194-4982-80f5-75114bf0cbed" model_object="5e7c30c4-fbc4-45d7-aae3-040dc97eef32" x="590" y="600" z_order="40" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></box>
+          <rounded_box id="ac72b33c-901a-45da-8c1d-f2a5a32a2122" template="42c6f4d4-8992-49ee-b9ca-b6572ee7260c" model_object="b5234f3c-0d57-4bbd-a156-8d856cb26e6d" x="590" y="680" z_order="50" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></rounded_box>
+          <text id="67dbb79b-ecaf-43d9-95e1-b4bad4f6fccd" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="700" y="600" z_order="130" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 9" width="80" height="40" auto_size="False"></text>
+          <diamond id="c0783f67-76c1-49ce-8eed-02241ad4f71b" template="c287707e-966b-4a68-bdae-d75934fff77e" model_object="640cff37-922a-4ad2-81d3-d392dbcf3121" x="310" y="520" z_order="70" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></diamond>
+          <text id="01710d0d-1974-48db-87ba-5ba9c9c6ad5a" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="700" y="520" z_order="120" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 8" width="80" height="40" auto_size="False"></text>
+          <text id="5f228fbd-1b3d-4572-a45d-26127a77d7b6" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="700" y="440" z_order="110" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 7" width="80" height="40" auto_size="False"></text>
+          <text id="f4a352fe-2bb7-4a1b-a132-06a0a9fde7f4" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="420" y="440" z_order="20" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 2" width="80" height="40" auto_size="False"></text>
+          <text id="e6907169-1007-494a-8ced-2fcfa6b35026" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="420" y="360" z_order="10" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 1" width="80" height="40" auto_size="False"></text>
+          <text id="84effe6d-9317-46fa-a943-fdf6952f612c" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="420" y="520" z_order="30" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 3" width="80" height="40" auto_size="False"></text>
+          <text id="eb272b4e-b1e0-4ce3-9b91-133ea8b638ab" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="700" y="360" z_order="100" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 6" width="80" height="40" auto_size="False"></text>
+          <diamond id="8f0f7eec-1983-485c-8558-114edd262026" template="c287707e-966b-4a68-bdae-d75934fff77e" model_object="c9a4d0d3-a4f3-41cb-9dc0-80a8dd3cc5fd" x="310" y="360" z_order="70" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="1e48b39d-d5f0-422d-96aa-e3a268f1ef66" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></diamond>
+          <diamond id="9830b36f-82f6-45b7-86d2-1370f9747c5a" template="c287707e-966b-4a68-bdae-d75934fff77e" model_object="119a865a-4c31-4804-8660-e5c89fc90cdf" x="310" y="440" z_order="80" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="aeee3e89-76b5-49d9-97a9-ab6afca8a82e" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></diamond>
+          <diamond id="c3ff87d7-ef06-41d8-bbed-14b46ed8168e" template="c287707e-966b-4a68-bdae-d75934fff77e" model_object="640cff37-922a-4ad2-81d3-d392dbcf3121" x="230" y="520" z_order="90" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="69a4a5d8-d975-4f8f-a240-266ff0d61d0a" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></diamond>
+          <text id="9569f910-510a-40ab-8423-12f6da29174c" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="700" y="680" z_order="140" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 10" width="80" height="40" auto_size="False"></text>
+          <polyline id="8b75a9fc-bfe6-4691-b245-97ff312ae3f9" template="b3475499-7f87-45a7-a3fe-9a6289d050ec" model_object="00000000-0000-0000-0000-000000000000" x="500" y="320" z_order="0" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" start_cap_style="00000000-0000-0000-0000-000000000000" end_cap_style="00000000-0000-0000-0000-000000000000">
+            <vertices>
+              <vertex point_index="0" point_id="1" x="500" y="320" />
+              <vertex point_index="1" point_id="2" x="500" y="720" />
+            </vertices>
+          </polyline>
+          <text id="a6b51528-608a-4b2a-a578-57dce8002b92" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="640" y="250" z_order="150" layers="0" security_domain_name="A" line_style="47fbc6d3-fc56-4400-95a4-bdb95f8740ab" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="These shapes are assigned to Model 6 to Model10.&#xA;&#xA;As no other shapes are assigned to these models, the shapes are used as icons of their models in the model presenter." width="240" height="99" auto_size="False"></text>
+        </shapes>
+        <shape_connections></shape_connections>
+      </diagram>
+      <diagram id="ec8ff0a3-a132-45e9-a39a-e5b182c9106f" name="Diagram 3" title="" width="1000" height="1000" background_color="-1" background_gradient_end_color="-1" background_image_file_name="" background_image="" image_layout="0" image_gamma="1" image_transparency="0" image_gray_scale="False" image_transparent_color="0">
+        <layers />
+        <shapes>
+          <text id="bbaa48b1-622b-401e-9b4c-c3e562aac416" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="580" y="380" z_order="10" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 3" width="80" height="40" auto_size="False"></text>
+          <text id="e9dbd934-c63f-4cae-9acc-22bc2713be30" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="580" y="460" z_order="20" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 4" width="80" height="40" auto_size="False"></text>
+          <text id="7fc37afd-0554-41f7-9bfd-3c1a9e1c3448" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="580" y="540" z_order="30" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="Model 5" width="80" height="40" auto_size="False"></text>
+          <diamond id="61e566ab-8fd4-4064-81eb-9a0ad087748a" template="c287707e-966b-4a68-bdae-d75934fff77e" model_object="640cff37-922a-4ad2-81d3-d392dbcf3121" x="465" y="384" z_order="70" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="69a4a5d8-d975-4f8f-a240-266ff0d61d0a" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></diamond>
+          <diamond id="3ccb9fd3-cfa5-43fa-b9d8-80cfd20c9041" template="c287707e-966b-4a68-bdae-d75934fff77e" model_object="4f05fbbd-ad88-497e-8194-398587c8f059" x="470" y="460" z_order="80" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></diamond>
+          <diamond id="630fc298-051c-4b24-bd84-e0e3865ea18e" template="c287707e-966b-4a68-bdae-d75934fff77e" model_object="e2cce3b5-f7f4-4fca-a973-5077fbf45120" x="470" y="540" z_order="90" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="4d1da170-ddf1-46d1-989c-be720bdde58b" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="" width="60" height="40"></diamond>
+          <text id="174c040c-ff63-4691-948b-e865ab75fa6f" template="77d2f8cd-b6e3-4e85-9ff2-addcf2d5b04b" model_object="00000000-0000-0000-0000-000000000000" x="530" y="300" z_order="0" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" angle="0" fill_style="00000000-0000-0000-0000-000000000000" character_style="00000000-0000-0000-0000-000000000000" paragraph_style="00000000-0000-0000-0000-000000000000" text="This diagram demonstrates the usage of models assigned to one (or more) shape(s).&#xA;&#xA;On the left side of the NShape Designer's main window, there is a tree of all models in the repository.&#xA;A model can be assigned to one or more shapes. &#xA;The shape's template defines if the property  of the model that will be represented by the shape.&#xA;" width="540" height="80" auto_size="False"></text>
+        </shapes>
+        <shape_connections></shape_connections>
+      </diagram>
+    </diagrams>
+  </project>
+</dataweb_nshape>

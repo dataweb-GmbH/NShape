@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WebVisits>
+  <Pages>
+    <Page id="0001" name="index" />
+    <Page id="0002" name="cars" />
+    <Page id="0003" name="girls" />
+    <Page id="0004" name="bikes" />
+    <Page id="0005" name="software" />
+    <Page id="0006" name="nature" />
+    <Page id="0007" name="karate" />
+    <Page id="0008" name="housing" />
+    <Page id="0009" name="cats" />
+  </Pages>
+  <Referrals>
+    <Referral fromId="0001" toId="0002" count="580" />
+    <Referral fromId="0001" toId="0003" count="192" />
+    <Referral fromId="0001" toId="0004" count="187" />
+    <Referral fromId="0001" toId="0005" count="406" />
+    <Referral fromId="0001" toId="0006" count="340" />
+    <Referral fromId="0001" toId="0007" count="132" />
+    <Referral fromId="0001" toId="0008" count="107" />
+    <Referral fromId="0001" toId="0009" count="29" />
+    <Referral fromId="0002" toId="0004" count="103" />
+    <Referral fromId="0003" toId="0004" count="34" />
+    <Referral fromId="0006" toId="0008" count="72" />
+  </Referrals>
+</WebVisits>

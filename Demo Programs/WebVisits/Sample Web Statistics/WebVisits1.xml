@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<WebVisits>
+	<Pages>
+		<Page id ="0001" name="index"/>
+		<Page id ="0002" name="cars" />
+		<Page id ="0003" name="girls"/>
+		<Page id ="0004" name="bikes"/>
+	</Pages>
+	<Referrals>
+		<Referral fromId="0002" toId="0004" count="10"/>
+		<Referral fromId="0003" toId="0001" count="3"/>
+		<Referral fromId="0001" toId="0002" count="18"/>
+		<Referral fromid="0001" toId="0004" count="8"/>
+  </Referrals>
+</WebVisits>
