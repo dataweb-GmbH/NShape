@@ -1,0 +1,1 @@
+Documentation is included in the download file in chm format.
