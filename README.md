@@ -25,3 +25,7 @@ Documentation
 -------------
 The documentation is available [here](https://www.dataweb.de/en/support/documentation/nshape/index.html).
 It is also included in the setup installer as *.chm file (compiled HTML).
+
+Credits
+-------
+NShape was developed by [dataweb GmbH](https://www.dataweb.de)
