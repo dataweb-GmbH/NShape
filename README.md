@@ -1,4 +1,4 @@
-![NShape Logo](https://download-codeplex.sec.s-msft.com/Download?ProjectName=nshape&amp;DownloadId=483019&amp;Build=21050)
+![NShape Logo](https://www.dataweb.de/logos/NShape2Logo_Big.png)
 # .NET Diagramming Framework for Industrial Applications
 
 NShape is an Open Source diagram designing framework for .NET WinForms. Software developers use NShape to integrate diagramming capabilities into their applications. Using NShape, applications let users view, annotate, modify and create diagrams like flow charts, wiring schemes or project charts.
