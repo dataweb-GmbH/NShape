@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2014 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -461,7 +461,7 @@ namespace NShapeTest {
 			shape.X = 100;
 			shape.Y = 100;
 			// Execute commands
-			project.ExecuteCommand(new CreateShapesCommand(diagram, LayerIds.None, shape, true, false));
+			project.ExecuteCommand(new CreateShapesCommand(diagram, Layer.NoLayerId, LayerIds.None, shape, true, false));
 			project.ExecuteCommand(new MoveShapeByCommand(shape, 200, 200));
 			project.History.Undo();
 			project.History.Undo();

@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -81,7 +81,7 @@ namespace Dataweb.NShape.WinFormsUI {
 						Store store = ((CachedRepository)designController.Project.Repository).Store;
 						if (store == null || store is XmlStore) {
 							newDesignButton.Enabled = false;
-							newDesignButton.ToolTipText = "XML Stores do not support multiple designs.";
+							newDesignButton.ToolTipText = Properties.Resources.MessageTxt_XMLStoresDoNotSupportMultipleDesigns;
 						}
 					}
 				}
@@ -258,7 +258,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void deleteDesignButton_Click(object sender, EventArgs e) {
-			if (MessageBox.Show("All styles in this design will be lost." + Environment.NewLine + "Do you really want do to delete this design?", "Delete Design", MessageBoxButtons.YesNo) == DialogResult.Yes)
+			string msgTxt = string.Format(Properties.Resources.MessageFmt_AllStylesInThisDesignWillBeLost0, Environment.NewLine);
+			if (MessageBox.Show(msgTxt, Dataweb.NShape.WinFormsUI.Properties.Resources.CaptionTxt_DeleteDesign, MessageBoxButtons.YesNo) == DialogResult.Yes)
 				designPresenter.DeleteSelectedDesign();
 		}
 
@@ -269,7 +270,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void deleteStyleButton_Click(object sender, EventArgs e) {
-			if (MessageBox.Show("Do you really want do to delete this style?", "Delete Style", MessageBoxButtons.YesNo) == DialogResult.Yes)
+			if (MessageBox.Show(Properties.Resources.MessageTxt_DoYouReallyWantDoToDeleteThisStyle, Dataweb.NShape.WinFormsUI.Properties.Resources.CaptionTxt_DeleteStyle, MessageBoxButtons.YesNo) == DialogResult.Yes)
 				designPresenter.DeleteSelectedStyle();
 		}
 

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -213,14 +213,16 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <summary>Overriden method. Check base class for documentation.</summary>
 		public override void Invalidate() {
-			base.Invalidate();
-			if (DisplayService != null) {
-				Point knee1, knee2;
-				int cpIdx = -1;
-				FindNextKnee(ref cpIdx, out knee1);
-				while (FindNextKnee(ref cpIdx, out knee2)) {
-					InvalidateLineSegment(knee1, knee2);
-					knee1 = knee2;
+			if (!SuspendingInvalidation) {
+				base.Invalidate();
+				if (DisplayService != null) {
+					Point knee1, knee2;
+					int cpIdx = -1;
+					FindNextKnee(ref cpIdx, out knee1);
+					while (FindNextKnee(ref cpIdx, out knee2)) {
+						InvalidateLineSegment(knee1, knee2);
+						knee1 = knee2;
+					}
 				}
 			}
 		}
@@ -318,7 +320,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>Overriden method. Check base class for documentation.</summary>
 		protected override void InvalidateDrawCache() {
 			base.InvalidateDrawCache();
-			shapePointsAreInvalid = drawCacheIsInvalid;
+			_shapePointsAreInvalid = drawCacheIsInvalid;
 		}
 
 
@@ -1034,7 +1036,13 @@ namespace Dataweb.NShape.Advanced {
 				// We want to make the middle segment shorter than the other two together.
 				idx = -1;
 				FindNextVertex(ref idx, out prevVertex1);
-				prevVertex1.bending = VertexBending.Right;
+				// ToDo: Bending should depend on the partner shape (if connected)
+				//if (HasControlPointCapability(prevVertex1.Id, ControlPointCapabilities.Glue)) {
+				//    ShapeConnectionInfo sci = GetConnectionInfo(prevVertex1.Id, null);
+				//    prevVertex1.GetPosition())
+				//    sci.OtherShape.CalculateNormalVector(
+				//} else 
+					prevVertex1.bending = VertexBending.Right;
 				FindNextVertex(ref idx, out prevVertex2);
 				AssignBending(prevVertex1, prevVertex2);
 			}
@@ -1170,7 +1178,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>Overriden method. Check base class for documentation.</summary>
 		protected override float CalcCapAngle(ControlPointId pointId) {
 			float result = float.NaN;
-			if (shapePointsAreInvalid) 
+			if (_shapePointsAreInvalid) 
 				RecalcShapePoints();
 			Pen pen = ToolCache.GetPen(LineStyle, StartCapStyleInternal, EndCapStyleInternal);
 			result = ShapeUtils.CalcLineCapAngle(shapePoints, pointId, pen);
@@ -1267,7 +1275,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void RecalcShapePoints() {
-			if (shapePointsAreInvalid) {
+			if (_shapePointsAreInvalid) {
 				RecalcBendings();
 				//
 				Point refPos = GetControlPointPosition(ControlPointId.Reference);
@@ -1281,14 +1289,14 @@ namespace Dataweb.NShape.Advanced {
 					shapePoints[pointIdx] = knee;
 				}
 				Array.Resize(ref shapePoints, pointIdx + 1);
-				shapePointsAreInvalid = false;
+				_shapePointsAreInvalid = false;
 			}
 		}
 
 		#endregion
 
 
-		private bool shapePointsAreInvalid = true;
+		private bool _shapePointsAreInvalid = true;
 	}
 
 }

@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -28,6 +28,16 @@ namespace Dataweb.NShape.Controllers {
 	[ToolboxItem(true)]
 	[ToolboxBitmap(typeof(ModelController), "ModelController.bmp")]
 	public class ModelController : Component {
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameDeleteModelObjects = "DeleteModelObjectsAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameCopyModelObjects = "CopyModelObjectsAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNamePasteModelObjects = "PasteModelObjectsAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameFindShapes = "FindShapesAction";
+
 
 		/// <summary>
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Controllers.ModelController" />.
@@ -99,15 +109,15 @@ namespace Dataweb.NShape.Controllers {
 		[ReadOnly(true)]
 		[CategoryNShape()]
 		public Project Project {
-			get { return (diagramSetController == null) ? project : diagramSetController.Project; }
+			get { return (_diagramSetController == null) ? _project : _diagramSetController.Project; }
 			set {
-				if (diagramSetController != null && diagramSetController.Project != value) {
-					string errMsg = string.Format("A {0} is already assigned. Its project will be used.", diagramSetController.GetType().Name);
+				if (_diagramSetController != null && _diagramSetController.Project != value) {
+					string errMsg = string.Format(Properties.Resources.MessageFmt_A0IsAlreadyAssignedItsProjectWillBeUsed, _diagramSetController.GetType().Name);
 					throw new InvalidOperationException(errMsg);
 				}
 				if (Project != value) {
 					DetachProject();
-					project = value;
+					_project = value;
 					AttachProject();
 				}
 			}
@@ -117,12 +127,12 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryNShape()]
 		public DiagramSetController DiagramSetController {
-			get { return diagramSetController; }
+			get { return _diagramSetController; }
 			set {
 				if (Project != null) DetachProject();
-				if (diagramSetController != null) UnregisterDiagramSetControllerEvents();
-				diagramSetController = value;
-				if (diagramSetController != null) {
+				if (_diagramSetController != null) UnregisterDiagramSetControllerEvents();
+				_diagramSetController = value;
+				if (_diagramSetController != null) {
 					RegisterDiagramSetControllerEvents();
 					AttachProject();
 				}
@@ -169,31 +179,31 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Copy(IModelObject modelObject) {
 			if (modelObject == null) throw new ArgumentNullException("modelObject");
-			copyPasteBuffer.Clear();
-			copyPasteBuffer.Add(modelObject.Clone());
+			_copyPasteBuffer.Clear();
+			_copyPasteBuffer.Add(modelObject.Clone());
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Copy(IEnumerable<IModelObject> modelObjects) {
 			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
-			copyPasteBuffer.Clear();
+			_copyPasteBuffer.Clear();
 			foreach (IModelObject mo in modelObjects)
-				copyPasteBuffer.Add(mo.Clone());
+				_copyPasteBuffer.Add(mo.Clone());
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Paste(IModelObject parent) {
 			// Set parent
-			for (int i = copyPasteBuffer.Count - 1; i >= 0; --i)
-				copyPasteBuffer[i].Parent = parent;
+			for (int i = _copyPasteBuffer.Count - 1; i >= 0; --i)
+				_copyPasteBuffer[i].Parent = parent;
 			// Execute command
-			ICommand command = new CreateModelObjectsCommand(copyPasteBuffer);
+			ICommand command = new CreateModelObjectsCommand(_copyPasteBuffer);
 			Project.ExecuteCommand(command);
 			// Copy for next paste action
-			for (int i = copyPasteBuffer.Count - 1; i >= 0; --i)
-				copyPasteBuffer[i] = copyPasteBuffer[i].Clone();
+			for (int i = _copyPasteBuffer.Count - 1; i >= 0; --i)
+				_copyPasteBuffer[i] = _copyPasteBuffer[i].Clone();
 		}
 
 
@@ -207,8 +217,8 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		public void FindShapes(IEnumerable<IModelObject> modelObjects) {
 			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
-			if (diagramSetController == null) throw new InvalidOperationException("DiagramSetController is not set");
-			diagramSetController.SelectModelObjects(modelObjects);
+			if (_diagramSetController == null) throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_DiagramSetControllerIsNotSet);
+			_diagramSetController.SelectModelObjects(modelObjects);
 		}
 
 
@@ -242,7 +252,7 @@ namespace Dataweb.NShape.Controllers {
 		private void DetachProject() {
 			if (Project != null) {
 				UnregisterProjectEvents();
-				project = null;
+				_project = null;
 			}
 		}
 
@@ -256,16 +266,16 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private void RegisterDiagramSetControllerEvents() {
-			Debug.Assert(diagramSetController != null);
-			diagramSetController.ProjectChanged += diagramSetController_ProjectChanged;
-			diagramSetController.ProjectChanging += diagramSetController_ProjectChanging;
+			Debug.Assert(_diagramSetController != null);
+			_diagramSetController.ProjectChanged += diagramSetController_ProjectChanged;
+			_diagramSetController.ProjectChanging += diagramSetController_ProjectChanging;
 		}
 
 
 		private void UnregisterDiagramSetControllerEvents() {
-			Debug.Assert(diagramSetController != null);
-			diagramSetController.ProjectChanged -= diagramSetController_ProjectChanged;
-			diagramSetController.ProjectChanging -= diagramSetController_ProjectChanging;
+			Debug.Assert(_diagramSetController != null);
+			_diagramSetController.ProjectChanged -= diagramSetController_ProjectChanged;
+			_diagramSetController.ProjectChanging -= diagramSetController_ProjectChanging;
 		}
 
 
@@ -324,12 +334,12 @@ namespace Dataweb.NShape.Controllers {
 		#region [Private] Methods: DiagramSetController event handler implementations
 
 		private void diagramSetController_ProjectChanged(object sender, EventArgs e) {
-			if (diagramSetController.Project != null) AttachProject();
+			if (_diagramSetController.Project != null) AttachProject();
 		}
 
 
 		private void diagramSetController_ProjectChanging(object sender, EventArgs e) {
-			if (diagramSetController.Project != null) DetachProject();
+			if (_diagramSetController.Project != null) DetachProject();
 		}
 
 		#endregion
@@ -420,7 +430,7 @@ namespace Dataweb.NShape.Controllers {
 				description = Properties.Resources.MessageTxt_NoModelObjectsSelected;
 			}
 
-			return new DelegateMenuItemDef(Properties.Resources.CaptionTxt_Delete, Properties.Resources.DeleteBtn, "DeleteModelObjectsAction",
+			return new DelegateMenuItemDef(MenuItemNameDeleteModelObjects, Properties.Resources.CaptionTxt_Delete, Properties.Resources.DeleteBtn,
 				description, false, isFeasible, Permission.None,
 				(a, p) => DeleteModelObjects(modelObjects));
 		}
@@ -432,17 +442,17 @@ namespace Dataweb.NShape.Controllers {
 			if (isFeasible)
 				description = (modelObjects.Count > 1) ? string.Format(Properties.Resources.MessageFmt_Copy0ModelObjects, modelObjects.Count) : Properties.Resources.MessageTxt_CopyModelObject;
 			else description = Properties.Resources.MessageTxt_NoModelObjectsSelected;
-			return new DelegateMenuItemDef(Properties.Resources.CaptionTxt_Copy, Properties.Resources.CopyBtn, "CopyModelObjectsAction",
+			return new DelegateMenuItemDef(MenuItemNameCopyModelObjects, Properties.Resources.CaptionTxt_Copy, Properties.Resources.CopyBtn, 
 				description, false, isFeasible, Permission.None,
 				(a, p) => Copy(modelObjects));
 		}
 
 
 		private MenuItemDef CreatePasteModelObjectsAction(IReadOnlyCollection<IModelObject> modelObjects) {
-			bool isFeasible = (copyPasteBuffer.Count > 0 && modelObjects.Count <= 1);
+			bool isFeasible = (_copyPasteBuffer.Count > 0 && modelObjects.Count <= 1);
 			string description;
 			if (isFeasible)
-				description = (copyPasteBuffer.Count > 1) ? string.Format(Properties.Resources.MessageFmt_Paste0ModelObjects, copyPasteBuffer.Count) : Properties.Resources.MessageTxt_PasteModelObject;
+				description = (_copyPasteBuffer.Count > 1) ? string.Format(Properties.Resources.MessageFmt_Paste0ModelObjects, _copyPasteBuffer.Count) : Properties.Resources.MessageTxt_PasteModelObject;
 			else description = Properties.Resources.MessageTxt_NoModelObjectsCopied;
 			
 			IModelObject parent = null;
@@ -450,16 +460,16 @@ namespace Dataweb.NShape.Controllers {
 				parent = mo;
 				break;
 			}
-			return new DelegateMenuItemDef(Properties.Resources.CaptionTxt_Paste, Properties.Resources.PasteBtn, "PasteModelObjectsAction",
+			return new DelegateMenuItemDef(MenuItemNamePasteModelObjects, Properties.Resources.CaptionTxt_Paste, Properties.Resources.PasteBtn, 
 				description, false, isFeasible, Permission.None,
 				(a, p) => Paste(parent));
 		}
 
 
 		private MenuItemDef CreateFindShapesAction(IReadOnlyCollection<IModelObject> modelObjects) {
-			bool isFeasible = (diagramSetController != null);
+			bool isFeasible = (_diagramSetController != null);
 			string description = Properties.Resources.MessageTxt_FindAndSelectAllAssignedShapes;
-			return new DelegateMenuItemDef(Properties.Resources.MessageTxt_FindAssignedShapes, Properties.Resources.FindShapes, "FindShapesAction",
+			return new DelegateMenuItemDef(MenuItemNameFindShapes, Properties.Resources.MessageTxt_FindAssignedShapes, Properties.Resources.FindShapes, 
 				description, false, isFeasible, Permission.None,
 				(a, p) => FindShapes(modelObjects));
 		}
@@ -469,9 +479,9 @@ namespace Dataweb.NShape.Controllers {
 
 		#region Fields
 
-		private DiagramSetController diagramSetController;
-		private Project project;
-		private List<IModelObject> copyPasteBuffer = new List<IModelObject>();
+		private DiagramSetController _diagramSetController;
+		private Project _project;
+		private List<IModelObject> _copyPasteBuffer = new List<IModelObject>();
 
 		#endregion
 	}
@@ -483,32 +493,32 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		public ModelObjectSelectedEventArgs(IEnumerable<IModelObject> selectedModelObjects, bool ensureVisibility) {
 			if (selectedModelObjects == null) throw new ArgumentNullException("selectedModelObjects");
-			this.modelObjects = new List<IModelObject>(selectedModelObjects);
-			this.ensureVisibility = ensureVisibility;
+			this._modelObjects = new List<IModelObject>(selectedModelObjects);
+			this._ensureVisibility = ensureVisibility;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IEnumerable<IModelObject> SelectedModelObjects {
-			get { return modelObjects; }
+			get { return _modelObjects; }
 			internal set {
-				modelObjects.Clear();
-				if (value != null) modelObjects.AddRange(value);
+				_modelObjects.Clear();
+				if (value != null) _modelObjects.AddRange(value);
 			}
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool EnsureVisibility {
-			get { return ensureVisibility; }
-			internal set { ensureVisibility = value; }
+			get { return _ensureVisibility; }
+			internal set { _ensureVisibility = value; }
 		}
 
 		internal ModelObjectSelectedEventArgs() {
-			modelObjects = new List<IModelObject>();
-			ensureVisibility = false;
+			_modelObjects = new List<IModelObject>();
+			_ensureVisibility = false;
 		}
 		
-		private List<IModelObject> modelObjects;
-		private bool ensureVisibility;
+		private List<IModelObject> _modelObjects;
+		private bool _ensureVisibility;
 	}
 
 }

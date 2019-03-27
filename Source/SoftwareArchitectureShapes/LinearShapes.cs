@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -30,7 +30,8 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's beginning.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_StartCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_StartCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdStartCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle StartCapStyle {
@@ -45,7 +46,8 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's ending.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_EndCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_EndCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdEndCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle EndCapStyle {
@@ -76,7 +78,8 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's beginning.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_StartCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_StartCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdStartCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle StartCapStyle {
@@ -91,7 +94,8 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's ending.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_EndCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_EndCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdEndCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle EndCapStyle {

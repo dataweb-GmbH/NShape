@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -44,7 +44,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		public InPlaceTextBox(IDiagramPresenter owner, ICaptionedShape shape, int captionIndex, string currentText, string newText) {
 			Construct(owner, shape, captionIndex, currentText, newText);
 			// Set Text
-			originalText = currentText;
+			_originalText = currentText;
 			if (string.IsNullOrEmpty(newText)) {
 				// Preselect the whole text if the user has not started typing yet
 				base.Text = currentText;
@@ -108,7 +108,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		public ContentAlignment TextAlignment {
 			get { return ConvertToContentAlignment(SelectionAlignment); }
 			set {
-				contentAlignment = value;
+				_contentAlignment = value;
 				this.SuspendLayout();
 				SelectAll();
 				SelectionAlignment = ConvertToHorizontalAlignment(value);
@@ -123,9 +123,9 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the initial, unmodified text.
 		/// </summary>
 		public string OriginalText {
-			get { return originalText; }
+			get { return _originalText; }
 			set {
-				originalText = value;
+				_originalText = value;
 				if (Text == string.Empty)
 					Text = value;
 			}
@@ -139,8 +139,8 @@ namespace Dataweb.NShape.WinFormsUI {
 			get { return base.Text; }
 			set {
 				base.Text = value;
-				if (originalText == string.Empty)
-					originalText = value;
+				if (_originalText == string.Empty)
+					_originalText = value;
 				InvalidateEx();
 			}
 		}
@@ -174,7 +174,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		protected override Padding DefaultPadding {
-			get { return defaultPadding; }
+			get { return _defaultPadding; }
 		}
 
 
@@ -222,14 +222,14 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		protected override void OnTextChanged(EventArgs e) {
-			owner.SuspendUpdate();
+			_owner.SuspendUpdate();
 			base.OnTextChanged(e);
 
-			shape.SetCaptionText(captionIndex, Text);
+			_shape.SetCaptionText(_captionIndex, Text);
 			DoUpdateBounds();
 
 			InvalidateEx();
-			owner.ResumeUpdate();
+			_owner.ResumeUpdate();
 		}
 
 
@@ -260,9 +260,9 @@ namespace Dataweb.NShape.WinFormsUI {
 			UpdateStyles();
 			
 			// Set caption / style specific properties
-			this.owner = owner;
-			this.shape = shape;
-			this.captionIndex = captionIndex;
+			this._owner = owner;
+			this._shape = shape;
+			this._captionIndex = captionIndex;
 
 			// Set general properties
 			this.BackColor = Color.Transparent;	// Does not matter - see CreateParams()
@@ -270,25 +270,25 @@ namespace Dataweb.NShape.WinFormsUI {
 			this.ScrollBars = RichTextBoxScrollBars.None;
 			this.BorderStyle = BorderStyle.None;
 			// Set Styles here because the ParagraphStyle is needed for resizing
-			characterStyle = shape.GetCaptionCharacterStyle(captionIndex);
-			paragraphStyle = shape.GetCaptionParagraphStyle(captionIndex);
+			_characterStyle = shape.GetCaptionCharacterStyle(captionIndex);
+			_paragraphStyle = shape.GetCaptionParagraphStyle(captionIndex);
 
 			// Set base' members
 			SuspendLayout();
 			try {
-				this.WordWrap = paragraphStyle.WordWrap;
-				this.Font = ToolCache.GetFont(characterStyle);
+				this.WordWrap = _paragraphStyle.WordWrap;
+				this.Font = ToolCache.GetFont(_characterStyle);
 				this.ZoomFactor = owner.ZoomLevel / 100f;
 
 				// Get line height
 				Size textSize = TextRenderer.MeasureText(((IDisplayService)owner).InfoGraphics, "Iq", Font);
 				owner.DiagramToControl(textSize, out textSize);
-				lineHeight = textSize.Height;
+				_lineHeight = textSize.Height;
 
 				DoUpdateBounds();
 
 				SelectAll();
-				SelectionAlignment = ConvertToHorizontalAlignment(paragraphStyle.Alignment);
+				SelectionAlignment = ConvertToHorizontalAlignment(_paragraphStyle.Alignment);
 				DeselectAll();
 			} finally {
 				ResumeLayout();
@@ -298,13 +298,13 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void DoUpdateBounds() {
-			Debug.Assert(shape != null);
-			Debug.Assert(paragraphStyle != null);
-			Debug.Assert(captionIndex >= 0);
+			Debug.Assert(_shape != null);
+			Debug.Assert(_paragraphStyle != null);
+			Debug.Assert(_captionIndex >= 0);
 
 			// Get rotated caption bounds from the shape
 			Point tl = Point.Empty, tr = Point.Empty, bl = Point.Empty, br = Point.Empty;
-			shape.GetCaptionBounds(captionIndex, out tl, out tr, out br, out bl);
+			_shape.GetCaptionBounds(_captionIndex, out tl, out tr, out br, out bl);
 			// Calculate unrotated caption bounds
 			float angle;
 			Point center = Geometry.VectorLinearInterpolation(tl, br, 0.5f);
@@ -318,19 +318,19 @@ namespace Dataweb.NShape.WinFormsUI {
 			layoutArea.Width = br.X - tl.X;
 			layoutArea.Height = br.Y - tl.Y;
 			// Measure the current size of the text
-			Size textSize = TextMeasurer.MeasureText(Text, Font, layoutArea.Size, paragraphStyle);
+			Size textSize = TextMeasurer.MeasureText(Text, Font, layoutArea.Size, _paragraphStyle);
 
 			// Transform layout area and text size to control coordinates
-			owner.DiagramToControl(layoutArea, out layoutArea);
-			owner.DiagramToControl(textSize, out textSize);
+			_owner.DiagramToControl(layoutArea, out layoutArea);
+			_owner.DiagramToControl(textSize, out textSize);
 			
 			// Calculate new bounds for the text editor based on the shape's caption layout rectangle
 			Rectangle newBounds = Rectangle.Empty;
 			newBounds.X = layoutArea.X;
 			newBounds.Width = layoutArea.Width;
-			newBounds.Height = Math.Max(textSize.Height, lineHeight);
+			newBounds.Height = Math.Max(textSize.Height, _lineHeight);
 			// Move text editor depending on the vertical text alignment
-			switch (paragraphStyle.Alignment) {
+			switch (_paragraphStyle.Alignment) {
 				case ContentAlignment.BottomCenter:
 				case ContentAlignment.BottomLeft:
 				case ContentAlignment.BottomRight:
@@ -348,21 +348,21 @@ namespace Dataweb.NShape.WinFormsUI {
 					break;
 				default:
 					newBounds.Y = layoutArea.Y;
-					Debug.Fail(string.Format("Unhandled {0} '{1}'.", paragraphStyle.Alignment.GetType().Name, paragraphStyle.Alignment));
+					Debug.Fail(string.Format("Unhandled {0} '{1}'.", _paragraphStyle.Alignment.GetType().Name, _paragraphStyle.Alignment));
 					break;
 			}
 			// Correct textbox size by padding
-			newBounds.X += paragraphStyle.Padding.Left;
-			newBounds.Y += paragraphStyle.Padding.Top;
-			newBounds.Width -= paragraphStyle.Padding.Horizontal;
-			newBounds.Height -= paragraphStyle.Padding.Vertical;
+			newBounds.X += _paragraphStyle.Padding.Left;
+			newBounds.Y += _paragraphStyle.Padding.Top;
+			newBounds.Width -= _paragraphStyle.Padding.Horizontal;
+			newBounds.Height -= _paragraphStyle.Padding.Vertical;
 			newBounds.Inflate(1, 1);
 			
 			// Update control bounds 
 			// (No need to Invalidate here, this is done by OnResize())
 			SuspendLayout();
 			Bounds = newBounds;
-			defaultPadding = new Padding(paragraphStyle.Padding.Left, paragraphStyle.Padding.Top, paragraphStyle.Padding.Right, paragraphStyle.Padding.Bottom);
+			_defaultPadding = new Padding(_paragraphStyle.Padding.Left, _paragraphStyle.Padding.Top, _paragraphStyle.Padding.Right, _paragraphStyle.Padding.Bottom);
 			ResumeLayout();
 		}
 
@@ -389,34 +389,34 @@ namespace Dataweb.NShape.WinFormsUI {
 		private ContentAlignment ConvertToContentAlignment(HorizontalAlignment horizontalAlignment) {
 			switch (horizontalAlignment) {
 				case HorizontalAlignment.Center:
-					switch(contentAlignment) {
+					switch(_contentAlignment) {
 						case ContentAlignment.BottomCenter:
 							return ContentAlignment.BottomCenter;
 						case ContentAlignment.MiddleCenter:
 							return ContentAlignment.MiddleCenter;
 						case ContentAlignment.TopCenter:
 							return ContentAlignment.TopCenter;
-						default: throw new NShapeUnsupportedValueException(typeof(ContentAlignment), contentAlignment);
+						default: throw new NShapeUnsupportedValueException(typeof(ContentAlignment), _contentAlignment);
 					}
 				case HorizontalAlignment.Left:
-					switch(contentAlignment) {
+					switch(_contentAlignment) {
 						case ContentAlignment.BottomLeft:
 							return ContentAlignment.BottomLeft;
 						case ContentAlignment.MiddleLeft:
 							return ContentAlignment.MiddleLeft;
 						case ContentAlignment.TopLeft:
 							return ContentAlignment.TopLeft;
-						default: throw new NShapeUnsupportedValueException(typeof(ContentAlignment), contentAlignment);
+						default: throw new NShapeUnsupportedValueException(typeof(ContentAlignment), _contentAlignment);
 					}
 				case HorizontalAlignment.Right:
-					switch(contentAlignment) {
+					switch(_contentAlignment) {
 						case ContentAlignment.BottomRight:
 							return ContentAlignment.BottomRight;
 						case ContentAlignment.MiddleRight:
 							return ContentAlignment.MiddleRight;
 						case ContentAlignment.TopRight:
 							return ContentAlignment.TopRight;
-						default: throw new NShapeUnsupportedValueException(typeof(ContentAlignment), contentAlignment);
+						default: throw new NShapeUnsupportedValueException(typeof(ContentAlignment), _contentAlignment);
 					}
 				default: throw new NShapeUnsupportedValueException(typeof(HorizontalAlignment), horizontalAlignment);
 			}
@@ -426,19 +426,19 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		#region Fields
-		private IDiagramPresenter owner;
-		private ICaptionedShape shape;
-		private int captionIndex;
+		private IDiagramPresenter _owner;
+		private ICaptionedShape _shape;
+		private int _captionIndex;
 		
-		private string originalText = string.Empty;
-		private IParagraphStyle paragraphStyle;
-		private ICharacterStyle characterStyle;
+		private string _originalText = string.Empty;
+		private IParagraphStyle _paragraphStyle;
+		private ICharacterStyle _characterStyle;
 
-		private int lineHeight;
+		private int _lineHeight;
 
-		private Padding defaultPadding = Padding.Empty;
-		private ContentAlignment contentAlignment;
-		private TextPaddingTypeConverter paddingConverter = new TextPaddingTypeConverter();
+		private Padding _defaultPadding = Padding.Empty;
+		private ContentAlignment _contentAlignment;
+		private TextPaddingTypeConverter _paddingConverter = new TextPaddingTypeConverter();
 		#endregion
 	}
 

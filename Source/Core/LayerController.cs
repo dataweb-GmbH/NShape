@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -29,6 +29,23 @@ namespace Dataweb.NShape.Controllers {
 	[ToolboxItem(true)]
 	[ToolboxBitmap(typeof(LayerController), "LayerController.bmp")]
 	public class LayerController : Component {
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public const String MenuItemNameAddLayer = "AddLayerAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const String MenuItemNameAddMultipleLayers = "AddMultipleLayersAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const String MenuItemNameDeleteLayers = "DeleteLayersAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const String MenuItemNameRenameLayer = "RenameLayerAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const String MenuItemNameActivateLayers = "ActivateLayersAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const String MenuItemNameDeactivateLayers = "DeactivateLayersAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const String MenuItemNameShowLayers = "ShowLayersAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const String MenuItemNameHideLayers = "HideLayersAction";
 
 		/// <summary>
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Controllers.LayerController" />.
@@ -92,11 +109,11 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		[CategoryNShape()]
 		public DiagramSetController DiagramSetController {
-			get { return diagramSetController; }
+			get { return _diagramSetController; }
 			set {
-				if (diagramSetController != null) UnregisterDiagramSetControllerEvents();
-				diagramSetController = value;
-				if (diagramSetController != null) RegisterDiagramSetControllerEvents();
+				if (_diagramSetController != null) UnregisterDiagramSetControllerEvents();
+				_diagramSetController = value;
+				if (_diagramSetController != null) RegisterDiagramSetControllerEvents();
 			}
 		}
 
@@ -107,8 +124,8 @@ namespace Dataweb.NShape.Controllers {
 		[CategoryNShape()]
 		public Project Project {
 			get {
-				if (diagramSetController == null) return null;
-				else return diagramSetController.Project;
+				if (_diagramSetController == null) return null;
+				else return _diagramSetController.Project;
 			}
 		}
 
@@ -137,7 +154,7 @@ namespace Dataweb.NShape.Controllers {
 				throw new NShapeException("Layer name '{0}' already exists.", layerName);
 			Command cmd = new AddLayerCommand(diagram, layerName);
 			Project.ExecuteCommand(cmd);
-			if (LayersAdded != null) LayersAdded(this, LayerHelper.GetLayersEventArgs(LayerHelper.GetLayers(layerName, diagram)));
+			if (LayersAdded != null) LayersAdded(this, LayerHelper.GetLayersEventArgs(diagram.Layers[layerName]));
 		}
 
 
@@ -161,7 +178,7 @@ namespace Dataweb.NShape.Controllers {
 			if (layer == null) throw new NShapeException("Layer '{0}' does not exist.", layerName);
 			Command cmd = new RemoveLayerCommand(diagram, layer);
 			Project.ExecuteCommand(cmd);
-			if (LayersRemoved != null) LayersRemoved(this, LayerHelper.GetLayersEventArgs(LayerHelper.GetLayers(layerName, diagram)));
+			if (LayersRemoved != null) LayersRemoved(this, LayerHelper.GetLayersEventArgs(layer));
 		}
 
 
@@ -174,7 +191,7 @@ namespace Dataweb.NShape.Controllers {
 			AssertDiagramSetControllerIsSet();
 			ICommand cmd = new EditLayerCommand(diagram, layer, EditLayerCommand.ChangedProperty.Name, oldName, newName);
 			Project.ExecuteCommand(cmd);
-			if (LayerModified != null) LayerModified(this, LayerHelper.GetLayersEventArgs(LayerHelper.GetLayers(layer.Id, diagram)));
+			if (LayerModified != null) LayerModified(this, LayerHelper.GetLayersEventArgs(layer));
 		}
 
 
@@ -207,7 +224,7 @@ namespace Dataweb.NShape.Controllers {
 			
 			if (cmd != null) {
 			    Project.ExecuteCommand(cmd);
-			    if (LayerModified != null) LayerModified(this, LayerHelper.GetLayersEventArgs(LayerHelper.GetLayers(layer.Id, diagram)));
+			    if (LayerModified != null) LayerModified(this, LayerHelper.GetLayersEventArgs(layer));
 			}
 		}
 
@@ -220,20 +237,24 @@ namespace Dataweb.NShape.Controllers {
 			if (selectedLayers == null) throw new ArgumentNullException("selectedLayers");
 			bool isFeasible;
 			string description;
-			
-			isFeasible = diagram.Layers.Count < Enum.GetValues(typeof(LayerIds)).Length;
-			description = isFeasible ? Properties.Resources.MessageTxt_AddANewLayerToTheDiagram 
-				: Properties.Resources.MessageTxt_MaximumNumberOfLayersReached;
-			yield return new DelegateMenuItemDef(Properties.Resources.CaptionTxt_AddLayer,
-				Properties.Resources.NewLayer, description, isFeasible, Permission.Data,
-				diagram != null ? diagram.SecurityDomainName : 'A',
+
+			isFeasible = true;
+			description = Properties.Resources.MessageTxt_AddANewLayerToTheDiagram;
+			yield return new DelegateMenuItemDef(MenuItemNameAddLayer, Properties.Resources.CaptionTxt_AddLayer,
+				Properties.Resources.NewLayer, description, isFeasible, Permission.Data, diagram.SecurityDomainName,
 				(a, p) => AddLayer(diagram));
+
+			isFeasible = true;
+			description = Properties.Resources.MessageTxt_AddMultipleNewLayersToTheDiagram;
+			yield return new DelegateMenuItemDef(MenuItemNameAddMultipleLayers, Properties.Resources.CaptionTxt_AddMultipleLayers, 
+				Properties.Resources.NewLayer, description, isFeasible, Permission.Data, diagram.SecurityDomainName,
+				(a, p) => { for (int i = 0; i < 10; ++i) AddLayer(diagram);});
 
 			isFeasible = selectedLayers.Count > 0;
 			description = isFeasible ? string.Format(Properties.Resources.MessageFmt_Delete0Layers, selectedLayers.Count) : Properties.Resources.MessageTxt_NoLayersSelected;
-			yield return new DelegateMenuItemDef((selectedLayers.Count > 1) ? Properties.Resources.CaptionTxt_DeleteLayer : Properties.Resources.CaptionTxt_DeleteLayers,
-				Properties.Resources.DeleteBtn, description, isFeasible, Permission.Data, 
-				diagram != null ? diagram.SecurityDomainName : 'A',
+			yield return new DelegateMenuItemDef(MenuItemNameDeleteLayers,
+				(selectedLayers.Count > 1) ? Properties.Resources.CaptionTxt_DeleteLayer : Properties.Resources.CaptionTxt_DeleteLayers,
+				Properties.Resources.DeleteBtn, description, isFeasible, Permission.Data, diagram.SecurityDomainName,
 				(a, p) => this.RemoveLayers(diagram, selectedLayers)
 			);
 		}
@@ -244,16 +265,16 @@ namespace Dataweb.NShape.Controllers {
 		#region [Private] Methods
 
 		private void RegisterDiagramSetControllerEvents() {
-			diagramSetController.ProjectChanged += diagramSetController_ProjectChanged;
-			diagramSetController.ProjectChanging += diagramSetController_ProjectChanging;
-			if (diagramSetController.Project != null) RegisterProjectEvents();
+			_diagramSetController.ProjectChanged += diagramSetController_ProjectChanged;
+			_diagramSetController.ProjectChanging += diagramSetController_ProjectChanging;
+			if (_diagramSetController.Project != null) RegisterProjectEvents();
 		}
 
 
 		private void UnregisterDiagramSetControllerEvents() {
-			if (diagramSetController.Project != null) UnregisterProjectEvents();
-			diagramSetController.ProjectChanging -= diagramSetController_ProjectChanging;
-			diagramSetController.ProjectChanged -= diagramSetController_ProjectChanged;
+			if (_diagramSetController.Project != null) UnregisterProjectEvents();
+			_diagramSetController.ProjectChanging -= diagramSetController_ProjectChanging;
+			_diagramSetController.ProjectChanged -= diagramSetController_ProjectChanged;
 		}
 
 
@@ -278,18 +299,18 @@ namespace Dataweb.NShape.Controllers {
 
 		private void RegisterRepositoryEvents() {
 			AssertRepositoryIsSet();
-			if (!repositoryEventsRegistered) {
+			if (!_repositoryEventsRegistered) {
 				Project.Repository.DiagramUpdated += Repository_DiagramUpdated;
-				repositoryEventsRegistered = true;
+				_repositoryEventsRegistered = true;
 			}
 		}
 
 
 		private void UnregisterRepositoryEvents() {
 			AssertRepositoryIsSet();
-			if (repositoryEventsRegistered) {
+			if (_repositoryEventsRegistered) {
 				Project.Repository.DiagramUpdated -= Repository_DiagramUpdated;
-				repositoryEventsRegistered = false;
+				_repositoryEventsRegistered = false;
 			}
 		}
 		
@@ -306,26 +327,13 @@ namespace Dataweb.NShape.Controllers {
 
 		
 		private void AssertDiagramSetControllerIsSet() {
-			if (diagramSetController == null) throw new NShapeException("Property 'DiagramController' is not set.");
+			if (_diagramSetController == null) throw new NShapeException("Property 'DiagramController' is not set.");
 		}
 
 
 		private string GetNewLayerName(Diagram diagram) {
-			string result = string.Empty;
-			// get all used Layerids
-			LayerIds usedLayerIds = LayerIds.None;
-			foreach (Layer l in diagram.Layers)
-				usedLayerIds |= l.Id;
-			// find the first Id available
-			foreach (LayerIds value in Enum.GetValues(typeof(LayerIds))) {
-				if (value == LayerIds.None) continue;
-				if ((usedLayerIds & value) == 0) {
-					int bitNo = (int)Math.Log((int)value, 2);
-					result = string.Format("Layer {0:D2}", bitNo + 1);
-					break;
-				}
-			}
-			return result;
+			int nextLayerId = diagram.Layers.GetNextAvailableLayerId();
+			return string.Format("Layer {0:D2}", nextLayerId);
 		}
 
 		#endregion
@@ -334,12 +342,12 @@ namespace Dataweb.NShape.Controllers {
 		#region [Private] Methods: EventHandler implementations
 
 		private void diagramSetController_ProjectChanging(object sender, EventArgs e) {
-			if (diagramSetController.Project != null) UnregisterProjectEvents();
+			if (_diagramSetController.Project != null) UnregisterProjectEvents();
 		}
 
 
 		private void diagramSetController_ProjectChanged(object sender, EventArgs e) {
-			if (diagramSetController.Project != null) RegisterProjectEvents();
+			if (_diagramSetController.Project != null) RegisterProjectEvents();
 		}
 
 
@@ -397,224 +405,14 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		public const int MaxLayerCount = 31;
 
-		private DiagramSetController diagramSetController = null;
-		private bool repositoryEventsRegistered = false;
+		private DiagramSetController _diagramSetController = null;
+		private bool _repositoryEventsRegistered = false;
 
-		private LayersEventArgs layersEventArgs = new LayersEventArgs();
-		private LayerEventArgs layerEventArgs = new LayerEventArgs();
-		private LayerRenamedEventArgs layerRenamedEventArgs = new LayerRenamedEventArgs();
+		private LayersEventArgs _layersEventArgs = new LayersEventArgs();
+		private LayerEventArgs _layerEventArgs = new LayerEventArgs();
+		private LayerRenamedEventArgs _layerRenamedEventArgs = new LayerRenamedEventArgs();
 
 		#endregion
-	}
-
-
-	#region EventArgs
-
-	/// <ToBeCompleted></ToBeCompleted>
-	public class LayerEventArgs : EventArgs {
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public LayerEventArgs(Layer layer) {
-			this.layer = layer;
-		}
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public Layer Layer {
-			get { return layer; }
-			internal set { layer = value; }
-		}
-
-		internal LayerEventArgs() { }
-
-		private Layer layer = null;
-	}
-
-
-	/// <ToBeCompleted></ToBeCompleted>
-	public class LayersEventArgs : EventArgs {
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public LayersEventArgs(IEnumerable<Layer> layers) {
-			if (layers == null) throw new ArgumentNullException("layers");
-			this.layers = new ReadOnlyList<Layer>(layers);
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public IReadOnlyCollection<Layer> Layers { get { return layers; } }
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		protected internal LayersEventArgs() {
-			layers = new ReadOnlyList<Layer>();
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		protected internal void SetLayers(ReadOnlyList<Layer> layers) {
-			this.layers.Clear();
-			this.layers.AddRange(layers);
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		protected internal void SetLayers(IEnumerable<Layer> layers) {
-			this.layers.Clear();
-			this.layers.AddRange(layers);
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		protected internal void SetLayers(Layer layer) {
-			this.layers.Clear();
-			this.layers.Add(layer);
-		}
-
-
-		private ReadOnlyList<Layer> layers = null;
-	}
-
-
-	/// <ToBeCompleted></ToBeCompleted>
-	public class LayerRenamedEventArgs : LayerEventArgs {
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public LayerRenamedEventArgs(Layer layer, string oldName, string newName)
-			: base(layer) {
-
-			this.oldName = oldName;
-			this.newName = newName;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public string OldName {
-			get { return oldName; }
-			internal set { oldName = value; }
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public string NewName {
-			get { return newName; }
-			internal set { newName = value; }
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		protected internal LayerRenamedEventArgs() {
-		}
-
-
-		private string oldName;
-		private string newName;
-	}
-
-
-	/// <ToBeCompleted></ToBeCompleted>
-	public class LayerZoomThresholdChangedEventArgs : LayerEventArgs {
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public LayerZoomThresholdChangedEventArgs(Layer layer, int oldZoomThreshold, int newZoomThreshold)
-			: base(layer) {
-			this.oldZoomThreshold = oldZoomThreshold;
-			this.newZoomThreshold = newZoomThreshold;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public int OldZoomThreshold {
-			get { return oldZoomThreshold; }
-			internal set { oldZoomThreshold = value; }
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public int NewZoomThreshold {
-			get { return newZoomThreshold; }
-			internal set { newZoomThreshold = value; }
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		protected internal LayerZoomThresholdChangedEventArgs() {
-		}
-
-
-		private int oldZoomThreshold;
-		private int newZoomThreshold;
-	}
-
-	#endregion
-
-
-	/// <ToBeCompleted></ToBeCompleted>
-	internal class LayerHelper {
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Layer> GetLayers(LayerIds layerId, Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			return diagram.Layers.GetLayers(layerId);
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Layer> Getlayers(Layer layer) {
-			yield return layer;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Layer> GetLayers(string layerName, Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			yield return diagram.Layers.FindLayer(layerName);
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static LayerEventArgs GetLayerEventArgs(string layerName, Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			Layer layer = diagram.Layers.FindLayer(layerName);
-			Debug.Assert(layer != null);
-			layerEventArgs.Layer = layer;
-			return layerEventArgs;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static LayerEventArgs GetLayerEventArgs(Layer layer) {
-			if (layer == null) throw new ArgumentNullException("layer");
-			layerEventArgs.Layer = layer;
-			return layerEventArgs;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static LayersEventArgs GetLayersEventArgs(Layer layer) {
-			if (layer == null) throw new ArgumentNullException("layer");
-			layersEventArgs.SetLayers(layer);
-			return layersEventArgs;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static LayersEventArgs GetLayersEventArgs(ReadOnlyList<Layer> layers) {
-			if (layers == null) throw new ArgumentNullException("layers");
-			layersEventArgs.SetLayers(layers);
-			return layersEventArgs;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static LayersEventArgs GetLayersEventArgs(IEnumerable<Layer> layers) {
-			if (layers == null) throw new ArgumentNullException("layers");
-			layersEventArgs.SetLayers(layers);
-			return layersEventArgs;
-		}
-
-
-		private static LayerEventArgs layerEventArgs = new LayerEventArgs();
-		private static LayersEventArgs layersEventArgs = new LayersEventArgs();
 	}
 
 }

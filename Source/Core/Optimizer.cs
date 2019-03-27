@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -46,31 +46,31 @@ namespace Dataweb.Utilities {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Reset(ISimulatedAnnealingProblem problem, float maxEnergy) {
-			this.problem = problem;
-			this.maxEnergy = maxEnergy;
+			this._problem = problem;
+			this._maxEnergy = maxEnergy;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Run() {
-			object state = problem.FindInitialState();
-			float energy = problem.CalculateEnergy(state);
+			object state = _problem.FindInitialState();
+			float energy = _problem.CalculateEnergy(state);
 			object bestState = state;
 			float bestEnergy = energy;
 			int loops = 0;
 			while (loops < 1000 && energy > bestEnergy) {
-				object nextState = problem.FindNeighbourState(state);
-				float nextEnergy = problem.CalculateEnergy(nextState);
+				object nextState = _problem.FindNeighbourState(state);
+				float nextEnergy = _problem.CalculateEnergy(nextState);
 				if (nextEnergy < bestEnergy) {
 					bestState = nextState;
 					bestEnergy = nextEnergy;
 				}
-				if (AcceptanceProbability(energy, nextEnergy, Temperature(loops / 1000)) > random.NextDouble()) {
+				if (AcceptanceProbability(energy, nextEnergy, Temperature(loops / 1000)) > _random.NextDouble()) {
 					state = nextState;
 					energy = nextEnergy;
 				}
 				++loops;
 			}
-			problem.SetState(bestState);
+			_problem.SetState(bestState);
 		}
 
 
@@ -88,11 +88,11 @@ namespace Dataweb.Utilities {
 		}
 
 
-		private ISimulatedAnnealingProblem problem;
+		private ISimulatedAnnealingProblem _problem;
 
-		private float maxEnergy;
+		private float _maxEnergy;
 
-		private Random random = new Random();
+		private Random _random = new Random();
 
 	}
 

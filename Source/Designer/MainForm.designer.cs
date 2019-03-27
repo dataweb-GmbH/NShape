@@ -1,4 +1,4 @@
-namespace Dataweb.NShape.Designer {
+﻿namespace Dataweb.NShape.Designer {
 
 	partial class DiagramDesignerMainForm {
 		/// <summary>
@@ -1587,7 +1587,7 @@ namespace Dataweb.NShape.Designer {
 			// 
 			this.project.Description = null;
 			this.project.LibrarySearchPaths = ((System.Collections.Generic.IList<string>)(resources.GetObject("project.LibrarySearchPaths")));
-			this.project.Name = "";
+			this.project.Name = string.Empty;
 			this.project.Repository = this.cachedRepository;
 			roleBasedSecurityManager1.CurrentRole = Dataweb.NShape.StandardRole.Administrator;
 			roleBasedSecurityManager1.CurrentRoleName = "Administrator";
@@ -1598,7 +1598,7 @@ namespace Dataweb.NShape.Designer {
 			// 
 			// cachedRepository
 			// 
-			this.cachedRepository.ProjectName = "";
+			this.cachedRepository.ProjectName = string.Empty;
 			this.cachedRepository.Store = null;
 			this.cachedRepository.Version = 0;
 			// 

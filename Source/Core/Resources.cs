@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -32,35 +32,35 @@ namespace Dataweb.Utilities {
 		public static string GetString(string name) {
 			if (name == null) throw new ArgumentNullException("name");
 			EnsureResourceManager();
-			return resourceManager.GetString(name);
+			return _resourceManager.GetString(name);
 		}
 
 
 		public static string FormatString(string formatName, object arg0) {
 			if (formatName == null) throw new ArgumentNullException("formatName");
 			EnsureResourceManager();
-			return string.Format(resourceManager.GetString(formatName), arg0);
+			return string.Format(_resourceManager.GetString(formatName), arg0);
 		}
 
 
 		public static string FormatString(string formatName, object arg0, object arg1) {
 			if (formatName == null) throw new ArgumentNullException("formatName");
 			EnsureResourceManager();
-			return string.Format(resourceManager.GetString(formatName), arg0, arg1);
+			return string.Format(_resourceManager.GetString(formatName), arg0, arg1);
 		}
 
 
 		public static string FormatString(string formatName, object arg0, object arg1, object arg2) {
 			if (formatName == null) throw new ArgumentNullException("formatName");
 			EnsureResourceManager();
-			return string.Format(resourceManager.GetString(formatName), arg0, arg1, arg2);
+			return string.Format(_resourceManager.GetString(formatName), arg0, arg1, arg2);
 		}
 
 
 		public static string FormatString(string formatName, params object[] args) {
 			if (formatName == null) throw new ArgumentNullException("formatName");
 			EnsureResourceManager();
-			return string.Format(resourceManager.GetString(formatName), args);
+			return string.Format(_resourceManager.GetString(formatName), args);
 		}
 
 
@@ -71,14 +71,14 @@ namespace Dataweb.Utilities {
 
 		// Makes sure the resource manager is isInitialized.
 		private static void EnsureResourceManager() {
-			if (resourceManager == null) {
-				resourceManager = new ResourceManager("Dataweb.NShape.Properties.Resources", Assembly.GetExecutingAssembly());
+			if (_resourceManager == null) {
+				_resourceManager = new ResourceManager("Dataweb.NShape.Properties.Resources", Assembly.GetExecutingAssembly());
 			}
 		}
 
 
 		// Holds a resource manager for the default resources of the current library
-		private static ResourceManager resourceManager;
+		private static ResourceManager _resourceManager;
 
 	}
 

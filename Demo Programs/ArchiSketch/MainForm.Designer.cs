@@ -1,4 +1,4 @@
-namespace ArchiSketch {
+﻿namespace ArchiSketch {
 	partial class MainForm {
 		/// <summary>
 		/// Required designer variable.

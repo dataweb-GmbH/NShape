@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -87,12 +87,12 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		[CategoryNShape()]
 		public Project Project {
-			get { return project; }
+			get { return _project; }
 			set {
 				if (ProjectChanging != null) ProjectChanging(this, EventArgs.Empty);
-				if (project != null) UnregisterProjectEvents();
-				project = value;
-				if (project != null) RegisterProjectEvents();
+				if (_project != null) UnregisterProjectEvents();
+				_project = value;
+				if (_project != null) RegisterProjectEvents();
 				if (ProjectChanged != null) ProjectChanged(this, EventArgs.Empty);
 			}
 		}
@@ -101,9 +101,9 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		[Browsable(false)]
 		public Tool ActiveTool {
-			get { return tool; }
+			get { return _tool; }
 			set {
-				tool = value;
+				_tool = value;
 				if (ToolChanged != null) ToolChanged(this, EventArgs.Empty);
 			}
 		}
@@ -113,7 +113,7 @@ namespace Dataweb.NShape.Controllers {
 		[Browsable(false)]
 		public IEnumerable<Diagram> Diagrams {
 			get {
-				foreach (DiagramController diagramController in diagramControllers)
+				foreach (DiagramController diagramController in _diagramControllers)
 					yield return diagramController.Diagram;
 			}
 		}
@@ -132,7 +132,7 @@ namespace Dataweb.NShape.Controllers {
 			diagram.Width = 1000;
 			diagram.Height = 1000;
 			ICommand cmd = new CreateDiagramCommand(diagram);
-			project.ExecuteCommand(cmd);
+			_project.ExecuteCommand(cmd);
 			return diagram;
 		}
 
@@ -143,8 +143,8 @@ namespace Dataweb.NShape.Controllers {
 			AssertProjectIsOpen();
 			int idx = IndexOf(name);
 			if (idx >= 0) {
-				DiagramEventArgs eventArgs = GetDiagramEventArgs(diagramControllers[idx].Diagram);
-				diagramControllers.RemoveAt(idx);
+				DiagramEventArgs eventArgs = GetDiagramEventArgs(_diagramControllers[idx].Diagram);
+				_diagramControllers.RemoveAt(idx);
 				if (DiagramRemoved != null) DiagramRemoved(this, eventArgs);
 			}
 		}
@@ -156,8 +156,8 @@ namespace Dataweb.NShape.Controllers {
 			AssertProjectIsOpen();
 			int idx = DiagramControllerIndexOf(diagram);
 			if (idx >= 0) {
-				DiagramController controller = diagramControllers[idx];
-				diagramControllers.RemoveAt(idx);
+				DiagramController controller = _diagramControllers[idx];
+				_diagramControllers.RemoveAt(idx);
 
 				DiagramEventArgs eventArgs = GetDiagramEventArgs(controller.Diagram);
 				if (DiagramRemoved != null) DiagramRemoved(this, eventArgs);
@@ -173,9 +173,9 @@ namespace Dataweb.NShape.Controllers {
 			AssertProjectIsOpen();
 			int idx = IndexOf(name);
 			if (idx >= 0) {
-				DiagramController controller = diagramControllers[idx];
+				DiagramController controller = _diagramControllers[idx];
 				ICommand cmd = new DeleteDiagramCommand(controller.Diagram);
-				project.ExecuteCommand(cmd);
+				_project.ExecuteCommand(cmd);
 			}
 		}
 
@@ -186,9 +186,9 @@ namespace Dataweb.NShape.Controllers {
 			AssertProjectIsOpen();
 			int idx = DiagramControllerIndexOf(diagram);
 			if (idx >= 0) {
-				DiagramController controller = diagramControllers[idx];
+				DiagramController controller = _diagramControllers[idx];
 				ICommand cmd = new DeleteDiagramCommand(controller.Diagram);
-				project.ExecuteCommand(cmd);
+				_project.ExecuteCommand(cmd);
 			}
 		}
 
@@ -207,10 +207,11 @@ namespace Dataweb.NShape.Controllers {
 		/// The ZOrder of the shape will not be changed! 
 		/// If the shape does not have a defined ZOrder, set it after inserting the shape by calling diagram.Shapes.SetZorder().
 		/// </remarks>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
 		public void InsertShape(Diagram diagram, Shape shape, LayerIds activeLayers, bool withModelObjects) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shape == null) throw new ArgumentNullException("shape");
-			InsertShapes(diagram, SingleInstanceEnumerator<Shape>.Create(shape), activeLayers, withModelObjects);
+			InsertShapes(diagram, SingleInstanceEnumerator<Shape>.Create(shape), Layer.NoLayerId, activeLayers, withModelObjects);
 		}
 
 
@@ -221,10 +222,10 @@ namespace Dataweb.NShape.Controllers {
 		/// The ZOrder of the shapes will not be changed! 
 		/// If the shapes do not have a defined ZOrder (e.g. after creation), set it after inserting by calling diagram.Shapes.SetZorder().
 		/// </remarks>
-		public void InsertShapes(Diagram diagram, IEnumerable<Shape> shapes, LayerIds activeLayers, bool withModelObjects) {
+		public void InsertShapes(Diagram diagram, IEnumerable<Shape> shapes, int activeHomeLayer, LayerIds activeLayers, bool withModelObjects) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shapes == null) throw new ArgumentNullException("shapes");
-			ICommand cmd = new CreateShapesCommand(diagram, activeLayers, shapes, withModelObjects, true);
+			ICommand cmd = new CreateShapesCommand(diagram, activeHomeLayer, activeLayers, shapes, withModelObjects, true);
 			Project.ExecuteCommand(cmd);
 		}
 
@@ -244,9 +245,9 @@ namespace Dataweb.NShape.Controllers {
 			if (withModelObjects) {
 				foreach (Shape s in shapes) {
 					if (!diagram.Shapes.Contains(s))
-						throw new NShapeException("One of the given shapes is not part of the given diagram.");
+						throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageTxt_OneOfTheGivenShapesIsNotPartOfTheGivenDiagram);
 					if (s.ModelObject != null && s.ModelObject.ShapeCount > 1) {
-						string messageText = string.Format("{0} '{1}' can not be deleted while more than one shapes refer to it.",
+						string messageText = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_01CanNotBeDeletedWhileMoreThanOneShapesReferToIt,
 															s.ModelObject.Type.Name, s.ModelObject.Name);
 						throw new NShapeException(messageText);
 					}
@@ -257,7 +258,10 @@ namespace Dataweb.NShape.Controllers {
 		}
 
 
-		internal void MoveShapes(Diagram diagram, IEnumerable<Shape> shapes, int deltaX, int deltaY) {
+		/// <summary>
+		/// Creates and executes an (undoable) command that moves the given shapes by the specified delta.
+		/// </summary>
+		public void MoveShapes(Diagram diagram, IEnumerable<Shape> shapes, int deltaX, int deltaY) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shapes == null) throw new ArgumentNullException("shapes");
 			ICommand cmd = new MoveShapeByCommand(shapes, deltaX, deltaY);
@@ -287,18 +291,18 @@ namespace Dataweb.NShape.Controllers {
 			if (diagram == null) throw new ArgumentNullException("source");
 			if (shapes == null) throw new ArgumentNullException("shapes");
 
-			editBuffer.Clear();
-			editBuffer.action = EditAction.Copy;
-			editBuffer.withModelObjects = withModelObjects;
-			editBuffer.initialMousePos = position;
-			editBuffer.shapes.AddRange(shapes);
+			_editBuffer.Clear();
+			_editBuffer.action = EditAction.Copy;
+			_editBuffer.withModelObjects = withModelObjects;
+			_editBuffer.initialMousePos = position;
+			_editBuffer.shapes.AddRange(shapes);
 			
 			// We have to copy the shapes immediately because shapes (and/or model objects) may 
 			// be deleted after they are copied to 'clipboard'.
 			// Copy shapes:
 			// Use the ShapeCollection's Clone method in order to maintain connections 
 			// between shapes inside the collection
-			editBuffer.shapes = editBuffer.shapes.Clone(withModelObjects);
+			_editBuffer.shapes = _editBuffer.shapes.Clone(withModelObjects);
 		}
 
 
@@ -323,16 +327,16 @@ namespace Dataweb.NShape.Controllers {
 		public void Cut(Diagram diagram, IEnumerable<Shape> shapes, bool withModelObjects, Point position) {
 			if (diagram == null) throw new ArgumentNullException("source");
 			if (shapes == null) throw new ArgumentNullException("shapes");
-			if (project == null) throw new InvalidOperationException("Property Project not set!");
+			if (_project == null) throw new InvalidOperationException("Property Project not set!");
 			Dictionary<Shape, IModelObject> cutModelObjects = null;
 
-			editBuffer.Clear();
-			editBuffer.action = EditAction.Cut;
-			editBuffer.withModelObjects = withModelObjects;
-			editBuffer.initialMousePos = position;
-			editBuffer.shapes.AddRange(shapes);
+			_editBuffer.Clear();
+			_editBuffer.action = EditAction.Cut;
+			_editBuffer.withModelObjects = withModelObjects;
+			_editBuffer.initialMousePos = position;
+			_editBuffer.shapes.AddRange(shapes);
 			// Store model objects and shape connections
-			foreach (Shape s in editBuffer.shapes) {
+			foreach (Shape s in _editBuffer.shapes) {
 				// Store model objects before they will be deleted
 				if (withModelObjects && s.ModelObject != null) {
 					if (cutModelObjects == null) cutModelObjects = new Dictionary<Shape, IModelObject>();
@@ -343,19 +347,19 @@ namespace Dataweb.NShape.Controllers {
 					// Skip shapes that are not the active shapes
 					if (s.HasControlPointCapability(ci.OwnPointId, ControlPointCapabilities.Glue)) continue;
 					// Skip connections to shapes that were not cut
-					if (!editBuffer.shapes.Contains(ci.OtherShape)) continue;
+					if (!_editBuffer.shapes.Contains(ci.OtherShape)) continue;
 
 					ShapeConnection conn = ShapeConnection.Empty;
 					conn.ConnectorShape = s;
 					conn.GluePointId = ci.OwnPointId;
 					conn.TargetShape = ci.OtherShape;
 					conn.TargetPointId = ci.OtherPointId;
-					editBuffer.connections.Add(conn);
+					_editBuffer.connections.Add(conn);
 				}
 			}
 
-			ICommand cmd = new DeleteShapesCommand(diagram, editBuffer.shapes, withModelObjects);
-			project.ExecuteCommand(cmd);
+			ICommand cmd = new DeleteShapesCommand(diagram, _editBuffer.shapes, withModelObjects);
+			_project.ExecuteCommand(cmd);
 
 			// Restore deleted model objects so they are available for pasting (one or more times)
 			if (withModelObjects && cutModelObjects != null) {
@@ -370,8 +374,20 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		/// <param name="diagram">The diagram where to insert the previously cut/copied shapes.</param>
 		/// <param name="activeLayers">The layers which the inserted shapes will be assigned to.</param>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
 		public void Paste(Diagram diagram, LayerIds activeLayers) {
-			Paste(diagram, activeLayers, 20, 20);
+			Paste(diagram, Layer.NoLayerId, activeLayers);
+		}
+
+
+		/// <summary>
+		/// Inserts the previously copied/cut shapes into the specified diagram.
+		/// </summary>
+		/// <param name="diagram">The diagram where to insert the previously cut/copied shapes.</param>
+		/// <param name="homeLayer">The home layer for the inserted shapes.</param>
+		/// <param name="supplementalLayers">The layers which the inserted shapes will be assigned to.</param>
+		public void Paste(Diagram diagram, int homeLayer, LayerIds supplementalLayers) {
+			Paste(diagram, homeLayer, supplementalLayers, 20, 20);
 		}
 
 
@@ -382,16 +398,30 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="activeLayers">The layers which the inserted shapes will be assigned to.</param>
 		/// <param name="position">Specifies the mouse cursor position in diagram coordinates where the shapes should be inserted.</param>
 		/// <remarks>Inserting at the specified position will only work if the shapes were copied/cut with a valid position.</remarks>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
 		public void Paste(Diagram diagram, LayerIds activeLayers, Point position) {
-			if (!editBuffer.IsEmpty) {
+			Paste(diagram, Layer.NoLayerId, activeLayers, position);
+		}
+
+
+		/// <summary>
+		/// Inserts the previously copied/cut shapes into the specified diagram.
+		/// </summary>
+		/// <param name="diagram">The diagram where to insert the previously cut/copied shapes.</param>
+		/// <param name="homeLayer">The home layer for the inserted shapes.</param>
+		/// <param name="supplementalLayers">The layers which the inserted shapes will be assigned to.</param>
+		/// <param name="position">Specifies the mouse cursor position in diagram coordinates where the shapes should be inserted.</param>
+		/// <remarks>Inserting at the specified position will only work if the shapes were copied/cut with a valid position.</remarks>
+		public void Paste(Diagram diagram, int homeLayer, LayerIds supplementalLayers, Point position) {
+			if (!_editBuffer.IsEmpty) {
 				int dx = 40, dy = 40;
 				if (Geometry.IsValid(position)) {
-					Rectangle rect = editBuffer.shapes.GetBoundingRectangle(true);
+					Rectangle rect = _editBuffer.shapes.GetBoundingRectangle(true);
 					dx = position.X - (rect.X + (rect.Width / 2));
 					dy = position.Y - (rect.Y + (rect.Height / 2));
 				}
-				Paste(diagram, activeLayers, dx, dy);
-				editBuffer.initialMousePos = position;
+				Paste(diagram, homeLayer, supplementalLayers, dx, dy);
+				_editBuffer.initialMousePos = position;
 			}
 		}
 
@@ -403,15 +433,29 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="activeLayers">The layers which the inserted shapes will be assigned to.</param>
 		/// <param name="offsetX">Specifies the offset on the X axis in diagram coordinates that will be applied to the inserted shape's position.</param>
 		/// <param name="offsetY">Specifies the offset on the Y axis in diagram coordinates that will be applied to the inserted shape's position.</param>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
 		public void Paste(Diagram diagram, LayerIds activeLayers, int offsetX, int offsetY) {
+			Paste(diagram, Layer.NoLayerId, activeLayers, offsetX, offsetX);
+		}
+
+
+		/// <summary>
+		/// Inserts the previously copied/cut shapes into the specified diagram.
+		/// </summary>
+		/// <param name="diagram">The diagram where to insert the previously cut/copied shapes.</param>
+		/// <param name="homeLayer">The home layer for the inserted shapes.</param>
+		/// <param name="supplementalLayers">The layers which the inserted shapes will be assigned to.</param>
+		/// <param name="offsetX">Specifies the offset on the X axis in diagram coordinates that will be applied to the inserted shape's position.</param>
+		/// <param name="offsetY">Specifies the offset on the Y axis in diagram coordinates that will be applied to the inserted shape's position.</param>
+		public void Paste(Diagram diagram, int homeLayer, LayerIds supplementalLayers, int offsetX, int offsetY) {
 			if (diagram == null) throw new ArgumentNullException("destination");
-			if (!editBuffer.IsEmpty) {
-				++editBuffer.pasteCount;
+			if (!_editBuffer.IsEmpty) {
+				++_editBuffer.pasteCount;
 
 				// Check if there are connections to restore
-				if (editBuffer.connections.Count > 0) {
+				if (_editBuffer.connections.Count > 0) {
 					// Restore connections of cut shapes at first paste action.
-					foreach (ShapeConnection connInfo in editBuffer.connections) {
+					foreach (ShapeConnection connInfo in _editBuffer.connections) {
 						connInfo.ConnectorShape.Connect(
 							connInfo.GluePointId,
 							connInfo.TargetShape,
@@ -419,15 +463,16 @@ namespace Dataweb.NShape.Controllers {
 					}
 					// After the paste action, the (then connected) shapes are cloned 
 					// with their connections, so we can empty the buffer here.
-					editBuffer.connections.Clear();
+					_editBuffer.connections.Clear();
 				}
 				// Create command
 				ICommand cmd = new CreateShapesCommand(
 					diagram,
-					activeLayers,
-					editBuffer.shapes,
-					editBuffer.withModelObjects,
-					(editBuffer.action == EditAction.Cut),
+					homeLayer,
+					supplementalLayers,
+					_editBuffer.shapes,
+					_editBuffer.withModelObjects,
+					(_editBuffer.action == EditAction.Cut),
 					offsetX,
 					offsetY);
 				// Execute InsertCommand and select inserted shapes
@@ -436,8 +481,8 @@ namespace Dataweb.NShape.Controllers {
 				// Clone shapes for another paste operation
 				// We have to copy the shapes immediately because shapes (and/or model objects) may 
 				// be deleted after they are copied to 'clipboard'.
-				editBuffer.shapes = editBuffer.shapes.Clone(editBuffer.withModelObjects);
-				if (editBuffer.action == EditAction.Cut) editBuffer.action = EditAction.Copy;
+				_editBuffer.shapes = _editBuffer.shapes.Clone(_editBuffer.withModelObjects);
+				if (_editBuffer.action == EditAction.Cut) _editBuffer.action = EditAction.Copy;
 			}
 		}
 
@@ -445,7 +490,16 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Aggregates the given shapes to a group.
 		/// </summary>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
 		public void GroupShapes(Diagram diagram, IEnumerable<Shape> shapes, LayerIds activeLayers) {
+			GroupShapes(diagram, shapes, Layer.NoLayerId, activeLayers);
+		}
+
+
+		/// <summary>
+		/// Aggregates the given shapes to a group.
+		/// </summary>
+		public void GroupShapes(Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shapes == null) throw new ArgumentNullException("shapes");
 			int cnt = 0;
@@ -456,7 +510,7 @@ namespace Dataweb.NShape.Controllers {
 				Debug.Assert(groupShapeType != null);
 
 				Shape groupShape = groupShapeType.CreateInstance();
-				ICommand cmd = new GroupShapesCommand(diagram, activeLayers, groupShape, shapes);
+				ICommand cmd = new GroupShapesCommand(diagram, homeLayer, supplementalLayers, groupShape, shapes);
 				Project.ExecuteCommand(cmd);
 			}
 		}
@@ -465,18 +519,27 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Aggregate the given shapes to a composite shape based on the bottom shape.
 		/// </summary>
-		public void AggregateCompositeShape(Diagram diagram, Shape compositeShape, IEnumerable<Shape> shapes, LayerIds activeLayers) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public void AggregateCompositeShape(Diagram diagram, Shape compositeShape, IEnumerable<Shape> shapes, LayerIds layers) {
+			AggregateCompositeShape(diagram, compositeShape, shapes, Layer.NoLayerId, layers);
+		}
+
+
+		/// <summary>
+		/// Aggregate the given shapes to a composite shape based on the bottom shape.
+		/// </summary>
+		public void AggregateCompositeShape(Diagram diagram, Shape compositeShape, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
 			if (compositeShape == null) throw new ArgumentNullException("compositeShape");
 			if (shapes == null) throw new ArgumentNullException("shapes");
 			// Add shapes to buffer (TopDown)
-			shapeBuffer.Clear();
+			_shapeBuffer.Clear();
 			foreach (Shape shape in shapes) {
 				if (shape == compositeShape) continue;
-				shapeBuffer.Add(shape);
+				_shapeBuffer.Add(shape);
 			}
-			ICommand cmd = new AggregateCompositeShapeCommand(diagram, activeLayers, compositeShape, shapeBuffer);
+			ICommand cmd = new AggregateCompositeShapeCommand(diagram, homeLayer, supplementalLayers, compositeShape, _shapeBuffer);
 			Project.ExecuteCommand(cmd);
-			shapeBuffer.Clear();
+			_shapeBuffer.Clear();
 		}
 
 
@@ -486,15 +549,16 @@ namespace Dataweb.NShape.Controllers {
 		public void UngroupShapes(Diagram diagram, Shape groupShape) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (groupShape == null) throw new ArgumentNullException("groupShape");
-			if (!(groupShape is IShapeGroup)) throw new ArgumentException(string.Format("groupShape does not implpement interface {0}", typeof(IShapeGroup).Name));
+			if (!(groupShape is IShapeGroup))
+				throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_GroupShapeDoesNotImplpementInterface0, typeof(IShapeGroup).Name));
 			// Add grouped shapes to shape buffer for selecting them later
-			shapeBuffer.Clear();
-			shapeBuffer.AddRange(groupShape.Children);
+			_shapeBuffer.Clear();
+			_shapeBuffer.AddRange(groupShape.Children);
 
 			ICommand cmd = new UngroupShapesCommand(diagram, groupShape);
 			Project.ExecuteCommand(cmd);
 
-			shapeBuffer.Clear();
+			_shapeBuffer.Clear();
 		}
 
 
@@ -507,25 +571,33 @@ namespace Dataweb.NShape.Controllers {
 			if (compositeShape == null) throw new ArgumentNullException("compositeShape");
 			Debug.Assert(!(compositeShape is IShapeGroup));
 			// Add grouped shapes to shape buffer for selecting them later
-			shapeBuffer.Clear();
-			shapeBuffer.AddRange(compositeShape.Children);
-			shapeBuffer.Add(compositeShape);
+			_shapeBuffer.Clear();
+			_shapeBuffer.AddRange(compositeShape.Children);
+			_shapeBuffer.Add(compositeShape);
 
-			ICommand cmd = new SplitCompositeShapeCommand(diagram, diagram.GetShapeLayers(compositeShape), compositeShape);
+			ICommand cmd = new SplitCompositeShapeCommand(diagram, compositeShape.HomeLayer, compositeShape.SupplementalLayers, compositeShape);
 			Project.ExecuteCommand(cmd);
 
-			shapeBuffer.Clear();
+			_shapeBuffer.Clear();
 		}
 
 
 		/// <summary>
 		/// Adds the given shapes to the given layers.
 		/// </summary>
-		public void AddShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layerIds) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public void AddShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers) {
+			AddShapesToLayers(diagram, shapes, Layer.NoLayerId, layers);
+		}
+
+
+		/// <summary>
+		/// Adds the given shapes to the given layers.
+		/// </summary>
+		public void AddShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shapes == null) throw new ArgumentNullException("shapes");
-			
-			ICommand cmd = new AddShapesToLayersCommand(diagram, shapes, layerIds);
+			ICommand cmd = new AddShapesToLayersCommand(diagram, shapes, homeLayer, supplementalLayers);
 			Project.ExecuteCommand(cmd);
 		}
 
@@ -533,11 +605,20 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Assigns the given shapes to the given layers. If the shape was assigned to layers, these will be replaced.
 		/// </summary>
-		public void AssignShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layerIds) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public void AssignShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers) {
+			AssignShapesToLayers(diagram, shapes, Layer.NoLayerId, layers);
+		}
+
+
+		/// <summary>
+		/// Assigns the given shapes to the given layers. If the shape was assigned to layers, these will be replaced.
+		/// </summary>
+		public void AssignShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shapes == null) throw new ArgumentNullException("shapes");
 
-			ICommand cmd = new AssignShapesToLayersCommand(diagram, shapes, layerIds);
+			ICommand cmd = new AssignShapesToLayersCommand(diagram, shapes, homeLayer, supplementalLayers);
 			Project.ExecuteCommand(cmd);
 		}
 
@@ -546,14 +627,23 @@ namespace Dataweb.NShape.Controllers {
 		/// Removes the given shapes from all layers.
 		/// </summary>
 		public void RemoveShapesFromLayers(Diagram diagram, IEnumerable<Shape> shapes) {
-			RemoveShapesFromLayers(diagram, shapes, LayerIds.All);
+			RemoveShapesFromLayers(diagram, shapes, LayerHelper.GetAllLayerIds(diagram.Layers));
 		}
 
 
 		/// <summary>
 		/// Removes the given shapes from the given layers.
 		/// </summary>
-		public void RemoveShapesFromLayers(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layerIds) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public void RemoveShapesFromLayers(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers) {
+			RemoveShapesFromLayers(diagram, shapes, LayerHelper.GetAllLayerIds(layers));
+		}
+
+
+		/// <summary>
+		/// Removes the given shapes from the given layers.
+		/// </summary>
+		public void RemoveShapesFromLayers(Diagram diagram, IEnumerable<Shape> shapes, IEnumerable<int> layerIds) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shapes == null) throw new ArgumentNullException("shapes");
 
@@ -616,7 +706,8 @@ namespace Dataweb.NShape.Controllers {
 		}
 
 
-		internal bool CanMoveShapes(Diagram diagram, IEnumerable<Shape> shapes) {
+		/// <ToBeCompleted></ToBeCompleted>
+		public bool CanMoveShapes(Diagram diagram, IEnumerable<Shape> shapes) {
 			if (!Project.SecurityManager.IsGranted(Permission.Layout, shapes))
 				return false;
 			else {
@@ -659,14 +750,14 @@ namespace Dataweb.NShape.Controllers {
 		public bool CanPaste(Diagram diagram, out string reason) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			reason = null;
-			if (editBuffer.IsEmpty) {
+			if (_editBuffer.IsEmpty) {
 				reason = Properties.Resources.MessageTxt_NoShapesCutOrCopied;
 				return false;
 			} else {
-				if (editBuffer.action != EditAction.Copy)
-					if (!CanInsertShapes(diagram, editBuffer.shapes))
+				if (_editBuffer.action != EditAction.Copy)
+					if (!CanInsertShapes(diagram, _editBuffer.shapes))
 						return false;
-				if (!Project.SecurityManager.IsGranted(Permission.Insert, editBuffer.shapes)) {
+				if (!Project.SecurityManager.IsGranted(Permission.Insert, _editBuffer.shapes)) {
 					reason = string.Format(Properties.Resources.MessageFmt_Permission0NotGranted, Permission.Insert);
 					return false;
 				} else return true;
@@ -824,7 +915,7 @@ namespace Dataweb.NShape.Controllers {
 		#region [Internal] Properties
 
 		internal IReadOnlyCollection<DiagramController> DiagramControllers {
-			get { return diagramControllers; }
+			get { return _diagramControllers; }
 		}
 
 		#endregion
@@ -847,7 +938,7 @@ namespace Dataweb.NShape.Controllers {
 			AssertProjectIsOpen();
 			// Try to find diagram with given name
 			Diagram diagram = null;
-			foreach (Diagram d in project.Repository.GetDiagrams()) {
+			foreach (Diagram d in _project.Repository.GetDiagrams()) {
 				if (string.Compare(d.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0) {
 					diagram = d;
 					break;
@@ -864,41 +955,41 @@ namespace Dataweb.NShape.Controllers {
 		#region [Private] Methods: Registering event handlers
 
 		private void RegisterProjectEvents() {
-			project.Opened += project_ProjectOpen;
-			project.Closed += project_ProjectClosed;
-			if (project.IsOpen) RegisterRepositoryEvents();
+			_project.Opened += project_ProjectOpen;
+			_project.Closed += project_ProjectClosed;
+			if (_project.IsOpen) RegisterRepositoryEvents();
 		}
 
 
 		private void UnregisterProjectEvents(){
-			project.Opened -= project_ProjectOpen;
-			project.Closed -= project_ProjectClosed;
+			_project.Opened -= project_ProjectOpen;
+			_project.Closed -= project_ProjectClosed;
 		}
 
 
 		private void RegisterRepositoryEvents() {
-			project.Repository.DiagramInserted += Repository_DiagramInserted;
-			project.Repository.DiagramDeleted += Repository_DiagramDeleted;
+			_project.Repository.DiagramInserted += Repository_DiagramInserted;
+			_project.Repository.DiagramDeleted += Repository_DiagramDeleted;
 			
-			project.Repository.DesignUpdated += Repository_DesignUpdated;
+			_project.Repository.DesignUpdated += Repository_DesignUpdated;
 
-			project.Repository.TemplateShapeReplaced += Repository_TemplateShapeReplaced;
+			_project.Repository.TemplateShapeReplaced += Repository_TemplateShapeReplaced;
 
-			project.Repository.ShapesInserted += Repository_ShapesInserted;
-			project.Repository.ShapesDeleted += Repository_ShapesDeleted;
+			_project.Repository.ShapesInserted += Repository_ShapesInserted;
+			_project.Repository.ShapesDeleted += Repository_ShapesDeleted;
 		}
 
 
 		private void UnregisterRepositoryEvents() {
-			project.Repository.DiagramInserted -= Repository_DiagramInserted;
-			project.Repository.DiagramDeleted -= Repository_DiagramDeleted;
+			_project.Repository.DiagramInserted -= Repository_DiagramInserted;
+			_project.Repository.DiagramDeleted -= Repository_DiagramDeleted;
 			
-			project.Repository.DesignUpdated -= Repository_DesignUpdated;
+			_project.Repository.DesignUpdated -= Repository_DesignUpdated;
 			
-			project.Repository.TemplateShapeReplaced -= Repository_TemplateShapeReplaced;
+			_project.Repository.TemplateShapeReplaced -= Repository_TemplateShapeReplaced;
 
-			project.Repository.ShapesInserted -= Repository_ShapesInserted;
-			project.Repository.ShapesDeleted -= Repository_ShapesDeleted;
+			_project.Repository.ShapesInserted -= Repository_ShapesInserted;
+			_project.Repository.ShapesDeleted -= Repository_ShapesDeleted;
 		}
 
 		#endregion
@@ -912,7 +1003,7 @@ namespace Dataweb.NShape.Controllers {
 
 		
 		private void project_ProjectOpen(object sender, EventArgs e) {
-			Debug.Assert(project.Repository != null);
+			Debug.Assert(_project.Repository != null);
 			RegisterRepositoryEvents();
 		}
 
@@ -973,14 +1064,14 @@ namespace Dataweb.NShape.Controllers {
 		#region [Private] Methods
 
 		private void AssertProjectIsOpen() {
-			if (project == null) throw new NShapePropertyNotSetException(this, "Project");
-			if (!project.IsOpen) throw new NShapeException("Project is not open.");
+			if (_project == null) throw new NShapePropertyNotSetException(this, "Project");
+			if (!_project.IsOpen) throw new NShapeException(Properties.Resources.MessageTxt_ProjectIsNotOpen);
 		}
 
 
 		private int IndexOf(string name) {
-			for (int i = diagramControllers.Count - 1; i >= 0; --i) {
-				if (string.Compare(diagramControllers[i].Diagram.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0)
+			for (int i = _diagramControllers.Count - 1; i >= 0; --i) {
+				if (string.Compare(_diagramControllers[i].Diagram.Name, name, StringComparison.InvariantCultureIgnoreCase) == 0)
 					return i;
 			}
 			return -1;
@@ -988,8 +1079,8 @@ namespace Dataweb.NShape.Controllers {
 		
 		
 		private int DiagramControllerIndexOf(Diagram diagram) {
-			for (int i = diagramControllers.Count - 1; i >= 0; --i) {
-				if (diagramControllers[i].Diagram == diagram)
+			for (int i = _diagramControllers.Count - 1; i >= 0; --i) {
+				if (_diagramControllers[i].Diagram == diagram)
 					return i;
 			}
 			return -1;
@@ -1001,16 +1092,16 @@ namespace Dataweb.NShape.Controllers {
 			int controllerIdx = DiagramControllerIndexOf(diagram);
 			if (controllerIdx < 0) {
 				DiagramController controller = new DiagramController(this, diagram);
-				diagramControllers.Add(controller);
+				_diagramControllers.Add(controller);
 				if (DiagramAdded != null) DiagramAdded(this, GetDiagramEventArgs(controller.Diagram));
 				return controller;
-			} else return diagramControllers[controllerIdx];
+			} else return _diagramControllers[controllerIdx];
 		}
 
 
 		private DiagramEventArgs GetDiagramEventArgs(Diagram diagram) {
-			diagramEventArgs.Diagram = diagram;
-			return diagramEventArgs;
+			_diagramEventArgs.Diagram = diagram;
+			return _diagramEventArgs;
 		}
 
 
@@ -1029,8 +1120,8 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private ModelObjectsEventArgs GetModelObjectsEventArgs(IEnumerable<IModelObject> modelObjects) {
-			modelObjectEventArgs.SetModelObjects(modelObjects);
-			return modelObjectEventArgs;
+			_modelObjectEventArgs.SetModelObjects(modelObjects);
+			return _modelObjectEventArgs;
 		}
 
 		#endregion
@@ -1038,20 +1129,20 @@ namespace Dataweb.NShape.Controllers {
 
 		#region Fields
 
-		private Project project = null;
-		private Tool tool;
-		private ReadOnlyList<DiagramController> diagramControllers = new ReadOnlyList<DiagramController>();
+		private Project _project = null;
+		private Tool _tool;
+		private ReadOnlyList<DiagramController> _diagramControllers = new ReadOnlyList<DiagramController>();
 
 		// Cut'n'Paste buffers
-		private EditBuffer editBuffer = new EditBuffer();		// Buffer for Copy/Cut/Paste-Actions
-		private Rectangle copyCutBounds = Rectangle.Empty;
-		private Point copyCutMousePos = Point.Empty;
+		private EditBuffer _editBuffer = new EditBuffer();		// Buffer for Copy/Cut/Paste-Actions
+		private Rectangle _copyCutBounds = Rectangle.Empty;
+		private Point _copyCutMousePos = Point.Empty;
 		// Other buffers
-		private List<Shape> shapeBuffer = new List<Shape>();
-		private List<IModelObject> modelBuffer = new List<IModelObject>();
+		private List<Shape> _shapeBuffer = new List<Shape>();
+		private List<IModelObject> _modelBuffer = new List<IModelObject>();
 		// EventArgs buffers
-		private DiagramEventArgs diagramEventArgs = new DiagramEventArgs();
-		private ModelObjectsEventArgs modelObjectEventArgs = new ModelObjectsEventArgs();
+		private DiagramEventArgs _diagramEventArgs = new DiagramEventArgs();
+		private ModelObjectsEventArgs _modelObjectEventArgs = new ModelObjectsEventArgs();
 
 		#endregion
 	}
@@ -1281,7 +1372,7 @@ namespace Dataweb.NShape.Controllers {
 		Home = 0x24,
 		/// <summary>The I key.</summary>
 		I = 0x49,
-		/// <summary>The IME accept key, replaces <see cref="F:System.Windows.Forms.Keys.IMEAceept"></see>.</summary>
+		/// <summary>The IME accept key, replaces <see cref="F:System.Windows.Forms.Keys.IMEAccept"></see>.</summary>
 		IMEAccept = 30,
 		/// <summary>The IME accept key. Obsolete, use <see cref="F:System.Windows.Forms.Keys.IMEAccept"></see> instead.</summary>
 		IMEAceept = 30,
@@ -1527,12 +1618,12 @@ namespace Dataweb.NShape.Controllers {
 		/// Initializing a new instance of <see cref="T:Dataweb.NShape.Controllers.MouseEventArgsDg" />.
 		/// </summary>
 		public MouseEventArgsDg(MouseEventType eventType, MouseButtonsDg buttons, int clicks, int delta, Point location, KeysDg modifiers) {
-			this.buttons = buttons;
-			this.clicks = clicks;
-			this.wheelDelta = delta;
-			this.eventType = eventType;
-			this.position = location;
-			this.modifiers = modifiers;
+			_buttons = buttons;
+			_clicks = clicks;
+			_wheelDelta = delta;
+			_eventType = eventType;
+			_position = location;
+			_modifiers = modifiers;
 		}
 
 
@@ -1540,7 +1631,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Contains the type of MouseEvent that was raised.
 		/// </summary>
 		public MouseEventType EventType {
-			get { return eventType; }
+			get { return _eventType; }
+			protected set { _eventType = value; }
 		}
 
 
@@ -1548,7 +1640,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Contains a combination of all MouseButtons that were pressed.
 		/// </summary>
 		public MouseButtonsDg Buttons {
-			get { return buttons; }
+			get { return _buttons; }
+			protected set { _buttons = value; }
 		}
 
 
@@ -1556,7 +1649,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Contains the number of clicks.
 		/// </summary>
 		public int Clicks {
-			get { return clicks; }
+			get { return _clicks; }
+			protected set { _clicks = value; }
 		}
 
 
@@ -1565,7 +1659,8 @@ namespace Dataweb.NShape.Controllers {
 		/// A detent is one notch of the mouse wheel.
 		/// </summary>
 		public int WheelDelta {
-			get { return wheelDelta; }
+			get { return _wheelDelta; }
+			protected set { _wheelDelta = value; }
 		}
 
 
@@ -1573,7 +1668,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Contains the position (in diagram coordinates) of the mouse cursor at the time the event was raised.
 		/// </summary>
 		public Point Position {
-			get { return position; }
+			get { return _position; }
+			protected set { _position = value; }
 		}
 
 
@@ -1581,7 +1677,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Contains the modifiers in case any modifier keys were pressed
 		/// </summary>
 		public KeysDg Modifiers {
-			get { return modifiers; }
+			get { return _modifiers; }
+			protected set { _modifiers = value; }
 		}
 
 
@@ -1589,28 +1686,28 @@ namespace Dataweb.NShape.Controllers {
 		/// Initializes an new empty instance of <see cref="T:Dataweb.NShape.Controllers.MouseEventArgsDg" />.
 		/// </summary>
 		protected internal MouseEventArgsDg() {
-			this.buttons = MouseButtonsDg.None;
-			this.clicks = 0;
-			this.wheelDelta = 0;
-			this.eventType = MouseEventType.MouseMove;
-			this.position = Point.Empty;
+			_buttons = MouseButtonsDg.None;
+			_clicks = 0;
+			_wheelDelta = 0;
+			_eventType = MouseEventType.MouseMove;
+			_position = Point.Empty;
 		}
 
 
 		#region Fields
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected MouseEventType eventType;
+		private MouseEventType _eventType;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected MouseButtonsDg buttons;
+		private MouseButtonsDg _buttons;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Point position;
+		private Point _position;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected int wheelDelta;
+		private int _wheelDelta;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected int clicks;
+		private int _clicks;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected KeysDg modifiers;
+		private KeysDg _modifiers;
 		
 		#endregion
 	}
@@ -1623,83 +1720,86 @@ namespace Dataweb.NShape.Controllers {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Controllers.KeyEventArgsDg" />.
 		/// </summary>
 		public KeyEventArgsDg(KeyEventType eventType, int keyData, char keyChar, bool handled, bool suppressKeyPress) {
-			this.eventType = eventType;
-			this.handled = handled;
-			this.keyChar = keyChar;
-			this.keyData = keyData;
-			this.suppressKeyPress = suppressKeyPress;
+			this._eventType = eventType;
+			this._handled = handled;
+			this._keyChar = keyChar;
+			this._keyData = keyData;
+			this._suppressKeyPress = suppressKeyPress;
 		}
 
 
 		/// <summary>Specifies the kind of key event.</summary>
 		public KeyEventType EventType {
-			get { return eventType; }
+			get { return _eventType; }
+			protected set { _eventType = value; }
 		}
 
 
 		/// <summary>Gets the character corresponding to the key pressed.</summary>
 		public char KeyChar {
-			get { return keyChar; }
+			get { return _keyChar; }
+			protected set { _keyChar = value; }
 		}
 
 
 		/// <summary>Gets the key data for a keyboard event.</summary>
 		public int KeyData {
-			get { return keyData; }
+			get { return _keyData; }
+			protected set { _keyData = value; }
 		}
 
 
 		/// <summary>Gets or sets a value indicating whether the event was handled.</summary>
 		public bool Handled {
-			get { return handled; }
-			set { handled = value; }
+			get { return _handled; }
+			set { _handled = value; }
 		}
 
 
 		/// <summary>Gets or sets a value indicating whether the key event should be passed on to the underlying control.</summary>
 		public bool SuppressKeyPress {
-			get { return suppressKeyPress; }
-			set { suppressKeyPress = value; }
+			get { return _suppressKeyPress; }
+			set { _suppressKeyPress = value; }
 		}
 
 
 		/// <summary>Gets a value indicating whether the CTRL key was pressed.</summary>
 		public bool Control {
-			get { return (keyData & control) == control; }
+			get { return (_keyData & control) == control; }
 		}
 
 
 		/// <summary>Gets or sets a value indicating whether the key event should be passed on to the underlying control</summary>
 		public bool Shift {
-			get { return (keyData & shift) == shift; }
+			get { return (_keyData & shift) == shift; }
 		}
 
 
 		/// <summary>Gets a value indicating whether the ALT key was pressed.</summary>
 		public bool Alt {
-			get { return (keyData & alt) == alt; }
+			get { return (_keyData & alt) == alt; }
 		}
 
 
 		/// <summary>Gets the keyboard code for a keyboard event.</summary>
 		public int KeyCode {
-			get { return keyData & keyCode; }
+			get { return _keyData & keyCode; }
 		}
 
 
 		/// <summary>Specifies the currently pressed modifier keys.</summary>
 		public int Modifiers {
-			get { return (keyData & ~keyCode); }
+			get { return (_keyData & ~keyCode); }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal KeyEventArgsDg() {
-			this.eventType = KeyEventType.PreviewKeyDown;
-			this.handled = false;
-			this.keyChar = '\0';
-			this.keyData = 0;
-			this.suppressKeyPress = false;
+			this._eventType = KeyEventType.PreviewKeyDown;
+			this._handled = false;
+			this._keyChar = '\0';
+			this._keyData = 0;
+			this._suppressKeyPress = false;
 		}
 
 
@@ -1734,15 +1834,15 @@ namespace Dataweb.NShape.Controllers {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected KeyEventType eventType;
+		private KeyEventType _eventType;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected char keyChar;
+		private char _keyChar;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected int keyData;
+		private int _keyData;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected bool handled;
+		private bool _handled;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected bool suppressKeyPress;
+		private bool _suppressKeyPress;
 	}
 
 

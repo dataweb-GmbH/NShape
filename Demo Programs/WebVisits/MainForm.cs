@@ -1,4 +1,4 @@
-/******************************************************************************
+﻿/******************************************************************************
   Copyright 2009-2012 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 

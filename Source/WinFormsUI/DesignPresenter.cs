@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -44,14 +44,14 @@ namespace Dataweb.NShape.WinFormsUI {
 
 			// Initialize Components
 			InitializeComponent();
-			infoGraphics = Graphics.FromHwnd(Handle);
+			_infoGraphics = Graphics.FromHwnd(Handle);
 			
-			this.matrix = new Matrix();
-			this.formatterFlags = 0 | StringFormatFlags.NoWrap;
-			this.formatter = new StringFormat(formatterFlags);
-			this.formatter.Trimming = StringTrimming.EllipsisCharacter;
-			this.formatter.Alignment = StringAlignment.Center;
-			this.formatter.LineAlignment = StringAlignment.Center;
+			this._matrix = new Matrix();
+			this._formatterFlags = 0 | StringFormatFlags.NoWrap;
+			this._formatter = new StringFormat(_formatterFlags);
+			this._formatter.Trimming = StringTrimming.EllipsisCharacter;
+			this._formatter.Alignment = StringAlignment.Center;
+			this._formatter.LineAlignment = StringAlignment.Center;
 
 			propertyGrid.Site = this.Site;
 			styleListBox.BackColor = SelectedItemColor;
@@ -62,8 +62,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Finalizer of Dataweb.NShape.WinFormsUI.DesignPresenter
 		/// </summary>
 		~DesignPresenter() {
-			infoGraphics.Dispose();
-			infoGraphics = null;
+			_infoGraphics.Dispose();
+			_infoGraphics = null;
 		}
 
 
@@ -80,7 +80,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		
 		/// <override></override>
 		Graphics IDisplayService.InfoGraphics {
-			get { return infoGraphics; }
+			get { return _infoGraphics; }
 		}
 
 		/// <override></override>
@@ -136,7 +136,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[CategoryNShape()]
 		public Project Project {
-			get { return (designController == null) ? null : designController.Project; }
+			get { return (_designController == null) ? null : _designController.Project; }
 		}
 
 
@@ -145,11 +145,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[CategoryNShape()]
 		public DesignController DesignController {
-			get { return designController; }
+			get { return _designController; }
 			set {
-				if (designController != null) UnregisterDesignControllerEventHandlers();
-				designController = value;
-				if (designController != null) RegisterDesignControllerEventHandlers();
+				if (_designController != null) UnregisterDesignControllerEventHandlers();
+				_designController = value;
+				if (_designController != null) RegisterDesignControllerEventHandlers();
 			}
 		}
 
@@ -159,13 +159,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[Browsable(false)]
 		public Design SelectedDesign {
-			get { return selectedDesign; }
+			get { return _selectedDesign; }
 			set {
-				if (selectedDesign != value) {
+				if (_selectedDesign != value) {
 					SelectedStyle = null;
-					selectedDesign = value;
+					_selectedDesign = value;
 					
-					StyleUITypeEditor.Design = selectedDesign;
+					StyleUITypeEditor.Design = _selectedDesign;
 					InitializeStyleCollectionList();
 				}
 				if (DesignSelected != null) DesignSelected(this, EventArgs.Empty);
@@ -212,11 +212,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[Browsable(false)]
 		public Style SelectedStyle {
-			get { return selectedStyle; }
+			get { return _selectedStyle; }
 			private set {
-				if (selectedStyle != value) {
-					selectedStyle = value;
-					if (propertyController != null) propertyController.SetObject(0, selectedStyle);
+				if (_selectedStyle != value) {
+					_selectedStyle = value;
+					if (propertyController != null) propertyController.SetObject(0, _selectedStyle);
 					if (StyleSelected != null) StyleSelected(this, EventArgs.Empty);
 				}
 			}
@@ -232,14 +232,14 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public Color InactiveItemBackgroundColor {
 			get {
-				return backgroundColor;
+				return _backgroundColor;
 			}
 			set {
-				if (backgroundBrush != null) {
-					backgroundBrush.Dispose();
-					backgroundBrush = null;
+				if (_backgroundBrush != null) {
+					_backgroundBrush.Dispose();
+					_backgroundBrush = null;
 				}
-				backgroundColor = value;
+				_backgroundColor = value;
 			}
 		}
 
@@ -248,13 +248,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Fill color of highlighted items
 		/// </summary>
 		public Color HighlightedItemColor {
-			get { return highlightedItemColor; }
+			get { return _highlightedItemColor; }
 			set {
-				if (highlightedItemBrush != null) {
-					highlightedItemBrush.Dispose();
-					highlightedItemBrush = null;
+				if (_highlightedItemBrush != null) {
+					_highlightedItemBrush.Dispose();
+					_highlightedItemBrush = null;
 				}
-				highlightedItemColor = value;
+				_highlightedItemColor = value;
 			}
 		}
 
@@ -263,13 +263,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Fill color of selected items
 		/// </summary>
 		public Color SelectedItemColor {
-			get { return selectedItemColor; }
+			get { return _selectedItemColor; }
 			set {
-				if (selectedItemBrush != null) {
-					selectedItemBrush.Dispose();
-					selectedItemBrush = null;
+				if (_selectedItemBrush != null) {
+					_selectedItemBrush.Dispose();
+					_selectedItemBrush = null;
 				}
-				selectedItemColor = value;
+				_selectedItemColor = value;
 			}
 		}
 
@@ -278,13 +278,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Border color of inactive items
 		/// </summary>
 		public Color InactiveItemBorderColor {
-			get { return itemBorderColor; }
+			get { return _itemBorderColor; }
 			set {
-				if (itemBorderPen != null) {
-					itemBorderPen.Dispose();
-					itemBorderPen = null;
+				if (_itemBorderPen != null) {
+					_itemBorderPen.Dispose();
+					_itemBorderPen = null;
 				}
-				itemBorderColor = value;
+				_itemBorderColor = value;
 			}
 		}
 
@@ -293,13 +293,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Fill color of focused items
 		/// </summary>
 		public Color FocusedItemColor {
-			get { return focusBackgroundColor; }
+			get { return _focusBackgroundColor; }
 			set {
-				if (focusBackgroundBrush != null) {
-					focusBackgroundBrush.Dispose();
-					focusBackgroundBrush = null;
+				if (_focusBackgroundBrush != null) {
+					_focusBackgroundBrush.Dispose();
+					_focusBackgroundBrush = null;
 				}
-				focusBackgroundColor = value;
+				_focusBackgroundColor = value;
 			}
 		}
 
@@ -308,13 +308,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Border color of focused items
 		/// </summary>
 		public Color FocusBorderColor {
-			get { return focusBorderColor; }
+			get { return _focusBorderColor; }
 			set {
-				if (selectedBorderPen != null) {
-					selectedBorderPen.Dispose();
-					selectedBorderPen = null;
+				if (_selectedBorderPen != null) {
+					_selectedBorderPen.Dispose();
+					_selectedBorderPen = null;
 				}
-				focusBorderColor = value;
+				_focusBorderColor = value;
 			}
 		}
 
@@ -323,13 +323,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Text color of selected items
 		/// </summary>
 		public Color SelectedItemTextColor {
-			get { return selectedTextColor; }
+			get { return _selectedTextColor; }
 			set {
-				if (selectedTextBrush != null) {
-					selectedTextBrush.Dispose();
-					selectedTextBrush = null;
+				if (_selectedTextBrush != null) {
+					_selectedTextBrush.Dispose();
+					_selectedTextBrush = null;
 				}
-				selectedTextColor = value;
+				_selectedTextColor = value;
 			}
 		}
 
@@ -338,13 +338,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Text color of selected items
 		/// </summary>
 		public Color InactiveItemTextColor {
-			get { return itemTextColor; }
+			get { return _itemTextColor; }
 			set {
-				if (itemTextBrush != null) {
-					itemTextBrush.Dispose();
-					itemTextBrush = null;
+				if (_itemTextBrush != null) {
+					_itemTextBrush.Dispose();
+					_itemTextBrush = null;
 				}
-				itemTextColor = value;
+				_itemTextColor = value;
 			}
 		}
 
@@ -353,8 +353,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies if Items should be highlighted.
 		/// </summary>
 		public bool HighlightItems {
-			get { return highlightItems; }
-			set { highlightItems = value; }
+			get { return _highlightItems; }
+			set { _highlightItems = value; }
 		}
 
 		#endregion
@@ -366,7 +366,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Creates a new design.
 		/// </summary>
 		public void CreateDesign() {
-			designController.CreateDesign();
+			_designController.CreateDesign();
 		}
 
 
@@ -374,8 +374,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Deletes the selected design.
 		/// </summary>
 		public void DeleteSelectedDesign() {
-			if (selectedDesign != Project.Design) {
-				designController.DeleteDesign(selectedDesign);
+			if (_selectedDesign != Project.Design) {
+				_designController.DeleteDesign(_selectedDesign);
 				SelectedDesign = Project.Design;
 			}
 		}
@@ -385,7 +385,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Create an new style.
 		/// </summary>
 		public void CreateStyle() {
-			designController.CreateStyle(selectedDesign, styleListBox.StyleCategory);
+			_designController.CreateStyle(_selectedDesign, styleListBox.StyleCategory);
 		}
 
 
@@ -393,9 +393,10 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Delete the selected style.
 		/// </summary>
 		public void DeleteSelectedStyle() {
-			if (designController.Project.Repository.IsStyleInUse(selectedStyle))
-				MessageBox.Show(this, string.Format("Style '{0}' is still in use.", selectedStyle.Title), "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-			else designController.DeleteStyle(selectedDesign, selectedStyle);
+			if (_designController.Project.Repository.IsStyleInUse(_selectedStyle)) {
+				string msgTxt = string.Format(Dataweb.NShape.WinFormsUI.Properties.Resources.MessageFmt_Style0IsStillInUse, _selectedStyle.Title);
+				MessageBox.Show(this, msgTxt, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			} else _designController.DeleteStyle(_selectedDesign, _selectedStyle);
 		}
 
 
@@ -440,29 +441,29 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods: (Un)Register events
 
 		private void RegisterDesignControllerEventHandlers() {
-			if (designController != null) {
-				designController.Initialized += designController_Initialized;
-				designController.Uninitialized += designController_Uninitialized;
-				designController.DesignCreated += designController_DesignCreated;
-				designController.DesignChanged += designController_DesignChanged;
-				designController.DesignDeleted += designController_DesignDeleted;
-				designController.StyleCreated += designController_StyleCreated;
-				designController.StyleChanged += designController_StyleChanged;
-				designController.StyleDeleted += designController_StyleDeleted;
+			if (_designController != null) {
+				_designController.Initialized += designController_Initialized;
+				_designController.Uninitialized += designController_Uninitialized;
+				_designController.DesignCreated += designController_DesignCreated;
+				_designController.DesignChanged += designController_DesignChanged;
+				_designController.DesignDeleted += designController_DesignDeleted;
+				_designController.StyleCreated += designController_StyleCreated;
+				_designController.StyleChanged += designController_StyleChanged;
+				_designController.StyleDeleted += designController_StyleDeleted;
 			}
 		}
 
 
 		private void UnregisterDesignControllerEventHandlers() {
-			if (designController != null) {
-				designController.Initialized -= designController_Initialized;
-				designController.Uninitialized -= designController_Uninitialized;
-				designController.DesignCreated -= designController_DesignCreated;
-				designController.DesignChanged -= designController_DesignChanged;
-				designController.DesignDeleted -= designController_DesignDeleted;
-				designController.StyleCreated -= designController_StyleCreated;
-				designController.StyleChanged -= designController_StyleChanged;
-				designController.StyleDeleted -= designController_StyleDeleted;
+			if (_designController != null) {
+				_designController.Initialized -= designController_Initialized;
+				_designController.Uninitialized -= designController_Uninitialized;
+				_designController.DesignCreated -= designController_DesignCreated;
+				_designController.DesignChanged -= designController_DesignChanged;
+				_designController.DesignDeleted -= designController_DesignDeleted;
+				_designController.StyleCreated -= designController_StyleCreated;
+				_designController.StyleChanged -= designController_StyleChanged;
+				_designController.StyleDeleted -= designController_StyleDeleted;
 			}
 		}
 
@@ -474,13 +475,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		private void designController_Initialized(object sender, EventArgs e) {
 			propertyController.Project = Project;
 			InitializeStyleCollectionList();
-			SelectedDesign = designController.Project.Design;
+			SelectedDesign = _designController.Project.Design;
 		}
 
 
 		private void designController_Uninitialized(object sender, EventArgs e) {
-			selectedStyle = null;
-			selectedDesign = null;
+			_selectedStyle = null;
+			_selectedDesign = null;
 			styleListBox.Items.Clear();
 			// Only perform a CancalSetproperty if the probject still exists, otherwise the call will fail.
 			if (propertyController.Project != null)
@@ -565,7 +566,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			styleListBox.SelectedItem = null;
 			styleListBox.Items.Clear();
 			// Assigning a Design here results in items beeing created
-			styleListBox.StyleSet = selectedDesign;
+			styleListBox.StyleSet = _selectedDesign;
 			switch (styleCollectionListBox.SelectedIndex) {
 				case -1:
 					//nothing to do
@@ -594,36 +595,36 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		#region Fields
-		private Graphics infoGraphics;
+		private Graphics _infoGraphics;
 
-		private DesignController designController = null;
-		private Design selectedDesign = null;
-		private Style selectedStyle = null;
+		private DesignController _designController = null;
+		private Design _selectedDesign = null;
+		private Style _selectedStyle = null;
 
-		private bool highlightItems = true;
+		private bool _highlightItems = true;
 		// Colors
-		private Color backgroundColor = Color.FromKnownColor(KnownColor.Control);
-		private Color highlightedItemColor = Color.FromKnownColor(KnownColor.ControlLightLight);
-		private Color selectedItemColor = Color.FromKnownColor(KnownColor.Window);
-		private Color selectedItemBorderColor = Color.FromKnownColor(KnownColor.ControlDarkDark);
-		private Color itemBorderColor = Color.FromKnownColor(KnownColor.Window);
-		private Color focusBackgroundColor = Color.Beige;
-		private Color focusBorderColor = Color.FromArgb(128, Color.Beige);
-		private Color itemTextColor = Color.FromKnownColor(KnownColor.ControlDarkDark);
-		private Color selectedTextColor = Color.FromKnownColor(KnownColor.ControlText);
+		private Color _backgroundColor = Color.FromKnownColor(KnownColor.Control);
+		private Color _highlightedItemColor = Color.FromKnownColor(KnownColor.ControlLightLight);
+		private Color _selectedItemColor = Color.FromKnownColor(KnownColor.Window);
+		private Color _selectedItemBorderColor = Color.FromKnownColor(KnownColor.ControlDarkDark);
+		private Color _itemBorderColor = Color.FromKnownColor(KnownColor.Window);
+		private Color _focusBackgroundColor = Color.Beige;
+		private Color _focusBorderColor = Color.FromArgb(128, Color.Beige);
+		private Color _itemTextColor = Color.FromKnownColor(KnownColor.ControlDarkDark);
+		private Color _selectedTextColor = Color.FromKnownColor(KnownColor.ControlText);
 		// Pens and Brushes
-		private Brush backgroundBrush;
-		private Brush highlightedItemBrush;
-		private Brush selectedItemBrush;
-		private Brush itemTextBrush;
-		private Brush selectedTextBrush;
-		private Brush focusBackgroundBrush;
-		private Pen itemBorderPen;
-		private Pen selectedBorderPen;
+		private Brush _backgroundBrush;
+		private Brush _highlightedItemBrush;
+		private Brush _selectedItemBrush;
+		private Brush _itemTextBrush;
+		private Brush _selectedTextBrush;
+		private Brush _focusBackgroundBrush;
+		private Pen _itemBorderPen;
+		private Pen _selectedBorderPen;
 		// Buffers
-		private Matrix matrix;
-		private StringFormat formatter;
-		private StringFormatFlags formatterFlags;
+		private Matrix _matrix;
+		private StringFormat _formatter;
+		private StringFormatFlags _formatterFlags;
 
 		const int noneSelectedItemIdx = -1;
 		const int colorStylesItemIdx = 0;

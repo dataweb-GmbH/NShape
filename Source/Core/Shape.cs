@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -38,13 +38,15 @@ namespace Dataweb.NShape {
 			Dispose();
 		}
 
+
 		#region [Public] Shape Interface Properties
 
 		/// <summary>
 		/// Indicates the type of the shape. Is always defined.
 		/// </summary>
 		[CategoryGeneral()]
-		[Description("The .NET data type of the shape.")]
+		[LocalizedDisplayName("PropName_Shape_Type")]
+		[LocalizedDescription("PropDesc_Shape_Type")]
 		[RequiredPermission(Permission.Data)]
 		public abstract ShapeType Type { get; }
 
@@ -59,6 +61,8 @@ namespace Dataweb.NShape {
 		/// Indicates the template for this shape. Is null, if the shape has no template.
 		/// </summary>
 		[CategoryGeneral()]
+		[LocalizedDisplayName("PropName_Shape_Template")]
+		[LocalizedDescription("PropDesc_Shape_Template")]
 		[RequiredPermission(Permission.Data)]
 		public abstract Template Template { get; }
 
@@ -95,7 +99,8 @@ namespace Dataweb.NShape {
 		/// Indicates the name of the security domain this shape belongs to.
 		/// </summary>
 		[CategoryGeneral()]
-		[Description("Modify the security domain of the shape.")]
+		[LocalizedDisplayName("PropName_Shape_SecurityDomainName")]
+		[LocalizedDescription("PropDesc_Shape_SecurityDomainName")]
 		[RequiredPermission(Permission.Security)]
 		public abstract char SecurityDomainName { get; set; }
 
@@ -103,7 +108,8 @@ namespace Dataweb.NShape {
 		/// Gets or sets the x-coordinate of the shape's location.
 		/// </summary>
 		[CategoryLayout()]
-		[Description("Horizontal position of the shape's reference point.")]
+		[LocalizedDisplayName("PropName_Shape_X")]
+		[LocalizedDescription("PropDesc_Shape_X")]
 		[RequiredPermission(Permission.Layout)]
 		public abstract int X { get; set; }
 
@@ -111,7 +117,8 @@ namespace Dataweb.NShape {
 		/// Gets or sets the y-coordinate of the shape's location.
 		/// </summary>
 		[CategoryLayout()]
-		[Description("Vertical position of the shape's reference point.")]
+		[LocalizedDisplayName("PropName_Shape_Y")]
+		[LocalizedDescription("PropDesc_Shape_Y")]
 		[RequiredPermission(Permission.Layout)]
 		public abstract int Y { get; set; }
 
@@ -207,7 +214,7 @@ namespace Dataweb.NShape {
 		/// Tests, whether the shape is connected to a given other shape.
 		/// </summary>
 		/// <param name="ownPointId">
-		/// Id of shape's own connection point, which is to be tested. 
+		/// Id of the shape's own connection point, which is to be tested. 
 		/// ControlPointId.Any, if any connection point is taken into account.
 		/// </param>
 		/// <param name="otherShape">Other shape. Null if any other shape is taken into account.</param>
@@ -399,7 +406,8 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>Can be null, if no outline has to be drawn.</remarks>
 		[CategoryAppearance()]
-		[Description("Defines the appearence of the shape's outline.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Shape_LineStyle")]
+		[LocalizedDescription("PropDesc_Shape_LineStyle")]
 		[PropertyMappingId(PropertyIdLineStyle)]
 		[RequiredPermission(Permission.Present)]
 		public abstract ILineStyle LineStyle { get; set; }
@@ -441,6 +449,7 @@ namespace Dataweb.NShape {
 		/// <param name="propertyId"></param>
 		public abstract void NotifyModelChanged(int propertyId);
 
+
 		/// <summary>
 		/// Called upon the active shape of the connection, e.g. by a CurrentTool or a command.
 		/// The active shape calculates the new position of it's GluePoint and moves it to the new position
@@ -450,15 +459,53 @@ namespace Dataweb.NShape {
 		/// <param name="connectedPointId">Id of the ControlPoint that has moved</param>
 		public abstract void FollowConnectionPointWithGluePoint(ControlPointId gluePointId, Shape connectedShape, ControlPointId connectedPointId);
 
+
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use 'SupplementalLayers' instead.")]
+		[Browsable(false)]
 		[CategoryLayout()]
-		[Description("Specifies the layers the shape is part of.")]
+		[LocalizedDisplayName("PropName_Shape_Layers")]
+		[LocalizedDescription("PropDesc_Shape_Layers")]
 		[RequiredPermission(Permission.Layout)]
+		[TypeConverter("Dataweb.NShape.WinFormsUI.LayerTypeConverter, Dataweb.NShape.WinFormsUI")]
 		[Editor("Dataweb.NShape.WinFormsUI.LayerUITypeEditor, Dataweb.NShape.WinFormsUI", typeof(System.Drawing.Design.UITypeEditor))]
 		public LayerIds Layers {
-			get { return layers; }
-			internal set { layers = value; }
+			get { return SupplementalLayers; }
+			set { SupplementalLayers = value; }
 		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[CategoryLayout()]
+		[LocalizedDisplayName("PropName_Shape_SupplementalLayers")]
+		[LocalizedDescription("PropDesc_Shape_SupplementalLayers")]
+		[RequiredPermission(Permission.Layout)]
+		[TypeConverter("Dataweb.NShape.WinFormsUI.LayerTypeConverter, Dataweb.NShape.WinFormsUI")]
+		[Editor("Dataweb.NShape.WinFormsUI.LayerUITypeEditor, Dataweb.NShape.WinFormsUI", typeof(System.Drawing.Design.UITypeEditor))]
+		public LayerIds SupplementalLayers {
+			get { return _supplementalLayers; }
+			set { 
+				_supplementalLayers = value;
+				Invalidate();
+			}
+		}
+
+		
+		/// <ToBeCompleted></ToBeCompleted>
+		[CategoryLayout()]
+		[LocalizedDisplayName("PropName_Shape_HomeLayer")]
+		[LocalizedDescription("PropDesc_Shape_HomeLayer")]
+		[RequiredPermission(Permission.Layout)]
+		[TypeConverter("Dataweb.NShape.WinFormsUI.LayerTypeConverter, Dataweb.NShape.WinFormsUI")]
+		[Editor("Dataweb.NShape.WinFormsUI.LayerUITypeEditor, Dataweb.NShape.WinFormsUI", typeof(System.Drawing.Design.UITypeEditor))]
+		public int HomeLayer {
+			get { return _homeLayer; }
+			set { 
+				_homeLayer = value;
+				Invalidate();
+			}
+		}
+
 
 		/// <summary>
 		/// Notifies the shape that a style has changed. The shape decides what to do.
@@ -476,13 +523,11 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected internal abstract void AttachGluePointToConnectionPoint(ControlPointId ownPointId, Shape otherShape, ControlPointId gluePointId);
 
-
 		/// <summary>
 		/// Called upon the passive shape of the connection by the active shape. 
 		/// If ownPointId is equal to ControlPointId.Reference, the global connection is meant.
 		/// </summary>
 		protected internal abstract void DetachGluePointFromConnectionPoint(ControlPointId ownPointId, Shape otherShape, ControlPointId gluePointId);
-
 
 		/// <summary>
 		/// Specifies a general purpose property for internal use.
@@ -490,32 +535,28 @@ namespace Dataweb.NShape {
 		[Browsable(false)]
 		protected internal abstract object InternalTag { get; set; }
 
-
 		/// <summary>Gets the collection that stores and manages the shape's child shapes.</summary>
 		protected internal virtual ShapeAggregation ChildrenCollection {
-			get { return childrenCollection; }
-			internal set { childrenCollection = value; }
+			get { return _childrenCollection; }
+			internal set { _childrenCollection = value; }
 		}
-
 
 		/// <summary>Creates the collection that stores and manages the shape's child shapes.</summary>
 		protected virtual ShapeAggregation CreateChildrenCollection(int capacity) {
 			return new CompositeShapeAggregation(this, capacity);
 		}
 
-
 		/// <ToBeCompleted></ToBeCompleted>
 		protected const int PropertyIdLineStyle = 1;
 
-
 		// For performance reasons the diagram stores the z-order and the layers
 		// of its shapes within the shapes themselves.
-		// These members must not be accessed but by the diagram.
+		// These members must not be accessed by any class but the Diagram.
 		[Browsable(false)]
 		[RequiredPermission(Permission.Layout)]
 		internal int ZOrder {
-			get { return zOrder; }
-			set { zOrder = value; }
+			get { return _zOrder; }
+			set { _zOrder = value; }
 		}
 
 		#endregion
@@ -551,25 +592,47 @@ namespace Dataweb.NShape {
 
 		#region [Protected] IEntity Members (Abstract)
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Stores the IEntity.Id of the shape. 
+		/// </summary>
 		protected abstract object IdCore { get; }
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Assigns a new IEntity.Id to the shape.
+		/// </summary>
 		protected abstract void AssignIdCore(object id);
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Deletes the shape from the repository using the given <see cref="T:Dataweb.NShape.Advanced.IRepositoryWriter" />.
+		/// </summary>
 		protected abstract void DeleteCore(IRepositoryWriter writer, int version);
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Loads the shape from the repository using the given <see cref="T:Dataweb.NShape.Advanced.IRepositoryReader" />.
+		/// </summary>
 		protected abstract void LoadFieldsCore(IRepositoryReader reader, int version);
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Loads the inner objects of the specified property using the given IRepositoryReader.
+		/// </summary>
+		/// <param name="propertyName">Specifies the name of the <see cref="T:Dataweb.NShape.Advanced.EntityInnerObjectsDefinition" /> to read.</param>
+		/// <param name="reader">The <see cref="T:Dataweb.NShape.Advanced.IRepositoryReader" /> to read from.</param>
+		/// <param name="version">The library version that should be read.</param>
 		protected abstract void LoadInnerObjectsCore(string propertyName, IRepositoryReader reader, int version);
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Writes the shape's fields and scalar properties to the repository using the specified <see cref="T:Dataweb.NShape.Advanced.IRepositoryWriter" />.
+		/// </summary>
+		/// <param name="writer">The <see cref="T:Dataweb.NShape.Advanced.IRepositoryWriter" /> to write to.</param>
+		/// <param name="version">The library version that should be used for writing.</param>
 		protected abstract void SaveFieldsCore(IRepositoryWriter writer, int version);
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Writes the inner objects of the specified property to the <see cref="T:Dataweb.NShape.Advanced.IRepository" /> using the given <see cref="T:Dataweb.NShape.Advanced.IRepositoryWriter" />.
+		/// </summary>
+		/// <param name="propertyName">Specifies the name of the <see cref="T:Dataweb.NShape.Advanced.EntityInnerObjectsDefinition" /> to read.</param>
+		/// <param name="writer">The <see cref="T:Dataweb.NShape.Advanced.IRepositoryWriter" /> to write to.</param>
+		/// <param name="version">The library version that should be used for writing.</param>
 		protected abstract void SaveInnerObjectsCore(string propertyName, IRepositoryWriter writer, int version);
 
 		#endregion
@@ -622,9 +685,10 @@ namespace Dataweb.NShape {
 
 		#region Fields
 
-		private int zOrder = 0;
-		private LayerIds layers = LayerIds.None;
-		private ShapeAggregation childrenCollection = null;
+		private int _zOrder = 0;
+		private LayerIds _supplementalLayers = LayerIds.None;
+		private int _homeLayer = Layer.NoLayerId;
+		private ShapeAggregation _childrenCollection = null;
 		
 		#endregion
 
@@ -662,6 +726,8 @@ namespace Dataweb.NShape {
 
 		/// <summary>
 		/// Adds a new ControlPoint to the interior of the shape.
+		/// The position of the new vertex point will be calculated from the given coordinates and not necessarily appended.
+		/// Use InsertVertex if the insert position matters.
 		/// </summary>
 		/// <param name="x">X coordinate of the new Controlpoint.</param>
 		/// <param name="y">Y coordinate of the new ControlPoint.</param>
@@ -915,8 +981,8 @@ namespace Dataweb.NShape {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static implicit operator int(ControlPointId cpi) {
-			return cpi.id;
+		public static implicit operator int(ControlPointId cpId) {
+			return cpId.id;
 		}
 
 

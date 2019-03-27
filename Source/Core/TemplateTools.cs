@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -32,7 +32,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Template Template {
-			get { return template; }
+			get { return _template; }
 		}
 
 
@@ -62,9 +62,9 @@ namespace Dataweb.NShape {
 		protected TemplateTool(Template template, string category)
 			: base(category) {
 			if (template == null) throw new ArgumentNullException("template");
-			this.template = template;
+			this._template = template;
 			Title = template.Title;
-			ToolTipText = string.Format("Inserts a {0}.", Title);
+			ToolTipText = string.Format(Properties.Resources.CaptionFmt_TemplateTool_Tooltip0, Title);
 			if (!string.IsNullOrEmpty(template.Shape.Type.Description))
 				ToolTipText += Environment.NewLine + template.Shape.Type.Description;
 			RefreshIcons();
@@ -79,30 +79,30 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected Shape PreviewShape {
-			get { return previewShape; }
+			get { return _previewShape; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void CreatePreview(IDiagramPresenter diagramPresenter) {
 			using (Shape s = Template.CreateShape())
-				previewShape = Template.Shape.Type.CreatePreviewInstance(s);
-			previewShape.DisplayService = diagramPresenter.DisplayService;
-			previewShape.Invalidate();
+				_previewShape = Template.Shape.Type.CreatePreviewInstance(s);
+			_previewShape.DisplayService = diagramPresenter.DisplayService;
+			_previewShape.Invalidate();
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void ClearPreview() {
-			if (previewShape != null)
-				DeletePreviewShape(ref previewShape);
+			if (_previewShape != null)
+				DeletePreviewShape(ref _previewShape);
 		}
 
 
 		#region Fields
 
-		private Template template;
-		private Shape previewShape;
+		private Template _template;
+		private Shape _previewShape;
 
 		#endregion
 	}
@@ -124,10 +124,7 @@ namespace Dataweb.NShape {
 			: base(template, category) {
 			if (!(template.Shape is ILinearShape))
 				throw new NShapeException("The template's shape does not implement {0}.", typeof(ILinearShape).Name);
-			ToolTipText += Environment.NewLine;
-			ToolTipText += Environment.NewLine + "Left click starts a new line or adds a point to the new line.";
-			ToolTipText += Environment.NewLine + "Right click ends the new line (last point will be discarded).";
-			ToolTipText += Environment.NewLine + "Double click ends the new line (including the last point).";
+			ToolTipText += string.Format(Properties.Resources.CaptionFmt_LinearShapeCreationTool_Tooltip, Environment.NewLine);
 		}
 
 
@@ -254,9 +251,9 @@ namespace Dataweb.NShape {
 			Debug.Print("EndToolAction");
 			base.EndToolAction();
 			ClearPreview();
-			modifiedLinearShape = null;
-			pointAtCursor = ControlPointId.None;
-			lastInsertedPointId = ControlPointId.None;
+			_modifiedLinearShape = null;
+			_pointAtCursor = ControlPointId.None;
+			_lastInsertedPointId = ControlPointId.None;
 		}
 
 
@@ -273,13 +270,13 @@ namespace Dataweb.NShape {
 
 
 		static LinearShapeCreationTool() {
-			cursors = new Dictionary<ToolCursor, int>(6);
-			cursors.Add(ToolCursor.Default, CursorProvider.DefaultCursorID);
-			cursors.Add(ToolCursor.Pen, CursorProvider.RegisterCursor(Properties.Resources.PenCursor));
-			cursors.Add(ToolCursor.ExtendLine, CursorProvider.RegisterCursor(Properties.Resources.PenPlusCursor));
-			cursors.Add(ToolCursor.Connect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
-			cursors.Add(ToolCursor.Disconnect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
-			cursors.Add(ToolCursor.NotAllowed, CursorProvider.RegisterCursor(Properties.Resources.ActionDeniedCursor));
+			_cursors = new Dictionary<ToolCursor, int>(6);
+			_cursors.Add(ToolCursor.Default, CursorProvider.DefaultCursorID);
+			_cursors.Add(ToolCursor.Pen, CursorProvider.RegisterCursor(Properties.Resources.PenCursor));
+			_cursors.Add(ToolCursor.ExtendLine, CursorProvider.RegisterCursor(Properties.Resources.PenPlusCursor));
+			_cursors.Add(ToolCursor.Connect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
+			_cursors.Add(ToolCursor.Disconnect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
+			_cursors.Add(ToolCursor.NotAllowed, CursorProvider.RegisterCursor(Properties.Resources.ActionDeniedCursor));
 			// ToDo: Create better cursors for connecting/disconnecting
 		}
 
@@ -287,8 +284,8 @@ namespace Dataweb.NShape {
 		private bool ProcessMouseMove(IDiagramPresenter diagramPresenter, MouseState mouseState) {
 			bool result = false;
 			ShapeAtCursorInfo shapeAtCursorInfo = ShapeAtCursorInfo.Empty;
-			if (pointAtCursor != ControlPointId.None && ((modifiedLinearShape as Shape) != null || PreviewShape != null))
-				shapeAtCursorInfo = FindConnectionTarget(diagramPresenter, (modifiedLinearShape as Shape) ?? PreviewShape, pointAtCursor, mouseState.Position, false, true);
+			if (_pointAtCursor != ControlPointId.None && ((_modifiedLinearShape as Shape) != null || PreviewShape != null))
+				shapeAtCursorInfo = FindConnectionTarget(diagramPresenter, (_modifiedLinearShape as Shape) ?? PreviewShape, _pointAtCursor, mouseState.Position, false, true);
 			else shapeAtCursorInfo = FindShapeAtCursor(diagramPresenter, mouseState.X, mouseState.Y, ControlPointCapabilities.Connect | ControlPointCapabilities.Glue, diagramPresenter.ZoomedGripSize, false);
 
 			// set cursor depending on the object under the mouse cursor
@@ -317,7 +314,7 @@ namespace Dataweb.NShape {
 						Assert(PreviewShape != null);
 #endif
 						if (PreviewShape != null)
-							PreviewShape.MoveControlPointTo(pointAtCursor, p.X, p.Y, resizeModifier);
+							PreviewShape.MoveControlPointTo(_pointAtCursor, p.X, p.Y, resizeModifier);
 					} else {
 						int snapDeltaX = 0, snapDeltaY = 0;
 						if (diagramPresenter.SnapToGrid)
@@ -326,7 +323,7 @@ namespace Dataweb.NShape {
 						Assert(PreviewShape != null);
 #endif
 						if (PreviewShape != null)
-							PreviewShape.MoveControlPointTo(pointAtCursor, mouseState.X + snapDeltaX, mouseState.Y + snapDeltaY, resizeModifier);
+							PreviewShape.MoveControlPointTo(_pointAtCursor, mouseState.X + snapDeltaX, mouseState.Y + snapDeltaY, resizeModifier);
 					}
 					Invalidate(ActionDiagramPresenter);
 					break;
@@ -405,7 +402,7 @@ namespace Dataweb.NShape {
 							// When extending a line, the new line has to have more than the minimum number of 
 							// vertices and more than the original line because the last vertex will not be created.
 							if (PreviewLinearShape.VertexCount <= PreviewLinearShape.MinVertexCount
-								|| PreviewLinearShape.VertexCount - 1 == modifiedLinearShape.VertexCount)
+								|| PreviewLinearShape.VertexCount - 1 == _modifiedLinearShape.VertexCount)
 								Cancel();
 							else FinishExtendLine(ActionDiagramPresenter, mouseState, true);
 						}
@@ -505,8 +502,8 @@ namespace Dataweb.NShape {
 				if (CanActiveShapeConnectTo(PreviewShape, ControlPointId.FirstVertex, targetShapeInfo.Shape, targetShapeInfo.ControlPointId))
 					PreviewShape.Connect(ControlPointId.FirstVertex, targetShapeInfo.Shape, targetShapeInfo.ControlPointId);
 			}
-			lastInsertedPointId = ControlPointId.FirstVertex;
-			pointAtCursor = ControlPointId.LastVertex;
+			_lastInsertedPointId = ControlPointId.FirstVertex;
+			_pointAtCursor = ControlPointId.LastVertex;
 		}
 
 
@@ -518,22 +515,22 @@ namespace Dataweb.NShape {
 			if (!targetShapeInfo.IsEmpty && targetShapeInfo.ControlPointId != ControlPointId.None) {
 				// Start ToolAction
 				StartToolAction(diagramPresenter, (int)Action.ExtendLine, mouseState, true);
-				modifiedLinearShape = (ILinearShape)targetShapeInfo.Shape;
+				_modifiedLinearShape = (ILinearShape)targetShapeInfo.Shape;
 
 				// create new preview shape
 				CreatePreview(diagramPresenter);
 				PreviewShape.CopyFrom(targetShapeInfo.Shape);	// Template will be copied but this is not really necessary as all styles will be overwritten with preview styles
 				PreviewShape.MakePreview(diagramPresenter.Project.Design);
 
-				pointAtCursor = targetShapeInfo.ControlPointId;
-				Point pointPos = targetShapeInfo.Shape.GetControlPointPosition(pointAtCursor);
-				if (pointAtCursor == ControlPointId.FirstVertex) {
-					ControlPointId insertId = PreviewLinearShape.GetNextVertexId(pointAtCursor);
-					lastInsertedPointId = PreviewLinearShape.InsertVertex(insertId, pointPos.X, pointPos.Y);
-				} else lastInsertedPointId = PreviewLinearShape.InsertVertex(pointAtCursor, pointPos.X, pointPos.Y);
+				_pointAtCursor = targetShapeInfo.ControlPointId;
+				Point pointPos = targetShapeInfo.Shape.GetControlPointPosition(_pointAtCursor);
+				if (_pointAtCursor == ControlPointId.FirstVertex) {
+					ControlPointId insertId = PreviewLinearShape.GetNextVertexId(_pointAtCursor);
+					_lastInsertedPointId = PreviewLinearShape.InsertVertex(insertId, pointPos.X, pointPos.Y);
+				} else _lastInsertedPointId = PreviewLinearShape.InsertVertex(_pointAtCursor, pointPos.X, pointPos.Y);
 
 				ResizeModifiers resizeModifier = GetResizeModifier(mouseState);
-				PreviewShape.MoveControlPointTo(pointAtCursor, mouseState.X, mouseState.Y, resizeModifier);
+				PreviewShape.MoveControlPointTo(_pointAtCursor, mouseState.X, mouseState.Y, resizeModifier);
 			}
 		}
 
@@ -547,10 +544,10 @@ namespace Dataweb.NShape {
 #endif
 			if (PreviewLinearShape.VertexCount < PreviewLinearShape.MaxVertexCount) {
 				ControlPointId existingPointId = ControlPointId.None;
-				Point pointPos = PreviewShape.GetControlPointPosition(pointAtCursor);
+				Point pointPos = PreviewShape.GetControlPointPosition(_pointAtCursor);
 				foreach (ControlPointId ptId in PreviewShape.GetControlPointIds(ControlPointCapabilities.All)) {
 					if (ptId == ControlPointId.Reference) continue;
-					if (ptId == pointAtCursor) continue;
+					if (ptId == _pointAtCursor) continue;
 					Point p = PreviewShape.GetControlPointPosition(ptId);
 					if (p == pointPos && ptId != ControlPointId.Reference) {
 						existingPointId = ptId;
@@ -559,13 +556,13 @@ namespace Dataweb.NShape {
 				}
 				if (existingPointId == ControlPointId.None) {
 					//lastInsertedPointId = PreviewLinearShape.InsertVertex(ControlPointId.LastVertex, pointPos.X, pointPos.Y);
-					if (pointAtCursor == ControlPointId.FirstVertex) {
-						ControlPointId insertBeforeId = PreviewLinearShape.GetNextVertexId(pointAtCursor);
-						lastInsertedPointId = PreviewLinearShape.InsertVertex(insertBeforeId, pointPos.X, pointPos.Y);
+					if (_pointAtCursor == ControlPointId.FirstVertex) {
+						ControlPointId insertBeforeId = PreviewLinearShape.GetNextVertexId(_pointAtCursor);
+						_lastInsertedPointId = PreviewLinearShape.InsertVertex(insertBeforeId, pointPos.X, pointPos.Y);
 					} else
-						lastInsertedPointId = PreviewLinearShape.InsertVertex(pointAtCursor, pointPos.X, pointPos.Y);
+						_lastInsertedPointId = PreviewLinearShape.InsertVertex(_pointAtCursor, pointPos.X, pointPos.Y);
 				}
-			} else throw new InvalidOperationException(string.Format("Maximum number of verticex reached: {0}", PreviewLinearShape.MaxVertexCount));
+			} else throw new InvalidOperationException(string.Format(Properties.Resources.MessageFmt_MaximumNumberOfVerticexReached0, PreviewLinearShape.MaxVertexCount));
 		}
 
 
@@ -595,7 +592,7 @@ namespace Dataweb.NShape {
 						break;
 					default:
 						// Treat the last inserted Point as EndPoint
-						if ((ignorePointAtMouse && pointId == lastInsertedPointId) || ((ILinearShape)newShape).VertexCount == ((ILinearShape)newShape).MaxVertexCount)
+						if ((ignorePointAtMouse && pointId == _lastInsertedPointId) || ((ILinearShape)newShape).VertexCount == ((ILinearShape)newShape).MaxVertexCount)
 							newShape.MoveControlPointTo(ControlPointId.LastVertex, p.X, p.Y, ResizeModifiers.None);
 						else ((ILinearShape)newShape).InsertVertex(ControlPointId.LastVertex, p.X, p.Y);
 						break;
@@ -636,21 +633,21 @@ namespace Dataweb.NShape {
 		private void FinishExtendLine(IDiagramPresenter diagramPresenter, MouseState mouseState, bool ignorePointAtMouse) {
 #if DEBUG_DIAGNOSTICS
 			Assert(PreviewShape != null);
-			Assert(modifiedLinearShape != null);
+			Assert(_modifiedLinearShape != null);
 #endif
-			Shape modifiedShape = (Shape)modifiedLinearShape;
+			Shape modifiedShape = (Shape)_modifiedLinearShape;
 
 			// Copy points from the PreviewShape to the new shape 
 			// Start at the opposite point of the point at mouse cursor and skip all existing points
 			ControlPointId pointId, endPointId;
 			bool firstToLast;
-			if (pointAtCursor == ControlPointId.FirstVertex) {
+			if (_pointAtCursor == ControlPointId.FirstVertex) {
 				pointId = ControlPointId.LastVertex;
-				endPointId = ignorePointAtMouse ? lastInsertedPointId : (ControlPointId)ControlPointId.FirstVertex;
+				endPointId = ignorePointAtMouse ? _lastInsertedPointId : (ControlPointId)ControlPointId.FirstVertex;
 				firstToLast = false;
 			} else {
 				pointId = ControlPointId.FirstVertex;
-				endPointId = ignorePointAtMouse ? lastInsertedPointId : (ControlPointId)ControlPointId.LastVertex;
+				endPointId = ignorePointAtMouse ? _lastInsertedPointId : (ControlPointId)ControlPointId.LastVertex;
 				firstToLast = true;
 			}
 
@@ -660,7 +657,7 @@ namespace Dataweb.NShape {
 			// Process all point id's
 			do {
 				ControlPointId nextPointId = GetNextResizePointId(PreviewLinearShape, pointId, firstToLast);
-				ControlPointId nextOrigPtId = GetNextResizePointId(modifiedLinearShape, pointId, firstToLast);
+				ControlPointId nextOrigPtId = GetNextResizePointId(_modifiedLinearShape, pointId, firstToLast);
 				if (nextPointId != nextOrigPtId && nextPointId != endPointId) {
 					// If the next point id of the preview does not equal the original shape's point id,
 					// we have to create it...
@@ -709,29 +706,29 @@ namespace Dataweb.NShape {
 				case Action.None:
 					if (IsExtendLineFeasible(CurrentAction, shape, pointId)) {
 						if (diagramPresenter.Project.SecurityManager.IsGranted(Permission.Layout, shape))
-							return cursors[ToolCursor.ExtendLine];
-						else return cursors[ToolCursor.NotAllowed];
+							return _cursors[ToolCursor.ExtendLine];
+						else return _cursors[ToolCursor.NotAllowed];
 					} else if (diagramPresenter.Project.SecurityManager.IsGranted(Permission.Insert, Template.Shape)) {
 						if (shape != null && pointId != ControlPointId.None
 							&& IsConnectingFeasible(CurrentAction, shape, pointId))
-							return cursors[ToolCursor.Connect];
-						else return cursors[ToolCursor.Pen];
-					} else return cursors[ToolCursor.NotAllowed];
+							return _cursors[ToolCursor.Connect];
+						else return _cursors[ToolCursor.Pen];
+					} else return _cursors[ToolCursor.NotAllowed];
 
 				case Action.CreateLine:
 					if (diagramPresenter.Project.SecurityManager.IsGranted(Permission.Insert, Template.Shape)) {
 						if (shape != null && pointId != ControlPointId.None
 							&& IsConnectingFeasible(CurrentAction, shape, pointId))
-							return cursors[ToolCursor.Connect];
-						else return cursors[ToolCursor.Pen];
-					} else return cursors[ToolCursor.NotAllowed];
+							return _cursors[ToolCursor.Connect];
+						else return _cursors[ToolCursor.Pen];
+					} else return _cursors[ToolCursor.NotAllowed];
 
 				case Action.ExtendLine:
-					if (diagramPresenter.Project.SecurityManager.IsGranted(Permission.Layout, shape ?? (Shape)modifiedLinearShape)) {
+					if (diagramPresenter.Project.SecurityManager.IsGranted(Permission.Layout, shape ?? (Shape)_modifiedLinearShape)) {
 						if (IsConnectingFeasible(CurrentAction, shape, pointId))
-							return cursors[ToolCursor.Connect];
-						else return cursors[ToolCursor.ExtendLine];
-					} else return cursors[ToolCursor.NotAllowed];
+							return _cursors[ToolCursor.Connect];
+						else return _cursors[ToolCursor.ExtendLine];
+					} else return _cursors[ToolCursor.NotAllowed];
 
 				default: throw new NShapeUnsupportedValueException(CurrentAction);
 			}
@@ -775,15 +772,15 @@ namespace Dataweb.NShape {
 		#region Fields
 
 		// Definition of the tool
-		private static Dictionary<ToolCursor, int> cursors;
+		private static Dictionary<ToolCursor, int> _cursors;
 
 		// Tool's state definition
 		// stores the last inserted Point (and its coordinates), which will become the EndPoint when the CurrentTool is cancelled
-		private ControlPointId pointAtCursor;
-		private ControlPointId lastInsertedPointId;
+		private ControlPointId _pointAtCursor;
+		private ControlPointId _lastInsertedPointId;
 		// Stores the currently modified ILinearShape. 
 		// This could be a new shape created from the template but also an existing line that is extended with new points.
-		private ILinearShape modifiedLinearShape = null;
+		private ILinearShape _modifiedLinearShape = null;
 
 		#endregion
 	}
@@ -850,7 +847,7 @@ namespace Dataweb.NShape {
 						if (IsToolActionPending && newMouseState.IsButtonDown(MouseButtonsDg.Left)) {
 							try {
 								// Left mouse button was pressed: Create shape
-								executing = true;
+								_executing = true;
 								Invalidate(ActionDiagramPresenter);
 								if (ActionDiagramPresenter.Diagram != null) {
 									int x = PreviewShape.X;
@@ -864,7 +861,7 @@ namespace Dataweb.NShape {
 									result = true;
 								}
 							} finally {
-								executing = false;
+								_executing = false;
 							}
 							EndToolAction();
 							OnToolExecuted(ExecutedEventArgs);
@@ -896,7 +893,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void EnterDisplay(IDiagramPresenter diagramPresenter) {
-			if (!CurrentMouseState.IsEmpty && !executing) {
+			if (!CurrentMouseState.IsEmpty && !_executing) {
 				if (diagramPresenter.Project.SecurityManager.IsGranted(Permission.Insert, Template.Shape))
 					StartToolAction(diagramPresenter, (int)Action.Create, CurrentMouseState, false);
 			}
@@ -907,7 +904,7 @@ namespace Dataweb.NShape {
 		public override void LeaveDisplay(IDiagramPresenter diagramPresenter) {
 			// Do not end tool action while inserting a shape (e.g. when showing a dialog 
 			// on the DiagramPresenter's "ShapeInserted" event
-			if (!executing && IsToolActionPending)
+			if (!_executing && IsToolActionPending)
 				EndToolAction();
 		}
 
@@ -915,7 +912,7 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		public override void Draw(IDiagramPresenter diagramPresenter) {
 			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
-			if (drawPreview) {
+			if (_drawPreview) {
 				//if (DisplayContainsMousePos(ActionDisplay, CurrentMouseState.Position)) {
 				diagramPresenter.DrawShape(PreviewShape);
 				if (ActionDiagramPresenter.SnapToGrid)
@@ -951,9 +948,8 @@ namespace Dataweb.NShape {
 		protected override void StartToolAction(IDiagramPresenter diagramPresenter, int action, MouseState mouseState, bool wantAutoScroll) {
 			base.StartToolAction(diagramPresenter, action, mouseState, wantAutoScroll);
 			CreatePreview(ActionDiagramPresenter);
-			PreviewShape.DisplayService = diagramPresenter.DisplayService;
 			PreviewShape.MoveTo(mouseState.X, mouseState.Y);
-			drawPreview = true;
+			_drawPreview = true;
 			diagramPresenter.SetCursor(CurrentCursorId);
 		}
 
@@ -961,25 +957,25 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		protected override void EndToolAction() {
 			base.EndToolAction();
-			drawPreview = false;
+			_drawPreview = false;
 			ClearPreview();
 		}
 
 
 		static PlanarShapeCreationTool() {
-			crossCursorId = CursorProvider.RegisterCursor(Properties.Resources.CrossCursor);
+			_crossCursorId = CursorProvider.RegisterCursor(Properties.Resources.CrossCursor);
 		}
 
 
 		private void Construct(Template template) {
 			if (!(template.Shape is IPlanarShape))
 				throw new NShapeException("The template's shape does not implement {0}.", typeof(IPlanarShape).Name);
-			drawPreview = false;
+			_drawPreview = false;
 		}
 
 
 		private int CurrentCursorId {
-			get { return drawPreview ? crossCursorId : CursorProvider.DefaultCursorID; }
+			get { return _drawPreview ? _crossCursorId : CursorProvider.DefaultCursorID; }
 		}
 
 
@@ -989,9 +985,9 @@ namespace Dataweb.NShape {
 		#region Fields
 
 		// Definition of the tool
-		private static int crossCursorId;
-		private bool drawPreview;
-		private bool executing = false;
+		private static int _crossCursorId;
+		private bool _drawPreview;
+		private bool _executing = false;
 
 		#endregion
 	}

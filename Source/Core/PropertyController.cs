@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -78,17 +78,17 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		[CategoryNShape()]
 		public Project Project {
-			get { return project; }
+			get { return _project; }
 			set {
-				if (project != null) {
+				if (_project != null) {
 					CancelSetProperty();
-					if (project.Repository != null) UnregisterRepositoryEvents();
+					if (_project.Repository != null) UnregisterRepositoryEvents();
 					UnregisterProjectEvents();
 				}
-				project = value;
-				if (project != null) {
+				_project = value;
+				if (_project != null) {
 					RegisterProjectEvents();
-					if (project.IsOpen) RegisterRepositoryEvents();
+					if (_project.IsOpen) RegisterRepositoryEvents();
 				}
 			}
 		}
@@ -108,8 +108,8 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		[CategoryBehavior()]
 		public NonEditableDisplayMode PropertyDisplayMode {
-			get { return propertyDisplayMode; }
-			set { propertyDisplayMode = value; }
+			get { return _propertyDisplayMode; }
+			set { _propertyDisplayMode = value; }
 		}
 
 		#endregion
@@ -125,35 +125,35 @@ namespace Dataweb.NShape.Controllers {
 					// ToDo: 
 					// If the objects are not of the same type but of the same base type (or interface), this method will fail.
 					// So we have to get the common base type/interface in this case.
-					if (propertySetBuffer != null
-						&& propertySetBuffer.Objects.Count > 0
-						&& !IsOfType(obj.GetType(), propertySetBuffer.ObjectType))
-						throw new InvalidOperationException("Another transaction is pending.");
-					if (propertySetBuffer == null) {
+					if (_propertySetBuffer != null
+						&& _propertySetBuffer.Objects.Count > 0
+						&& !IsOfType(obj.GetType(), _propertySetBuffer.ObjectType))
+						throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_AnotherTransactionIsPending);
+					if (_propertySetBuffer == null) {
 						PropertyInfo propertyInfo = obj.GetType().GetProperty(propertyName);
 						if (obj is Shape)
-							propertySetBuffer = new PropertySetInfo<Shape>(propertyInfo, newValue);
+							_propertySetBuffer = new PropertySetInfo<Shape>(propertyInfo, newValue);
 						else if (obj is IModelObject)
-							propertySetBuffer = new PropertySetInfo<IModelObject>(propertyInfo, newValue);
+							_propertySetBuffer = new PropertySetInfo<IModelObject>(propertyInfo, newValue);
 						else if (obj is Diagram)
-							propertySetBuffer = new PropertySetInfo<Diagram>(propertyInfo, newValue);
+							_propertySetBuffer = new PropertySetInfo<Diagram>(propertyInfo, newValue);
 						else if (obj is Layer)
-							propertySetBuffer = new PropertySetInfo<Layer>(propertyInfo, newValue);
+							_propertySetBuffer = new PropertySetInfo<Layer>(propertyInfo, newValue);
 						else if (obj is Design)
-							propertySetBuffer = new PropertySetInfo<Design>(propertyInfo, newValue);
+							_propertySetBuffer = new PropertySetInfo<Design>(propertyInfo, newValue);
 						else if (obj is Style)
-							propertySetBuffer = new PropertySetInfo<Style>(propertyInfo, newValue);
+							_propertySetBuffer = new PropertySetInfo<Style>(propertyInfo, newValue);
 						else throw new NotSupportedException();
 					}
-					propertySetBuffer.Objects.Add(obj);
-					propertySetBuffer.OldValues.Add(oldValue);
+					_propertySetBuffer.Objects.Add(obj);
+					_propertySetBuffer.OldValues.Add(oldValue);
 
 					// If all properties are set, commit changes.
-					if (selectedPrimaryObjects.Contains(obj)
-						&& propertySetBuffer.Objects.Count == selectedPrimaryObjects.Count)
+					if (_selectedPrimaryObjects.Contains(obj)
+						&& _propertySetBuffer.Objects.Count == _selectedPrimaryObjects.Count)
 						CommitSetProperty();
-					else if (selectedSecondaryObjects.Contains(obj)
-						&& propertySetBuffer.Objects.Count == selectedSecondaryObjects.Count)
+					else if (_selectedSecondaryObjects.Contains(obj)
+						&& _propertySetBuffer.Objects.Count == _selectedSecondaryObjects.Count)
 						CommitSetProperty();
 				} catch (TargetInvocationException exc) {
 					if (exc.InnerException != null)
@@ -170,38 +170,38 @@ namespace Dataweb.NShape.Controllers {
 		public void CancelSetProperty() {
 			AssertProjectExists();
 			// Discard buffer
-			propertySetBuffer = null;
+			_propertySetBuffer = null;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void CommitSetProperty() {
 			AssertProjectExists();
-			if (propertySetBuffer != null) {
+			if (_propertySetBuffer != null) {
 				ICommand command = null;
-				if (propertySetBuffer.Objects.Count != 0) {
-					if (IsOfType(propertySetBuffer.ObjectType, typeof(Shape))) {
+				if (_propertySetBuffer.Objects.Count != 0) {
+					if (IsOfType(_propertySetBuffer.ObjectType, typeof(Shape))) {
 						command = new ShapePropertySetCommand(
-							ConvertEnumerator<Shape>.Create(propertySetBuffer.Objects),
-							propertySetBuffer.PropertyInfo,
-							propertySetBuffer.OldValues,
-							propertySetBuffer.NewValue);
-					} else if (IsOfType(propertySetBuffer.ObjectType, typeof(IModelObject))) {
+							ConvertEnumerator<Shape>.Create(_propertySetBuffer.Objects),
+							_propertySetBuffer.PropertyInfo,
+							_propertySetBuffer.OldValues,
+							_propertySetBuffer.NewValue);
+					} else if (IsOfType(_propertySetBuffer.ObjectType, typeof(IModelObject))) {
 						command = new ModelObjectPropertySetCommand(
-							ConvertEnumerator<IModelObject>.Create(propertySetBuffer.Objects),
-							propertySetBuffer.PropertyInfo,
-							propertySetBuffer.OldValues,
-							propertySetBuffer.NewValue);
-					} else if (IsOfType(propertySetBuffer.ObjectType, typeof(Diagram))) {
+							ConvertEnumerator<IModelObject>.Create(_propertySetBuffer.Objects),
+							_propertySetBuffer.PropertyInfo,
+							_propertySetBuffer.OldValues,
+							_propertySetBuffer.NewValue);
+					} else if (IsOfType(_propertySetBuffer.ObjectType, typeof(Diagram))) {
 						command = new DiagramPropertySetCommand(
-							ConvertEnumerator<Diagram>.Create(propertySetBuffer.Objects),
-							propertySetBuffer.PropertyInfo,
-							propertySetBuffer.OldValues,
-							propertySetBuffer.NewValue);
-					} else if (IsOfType(propertySetBuffer.ObjectType, typeof(Layer))) {
+							ConvertEnumerator<Diagram>.Create(_propertySetBuffer.Objects),
+							_propertySetBuffer.PropertyInfo,
+							_propertySetBuffer.OldValues,
+							_propertySetBuffer.NewValue);
+					} else if (IsOfType(_propertySetBuffer.ObjectType, typeof(Layer))) {
 						Diagram diagram = null;
-						foreach (Diagram d in project.Repository.GetDiagrams()) {
-							foreach (Layer l in ConvertEnumerator<Layer>.Create(propertySetBuffer.Objects)) {
+						foreach (Diagram d in _project.Repository.GetDiagrams()) {
+							foreach (Layer l in ConvertEnumerator<Layer>.Create(_propertySetBuffer.Objects)) {
 								if (d.Layers.Contains(l)) {
 									diagram = d;
 									break;
@@ -211,21 +211,21 @@ namespace Dataweb.NShape.Controllers {
 						}
 						command = new LayerPropertySetCommand(
 							diagram,
-							ConvertEnumerator<Layer>.Create(propertySetBuffer.Objects),
-							propertySetBuffer.PropertyInfo,
-							propertySetBuffer.OldValues,
-							propertySetBuffer.NewValue);
-					} else if (IsOfType(propertySetBuffer.ObjectType, typeof(Design))) {
+							ConvertEnumerator<Layer>.Create(_propertySetBuffer.Objects),
+							_propertySetBuffer.PropertyInfo,
+							_propertySetBuffer.OldValues,
+							_propertySetBuffer.NewValue);
+					} else if (IsOfType(_propertySetBuffer.ObjectType, typeof(Design))) {
 						command = new DesignPropertySetCommand(
-							ConvertEnumerator<Design>.Create(propertySetBuffer.Objects),
-							propertySetBuffer.PropertyInfo,
-							propertySetBuffer.OldValues,
-							propertySetBuffer.NewValue);
-					} else if (IsOfType(propertySetBuffer.ObjectType, typeof(Style))) {
+							ConvertEnumerator<Design>.Create(_propertySetBuffer.Objects),
+							_propertySetBuffer.PropertyInfo,
+							_propertySetBuffer.OldValues,
+							_propertySetBuffer.NewValue);
+					} else if (IsOfType(_propertySetBuffer.ObjectType, typeof(Style))) {
 						Design design = null;
-						if (project.Repository != null) {
-							foreach (Design d in project.Repository.GetDesigns()) {
-								foreach (Style s in ConvertEnumerator<Style>.Create(propertySetBuffer.Objects)) {
+						if (_project.Repository != null) {
+							foreach (Design d in _project.Repository.GetDesigns()) {
+								foreach (Style s in ConvertEnumerator<Style>.Create(_propertySetBuffer.Objects)) {
 									if (d.ContainsStyle(s)) {
 										design = d;
 										break;
@@ -233,14 +233,14 @@ namespace Dataweb.NShape.Controllers {
 								}
 								if (design != null) break;
 							}
-						} else design = project.Design;
+						} else design = _project.Design;
 						if (design != null) {
 							command = new StylePropertySetCommand(
 								design,
-								ConvertEnumerator<Style>.Create(propertySetBuffer.Objects),
-								propertySetBuffer.PropertyInfo,
-								propertySetBuffer.OldValues,
-								propertySetBuffer.NewValue);
+								ConvertEnumerator<Style>.Create(_propertySetBuffer.Objects),
+								_propertySetBuffer.PropertyInfo,
+								_propertySetBuffer.OldValues,
+								_propertySetBuffer.NewValue);
 						}
 					} else throw new NotSupportedException();
 				}
@@ -250,26 +250,26 @@ namespace Dataweb.NShape.Controllers {
 					Exception exc = command.CheckAllowed(Project.SecurityManager);
 					if (exc != null) throw exc;
 					//
-					if (updateRepository) Project.ExecuteCommand(command);
+					if (_updateRepository) Project.ExecuteCommand(command);
 					else command.Execute();
 					if (PropertyChanged != null) {
 						int pageIndex;
 						Hashtable selectedObjectsList;
-						GetSelectedObjectList(propertySetBuffer.Objects, out pageIndex, out selectedObjectsList);
+						GetSelectedObjectList(_propertySetBuffer.Objects, out pageIndex, out selectedObjectsList);
 						if (pageIndex >= 0) {
 							PropertyControllerPropertyChangedEventArgs e = new PropertyControllerPropertyChangedEventArgs(
 								pageIndex,
-								propertySetBuffer.Objects,
-								propertySetBuffer.PropertyInfo,
-								propertySetBuffer.OldValues,
-								propertySetBuffer.NewValue);
+								_propertySetBuffer.Objects,
+								_propertySetBuffer.PropertyInfo,
+								_propertySetBuffer.OldValues,
+								_propertySetBuffer.NewValue);
 							PropertyChanged(this, e);
 						}
 					}
 				} else 
 					CancelSetProperty();
 			}
-			propertySetBuffer = null;
+			_propertySetBuffer = null;
 		}
 
 		#endregion
@@ -291,13 +291,13 @@ namespace Dataweb.NShape.Controllers {
 			Hashtable selectedObjectsList;
 			GetSelectedObjectList(pageIndex, out selectedObjectsList);
 			selectedObjectsList.Clear();
-			updateRepository = isPersistent;
+			_updateRepository = isPersistent;
 			if (selectedObject != null) selectedObjectsList.Add(selectedObject, null);
 
 			if (ObjectsSet != null) {
-				propertyControllerEventArgs.PageIndex = pageIndex;
-				propertyControllerEventArgs.SetObject(selectedObject);
-				ObjectsSet(this, propertyControllerEventArgs);
+				_propertyControllerEventArgs.PageIndex = pageIndex;
+				_propertyControllerEventArgs.SetObject(selectedObject);
+				ObjectsSet(this, _propertyControllerEventArgs);
 			}
 		}
 
@@ -318,16 +318,16 @@ namespace Dataweb.NShape.Controllers {
 			GetSelectedObjectList(pageIndex, out selectedObjectsList);
 			selectedObjectsList.Clear();
 
-			updateRepository = arePersistent;
+			_updateRepository = arePersistent;
 			foreach (object o in selectedObjects) {
 				if (!selectedObjectsList.Contains(o))
 					selectedObjectsList.Add(o, null);
 			}
 
 			if (ObjectsSet != null) {
-				propertyControllerEventArgs.PageIndex = pageIndex;
-				propertyControllerEventArgs.SetObjects(selectedObjects);
-				ObjectsSet(this, propertyControllerEventArgs);
+				_propertyControllerEventArgs.PageIndex = pageIndex;
+				_propertyControllerEventArgs.SetObjects(selectedObjects);
+				ObjectsSet(this, _propertyControllerEventArgs);
 			}
 		}
 
@@ -380,49 +380,49 @@ namespace Dataweb.NShape.Controllers {
 		#region [Private] Methods: Registering for events
 
 		private void RegisterProjectEvents() {
-			if (project != null) {
-				project.Opened += project_ProjectOpen;
-				project.Closing += project_ProjectClosing;
-				project.Closed += project_ProjectClosed;
+			if (_project != null) {
+				_project.Opened += project_ProjectOpen;
+				_project.Closing += project_ProjectClosing;
+				_project.Closed += project_ProjectClosed;
 			}
 		}
 
 
 		private void RegisterRepositoryEvents() {
-			if (project != null && project.Repository != null) {
-				project.Repository.StyleUpdated += repository_StyleUpdated;
-				project.Repository.DiagramUpdated += repository_DiagramUpdated;
-				project.Repository.ShapesUpdated += repository_ShapesUpdated;
-				project.Repository.ModelObjectsUpdated += repository_ModelObjectsUpdated;
+			if (_project != null && _project.Repository != null) {
+				_project.Repository.StyleUpdated += repository_StyleUpdated;
+				_project.Repository.DiagramUpdated += repository_DiagramUpdated;
+				_project.Repository.ShapesUpdated += repository_ShapesUpdated;
+				_project.Repository.ModelObjectsUpdated += repository_ModelObjectsUpdated;
 
-				project.Repository.StyleDeleted += Repository_StyleDeleted;
-				project.Repository.DiagramDeleted += Repository_DiagramDeleted;
-				project.Repository.ShapesDeleted += Repository_ShapesDeleted;
-				project.Repository.ModelObjectsDeleted += Repository_ModelObjectsDeleted;
+				_project.Repository.StyleDeleted += Repository_StyleDeleted;
+				_project.Repository.DiagramDeleted += Repository_DiagramDeleted;
+				_project.Repository.ShapesDeleted += Repository_ShapesDeleted;
+				_project.Repository.ModelObjectsDeleted += Repository_ModelObjectsDeleted;
 			}
 		}
 
 
 		private void UnregisterProjectEvents() {
-			if (project != null) {
-				project.Opened -= project_ProjectOpen;
-				project.Closing -= project_ProjectClosing;
-				project.Closed -= project_ProjectClosed;
+			if (_project != null) {
+				_project.Opened -= project_ProjectOpen;
+				_project.Closing -= project_ProjectClosing;
+				_project.Closed -= project_ProjectClosed;
 			}
 		}
 
 
 		private void UnregisterRepositoryEvents() {
-			if (project != null && project.Repository != null) {
-				project.Repository.StyleUpdated -= repository_StyleUpdated;
-				project.Repository.DiagramUpdated -= repository_DiagramUpdated;
-				project.Repository.ShapesUpdated -= repository_ShapesUpdated;
-				project.Repository.ModelObjectsUpdated -= repository_ModelObjectsUpdated;
+			if (_project != null && _project.Repository != null) {
+				_project.Repository.StyleUpdated -= repository_StyleUpdated;
+				_project.Repository.DiagramUpdated -= repository_DiagramUpdated;
+				_project.Repository.ShapesUpdated -= repository_ShapesUpdated;
+				_project.Repository.ModelObjectsUpdated -= repository_ModelObjectsUpdated;
 
-				project.Repository.StyleDeleted -= Repository_StyleDeleted;
-				project.Repository.DiagramDeleted -= Repository_DiagramDeleted;
-				project.Repository.ShapesDeleted -= Repository_ShapesDeleted;
-				project.Repository.ModelObjectsDeleted -= Repository_ModelObjectsDeleted;
+				_project.Repository.StyleDeleted -= Repository_StyleDeleted;
+				_project.Repository.DiagramDeleted -= Repository_DiagramDeleted;
+				_project.Repository.ShapesDeleted -= Repository_ShapesDeleted;
+				_project.Repository.ModelObjectsDeleted -= Repository_ModelObjectsDeleted;
 			}
 		}
 
@@ -489,7 +489,7 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private void AssertProjectExists() {
-			if (Project == null) throw new InvalidOperationException("Property Project is not set.");
+			if (Project == null) throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_PropertyProjectIsNotSet);
 		}
 
 
@@ -503,8 +503,8 @@ namespace Dataweb.NShape.Controllers {
 		private void GetSelectedObjectList(int pageIndex, out Hashtable selectedObjectsList) {
 			selectedObjectsList = null;
 			switch (pageIndex) {
-				case 0: selectedObjectsList = selectedPrimaryObjects; break;
-				case 1: selectedObjectsList = selectedSecondaryObjects; break;
+				case 0: selectedObjectsList = _selectedPrimaryObjects; break;
+				case 1: selectedObjectsList = _selectedSecondaryObjects; break;
 				default: throw new ArgumentOutOfRangeException("pageIndex");
 			}
 		}
@@ -514,12 +514,12 @@ namespace Dataweb.NShape.Controllers {
 			pageIndex = -1;
 			selectedObjectsList = null;
 			foreach (object obj in objs) {
-				if (selectedPrimaryObjects.ContainsKey(obj)) {
+				if (_selectedPrimaryObjects.ContainsKey(obj)) {
 					pageIndex = 0;
-					selectedObjectsList = selectedPrimaryObjects;
-				} else if (selectedSecondaryObjects.ContainsKey(obj)) {
+					selectedObjectsList = _selectedPrimaryObjects;
+				} else if (_selectedSecondaryObjects.ContainsKey(obj)) {
 					pageIndex = 1;
-					selectedObjectsList = selectedSecondaryObjects;
+					selectedObjectsList = _selectedSecondaryObjects;
 				}
 				if (selectedObjectsList != null) break;
 			}
@@ -529,12 +529,12 @@ namespace Dataweb.NShape.Controllers {
 		private void GetSelectedObjectList(object obj, out int pageIndex, out Hashtable selectedObjectsList) {
 			pageIndex = -1;
 			selectedObjectsList = null;
-			if (selectedPrimaryObjects.ContainsKey(obj)) {
+			if (_selectedPrimaryObjects.ContainsKey(obj)) {
 				pageIndex = 0;
-				selectedObjectsList = selectedPrimaryObjects;
-			} else if (selectedSecondaryObjects.ContainsKey(obj)) {
+				selectedObjectsList = _selectedPrimaryObjects;
+			} else if (_selectedSecondaryObjects.ContainsKey(obj)) {
 				pageIndex = 1;
-				selectedObjectsList = selectedSecondaryObjects;
+				selectedObjectsList = _selectedSecondaryObjects;
 			}
 		}
 
@@ -545,9 +545,9 @@ namespace Dataweb.NShape.Controllers {
 				Hashtable selectedObjectsList;
 				GetSelectedObjectList(objs, out pageIndex, out selectedObjectsList);
 				if (pageIndex >= 0) {
-					propertyControllerEventArgs.PageIndex = pageIndex;
-					propertyControllerEventArgs.SetObjects(selectedObjectsList.Keys);
-					ObjectsModified(this, propertyControllerEventArgs);
+					_propertyControllerEventArgs.PageIndex = pageIndex;
+					_propertyControllerEventArgs.SetObjects(selectedObjectsList.Keys);
+					ObjectsModified(this, _propertyControllerEventArgs);
 				}
 			}
 		}
@@ -559,9 +559,9 @@ namespace Dataweb.NShape.Controllers {
 				Hashtable selectedObjectsList;
 				GetSelectedObjectList(obj, out pageIndex, out selectedObjectsList);
 				if (pageIndex >= 0) {
-					propertyControllerEventArgs.PageIndex = pageIndex;
-					propertyControllerEventArgs.SetObjects(selectedObjectsList.Keys);
-					ObjectsModified(this, propertyControllerEventArgs);
+					_propertyControllerEventArgs.PageIndex = pageIndex;
+					_propertyControllerEventArgs.SetObjects(selectedObjectsList.Keys);
+					ObjectsModified(this, _propertyControllerEventArgs);
 				}
 			}
 		}
@@ -578,12 +578,12 @@ namespace Dataweb.NShape.Controllers {
 						if (selectedObjectsList.Contains(o))
 							selectedObjectsList.Remove(o);
 					}
-					propertyControllerEventArgs.PageIndex = pageIndex;
+					_propertyControllerEventArgs.PageIndex = pageIndex;
 					if (selectedObjectsList.Count > 0)
-						propertyControllerEventArgs.SetObjects(selectedObjectsList);
-					else propertyControllerEventArgs.SetObject(null);
+						_propertyControllerEventArgs.SetObjects(selectedObjectsList);
+					else _propertyControllerEventArgs.SetObject(null);
 
-					ObjectsSet(this, propertyControllerEventArgs);
+					ObjectsSet(this, _propertyControllerEventArgs);
 				}
 			}
 		}
@@ -596,12 +596,12 @@ namespace Dataweb.NShape.Controllers {
 				GetSelectedObjectList(obj, out pageIndex, out selectedObjectsList);
 				if (pageIndex >= 0 && selectedObjectsList.Contains(obj)) {
 					selectedObjectsList.Remove(obj);
-					propertyControllerEventArgs.PageIndex = pageIndex;
+					_propertyControllerEventArgs.PageIndex = pageIndex;
 					if (selectedObjectsList.Count > 0)
-						propertyControllerEventArgs.SetObjects(selectedObjectsList);
-					else propertyControllerEventArgs.SetObject(null);
+						_propertyControllerEventArgs.SetObjects(selectedObjectsList);
+					else _propertyControllerEventArgs.SetObject(null);
 
-					ObjectsSet(this, propertyControllerEventArgs);
+					ObjectsSet(this, _propertyControllerEventArgs);
 				}
 			}
 		}
@@ -610,19 +610,19 @@ namespace Dataweb.NShape.Controllers {
 		private abstract class PropertySetInfo {
 
 			public PropertySetInfo(object newValue) {
-				this.newValue = newValue;
+				this._newValue = newValue;
 			}
 
 			public abstract IList Objects { get; }
 
 
 			public List<object> OldValues {
-				get { return oldValues; }
+				get { return _oldValues; }
 			}
 
 
 			public object NewValue {
-				get { return newValue; }
+				get { return _newValue; }
 			}
 
 
@@ -632,8 +632,8 @@ namespace Dataweb.NShape.Controllers {
 			public abstract PropertyInfo PropertyInfo { get; }
 
 
-			private List<object> oldValues = new List<object>();
-			private object newValue;
+			private List<object> _oldValues = new List<object>();
+			private object _newValue;
 		}
 
 
@@ -671,13 +671,13 @@ namespace Dataweb.NShape.Controllers {
 
 		#region Fields
 		
-		private Project project;
-		private bool updateRepository;
-		private Hashtable selectedPrimaryObjects = new Hashtable();
-		private Hashtable selectedSecondaryObjects = new Hashtable();
-		private PropertyControllerEventArgs propertyControllerEventArgs = new PropertyControllerEventArgs();
-		private PropertySetInfo propertySetBuffer;
-		private NonEditableDisplayMode propertyDisplayMode = NonEditableDisplayMode.ReadOnly;
+		private Project _project;
+		private bool _updateRepository;
+		private Hashtable _selectedPrimaryObjects = new Hashtable();
+		private Hashtable _selectedSecondaryObjects = new Hashtable();
+		private PropertyControllerEventArgs _propertyControllerEventArgs = new PropertyControllerEventArgs();
+		private PropertySetInfo _propertySetBuffer;
+		private NonEditableDisplayMode _propertyDisplayMode = NonEditableDisplayMode.ReadOnly;
 		
 		#endregion
 	}
@@ -757,26 +757,26 @@ namespace Dataweb.NShape.Controllers {
 		public PropertyControllerEventArgs(int pageIndex, IEnumerable objects) {
 			if (objects == null) throw new ArgumentNullException("objects");
 			SetObjects(objects);
-			this.pageIndex = pageIndex;
+			this._pageIndex = pageIndex;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IReadOnlyCollection<object> Objects {
-			get { return objects; }
+			get { return _objects; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public object[] GetObjectArray() {
-			return objects.ToArray();
+			return _objects.ToArray();
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public int PageIndex {
-			get { return pageIndex; }
-			internal set { pageIndex = value; }
+			get { return _pageIndex; }
+			internal set { _pageIndex = value; }
 		}
 
 
@@ -784,7 +784,7 @@ namespace Dataweb.NShape.Controllers {
 		/// Returns the common Type of all objects in the objects collection.
 		/// </summary>
 		public Type ObjectsType {
-			get { return commonType ?? typeof(object); }
+			get { return _commonType ?? typeof(object); }
 		}
 
 
@@ -794,62 +794,62 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal void SetObjects(IEnumerable objects) {
-			this.objects.Clear();
+			this._objects.Clear();
 			foreach (object obj in objects)
-				this.objects.Add(obj);
+				this._objects.Add(obj);
 			SetCommonType();
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal void SetObjects(IEnumerable<Shape> objects) {
-			this.objects.Clear();
+			this._objects.Clear();
 			foreach (Shape s in objects)
-				this.objects.Add(s);
-			commonType = typeof(Shape);
+				this._objects.Add(s);
+			_commonType = typeof(Shape);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal void SetObjects(IEnumerable<IModelObject> objects) {
-			this.objects.Clear();
+			this._objects.Clear();
 			foreach (IModelObject m in objects)
-				this.objects.Add(m);
-			commonType = typeof(IModelObject);
+				this._objects.Add(m);
+			_commonType = typeof(IModelObject);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal void SetObject(object obj) {
-			this.objects.Clear();
-			if (obj != null) this.objects.Add(obj);
+			this._objects.Clear();
+			if (obj != null) this._objects.Add(obj);
 			SetCommonType();
 		}
 
 
 		private void SetCommonType() {
 			// get Type of modifiedObjects
-			commonType = null;
-			foreach (Object obj in objects) {
+			_commonType = null;
+			foreach (Object obj in _objects) {
 				if (obj == null) continue;
-				if (commonType == null) {
+				if (_commonType == null) {
 					if (obj is Shape) 
-						commonType = typeof(Shape);
+						_commonType = typeof(Shape);
 					else if (obj is IModelObject) 
-						commonType = typeof(IModelObject);
-					else commonType = obj.GetType();
-				} else if (!obj.GetType().IsSubclassOf(commonType)
-							&& obj.GetType().GetInterface(commonType.Name) == null) {
-					commonType = null;
+						_commonType = typeof(IModelObject);
+					else _commonType = obj.GetType();
+				} else if (!obj.GetType().IsSubclassOf(_commonType)
+							&& obj.GetType().GetInterface(_commonType.Name) == null) {
+					_commonType = null;
 					break;
 				}
 			}
 		}
 
 
-		private ReadOnlyList<object> objects = new ReadOnlyList<object>();
-		private int pageIndex = -1;
-		private Type commonType = null;
+		private ReadOnlyList<object> _objects = new ReadOnlyList<object>();
+		private int _pageIndex = -1;
+		private Type _commonType = null;
 	}
 
 
@@ -862,23 +862,23 @@ namespace Dataweb.NShape.Controllers {
 			if (modifiedObjects == null) throw new ArgumentNullException("modifiedObjects");
 			if (propertyInfo == null) throw new ArgumentNullException("propertyInfo");
 			// store modifiedObjects
-			this.oldValues = new List<object>(oldValues);
-			this.newValue = newValue;
-			this.propertyInfo = propertyInfo;
+			this._oldValues = new List<object>(oldValues);
+			this._newValue = newValue;
+			this._propertyInfo = propertyInfo;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public IEnumerable<object> OldValues { get { return oldValues; } }
+		public IEnumerable<object> OldValues { get { return _oldValues; } }
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public object NewValue { get { return newValue; } }
+		public object NewValue { get { return _newValue; } }
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public PropertyInfo PropertyInfo { get { return propertyInfo; } }
+		public PropertyInfo PropertyInfo { get { return _propertyInfo; } }
 
-		private List<object> oldValues;
-		private object newValue;
-		private PropertyInfo propertyInfo;
+		private List<object> _oldValues;
+		private object _newValue;
+		private PropertyInfo _propertyInfo;
 	}
 
 	#endregion

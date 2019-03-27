@@ -9,8 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Dataweb.NShape</RootNamespace>
     <AssemblyName>Dataweb.NShape</AssemblyName>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>..\Dataweb.NShape.ico</ApplicationIcon>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -120,7 +119,9 @@
     <Compile Include="FlowLayouter.cs" />
     <Compile Include="FreeHandTool.cs" />
     <Compile Include="FuzzyLogic.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="Layer.cs" />
+    <Compile Include="Localization.cs" />
     <Compile Include="MenuItemDef.cs" />
     <Compile Include="AdoNetStore.cs">
       <SubType>Component</SubType>
@@ -132,8 +133,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="MultiHashList.cs" />
-    <Compile Include="Polygone.cs" />
-    <Compile Include="PolyLineBase.cs" />
+    <Compile Include="PolygonBase.cs" />
+    <Compile Include="PolylineBase.cs" />
     <Compile Include="PropertyMappings.cs" />
     <Compile Include="RectangularLineBase.cs" />
     <Compile Include="SelectionTool.cs" />
@@ -224,7 +225,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>

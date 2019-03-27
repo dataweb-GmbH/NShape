@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -203,8 +203,8 @@ namespace Dataweb.NShape {
 #if DEBUG_UI
 		/// <ToBeCompleted></ToBeCompleted>
 		~ShapeCollection() {
-			if (occupiedBrush != null) occupiedBrush.Dispose();
-			if (emptyBrush != null) emptyBrush.Dispose();
+			if (_occupiedBrush != null) _occupiedBrush.Dispose();
+			if (_emptyBrush != null) _emptyBrush.Dispose();
 		}
 #endif
 
@@ -492,7 +492,7 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		public bool Contains(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			return shapeDictionary.ContainsKey(shape);
+			return _shapeSet.Contains(shape);
 		}
 
 
@@ -566,9 +566,9 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		public object SyncRoot {
 			get {
-				if (syncRoot == null)
-					Interlocked.CompareExchange(ref syncRoot, new object(), null);
-				return syncRoot;
+				if (_syncRoot == null)
+					Interlocked.CompareExchange(ref _syncRoot, new object(), null);
+				return _syncRoot;
 			}
 		}
 
@@ -645,7 +645,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <param name="shape"></param>
 		protected virtual int AddCore(Shape shape) {
-			if (shapeDictionary.ContainsKey(shape)) throw new ArgumentException("The shape item already exists in the collection.");
+			if (_shapeSet.Contains(shape)) throw new ArgumentException("The shape item already exists in the collection.");
 			int idx = FindInsertPosition(shape.ZOrder);
 			return InsertCore(idx, shape);
 		}
@@ -657,7 +657,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <returns>Index where the shape has been inserted. The shape indexes can vary.</returns>
 		protected virtual int InsertCore(int index, Shape shape) {
-			if (shapeDictionary.ContainsKey(shape)) throw new ArgumentException("The given shape is already part of the collection.");
+			if (_shapeSet.Contains(shape)) throw new ArgumentException("The given shape is already part of the collection.");
 			int result = -1;
 			if (shapes.Count == 0 || index == shapes.Count || shape.ZOrder >= this.TopMost.ZOrder) {
 				if (shapes.Count > 0) { Debug.Assert(shape.ZOrder >= shapes[shapes.Count - 1].ZOrder); }
@@ -713,13 +713,13 @@ namespace Dataweb.NShape {
 		/// Replaces the old shape with the new shape.
 		/// </summary>
 		protected virtual void ReplaceCore(Shape oldShape, Shape newShape) {
-			if (shapeDictionary.ContainsKey(newShape)) throw new InvalidOperationException("The value to be inserted does already exist in the collection.");
-			if (!shapeDictionary.ContainsKey(oldShape)) throw new InvalidOperationException("The value to be replaced does not exist in the colection.");
+			if (_shapeSet.Contains(newShape)) throw new InvalidOperationException("The value to be inserted does already exist in the collection.");
+			if (!_shapeSet.Contains(oldShape)) throw new InvalidOperationException("The value to be replaced does not exist in the colection.");
 			int idx = FindShapeIndex(oldShape);
 			if (idx < 0) throw new InvalidOperationException("The given shape does not exist in the collection.");
 			// Copy DiagramShape properties
 			newShape.ZOrder = oldShape.ZOrder;
-			newShape.Layers = oldShape.Layers;
+			newShape.SupplementalLayers = oldShape.SupplementalLayers;
 			// Remove old shape from search dictionary and spacial index
 			RemoveShapeFromIndex(oldShape);
 			// Replace oldShape with newShape
@@ -747,7 +747,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual bool RemoveCore(Shape shape) {
-			if (!shapeDictionary.ContainsKey(shape)) return false;
+			if (!_shapeSet.Contains(shape)) return false;
 			int idx = FindShapeIndex(shape);
 			Debug.Assert(idx >= 0);
 			if (idx >= 0) {
@@ -782,8 +782,8 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void ClearCore() {
 			shapes.Clear();
-			shapeDictionary.Clear();
-			if (shapeMap != null) shapeMap.Clear();
+			_shapeSet.Clear();
+			if (_shapeMap != null) _shapeMap.Clear();
 			// Reset BoundingRectangle
 			boundingRectangleTight = boundingRectangleLoose = Geometry.InvalidRectangle;
 		}
@@ -794,7 +794,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected void AddShapeToIndex(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			shapeDictionary.Add(shape, null);
+			_shapeSet.Add(shape);
 			MapInsert(shape);
 		}
 
@@ -805,7 +805,7 @@ namespace Dataweb.NShape {
 		protected void RemoveShapeFromIndex(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			MapRemove(shape);
-			shapeDictionary.Remove(shape);
+			_shapeSet.Remove(shape);
 		}
 
 		#endregion
@@ -823,12 +823,12 @@ namespace Dataweb.NShape {
 		private void Construct(int capacity) {
 			if (capacity > 0) {
 				shapes = new ReadOnlyList<Shape>(capacity);
-				shapeDictionary = new Dictionary<Shape, object>(capacity);
+				_shapeSet = new HashCollection<Shape>(capacity);
 			} else {
 				shapes = new ReadOnlyList<Shape>();
-				shapeDictionary = new Dictionary<Shape, object>();
+				_shapeSet = new HashCollection<Shape>();
 			}
-			if (capacity >= 1000) shapeMap = new MultiHashList<Shape>(capacity);
+			if (capacity >= 1000) _shapeMap = new MultiHashList<Shape>(capacity);
 		}
 
 
@@ -847,10 +847,10 @@ namespace Dataweb.NShape {
 		/// </summary>
 		private void MapInsert(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			if (shapeMap != null) {
+			if (_shapeMap != null) {
 				//Debug.Assert(CellsAreValid(shape));
 				foreach (Point p in shape.CalculateCells(Diagram.CellSize)) {
-					shapeMap.Add(CalcMapHashCode(p), shape);
+					_shapeMap.Add(CalcMapHashCode(p), shape);
 				}
 			}
 		}
@@ -861,10 +861,10 @@ namespace Dataweb.NShape {
 		/// </summary>
 		private void MapRemove(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			if (shapeMap != null) {
+			if (_shapeMap != null) {
 				//Debug.Assert(CellsAreValid(shape));
 				foreach (Point p in shape.CalculateCells(Diagram.CellSize))
-					shapeMap.Remove(CalcMapHashCode(p), shape);
+					_shapeMap.Remove(CalcMapHashCode(p), shape);
 			}
 		}
 
@@ -886,15 +886,15 @@ namespace Dataweb.NShape {
 			for (p.X = minCellX; p.X <= maxCellX; ++p.X) {
 				for (p.Y = minCellY; p.Y <= maxCellY; ++p.Y) {
 					int listLength = 0;
-					foreach (Shape s in shapeMap[CalcMapHashCode(p)]) {
+					foreach (Shape s in _shapeMap[CalcMapHashCode(p)]) {
 						s.Invalidate();
 
 						int left = p.X * Diagram.CellSize;
 						int top = p.Y * Diagram.CellSize;
 						if (s.IntersectsWith(left, top, Diagram.CellSize, Diagram.CellSize)
 						   || Geometry.RectangleContainsRectangle(left, top, Diagram.CellSize, Diagram.CellSize, s.GetBoundingRectangle(false))) {
-						   graphics.FillRectangle(occupiedBrush, left, top, Diagram.CellSize, Diagram.CellSize);
-						} else graphics.FillRectangle(emptyBrush, left, top, Diagram.CellSize, Diagram.CellSize);
+						   graphics.FillRectangle(_occupiedBrush, left, top, Diagram.CellSize, Diagram.CellSize);
+						} else graphics.FillRectangle(_emptyBrush, left, top, Diagram.CellSize, Diagram.CellSize);
 						++listLength;
 					}
 					// Collect list statistics: Maximum list length and average list 
@@ -921,7 +921,7 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public int GetShapeCount(Point cellIndex) {
 			int result = 0;
-			foreach (Shape s in shapeMap[CalcMapHashCode(cellIndex)])
+			foreach (Shape s in _shapeMap[CalcMapHashCode(cellIndex)])
 				++result;
 			return result;
 		}
@@ -1011,14 +1011,14 @@ namespace Dataweb.NShape {
 		private IEnumerable<Shape> GetShapesInArea(int x, int y, int w, int h, ControlPointCapabilities capabilities, SearchMode mode) {
 			bool tightBounds = (capabilities == ControlPointCapabilities.None);
 			int range = w / 2;
-			if (shapeMap != null) {
+			if (_shapeMap != null) {
 				int fromX, fromY, toX, toY;
 				ShapeUtils.CalcCell(x, y, Diagram.CellSize, out fromX, out fromY);
 				ShapeUtils.CalcCell(x + w, y + h, Diagram.CellSize, out toX, out toY);
 				Point p = Point.Empty;
 				for (p.X = fromX; p.X <= toX; p.X += 1)
 					for (p.Y = fromY; p.Y <= toY; p.Y += 1)
-						foreach (Shape s in shapeMap[CalcMapHashCode(p)])
+						foreach (Shape s in _shapeMap[CalcMapHashCode(p)])
 							if (mode == SearchMode.Contained && Geometry.RectangleContainsRectangle(x, y, w, h, s.GetBoundingRectangle(tightBounds))
 								|| mode == SearchMode.Intersects && s.IntersectsWith(x, y, w, h)
 								|| mode == SearchMode.Near && IsShapeInRange(s, x + range, y + range, range, capabilities))
@@ -1038,7 +1038,7 @@ namespace Dataweb.NShape {
 		private Shape GetFirstShapeInArea(int x, int y, int w, int h, ControlPointCapabilities capabilities,
 			Shape startShape, SearchMode mode) {
 			Shape result = null;
-			if (shapeMap != null) {
+			if (_shapeMap != null) {
 				int startZOrder = startShape == null ? int.MaxValue : startShape.ZOrder;
 				bool skipChildren = (startShape != null && startShape.Parent == null);
 				int maxZOrder = int.MinValue;
@@ -1065,7 +1065,7 @@ namespace Dataweb.NShape {
 
 
 		private int FindShapeIndex(Shape shape) {
-			if (shapeDictionary.ContainsKey(shape)) {
+			if (_shapeSet.Contains(shape)) {
 				int shapeCnt = shapes.Count;
 				int zOrder = shape.ZOrder;
 				// Search with binary search style...
@@ -1313,19 +1313,18 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected Rectangle boundingRectangleLoose = Geometry.InvalidRectangle;
 
-		//// Dictionary of contained shapes used for fast searching
-		//// Key / Value: Shape reference / Index of shape in the internal list of shapes
-		private Dictionary<Shape, object> shapeDictionary;
+		// HashCollection of contained shapes used for fast searching
+		private HashCollection<Shape> _shapeSet;
 		// Hashtable to quickly find shapes given a coordinate.
-		private MultiHashList<Shape> shapeMap = null;
+		private MultiHashList<Shape> _shapeMap = null;
 
-		private object syncRoot = null;
+		private object _syncRoot = null;
 
 		#endregion
 
 #if DEBUG_UI
-		private SolidBrush occupiedBrush = new SolidBrush(Color.FromArgb(32, Color.Green));
-		private SolidBrush emptyBrush = new SolidBrush(Color.FromArgb(32, Color.Red));
+		private SolidBrush _occupiedBrush = new SolidBrush(Color.FromArgb(32, Color.Green));
+		private SolidBrush _emptyBrush = new SolidBrush(Color.FromArgb(32, Color.Red));
 #endif
 	}
 

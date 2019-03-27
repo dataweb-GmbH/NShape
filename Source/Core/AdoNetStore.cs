@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -590,7 +590,7 @@ namespace Dataweb.NShape {
 							RepositoryCommandType.SelectDiagramShapes, ((IEntity)diagram).Id)) {
 							Debug.Assert(!diagram.Shapes.Contains(sb.ObjectRef));
 							diagram.Shapes.Add(sb.ObjectRef, sb.ObjectRef.ZOrder);
-							diagram.AddShapeToLayers(sb.ObjectRef, sb.ObjectRef.Layers);	// not really necessary
+							diagram.AddShapeToLayers(sb.ObjectRef, sb.ObjectRef.HomeLayer, sb.ObjectRef.SupplementalLayers);
 							LoadChildShapes(cache, sb.ObjectRef);
 							cache.LoadedShapes.Add(sb);
 						}
@@ -895,7 +895,7 @@ namespace Dataweb.NShape {
 		public IDbCommand GetSelectSysParameterCommand() {
 			// The column 'No', which defines the parameter sequence, was introduced with version 3.
 			IDbCommand result = CreateCommand(
-				string.Format("SELECT Name, Type FROM SysParameter WHERE Command = @Command {0}", version <= 2 ? "" : "ORDER BY No"),
+				string.Format("SELECT Name, Type FROM SysParameter WHERE Command = @Command {0}", version <= 2 ? string.Empty : "ORDER BY No"),
 				CreateParameter("Command", DbType.Int32));
 			result.Connection = Connection;
 			return result;
@@ -1219,7 +1219,9 @@ namespace Dataweb.NShape {
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Opens the store for read/write access.
+		/// </summary>
 		protected void OpenCore(IStoreCache cache, bool create) {
 			// Check if store is already open
 			if (commands.Count > 0) throw new InvalidOperationException(string.Format(ResourceStrings.MessageFmt_0IsAlreadyOpen, GetType().Name));
@@ -2101,18 +2103,18 @@ namespace Dataweb.NShape {
 			protected override void DoBeginWriteInnerObjects() {
 				++PropertyIndex;
 				ValidateInnerObjectsIndex();
-				if (!(propertyInfos[PropertyIndex] is EntityInnerObjectsDefinition)) 
+				if (!(PropertyInfos[PropertyIndex] is EntityInnerObjectsDefinition)) 
 					throw new AdoNetStoreException(ResourceStrings.MessageTxt_PropertyIsNotAnInnerObjectsProperty);
 				//
-				EntityInnerObjectsDefinition innerInfo = (EntityInnerObjectsDefinition)propertyInfos[PropertyIndex];
+				EntityInnerObjectsDefinition innerInfo = (EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex];
 				if (AdoNetStore.IsComposition(innerInfo)) {
-					innerObjectsWriter = new StringWriter(Cache);
-					((StringWriter)innerObjectsWriter).Reset(innerInfo.PropertyDefinitions);
+					base.InnerObjectsWriter = new StringWriter(Cache);
+					((StringWriter)base.InnerObjectsWriter).Reset(innerInfo.PropertyDefinitions);
 				} else {
 					DoDeleteInnerObjects();
-					innerObjectsWriter = new DbParameterWriter(store, Cache);
-					InnerObjectsWriter.Reset(((EntityInnerObjectsDefinition)propertyInfos[PropertyIndex]).PropertyDefinitions);
-					InnerObjectsWriter.Command = store.GetCommand(((EntityInnerObjectsDefinition)propertyInfos[PropertyIndex]).EntityTypeName, RepositoryCommandType.Insert);
+					base.InnerObjectsWriter = new DbParameterWriter(store, Cache);
+					InnerObjectsWriter.Reset(((EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex]).PropertyDefinitions);
+					InnerObjectsWriter.Command = store.GetCommand(((EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex]).EntityTypeName, RepositoryCommandType.Insert);
 					InnerObjectsWriter.Command.Transaction = store.transaction;
 				}
 			}
@@ -2120,8 +2122,8 @@ namespace Dataweb.NShape {
 
 			/// <override></override>
 			protected override void DoEndWriteInnerObjects() {
-				if (innerObjectsWriter is StringWriter) {
-					((IDataParameter)command.Parameters[PropertyIndex + 1]).Value = ((StringWriter)innerObjectsWriter).StringData;
+				if (base.InnerObjectsWriter is StringWriter) {
+					((IDataParameter)command.Parameters[PropertyIndex + 1]).Value = ((StringWriter)base.InnerObjectsWriter).StringData;
 				} else {
 					// Nothing to do
 				}
@@ -2131,27 +2133,27 @@ namespace Dataweb.NShape {
 			/// <override></override>
 			protected override void DoBeginWriteInnerObject() {
 				// Advance to next object
-				innerObjectsWriter.Prepare(Entity);
+				base.InnerObjectsWriter.Prepare(Entity);
 				// An inner object has no id of its own but stores its parent id in the first property.
-				if (innerObjectsWriter is DbParameterWriter)
-					innerObjectsWriter.WriteId(Entity.Id);
+				if (base.InnerObjectsWriter is DbParameterWriter)
+					base.InnerObjectsWriter.WriteId(Entity.Id);
 			}
 
 
 			/// <override></override>
 			protected override void DoEndWriteInnerObject() {
 				// Commit inner object to data store
-				innerObjectsWriter.Finish();
+				base.InnerObjectsWriter.Finish();
 			}
 
 
 			/// <override></override>
 			protected override void DoDeleteInnerObjects() {
 				ValidateInnerObjectsIndex();
-				if (!(propertyInfos[PropertyIndex] is EntityInnerObjectsDefinition)) throw new AdoNetStoreException(ResourceStrings.MessageTxt_PropertyIsNotAnInnerObjectsProperty);
+				if (!(PropertyInfos[PropertyIndex] is EntityInnerObjectsDefinition)) throw new AdoNetStoreException(ResourceStrings.MessageTxt_PropertyIsNotAnInnerObjectsProperty);
 				//
 				// Delete all existing inner objects of the current persistable object			
-				IDbCommand command = store.GetCommand(((EntityInnerObjectsDefinition)propertyInfos[PropertyIndex]).EntityTypeName, RepositoryCommandType.Delete);
+				IDbCommand command = store.GetCommand(((EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex]).EntityTypeName, RepositoryCommandType.Delete);
 				command.Transaction = store.CurrentTransaction;
 				((IDataParameter)command.Parameters[0]).Value = Entity.Id;
 				int count = command.ExecuteNonQuery();
@@ -2162,8 +2164,8 @@ namespace Dataweb.NShape {
 
 			#region [Private] Properties and Methods
 
-			private DbParameterWriter InnerObjectsWriter {
-				get { return (DbParameterWriter)innerObjectsWriter; }
+			private new DbParameterWriter InnerObjectsWriter {
+				get { return (DbParameterWriter)base.InnerObjectsWriter; }
 			}
 
 
@@ -2177,7 +2179,7 @@ namespace Dataweb.NShape {
 
 			// Can check against the property count here, becuause there are no hidden inner objects.
 			private void ValidateInnerObjectsIndex() {
-				if (PropertyIndex >= propertyInfos.Count)
+				if (PropertyIndex >= PropertyInfos.Count)
 					throw new AdoNetStoreException(ResourceStrings.MessageFmt_InnerObjects0OfEntityCannotBeWrittenNotEnoughPropertyDefs, PropertyIndex);
 			}
 
@@ -2680,15 +2682,15 @@ namespace Dataweb.NShape {
 
 		#region Fields
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Entity type name of the project info.</summary>
 		protected const string projectInfoEntityTypeName = "AdoNetRepository.ProjectInfo";
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Entity type name of the shape base class.</summary>
 		protected const string shapeEntityTypeName = "Core.Shape";
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Entity type name of shape connections.</summary>
 		protected const string connectionEntityTypeName = "Core.ShapeConnection";
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Entity type name of shape vertexes.</summary>
 		protected const string vertexEntityTypeName = "Core.Vertex";
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Entity type name of shape connection points.</summary>
 		protected const string connectionPointEntityTypeName = "Core.ConnectionPoint";
 
 

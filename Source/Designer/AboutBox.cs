@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -74,7 +74,7 @@ namespace Dataweb.NShape.Designer {
 				object[] attributes = Attribute.GetCustomAttributes(Assembly.GetExecutingAssembly(), typeof(AssemblyTitleAttribute), false);
 				if (attributes.Length > 0) {
 					AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
-					if (titleAttribute.Title != "") return titleAttribute.Title;
+					if (!string.IsNullOrEmpty(titleAttribute.Title)) return titleAttribute.Title;
 				}
 				return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
 			}
@@ -89,7 +89,7 @@ namespace Dataweb.NShape.Designer {
 		public string AssemblyDescription {
 			get {
 				object[] attributes = Attribute.GetCustomAttributes(Assembly.GetExecutingAssembly(), typeof(AssemblyDescriptionAttribute), false);
-				if (attributes.Length == 0) return "";
+				if (attributes.Length == 0) return string.Empty;
 				return ((AssemblyDescriptionAttribute)attributes[0]).Description;
 			}
 		}
@@ -97,7 +97,7 @@ namespace Dataweb.NShape.Designer {
 		public string AssemblyProduct {
 			get {
 				object[] attributes = Attribute.GetCustomAttributes(Assembly.GetExecutingAssembly(), typeof(AssemblyProductAttribute), false);
-				if (attributes.Length == 0) return "";
+				if (attributes.Length == 0) return string.Empty;
 				return ((AssemblyProductAttribute)attributes[0]).Product;
 			}
 		}
@@ -105,7 +105,7 @@ namespace Dataweb.NShape.Designer {
 		public string AssemblyCopyright {
 			get {
 				object[] attributes = Attribute.GetCustomAttributes(Assembly.GetExecutingAssembly(), typeof(AssemblyCopyrightAttribute), false);
-				if (attributes.Length == 0) return "";
+				if (attributes.Length == 0) return string.Empty;
 				return ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
 			}
 		}
@@ -113,7 +113,7 @@ namespace Dataweb.NShape.Designer {
 		public string AssemblyCompany {
 			get {
 				object[] attributes = Attribute.GetCustomAttributes(Assembly.GetExecutingAssembly(), typeof(AssemblyCompanyAttribute), false);
-				if (attributes.Length == 0) return "";
+				if (attributes.Length == 0) return string.Empty;
 				return ((AssemblyCompanyAttribute)attributes[0]).Company;
 			}
 		}

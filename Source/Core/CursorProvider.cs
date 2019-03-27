@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -83,7 +83,7 @@ namespace Dataweb.NShape.Advanced {
 		/// CursorId 0 means the system's default cursor which is not stored as resource.
 		/// </summary>
 		public static IEnumerable<int> CursorIDs {
-			get { return registeredCursors.Keys; }
+			get { return _registeredCursors.Keys; }
 		}
 
 
@@ -95,7 +95,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <returns></returns>
 		public static byte[] GetResource(int cursorID) {
 			if (cursorID == DefaultCursorID) return null;
-			return registeredCursors[cursorID];
+			return _registeredCursors[cursorID];
 		}
 
 
@@ -107,7 +107,7 @@ namespace Dataweb.NShape.Advanced {
 
 		private static int RegisterCursorResource(byte[] resource) {
 			// Check if the resource was registered
-			foreach (KeyValuePair<int, byte[]> item in registeredCursors) {
+			foreach (KeyValuePair<int, byte[]> item in _registeredCursors) {
 				if (item.Value.Length == resource.Length) {
 					bool equal = true;
 					for (int i = item.Value.Length - 1; i >= 0; --i) {
@@ -120,13 +120,13 @@ namespace Dataweb.NShape.Advanced {
 				}
 			}
 			// Register resource
-			int cursorId = registeredCursors.Count + 1;
-			registeredCursors.Add(cursorId, resource);
+			int cursorId = _registeredCursors.Count + 1;
+			_registeredCursors.Add(cursorId, resource);
 			return cursorId;
 		}
 
 
-		private static Dictionary<int, byte[]> registeredCursors = new Dictionary<int, byte[]>();
+		private static Dictionary<int, byte[]> _registeredCursors = new Dictionary<int, byte[]>();
 	}
 
 }

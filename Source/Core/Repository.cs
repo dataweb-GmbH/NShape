@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -777,18 +777,18 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryProjectEventArgs(ProjectSettings projectSettings) {
 			if (projectSettings == null) throw new ArgumentNullException("projectSettings");
-			this.projectSettings = projectSettings;
+			this._projectSettings = projectSettings;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ProjectSettings Project {
-			get { return projectSettings; }
-			internal set { projectSettings = value; }
+			get { return _projectSettings; }
+			internal set { _projectSettings = value; }
 		}
 
 		internal RepositoryProjectEventArgs() { }
 
-		private ProjectSettings projectSettings = null;
+		private ProjectSettings _projectSettings = null;
 	}
 
 
@@ -800,18 +800,18 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryModelEventArgs(Model model) {
 			if (model == null) throw new ArgumentNullException("model");
-			this.model = model;
+			this._model = model;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Model Model {
-			get { return model; }
-			internal set { model = value; }
+			get { return _model; }
+			internal set { _model = value; }
 		}
 
 		internal RepositoryModelEventArgs() { }
 
-		private Model model = null;
+		private Model _model = null;
 	}
 
 
@@ -823,18 +823,18 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryDesignEventArgs(Design design) {
 			if (design == null) throw new ArgumentNullException("design");
-			this.design = design;
+			this._design = design;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Design Design {
-			get { return design; }
-			internal set { design = value; }
+			get { return _design; }
+			internal set { _design = value; }
 		}
 
 		internal RepositoryDesignEventArgs() { }
 
-		private Design design = null;
+		private Design _design = null;
 	}
 
 
@@ -846,18 +846,18 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryStyleEventArgs(IStyle style) {
 			if (style == null) throw new ArgumentNullException("style");
-			this.style = style;
+			this._style = style;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IStyle Style {
-			get { return style; }
-			internal set { style = value; }
+			get { return _style; }
+			internal set { _style = value; }
 		}
 
 		internal RepositoryStyleEventArgs() { }
 
-		private IStyle style = null;
+		private IStyle _style = null;
 	}
 
 
@@ -869,18 +869,18 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryDiagramEventArgs(Diagram diagram) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
+			this._diagram = diagram;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Diagram Diagram {
-			get { return diagram; }
-			internal set { diagram = value; }
+			get { return _diagram; }
+			internal set { _diagram = value; }
 		}
 
 		internal RepositoryDiagramEventArgs() { }
 
-		private Diagram diagram = null;
+		private Diagram _diagram = null;
 	}
 
 
@@ -892,18 +892,18 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryTemplateEventArgs(Template template) {
 			if (template == null) throw new ArgumentNullException("template");
-			this.template = template;
+			this._template = template;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Template Template {
-			get { return template; }
-			internal set { template = value; }
+			get { return _template; }
+			internal set { _template = value; }
 		}
 
 		internal RepositoryTemplateEventArgs() { }
 
-		private Template template = null;
+		private Template _template = null;
 	}
 
 
@@ -917,28 +917,28 @@ namespace Dataweb.NShape {
 			: base(template) {
 			if (oldTemplateShape == null) throw new ArgumentNullException("oldTemplateShape");
 			if (newTemplateShape == null) throw new ArgumentNullException("newTemplateShape");
-			this.oldTemplateShape = oldTemplateShape;
-			this.newTemplateShape = newTemplateShape;
+			this._oldTemplateShape = oldTemplateShape;
+			this._newTemplateShape = newTemplateShape;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Shape OldTemplateShape {
-			get { return oldTemplateShape; }
-			internal set { oldTemplateShape = value; }
+			get { return _oldTemplateShape; }
+			internal set { _oldTemplateShape = value; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Shape NewTemplateShape {
-			get { return newTemplateShape; }
-			internal set { newTemplateShape = value; }
+			get { return _newTemplateShape; }
+			internal set { _newTemplateShape = value; }
 		}
 
 
 		internal RepositoryTemplateShapeReplacedEventArgs() : base() { }
 
-		private Shape oldTemplateShape = null;
-		private Shape newTemplateShape = null;
+		private Shape _oldTemplateShape = null;
+		private Shape _newTemplateShape = null;
 	}
 
 
@@ -950,14 +950,14 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryShapeEventArgs(Shape shape, Diagram diagram) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			this.shape = shape;
-			this.diagram = diagram;
+			this._shape = shape;
+			this._diagram = diagram;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Shape Shape {
-			get { return shape; }
-			internal set { shape = value; }
+			get { return _shape; }
+			internal set { _shape = value; }
 		}
 
 
@@ -970,8 +970,8 @@ namespace Dataweb.NShape {
 		internal RepositoryShapeEventArgs() { }
 
 
-		private Shape shape = null;
-		private Diagram diagram = null;
+		private Shape _shape = null;
+		private Diagram _diagram = null;
 	}
 
 
@@ -990,60 +990,60 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryShapesEventArgs(IEnumerable<KeyValuePair<Shape, Diagram>> shapesWithDiagrams) {
 			if (shapesWithDiagrams == null) throw new ArgumentNullException("shapesWithDiagrams");
-			shapes.Clear();
+			_shapes.Clear();
 			foreach (KeyValuePair<Shape, Diagram> item in shapesWithDiagrams)
-				shapes.Add(item.Key, item.Value);
+				_shapes.Add(item.Key, item.Value);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IEnumerable<Shape> Shapes {
-			get { return shapes.Keys; }
+			get { return _shapes.Keys; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Diagram GetDiagram(Shape s) {
 			Diagram d;
-			if (shapes.TryGetValue(s, out d)) return d;
+			if (_shapes.TryGetValue(s, out d)) return d;
 			else return null;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public int Count {
-			get { return shapes.Count; }
+			get { return _shapes.Count; }
 		}
 
 
 		internal RepositoryShapesEventArgs() {
-			this.shapes.Clear();
+			this._shapes.Clear();
 		}
 
 
 		internal void Clear() {
-			shapes.Clear();
+			_shapes.Clear();
 		}
 		
 		
 		internal void AddShape(Shape shape, Diagram diagram) {
-			shapes.Add(shape, diagram);
+			_shapes.Add(shape, diagram);
 		}
 
 
 		internal void SetShapes(IEnumerable<Shape> shapes, Diagram diagram) {
-			this.shapes.Clear();
-			foreach (Shape s in shapes) this.shapes.Add(s, diagram);
+			this._shapes.Clear();
+			foreach (Shape s in shapes) this._shapes.Add(s, diagram);
 		}
 
 
 		internal void SetShape(Shape shape, Diagram diagram) {
-			this.shapes.Clear();
-			this.shapes.Add(shape, diagram);
+			this._shapes.Clear();
+			this._shapes.Add(shape, diagram);
 		}
 
 
-		private Dictionary<Shape, Diagram> shapes = new Dictionary<Shape,Diagram>();
+		private Dictionary<Shape, Diagram> _shapes = new Dictionary<Shape,Diagram>();
 	}
 
 
@@ -1055,18 +1055,18 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryModelObjectEventArgs(IModelObject modelObject) {
 			if (modelObject == null) throw new ArgumentNullException("modelObject");
-			this.modelObject = modelObject;
+			this._modelObject = modelObject;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IModelObject ModelObject {
-			get { return modelObject; }
-			internal set { modelObject = value; }
+			get { return _modelObject; }
+			internal set { _modelObject = value; }
 		}
 
 		internal RepositoryModelObjectEventArgs() { }
 
-		private IModelObject modelObject = null;
+		private IModelObject _modelObject = null;
 	}
 
 
@@ -1078,40 +1078,40 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryModelObjectsEventArgs(IEnumerable<IModelObject> modelObjects) {
 			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
-			this.modelObjects.AddRange(modelObjects);
+			this._modelObjects.AddRange(modelObjects);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IEnumerable<IModelObject> ModelObjects {
-			get { return modelObjects; }
+			get { return _modelObjects; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public int Count {
-			get { return modelObjects.Count; }
+			get { return _modelObjects.Count; }
 		}
 
 
 		internal RepositoryModelObjectsEventArgs() {
-			modelObjects.Clear();
+			_modelObjects.Clear();
 		}
 
 
 		internal void SetModelObjects(IEnumerable<IModelObject> modelObjects) {
-			this.modelObjects.Clear();
-			this.modelObjects.AddRange(modelObjects);
+			this._modelObjects.Clear();
+			this._modelObjects.AddRange(modelObjects);
 		}
 
 
 		internal void SetModelObject(IModelObject modelObject) {
-			modelObjects.Clear();
-			modelObjects.Add(modelObject);
+			_modelObjects.Clear();
+			_modelObjects.Add(modelObject);
 		}
 
 
-		private List<IModelObject> modelObjects = new List<IModelObject>();
+		private List<IModelObject> _modelObjects = new List<IModelObject>();
 	}
 
 
@@ -1128,16 +1128,16 @@ namespace Dataweb.NShape {
 			if (gluePointId == ControlPointId.Any || gluePointId == ControlPointId.None)
 				throw new ArgumentException("gluePointId");
 			if (!connectorShape.HasControlPointCapability(gluePointId, ControlPointCapabilities.Glue))
-				throw new ArgumentException(string.Format("{0} is not a glue point of {1}.", gluePointId, connectorShape.Type.FullName));
+				throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAGluePointOf1, gluePointId, connectorShape.Type.FullName));
 			if (targetPointId == ControlPointId.Any || targetPointId == ControlPointId.None)
 				throw new ArgumentException("targetPointId");
 			if (!targetShape.HasControlPointCapability(targetPointId, ControlPointCapabilities.Connect))
-				throw new ArgumentException(string.Format("{0} is not a connection point of {1}.", targetPointId, targetShape.Type.FullName));
+				throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAConnectionPointOf1, targetPointId, targetShape.Type.FullName));
 
-			this.connection.ConnectorShape = connectorShape;
-			this.connection.GluePointId = gluePointId;
-			this.connection.TargetShape = targetShape;
-			this.connection.TargetPointId = targetPointId;
+			this._connection.ConnectorShape = connectorShape;
+			this._connection.GluePointId = gluePointId;
+			this._connection.TargetShape = targetShape;
+			this._connection.TargetPointId = targetPointId;
 		}
 
 
@@ -1149,46 +1149,46 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal RepositoryShapeConnectionEventArgs() {
-			this.connection = ShapeConnection.Empty;
+			this._connection = ShapeConnection.Empty;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Shape ConnectorShape {
-			get { return connection.ConnectorShape; }
+			get { return _connection.ConnectorShape; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ControlPointId GluePointId {
-			get { return connection.GluePointId; }
+			get { return _connection.GluePointId; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Shape TargetShape {
-			get { return connection.TargetShape; }
+			get { return _connection.TargetShape; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ControlPointId TargetPointId {
-			get { return connection.TargetPointId; }
+			get { return _connection.TargetPointId; }
 		}
 
 
 		internal void Clear() {
-			connection = ShapeConnection.Empty;
+			_connection = ShapeConnection.Empty;
 		}
 		
 		
 		internal void SetShapeConnection(ShapeConnection connection) {
 			System.Diagnostics.Debug.Assert(connection != ShapeConnection.Empty);
-			this.connection = connection;
+			this._connection = connection;
 		}
 
 
-		private ShapeConnection connection;
+		private ShapeConnection _connection;
 	}
 
 	#endregion

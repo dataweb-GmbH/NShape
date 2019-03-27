@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2014 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -39,7 +39,7 @@ namespace Dataweb.NShape.Designer {
 
 		public DiagramDesignerMainForm() {
 			InitializeComponent();
-			Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+			Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); 
 			runtimeModeComboBox.SelectedIndex = 0;
 			Visible = false;
 
@@ -271,9 +271,9 @@ namespace Dataweb.NShape.Designer {
 				throw new Exception("Failed to retrive component's assemblies.");
 			} else {
 				// Check installed .NET framework version
-				Version coreAssemblyVersion = new Version(coreAssembly.ImageRuntimeVersion.Replace("v", ""));
-				Version uiAssemblyVersion = new Version(uiAssembly.ImageRuntimeVersion.Replace("v", ""));
-				Version exeAssemblyVersion = new Version(exeAssembly.ImageRuntimeVersion.Replace("v", ""));
+				Version coreAssemblyVersion = new Version(coreAssembly.ImageRuntimeVersion.Replace("v", string.Empty));
+				Version uiAssemblyVersion = new Version(uiAssembly.ImageRuntimeVersion.Replace("v", string.Empty));
+				Version exeAssemblyVersion = new Version(exeAssembly.ImageRuntimeVersion.Replace("v", string.Empty));
 				if (Environment.Version < coreAssemblyVersion
 					|| Environment.Version < uiAssemblyVersion
 					|| Environment.Version < exeAssemblyVersion) {
@@ -310,8 +310,8 @@ namespace Dataweb.NShape.Designer {
 
 		private void SetToolTipTexts() {
 			statusStrip.ShowItemToolTips = true;
-			
-			statusLabelMessage.ToolTipText = "";
+
+			statusLabelMessage.ToolTipText = string.Empty;
 
 			toolStripStatusLabelDiagram.ToolTipText =
 			statusLabelShapeCount.ToolTipText = "Number of shapes in the current diagram";
@@ -707,7 +707,7 @@ namespace Dataweb.NShape.Designer {
 			ReplaceStore(projectName, store);
 			project.Create();
 			projectSaved = false;
-			DisplayDiagrams();
+			DisplayDiagrams(true);
 			if (askUserLoadLibraries) 
 				CheckLibrariesLoaded();
 			// Adjust menu items
@@ -745,7 +745,7 @@ namespace Dataweb.NShape.Designer {
 			try {
 				ReplaceStore(projectName, repository);
 				project.Open();
-				DisplayDiagrams();
+				DisplayDiagrams(false);
 
 				projectSaved = true;
 				// Move project on top of the recent projects list 
@@ -965,7 +965,7 @@ namespace Dataweb.NShape.Designer {
 					cachedRepository = (CachedRepository)project.Repository;
 					
 					// Display the result
-					DisplayDiagrams();
+					DisplayDiagrams(false);
 				}
 			} catch (Exception exc) {
 				MessageBox.Show(this, exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1011,7 +1011,7 @@ namespace Dataweb.NShape.Designer {
 			statusLabelBottomRight.Text =string.Format(PointFormatStr,  bounds.Right, bounds.Bottom);
 			statusLabelMousePosition.Text = string.Format(PointFormatStr, mousePos.X, mousePos.X);
 			statusLabelSelectionSize.Text = string.Format(SizeFormatStr, selectionSize.Width, selectionSize.Height);
-			statusLabelShapeCount.Text = string.Format(ShapeCntFormatStr, shapeCnt, shapeCnt == 1 ? "" : "s");
+			statusLabelShapeCount.Text = string.Format(ShapeCntFormatStr, shapeCnt, shapeCnt == 1 ? string.Empty : "s");
 		}
 
 
@@ -1155,7 +1155,7 @@ namespace Dataweb.NShape.Designer {
 		/// <summary>
 		/// Creates a ownerDisplay for each diagram in the project and a default one if there isn't any.
 		/// </summary>
-		private void DisplayDiagrams() {
+		private void DisplayDiagrams(bool isNewProject) {
 			// Display all diagramControllers of the project
 			bool diagramAdded = false;
 			foreach (Diagram diagram in project.Repository.GetDiagrams()) {
@@ -1164,17 +1164,17 @@ namespace Dataweb.NShape.Designer {
 				if (!diagramAdded) diagramAdded = true;
 			}
 			// If the project has no diagram, create the a new one.
-			if (!diagramAdded) {
+			if (!diagramAdded && isNewProject) {
 				Diagram diagram = new Diagram(string.Format(DefaultDiagramNameFmt, displayTabControl.TabPages.Count + 1));
 				project.Repository.InsertAll(diagram);
 			}
-			Debug.Assert(displayTabControl.TabCount > 0);
-			displayTabControl.SelectedIndex = 0;
-			// Call selectedIndexChanged event handler immideiatly because otherwise it would be called 
-			// when this method is completed (but we need a CurrentDisplay now)
-			displaysTabControl_SelectedIndexChanged(displayTabControl, EventArgs.Empty);
-			showDiagramSettingsToolStripMenuItem_Click(this, EventArgs.Empty);
-
+			if (displayTabControl.TabCount > 0) {
+				displayTabControl.SelectedIndex = 0;
+				// Call selectedIndexChanged event handler immideiatly because otherwise it would be called 
+				// when this method is completed (but we need a CurrentDisplay now)
+				displaysTabControl_SelectedIndexChanged(displayTabControl, EventArgs.Empty);
+				showDiagramSettingsToolStripMenuItem_Click(this, EventArgs.Empty);
+			}
 			UpdateAllMenuItems();
 		}
 
@@ -1546,7 +1546,7 @@ namespace Dataweb.NShape.Designer {
 			if (sender.Equals(CurrentDisplay)) {
 				int cnt = CurrentDisplay.SelectedShapes.Count;
 				if (cnt > 0) {
-					statusLabelMessage.Text = string.Format("{0} shape{1} selected.", cnt, cnt > 1 ? "s" : "");
+					statusLabelMessage.Text = string.Format("{0} shape{1} selected.", cnt, cnt > 1 ? "s" : string.Empty);
 					if (propertyController.GetSelectedObjects(0) != CurrentDisplay.SelectedShapes)
 						propertyController.SetObjects(0, CurrentDisplay.SelectedShapes);
 				} else statusLabelMessage.Text = string.Empty;
@@ -1776,7 +1776,7 @@ namespace Dataweb.NShape.Designer {
 		private void propertyController_ObjectsSet(object sender, PropertyControllerEventArgs e) {
 			if (e.PageIndex == 0) {
 				string typeName = GetCommonTypeName(e.Objects);
-				propertyWindowTabControl.TabPages[e.PageIndex].Text = string.Format("{0}{1}", string.IsNullOrEmpty(typeName) ? "Properties" : typeName, (e.Objects.Count > 1) ? "s" : "");
+				propertyWindowTabControl.TabPages[e.PageIndex].Text = string.Format("{0}{1}", string.IsNullOrEmpty(typeName) ? "Properties" : typeName, (e.Objects.Count > 1) ? "s" : string.Empty);
 			}
 		}
 
@@ -1891,8 +1891,8 @@ namespace Dataweb.NShape.Designer {
 				cursorPos =  zoomToolStripComboBox.SelectionStart;
 
 			string txt = null;
-			if (zoomToolStripComboBox.Text.Contains("%")) 
-				txt = zoomToolStripComboBox.Text.Replace("%", "");
+			if (zoomToolStripComboBox.Text.Contains("%"))
+				txt = zoomToolStripComboBox.Text.Replace("%", string.Empty);
 			else txt = zoomToolStripComboBox.Text;
 			// Parse text and set zoom level
 			int zoom;
@@ -2099,9 +2099,9 @@ namespace Dataweb.NShape.Designer {
 			Image result = null;
 			Color backColor = Color.Transparent;
 			if (CurrentDisplay.SelectedShapes.Count > 0)
-				result = CurrentDisplay.Diagram.CreateImage(imageFormat, CurrentDisplay.SelectedShapes.BottomUp, CurrentDisplay.GridSize, false, backColor);
+				result = CurrentDisplay.Diagram.CreateImage(imageFormat, CurrentDisplay.SelectedShapes.BottomUp, CurrentDisplay.GetVisibleLayerIds(), CurrentDisplay.GridSize, false, backColor);
 			else
-				result = CurrentDisplay.Diagram.CreateImage(imageFormat, null, 0, true, backColor);
+				result = CurrentDisplay.Diagram.CreateImage(imageFormat, null, CurrentDisplay.GetVisibleLayerIds(), 0, true, backColor);
 			return result;
 		}
 
@@ -2234,8 +2234,7 @@ namespace Dataweb.NShape.Designer {
 		private void copyAsImageToolStripMenuItem_Click(object sender, EventArgs e) {
 			if (CurrentDisplay != null && CurrentDisplay.Diagram != null) {
 				// Copy image as PNG and EMFPlusDual formats to clipboard
-				CurrentDisplay.CopyImageToClipboard(ImageFileFormat.Png, true);
-				CurrentDisplay.CopyImageToClipboard(ImageFileFormat.EmfPlus, false);
+				CurrentDisplay.CopyImagesToClipboard(CurrentDisplay.GetVisibleLayerIds(), false);
 			}
 		}
 

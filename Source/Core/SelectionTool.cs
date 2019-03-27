@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -45,7 +45,7 @@ namespace Dataweb.NShape {
 	public class SelectionTool : Tool {
 
 		/// <summary>
-		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.PointerTool" />.
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.SelectionTool" />.
 		/// </summary>
 		public SelectionTool()
 			: base("Standard") {
@@ -54,7 +54,7 @@ namespace Dataweb.NShape {
 
 
 		/// <summary>
-		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.PointerTool" />.
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.SelectionTool" />.
 		/// </summary>
 		public SelectionTool(string category)
 			: base(category) {
@@ -66,8 +66,8 @@ namespace Dataweb.NShape {
 		/// Specifies how selection of overlapping shapes is handled.
 		/// </summary>
 		public OverlappingShapesAction OverlappingShapesAction {
-			get { return overlappingShapesSelectionMode; }
-			set { overlappingShapesSelectionMode = value; }
+			get { return _overlappingShapesSelectionMode; }
+			set { _overlappingShapesSelectionMode = value; }
 		}
 
 
@@ -135,7 +135,7 @@ namespace Dataweb.NShape {
 				case KeyEventType.KeyUp:
 					if ((KeysDg)e.KeyCode == KeysDg.Delete) {
 						// Update selected shape unter the mouse cursor because it was propably deleted
-						if (!selectedShapeAtCursorInfo.IsEmpty && !diagramPresenter.SelectedShapes.Contains(selectedShapeAtCursorInfo.Shape)) {
+						if (!_selectedShapeAtCursorInfo.IsEmpty && !diagramPresenter.SelectedShapes.Contains(_selectedShapeAtCursorInfo.Shape)) {
 							SetSelectedShapeAtCursor(diagramPresenter, CurrentMouseState.X, CurrentMouseState.Y, diagramPresenter.ZoomedGripSize, ControlPointCapabilities.All);
 							Invalidate(diagramPresenter);
 						}
@@ -182,23 +182,23 @@ namespace Dataweb.NShape {
 			SetSelectedShapeAtCursor(diagramPresenter, mouseX, mouseY, diagramPresenter.ZoomedGripSize, ControlPointCapabilities.All);
 
 			// Return the shape's actions
-			if (diagramPresenter.SelectedShapes.Count == 1 && !selectedShapeAtCursorInfo.IsEmpty) {
+			if (diagramPresenter.SelectedShapes.Count == 1 && !_selectedShapeAtCursorInfo.IsEmpty) {
 				bool separatorRequired = false;
 				// ToDo: Create an aggregated command that creates a composite shape first and then a template from it
-				if (selectedShapeAtCursorInfo.Shape.Template != null) {
+				if (_selectedShapeAtCursorInfo.Shape.Template != null) {
 					// Deliver Template's actions
-					foreach (MenuItemDef action in selectedShapeAtCursorInfo.Shape.Template.GetMenuItemDefs()) {
+					foreach (MenuItemDef action in _selectedShapeAtCursorInfo.Shape.Template.GetMenuItemDefs()) {
 						if (!separatorRequired) separatorRequired = true;
 						yield return action;
 					}
 				}
-				foreach (MenuItemDef action in selectedShapeAtCursorInfo.Shape.GetMenuItemDefs(mouseX, mouseY, diagramPresenter.ZoomedGripSize)) {
+				foreach (MenuItemDef action in _selectedShapeAtCursorInfo.Shape.GetMenuItemDefs(mouseX, mouseY, diagramPresenter.ZoomedGripSize)) {
 					if (separatorRequired) yield return new SeparatorMenuItemDef();
 					yield return action;
 				}
-				if (selectedShapeAtCursorInfo.Shape.ModelObject != null) {
+				if (_selectedShapeAtCursorInfo.Shape.ModelObject != null) {
 					if (separatorRequired) yield return new SeparatorMenuItemDef();
-					foreach (MenuItemDef action in selectedShapeAtCursorInfo.Shape.ModelObject.GetMenuItemDefs())
+					foreach (MenuItemDef action in _selectedShapeAtCursorInfo.Shape.ModelObject.GetMenuItemDefs())
 						yield return action;
 				}
 			} else {
@@ -221,10 +221,10 @@ namespace Dataweb.NShape {
 				case Action.EditCaption:
 					IDiagramPresenter presenter = (CurrentAction == Action.None) ? diagramPresenter : ActionDiagramPresenter;
 					// MouseOver-Highlighting of the caption under the cursor 
-					if (IsEditCaptionFeasible(presenter, CurrentMouseState, selectedShapeAtCursorInfo)) {
+					if (IsEditCaptionFeasible(presenter, CurrentMouseState, _selectedShapeAtCursorInfo)) {
 						diagramPresenter.ResetTransformation();
 						try {
-							diagramPresenter.DrawCaptionBounds(IndicatorDrawMode.Highlighted, (ICaptionedShape)selectedShapeAtCursorInfo.Shape, selectedShapeAtCursorInfo.CaptionIndex);
+							diagramPresenter.DrawCaptionBounds(IndicatorDrawMode.Highlighted, (ICaptionedShape)_selectedShapeAtCursorInfo.Shape, _selectedShapeAtCursorInfo.CaptionIndex);
 						} finally { diagramPresenter.RestoreTransformation(); }
 					}
 					break;
@@ -232,7 +232,7 @@ namespace Dataweb.NShape {
 				case Action.SelectWithFrame:
 					diagramPresenter.ResetTransformation();
 					try {
-						diagramPresenter.DrawSelectionFrame(frameRect);
+						diagramPresenter.DrawSelectionFrame(_frameRect);
 					} finally { diagramPresenter.RestoreTransformation(); }
 					break;
 
@@ -242,17 +242,17 @@ namespace Dataweb.NShape {
 					diagramPresenter.DrawShapes(Previews.Values);
 
 					// Then draw snap-lines and -points
-					if (selectedShapeAtCursorInfo != null && (snapPtId > 0 || snapDeltaX != 0 || snapDeltaY != 0)) {
-						Shape previewAtCursor = FindPreviewOfShape(selectedShapeAtCursorInfo.Shape);
+					if (_selectedShapeAtCursorInfo != null && (_snapPtId > 0 || _snapDeltaX != 0 || _snapDeltaY != 0)) {
+						Shape previewAtCursor = FindPreviewOfShape(_selectedShapeAtCursorInfo.Shape);
 						diagramPresenter.DrawSnapIndicators(previewAtCursor);
 					}
 					// Finally, draw highlighted connection points and/or highlighted shape outlines
-					if (diagramPresenter.SelectedShapes.Count == 1 && selectedShapeAtCursorInfo.ControlPointId != ControlPointId.None) {
+					if (diagramPresenter.SelectedShapes.Count == 1 && _selectedShapeAtCursorInfo.ControlPointId != ControlPointId.None) {
 						Shape preview = FindPreviewOfShape(diagramPresenter.SelectedShapes.TopMost);
-						if (preview.HasControlPointCapability(selectedShapeAtCursorInfo.ControlPointId, ControlPointCapabilities.Glue)) {
+						if (preview.HasControlPointCapability(_selectedShapeAtCursorInfo.ControlPointId, ControlPointCapabilities.Glue)) {
 							// Find and highlight valid connection targets in range
-							Point p = preview.GetControlPointPosition(selectedShapeAtCursorInfo.ControlPointId);
-							DrawConnectionTargets(ActionDiagramPresenter, selectedShapeAtCursorInfo.Shape, selectedShapeAtCursorInfo.ControlPointId, p, ActionDiagramPresenter.SelectedShapes);
+							Point p = preview.GetControlPointPosition(_selectedShapeAtCursorInfo.ControlPointId);
+							DrawConnectionTargets(ActionDiagramPresenter, _selectedShapeAtCursorInfo.Shape, _selectedShapeAtCursorInfo.ControlPointId, p, ActionDiagramPresenter.SelectedShapes);
 						}
 					}
 					break;
@@ -264,7 +264,7 @@ namespace Dataweb.NShape {
 					diagramPresenter.ResetTransformation();
 					try {
 						if (PendingToolActionsCount == 1) {
-							diagramPresenter.DrawAnglePreview(rectBuffer.Location, CurrentMouseState.Position, cursors[ToolCursor.Rotate], 0, 0);
+							diagramPresenter.DrawAnglePreview(_rectBuffer.Location, CurrentMouseState.Position, cursors[ToolCursor.Rotate], 0, 0);
 						} else {
 							// Get MouseState of the first click (on the rotation point)
 							MouseState initMouseState = GetPreviousMouseState();
@@ -272,10 +272,10 @@ namespace Dataweb.NShape {
 							CalcAngle(initMouseState, ActionStartMouseState, CurrentMouseState, out startAngle, out sweepAngle);
 
 							// ToDo: Determine standard cursor size
-							rectBuffer.Location = selectedShapeAtCursorInfo.Shape.GetControlPointPosition(selectedShapeAtCursorInfo.ControlPointId);
-							rectBuffer.Width = rectBuffer.Height = (int)Math.Ceiling(Geometry.DistancePointPoint(rectBuffer.Location, CurrentMouseState.Position));
+							_rectBuffer.Location = _selectedShapeAtCursorInfo.Shape.GetControlPointPosition(_selectedShapeAtCursorInfo.ControlPointId);
+							_rectBuffer.Width = _rectBuffer.Height = (int)Math.Ceiling(Geometry.DistancePointPoint(_rectBuffer.Location, CurrentMouseState.Position));
 
-							diagramPresenter.DrawAnglePreview(rectBuffer.Location, CurrentMouseState.Position,
+							diagramPresenter.DrawAnglePreview(_rectBuffer.Location, CurrentMouseState.Position,
 								cursors[ToolCursor.Rotate], startAngle, sweepAngle);
 						}
 					} finally { diagramPresenter.RestoreTransformation(); }
@@ -293,28 +293,28 @@ namespace Dataweb.NShape {
 				case Action.None:
 				case Action.Select:
 				case Action.EditCaption:
-					if (!selectedShapeAtCursorInfo.IsEmpty) {
-						selectedShapeAtCursorInfo.Shape.Invalidate();
-						diagramPresenter.InvalidateGrips(selectedShapeAtCursorInfo.Shape, ControlPointCapabilities.All);
+					if (!_selectedShapeAtCursorInfo.IsEmpty) {
+						_selectedShapeAtCursorInfo.Shape.Invalidate();
+						diagramPresenter.InvalidateGrips(_selectedShapeAtCursorInfo.Shape, ControlPointCapabilities.All);
 					}
 					break;
 
 				case Action.SelectWithFrame:
-					diagramPresenter.DisplayService.Invalidate(frameRect);
+					diagramPresenter.DisplayService.Invalidate(_frameRect);
 					break;
 
 				case Action.MoveHandle:
 				case Action.MoveShape:
 #if DEBUG_DIAGNOSTICS
-					Assert(!SelectedShapeAtCursorInfo.IsEmpty);
+					Assert(!_selectedShapeAtCursorInfo.IsEmpty);
 #endif
-					if (Previews.Count > 0 && selectedShapeAtCursorInfo.Shape != null) {
+					if (Previews.Count > 0 && _selectedShapeAtCursorInfo.Shape != null) {
 						InvalidateShapes(diagramPresenter, Previews.Values, false);
 						if (diagramPresenter.SnapToGrid) {
-							Shape previewAtCursor = FindPreviewOfShape(selectedShapeAtCursorInfo.Shape);
+							Shape previewAtCursor = FindPreviewOfShape(_selectedShapeAtCursorInfo.Shape);
 							diagramPresenter.InvalidateSnapIndicators(previewAtCursor);
 						}
-						if (CurrentAction == Action.MoveHandle && selectedShapeAtCursorInfo.IsCursorAtGluePoint)
+						if (CurrentAction == Action.MoveHandle && _selectedShapeAtCursorInfo.IsCursorAtGluePoint)
 							InvalidateConnectionTargets(diagramPresenter, CurrentMouseState.X, CurrentMouseState.Y);
 					}
 					break;
@@ -337,9 +337,9 @@ namespace Dataweb.NShape {
 		public Shape FindPreviewOfShape(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
 #if DEBUG_DIAGNOSTICS
-			Assert(previewShapes.ContainsKey(shape), string.Format("No preview found for '{0}' shape.", shape.Type.Name));
+			Assert(_previewShapes.ContainsKey(shape), string.Format("No preview found for '{0}' shape.", shape.Type.Name));
 #endif
-			return previewShapes[shape];
+			return _previewShapes[shape];
 		}
 
 
@@ -349,19 +349,19 @@ namespace Dataweb.NShape {
 		public Shape FindShapeOfPreview(Shape previewShape) {
 			if (previewShape == null) throw new ArgumentNullException("previewShape");
 #if DEBUG_DIAGNOSTICS
-			Assert(originalShapes.ContainsKey(previewShape), string.Format("No original shape found for '{0}' preview shape.", previewShape.Type.Name));
+			Assert(_originalShapes.ContainsKey(previewShape), string.Format("No original shape found for '{0}' preview shape.", previewShape.Type.Name));
 #endif
-			return originalShapes[previewShape];
+			return _originalShapes[previewShape];
 		}
 
 
 		/// <override></override>
 		protected override void CancelCore() {
-			frameRect = Rectangle.Empty;
-			rectBuffer = Rectangle.Empty;
+			_frameRect = Rectangle.Empty;
+			_rectBuffer = Rectangle.Empty;
 
 			//currentToolAction = ToolAction.None;
-			selectedShapeAtCursorInfo.Clear();
+			_selectedShapeAtCursorInfo.Clear();
 		}
 
 		#endregion
@@ -402,8 +402,8 @@ namespace Dataweb.NShape {
 			// Cancel deferred click action (if pending)
 			CancelDeferredClickAction();
 			// Empty selection frame
-			frameRect.Location = mouseState.Position;
-			frameRect.Size = Size.Empty;
+			_frameRect.Location = mouseState.Position;
+			_frameRect.Size = Size.Empty;
 		}
 
 
@@ -442,10 +442,10 @@ namespace Dataweb.NShape {
 			bool result = false;
 
 			// Check if the selected shape at cursor is still valid
-			if (!selectedShapeAtCursorInfo.IsEmpty
-				&& (!diagramPresenter.SelectedShapes.Contains(selectedShapeAtCursorInfo.Shape)
-					|| selectedShapeAtCursorInfo.Shape.HitTest(mouseState.X, mouseState.Y, ControlPointCapabilities.All, diagramPresenter.ZoomedGripSize) == ControlPointId.None)) {
-				selectedShapeAtCursorInfo.Clear();
+			if (!_selectedShapeAtCursorInfo.IsEmpty
+				&& (!diagramPresenter.SelectedShapes.Contains(_selectedShapeAtCursorInfo.Shape)
+					|| _selectedShapeAtCursorInfo.Shape.HitTest(mouseState.X, mouseState.Y, ControlPointCapabilities.All, diagramPresenter.ZoomedGripSize) == ControlPointId.None)) {
+				_selectedShapeAtCursorInfo.Clear();
 			}
 
 			// If no action is pending, try to start a new one...
@@ -503,9 +503,9 @@ namespace Dataweb.NShape {
 		private bool ProcessMouseMove(IDiagramPresenter diagramPresenter, MouseState mouseState) {
 			bool result = true;
 
-			if (!selectedShapeAtCursorInfo.IsEmpty &&
-				!diagramPresenter.SelectedShapes.Contains(selectedShapeAtCursorInfo.Shape))
-				selectedShapeAtCursorInfo.Clear();
+			if (!_selectedShapeAtCursorInfo.IsEmpty &&
+				!diagramPresenter.SelectedShapes.Contains(_selectedShapeAtCursorInfo.Shape))
+				_selectedShapeAtCursorInfo.Clear();
 
 			Action newAction;
 			switch (CurrentAction) {
@@ -547,17 +547,17 @@ namespace Dataweb.NShape {
 #if DEBUG_DIAGNOSTICS
 								Assert(CurrentAction == Action.Select || CurrentAction == Action.EditCaption);
 #endif
-								if (selectedShapeAtCursorInfo.IsEmpty) {
+								if (_selectedShapeAtCursorInfo.IsEmpty) {
 									// Select shape at cursor before start dragging it
 									PerformSelection(ActionDiagramPresenter, ActionStartMouseState, shapeAtCursorInfo);
 									SetSelectedShapeAtCursor(diagramPresenter, ActionStartMouseState.X, ActionStartMouseState.Y, 0, ControlPointCapabilities.None);
 #if DEBUG_DIAGNOSTICS
-									Assert(!SelectedShapeAtCursorInfo.IsEmpty);
+									Assert(!_selectedShapeAtCursorInfo.IsEmpty);
 #endif
 								}
 								// Init moving shape
 #if DEBUG_DIAGNOSTICS
-								Assert(!SelectedShapeAtCursorInfo.IsEmpty);
+								Assert(!_selectedShapeAtCursorInfo.IsEmpty);
 #endif
 								CreatePreviewShapes(ActionDiagramPresenter);
 								StartToolAction(diagramPresenter, (int)newAction, ActionStartMouseState, true);
@@ -586,7 +586,7 @@ namespace Dataweb.NShape {
 
 				case Action.MoveHandle:
 #if DEBUG_DIAGNOSTICS
-					Assert(IsMoveHandleFeasible(ActionDiagramPresenter, SelectedShapeAtCursorInfo));
+					Assert(IsMoveHandleFeasible(ActionDiagramPresenter, mouseState, _selectedShapeAtCursorInfo));
 #endif
 					PrepareMoveHandlePreview(ActionDiagramPresenter, mouseState);
 					break;
@@ -598,11 +598,11 @@ namespace Dataweb.NShape {
 				case Action.PrepareRotate:
 				case Action.Rotate:
 #if DEBUG_DIAGNOSTICS
-					Assert(IsRotatatingFeasible(ActionDiagramPresenter, SelectedShapeAtCursorInfo));
+					Assert(IsRotatatingFeasible(ActionDiagramPresenter, mouseState, _selectedShapeAtCursorInfo));
 #endif
 					newAction = CurrentAction;
 					// Find unselected shape under the mouse cursor
-					newAction = DetermineMouseMoveAction(ActionDiagramPresenter, mouseState, selectedShapeAtCursorInfo);
+					newAction = DetermineMouseMoveAction(ActionDiagramPresenter, mouseState, _selectedShapeAtCursorInfo);
 
 					// If the action has changed, prepare and start the new action
 					if (newAction != CurrentAction) {
@@ -656,9 +656,9 @@ namespace Dataweb.NShape {
 
 		private bool ProcessMouseUp(IDiagramPresenter diagramPresenter, MouseState mouseState) {
 			bool result = false;
-			if (!selectedShapeAtCursorInfo.IsEmpty &&
-				!diagramPresenter.SelectedShapes.Contains(selectedShapeAtCursorInfo.Shape))
-				selectedShapeAtCursorInfo.Clear();
+			if (!_selectedShapeAtCursorInfo.IsEmpty &&
+				!diagramPresenter.SelectedShapes.Contains(_selectedShapeAtCursorInfo.Shape))
+				_selectedShapeAtCursorInfo.Clear();
 
 			switch (CurrentAction) {
 				case Action.None:
@@ -668,9 +668,9 @@ namespace Dataweb.NShape {
 						CancelDeferredClickAction();
 
 						// If 'QuickRotate' is enabled, perform it now.
-						if (diagramPresenter.Project.SecurityManager.IsGranted(Permission.Layout, diagramPresenter.SelectedShapes) && enableQuickRotate) {
-							if (!selectedShapeAtCursorInfo.IsEmpty && selectedShapeAtCursorInfo.IsCursorAtGrip
-								&& selectedShapeAtCursorInfo.Shape.HasControlPointCapability(selectedShapeAtCursorInfo.ControlPointId, ControlPointCapabilities.Rotate)) {
+						if (diagramPresenter.Project.SecurityManager.IsGranted(Permission.Layout, diagramPresenter.SelectedShapes) && _enableQuickRotate) {
+							if (!_selectedShapeAtCursorInfo.IsEmpty && _selectedShapeAtCursorInfo.IsCursorAtGrip
+								&& _selectedShapeAtCursorInfo.Shape.HasControlPointCapability(_selectedShapeAtCursorInfo.ControlPointId, ControlPointCapabilities.Rotate)) {
 								int angle = 900 * (mouseState.Clicks - 1);
 								if (angle % 3600 != 0) {
 									PerformQuickRotate(diagramPresenter, angle);
@@ -686,9 +686,9 @@ namespace Dataweb.NShape {
 					// Perform selection
 					ShapeAtCursorInfo shapeAtCursorInfo = ShapeAtCursorInfo.Empty;
 					// Check if a selected shape was clicked (needed for selecting parent/children of aggregated shapes)
-					if (!selectedShapeAtCursorInfo.IsEmpty && selectedShapeAtCursorInfo.Shape.ContainsPoint(mouseState.X, mouseState.Y)) {
+					if (!_selectedShapeAtCursorInfo.IsEmpty && _selectedShapeAtCursorInfo.Shape.ContainsPoint(mouseState.X, mouseState.Y)) {
 						// Find the shape to select
-						Shape shape = ActionDiagramPresenter.Diagram.Shapes.FindShape(mouseState.X, mouseState.Y, ControlPointCapabilities.None, 0, selectedShapeAtCursorInfo.Shape);
+						Shape shape = ActionDiagramPresenter.Diagram.Shapes.FindShape(mouseState.X, mouseState.Y, ControlPointCapabilities.None, 0, _selectedShapeAtCursorInfo.Shape);
 						if (shape != null) {
 							shapeAtCursorInfo.Shape = shape;
 							shapeAtCursorInfo.ControlPointId = shape.HitTest(mouseState.X, mouseState.Y, ControlPointCapabilities.None, 0);
@@ -698,7 +698,7 @@ namespace Dataweb.NShape {
 						// No shape was selected -> try to find a shape at the current mouse position
 						shapeAtCursorInfo = FindShapeAtCursor(diagramPresenter, mouseState.X, mouseState.Y, ControlPointCapabilities.None, ActionDiagramPresenter.ZoomedGripSize, false);
 
-					if (OverlappingShapesAction == OverlappingShapesAction.None || selectedShapeAtCursorInfo.IsEmpty) {
+					if (OverlappingShapesAction == OverlappingShapesAction.None || _selectedShapeAtCursorInfo.IsEmpty) {
 						// Perform standard selection
 						result = PerformSelection(ActionDiagramPresenter, mouseState, shapeAtCursorInfo);
 						SetSelectedShapeAtCursor(ActionDiagramPresenter, mouseState.X, mouseState.Y, ActionDiagramPresenter.ZoomedGripSize, ControlPointCapabilities.All);
@@ -729,19 +729,19 @@ namespace Dataweb.NShape {
 				case Action.EditCaption:
 					// if the user clicked a caption, display the caption editor
 #if DEBUG_DIAGNOSTICS
-					Assert(SelectedShapeAtCursorInfo.IsCursorAtCaption);
+					Assert(_selectedShapeAtCursorInfo.IsCursorAtCaption);
 #endif
 					// Update the selected shape at cursor
 					SetSelectedShapeAtCursor(ActionDiagramPresenter, mouseState.X, mouseState.Y, ActionDiagramPresenter.ZoomedGripSize, ControlPointCapabilities.All);
-					if (!selectedShapeAtCursorInfo.IsEmpty && selectedShapeAtCursorInfo.IsCursorAtCaption)
-						ActionDiagramPresenter.OpenCaptionEditor((ICaptionedShape)selectedShapeAtCursorInfo.Shape, selectedShapeAtCursorInfo.CaptionIndex);
+					if (!_selectedShapeAtCursorInfo.IsEmpty && _selectedShapeAtCursorInfo.IsCursorAtCaption)
+						ActionDiagramPresenter.OpenCaptionEditor((ICaptionedShape)_selectedShapeAtCursorInfo.Shape, _selectedShapeAtCursorInfo.CaptionIndex);
 					EndToolAction();
 					result = true;
 					break;
 
 				case Action.MoveHandle:
 #if DEBUG_DIAGNOSTICS
-					Assert(!SelectedShapeAtCursorInfo.IsEmpty);
+					Assert(!_selectedShapeAtCursorInfo.IsEmpty);
 #endif
 					result = PerformMoveHandle(ActionDiagramPresenter);
 					while (IsToolActionPending)
@@ -750,7 +750,7 @@ namespace Dataweb.NShape {
 
 				case Action.MoveShape:
 #if DEBUG_DIAGNOSTICS
-					Assert(!SelectedShapeAtCursorInfo.IsEmpty);
+					Assert(!_selectedShapeAtCursorInfo.IsEmpty);
 #endif
 					result = PerformMoveShape(ActionDiagramPresenter);
 					while (IsToolActionPending)
@@ -760,7 +760,7 @@ namespace Dataweb.NShape {
 				case Action.PrepareRotate:
 				case Action.Rotate:
 #if DEBUG_DIAGNOSTICS
-					Assert(!SelectedShapeAtCursorInfo.IsEmpty);
+					Assert(!_selectedShapeAtCursorInfo.IsEmpty);
 #endif
 					if (CurrentAction == Action.Rotate)
 						result = PerformRotate(ActionDiagramPresenter);
@@ -774,7 +774,7 @@ namespace Dataweb.NShape {
 			SetSelectedShapeAtCursor(diagramPresenter, mouseState.X, mouseState.Y, diagramPresenter.ZoomedGripSize, ControlPointCapabilities.All);
 			diagramPresenter.SetCursor(DetermineCursor(diagramPresenter, mouseState));
 
-			if (!deferredClickTimer.Enabled)
+			if (!_deferredClickTimer.Enabled)
 				OnToolExecuted(ExecutedEventArgs);
 			return result;
 		}
@@ -789,8 +789,8 @@ namespace Dataweb.NShape {
 		/// </summary>
 		private Action DetermineMouseDownAction(IDiagramPresenter diagramPresenter, MouseState mouseState) {
 			if (mouseState.IsButtonDown(MouseButtonsDg.Left)) {
-				if (!selectedShapeAtCursorInfo.IsEmpty
-					&& IsEditCaptionFeasible(diagramPresenter, mouseState, selectedShapeAtCursorInfo)) {
+				if (!_selectedShapeAtCursorInfo.IsEmpty
+					&& IsEditCaptionFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo)) {
 					// If the cursor is not over a caption of a selected shape when clicking left mouse button, 
 					// we assume the user wants to select something
 					// Same thing if no other action is granted.
@@ -827,19 +827,19 @@ namespace Dataweb.NShape {
 				case Action.EditCaption:
 					if (mouseState.IsButtonDown(MouseButtonsDg.Left)) {
 						// Check if cursor is over a control point and moving grips or rotating is feasible
-						if (selectedShapeAtCursorInfo.IsCursorAtGrip) {
-							if (IsMoveHandleFeasible(diagramPresenter, mouseState, selectedShapeAtCursorInfo))
+						if (_selectedShapeAtCursorInfo.IsCursorAtGrip) {
+							if (IsMoveHandleFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
 								return Action.MoveHandle;
-							else if (IsRotatatingFeasible(diagramPresenter, mouseState, selectedShapeAtCursorInfo))
+							else if (IsRotatatingFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
 								return Action.PrepareRotate;
 							else return Action.SelectWithFrame;
 						} else {
 							// If there is no shape under the cursor, start a SelectWithFrame action,
 							// otherwise start a MoveShape action
 							bool canMove = false;
-							if (!selectedShapeAtCursorInfo.IsEmpty) {
+							if (!_selectedShapeAtCursorInfo.IsEmpty) {
 								// If there are selected shapes, check these shapes...
-								canMove = IsMoveShapeFeasible(diagramPresenter, mouseState, selectedShapeAtCursorInfo);
+								canMove = IsMoveShapeFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo);
 							} else {
 								// ... otherwise check the shape under the cursor as it will be selected 
 								// before starting a move action
@@ -899,20 +899,20 @@ namespace Dataweb.NShape {
 
 			// Determine the shape that has to be selected:
 			Shape shapeToSelect = null;
-			if (!selectedShapeAtCursorInfo.IsEmpty) {
+			if (!_selectedShapeAtCursorInfo.IsEmpty) {
 				// When in multiSelection mode, unselect the selected shape under the cursor
-				if (multiSelect) shapeToSelect = selectedShapeAtCursorInfo.Shape;
+				if (multiSelect) shapeToSelect = _selectedShapeAtCursorInfo.Shape;
 				else {
 					// First, check if the selected shape under the cursor has children that can be selected
-					shapeToSelect = selectedShapeAtCursorInfo.Shape.Children.FindShape(mouseState.X, mouseState.Y, capabilities, range, null);
+					shapeToSelect = _selectedShapeAtCursorInfo.Shape.Children.FindShape(mouseState.X, mouseState.Y, capabilities, range, null);
 					// Second, check if the selected shape under the cursor has siblings that can be selected
-					if (shapeToSelect == null && selectedShapeAtCursorInfo.Shape.Parent != null) {
-						shapeToSelect = selectedShapeAtCursorInfo.Shape.Parent.Children.FindShape(mouseState.X, mouseState.Y, capabilities, range, selectedShapeAtCursorInfo.Shape);
+					if (shapeToSelect == null && _selectedShapeAtCursorInfo.Shape.Parent != null) {
+						shapeToSelect = _selectedShapeAtCursorInfo.Shape.Parent.Children.FindShape(mouseState.X, mouseState.Y, capabilities, range, _selectedShapeAtCursorInfo.Shape);
 						// Discard found shape if it is the selected shape at cursor
-						if (shapeToSelect == selectedShapeAtCursorInfo.Shape) shapeToSelect = null;
+						if (shapeToSelect == _selectedShapeAtCursorInfo.Shape) shapeToSelect = null;
 						if (shapeToSelect == null) {
-							foreach (Shape shape in selectedShapeAtCursorInfo.Shape.Parent.Children.FindShapes(mouseState.X, mouseState.Y, capabilities, range)) {
-								if (shape == selectedShapeAtCursorInfo.Shape) continue;
+							foreach (Shape shape in _selectedShapeAtCursorInfo.Shape.Parent.Children.FindShapes(mouseState.X, mouseState.Y, capabilities, range)) {
+								if (shape == _selectedShapeAtCursorInfo.Shape) continue;
 								// Ignore layer visibility for child shapes
 								shapeToSelect = shape;
 								break;
@@ -921,10 +921,10 @@ namespace Dataweb.NShape {
 					}
 					// Third, check if there are non-selected shapes below the selected shape under the cursor
 					// and select the spape according to the overlapping shapes selection mode
-					switch (overlappingShapesSelectionMode) {
+					switch (_overlappingShapesSelectionMode) {
 						case OverlappingShapesAction.None:
 							// Keep the selected shape
-							shapeToSelect = selectedShapeAtCursorInfo.Shape;
+							shapeToSelect = _selectedShapeAtCursorInfo.Shape;
 							break;
 						case OverlappingShapesAction.Topmost:
 							// Select the topmost shape 
@@ -932,13 +932,13 @@ namespace Dataweb.NShape {
 							break;
 						case OverlappingShapesAction.Cycle:
 							// Try to find the the next underlying shape by passing the selected shape as 'startShape' to FindShape(...)
-							Shape startShape = selectedShapeAtCursorInfo.Shape;
+							Shape startShape = _selectedShapeAtCursorInfo.Shape;
 							while (startShape.Parent != null) startShape = startShape.Parent;	// get the selected shape's top-level parent
 							if (shapeToSelect == null && diagramPresenter.Diagram.Shapes.Contains(startShape))
 								shapeToSelect = diagramPresenter.Diagram.Shapes.FindShape(mouseState.X, mouseState.Y, capabilities, range, startShape);
 							break;
 						default:
-							throw new NShapeUnsupportedValueException(typeof(OverlappingShapesAction), overlappingShapesSelectionMode);
+							throw new NShapeUnsupportedValueException(typeof(OverlappingShapesAction), _overlappingShapesSelectionMode);
 					}
 				}
 			}
@@ -986,7 +986,7 @@ namespace Dataweb.NShape {
 						if (diagramPresenter.SelectedShapes.Contains(shapeToSelect.Parent))
 							shapeToSelect = shapeToSelect.Parent;
 				}
-			} else if (selectedShapeAtCursorInfo.IsEmpty) {
+			} else if (_selectedShapeAtCursorInfo.IsEmpty) {
 				// if there was no other shape to select and none of the selected shapes is under the cursor,
 				// clear selection
 				if (!multiSelect) {
@@ -1006,14 +1006,14 @@ namespace Dataweb.NShape {
 
 		// Calculate new selection frame
 		private void PrepareSelectionFrame(IDiagramPresenter diagramPresenter, MouseState mouseState) {
-			previewMouseState = mouseState;
+			_previewMouseState = mouseState;
 
 			Invalidate(ActionDiagramPresenter);
 
-			frameRect.X = Math.Min(ActionStartMouseState.X, mouseState.X);
-			frameRect.Y = Math.Min(ActionStartMouseState.Y, mouseState.Y);
-			frameRect.Width = Math.Max(ActionStartMouseState.X, mouseState.X) - frameRect.X;
-			frameRect.Height = Math.Max(ActionStartMouseState.Y, mouseState.Y) - frameRect.Y;
+			_frameRect.X = Math.Min(ActionStartMouseState.X, mouseState.X);
+			_frameRect.Y = Math.Min(ActionStartMouseState.Y, mouseState.Y);
+			_frameRect.Width = Math.Max(ActionStartMouseState.X, mouseState.X) - _frameRect.X;
+			_frameRect.Height = Math.Max(ActionStartMouseState.Y, mouseState.Y) - _frameRect.Y;
 
 			Invalidate(ActionDiagramPresenter);
 		}
@@ -1022,7 +1022,7 @@ namespace Dataweb.NShape {
 		// Select shapes inside the selection frame
 		private bool PerformFrameSelection(IDiagramPresenter diagramPresenter, MouseState mouseState) {
 			bool multiSelect = mouseState.IsKeyPressed(KeysDg.Control) || mouseState.IsKeyPressed(KeysDg.Shift);
-			diagramPresenter.SelectShapes(frameRect, multiSelect);
+			diagramPresenter.SelectShapes(_frameRect, multiSelect);
 			return true;
 		}
 
@@ -1030,25 +1030,25 @@ namespace Dataweb.NShape {
 		private void InitDeferredClickAction(IDiagramPresenter diagramPresenter, ElapsedEventHandler elapsedEventHandler) {
 			// Ensure that existing Elapsed event handlers will be removed before adding a new one!
 			CancelDeferredClickAction();
-			Debug.Assert(deferredClickHandler == null);
-			deferredClickHandler = elapsedEventHandler;
+			Debug.Assert(_deferredClickHandler == null);
+			_deferredClickHandler = elapsedEventHandler;
 
 			// Start processing the click event
-			if (deferredClickTimer.Interval != DoubleClickTime)
-				deferredClickTimer.Interval = DoubleClickTime;
-			if (deferredClickTimer.SynchronizingObject != diagramPresenter)
-				deferredClickTimer.SynchronizingObject = diagramPresenter;
-			deferredClickTimer.Elapsed += deferredClickHandler;
-			deferredClickTimer.AutoReset = true;
-			deferredClickTimer.Start();
+			if (_deferredClickTimer.Interval != DoubleClickTime)
+				_deferredClickTimer.Interval = DoubleClickTime;
+			if (_deferredClickTimer.SynchronizingObject != diagramPresenter)
+				_deferredClickTimer.SynchronizingObject = diagramPresenter;
+			_deferredClickTimer.Elapsed += _deferredClickHandler;
+			_deferredClickTimer.AutoReset = true;
+			_deferredClickTimer.Start();
 		}
 
 
 		private void CancelDeferredClickAction() {
-			deferredClickTimer.Stop();
-			if (deferredClickHandler != null) {
-				deferredClickTimer.Elapsed -= deferredClickHandler;
-				deferredClickHandler = null;
+			_deferredClickTimer.Stop();
+			if (_deferredClickHandler != null) {
+				_deferredClickTimer.Elapsed -= _deferredClickHandler;
+				_deferredClickHandler = null;
 			}
 		}
 
@@ -1137,21 +1137,21 @@ namespace Dataweb.NShape {
 
 		// prepare drawing preview of move action
 		private void PrepareMoveShapePreview(IDiagramPresenter diagramPresenter, MouseState mouseState) {
-			previewMouseState = mouseState;
+			_previewMouseState = mouseState;
 
 #if DEBUG_DIAGNOSTICS
 				Assert(diagramPresenter.SelectedShapes.Count > 0);
-				Assert(!SelectedShapeAtCursorInfo.IsEmpty);
+				Assert(!_selectedShapeAtCursorInfo.IsEmpty);
 #endif
 			// calculate the movement
 			int distanceX = mouseState.X - ActionStartMouseState.X;
 			int distanceY = mouseState.Y - ActionStartMouseState.Y;
 			// calculate "Snap to Grid" offset
-			snapDeltaX = snapDeltaY = 0;
-			if (diagramPresenter.SnapToGrid && !selectedShapeAtCursorInfo.IsEmpty) {
-				FindNearestSnapPoint(diagramPresenter, selectedShapeAtCursorInfo.Shape, distanceX, distanceY, out snapDeltaX, out snapDeltaY);
-				distanceX += snapDeltaX;
-				distanceY += snapDeltaY;
+			_snapDeltaX = _snapDeltaY = 0;
+			if (diagramPresenter.SnapToGrid && !_selectedShapeAtCursorInfo.IsEmpty) {
+				FindNearestSnapPoint(diagramPresenter, _selectedShapeAtCursorInfo.Shape, distanceX, distanceY, out _snapDeltaX, out _snapDeltaY);
+				distanceX += _snapDeltaX;
+				distanceY += _snapDeltaY;
 			}
 
 			// Reset all shapes to start values
@@ -1171,9 +1171,9 @@ namespace Dataweb.NShape {
 		// Apply the move action
 		private bool PerformMoveShape(IDiagramPresenter diagramPresenter) {
 			bool result = false;
-			if (selectedShapeAtCursorInfo.IsEmpty) {
+			if (_selectedShapeAtCursorInfo.IsEmpty) {
 				// This should never happen...
-				Debug.Assert(!selectedShapeAtCursorInfo.IsEmpty);
+				Debug.Assert(!_selectedShapeAtCursorInfo.IsEmpty);
 			}
 
 			if (ActionStartMouseState.Position != CurrentMouseState.Position) {
@@ -1185,11 +1185,11 @@ namespace Dataweb.NShape {
 				//   FindNearestSnapPoint(diagramPresenter, SelectedShapeAtCursorInfo.Shape, distanceX, distanceY, out snapDeltaX, out snapDeltaY, ControlPointCapabilities.All);
 
 #if DEBUG_DIAGNOSTICS
-				int dx = distanceX + snapDeltaX;
-				int dy = distanceY + snapDeltaY;
+				int dx = distanceX + _snapDeltaX;
+				int dy = distanceY + _snapDeltaY;
 				Debug.Assert(CurrentMouseState.Position == CurrentMouseState.Position);
 				foreach (Shape selectedShape in diagramPresenter.SelectedShapes) {
-					Shape previewShape = previewShapes[selectedShape];
+					Shape previewShape = _previewShapes[selectedShape];
 					Debug.Assert((previewShape.X == selectedShape.X && previewShape.Y == selectedShape.Y)
 							|| (previewShape.X == selectedShape.X + dx && previewShape.Y == selectedShape.Y + dy), 
 							string.Format("Preview shape '{0}' was expected at position {1} but it is at position {2}.", 
@@ -1197,11 +1197,11 @@ namespace Dataweb.NShape {
 				}
 #endif
 
-				ICommand cmd = new MoveShapeByCommand(diagramPresenter.SelectedShapes, distanceX + snapDeltaX, distanceY + snapDeltaY);
+				ICommand cmd = new MoveShapeByCommand(diagramPresenter.SelectedShapes, distanceX + _snapDeltaX, distanceY + _snapDeltaY);
 				diagramPresenter.Project.ExecuteCommand(cmd);
 
-				snapDeltaX = snapDeltaY = 0;
-				snapPtId = ControlPointId.None;
+				_snapDeltaX = _snapDeltaY = 0;
+				_snapPtId = ControlPointId.None;
 				result = true;
 			}
 			return result;
@@ -1214,7 +1214,7 @@ namespace Dataweb.NShape {
 
 		// prepare drawing preview of resize action 
 		private void PrepareMoveHandlePreview(IDiagramPresenter diagramPresenter, MouseState mouseState) {
-			previewMouseState = mouseState;
+			_previewMouseState = mouseState;
 
 			InvalidateConnectionTargets(diagramPresenter, CurrentMouseState.X, CurrentMouseState.Y);
 
@@ -1222,14 +1222,14 @@ namespace Dataweb.NShape {
 			int distanceY = mouseState.Y - ActionStartMouseState.Y;
 
 			// calculate "Snap to Grid/ControlPoint" offset
-			snapDeltaX = snapDeltaY = 0;
-			if (selectedShapeAtCursorInfo.IsCursorAtGluePoint) {
+			_snapDeltaX = _snapDeltaY = 0;
+			if (_selectedShapeAtCursorInfo.IsCursorAtGluePoint) {
 				ControlPointId targetPtId;
-				Shape targetShape = FindNearestControlPoint(diagramPresenter, selectedShapeAtCursorInfo.Shape, selectedShapeAtCursorInfo.ControlPointId, ControlPointCapabilities.Connect, distanceX, distanceY, out snapDeltaX, out snapDeltaY, out targetPtId);
+				Shape targetShape = FindNearestControlPoint(diagramPresenter, _selectedShapeAtCursorInfo.Shape, _selectedShapeAtCursorInfo.ControlPointId, ControlPointCapabilities.Connect, distanceX, distanceY, out _snapDeltaX, out _snapDeltaY, out targetPtId);
 			} else
-				FindNearestSnapPoint(diagramPresenter, selectedShapeAtCursorInfo.Shape, selectedShapeAtCursorInfo.ControlPointId, distanceX, distanceY, out snapDeltaX, out snapDeltaY);
-			distanceX += snapDeltaX;
-			distanceY += snapDeltaY;
+				FindNearestSnapPoint(diagramPresenter, _selectedShapeAtCursorInfo.Shape, _selectedShapeAtCursorInfo.ControlPointId, distanceX, distanceY, out _snapDeltaX, out _snapDeltaY);
+			distanceX += _snapDeltaX;
+			distanceY += _snapDeltaY;
 
 			// Reset all preview shapes to start values
 			ResetPreviewShapes(diagramPresenter);
@@ -1240,8 +1240,8 @@ namespace Dataweb.NShape {
 			foreach (Shape selectedShape in diagramPresenter.SelectedShapes) {
 				Shape previewShape = FindPreviewOfShape(selectedShape);
 				// Perform movement
-				if (previewShape.HasControlPointCapability(selectedShapeAtCursorInfo.ControlPointId, ControlPointCapabilities.Resize))
-					previewShape.MoveControlPointBy(selectedShapeAtCursorInfo.ControlPointId, distanceX, distanceY, resizeModifier);
+				if (previewShape.HasControlPointCapability(_selectedShapeAtCursorInfo.ControlPointId, ControlPointCapabilities.Resize))
+					previewShape.MoveControlPointBy(_selectedShapeAtCursorInfo.ControlPointId, distanceX, distanceY, resizeModifier);
 			}
 
 			InvalidateConnectionTargets(diagramPresenter, mouseState.X, mouseState.Y);
@@ -1259,16 +1259,16 @@ namespace Dataweb.NShape {
 			// if the moved ControlPoint is a single GluePoint, snap to ConnectionPoints
 			bool isGluePoint = false;
 			if (diagramPresenter.SelectedShapes.Count == 1)
-				isGluePoint = selectedShapeAtCursorInfo.IsCursorAtGluePoint;
+				isGluePoint = _selectedShapeAtCursorInfo.IsCursorAtGluePoint;
 			// Snap to Grid or ControlPoint
 			bool calcSnapDistance = true;
 			ShapeAtCursorInfo targetShapeInfo = ShapeAtCursorInfo.Empty;
 			if (isGluePoint) {
-				Point currentPtPos = selectedShapeAtCursorInfo.Shape.GetControlPointPosition(selectedShapeAtCursorInfo.ControlPointId);
+				Point currentPtPos = _selectedShapeAtCursorInfo.Shape.GetControlPointPosition(_selectedShapeAtCursorInfo.ControlPointId);
 				Point newPtPos = Point.Empty;
 				newPtPos.Offset(currentPtPos.X + distanceX, currentPtPos.Y + distanceY);
-				targetShapeInfo = FindConnectionTarget(ActionDiagramPresenter, selectedShapeAtCursorInfo.Shape, selectedShapeAtCursorInfo.ControlPointId, newPtPos, true, true);
-				if (!targetShapeInfo.IsEmpty && selectedShapeAtCursorInfo.CanConnect(targetShapeInfo)) {
+				targetShapeInfo = FindConnectionTarget(ActionDiagramPresenter, _selectedShapeAtCursorInfo.Shape, _selectedShapeAtCursorInfo.ControlPointId, newPtPos, true, true);
+				if (!targetShapeInfo.IsEmpty && _selectedShapeAtCursorInfo.CanConnect(targetShapeInfo)) {
 					// If there is a target shape to connect to, get the position of the target connection point 
 					// and move the gluepoint exactly to this position
 					calcSnapDistance = false;
@@ -1279,28 +1279,28 @@ namespace Dataweb.NShape {
 					} else {
 						// If the target point is the reference point, use the previously calculated snap distance
 						// ToDo: We need a solution for calculating the nearest point on the target shape's outline
-						distanceX += snapDeltaX;
-						distanceY += snapDeltaY;
+						distanceX += _snapDeltaX;
+						distanceY += _snapDeltaY;
 					}
 				}
 			}
-			if (calcSnapDistance) {
-				FindNearestSnapPoint(diagramPresenter, selectedShapeAtCursorInfo.Shape, selectedShapeAtCursorInfo.ControlPointId, distanceX, distanceY, out snapDeltaX, out snapDeltaY);
-				distanceX += snapDeltaX;
-				distanceY += snapDeltaY;
+			if (calcSnapDistance && !_selectedShapeAtCursorInfo.IsEmpty) {
+				FindNearestSnapPoint(diagramPresenter, _selectedShapeAtCursorInfo.Shape, _selectedShapeAtCursorInfo.ControlPointId, distanceX, distanceY, out _snapDeltaX, out _snapDeltaY);
+				distanceX += _snapDeltaX;
+				distanceY += _snapDeltaY;
 			}
 
 			ResizeModifiers resizeModifier = GetResizeModifier(CurrentMouseState);
 			if (isGluePoint) {
-				ICommand cmd = new MoveGluePointCommand(selectedShapeAtCursorInfo.Shape, selectedShapeAtCursorInfo.ControlPointId, targetShapeInfo.Shape, targetShapeInfo.ControlPointId, distanceX, distanceY, resizeModifier);
+				ICommand cmd = new MoveGluePointCommand(_selectedShapeAtCursorInfo.Shape, _selectedShapeAtCursorInfo.ControlPointId, targetShapeInfo.Shape, targetShapeInfo.ControlPointId, distanceX, distanceY, resizeModifier);
 				diagramPresenter.Project.ExecuteCommand(cmd);
 			} else {
-				ICommand cmd = new MoveControlPointCommand(ActionDiagramPresenter.SelectedShapes, selectedShapeAtCursorInfo.ControlPointId, distanceX, distanceY, resizeModifier);
+				ICommand cmd = new MoveControlPointCommand(ActionDiagramPresenter.SelectedShapes, _selectedShapeAtCursorInfo.ControlPointId, distanceX, distanceY, resizeModifier);
 				diagramPresenter.Project.ExecuteCommand(cmd);
 			}
 
-			snapDeltaX = snapDeltaY = 0;
-			snapPtId = ControlPointId.None;
+			_snapDeltaX = _snapDeltaY = 0;
+			_snapPtId = ControlPointId.None;
 			result = true;
 
 			return result;
@@ -1397,7 +1397,7 @@ namespace Dataweb.NShape {
 
 		// prepare drawing preview of rotate action
 		private void PrepareRotatePreview(IDiagramPresenter diagramPresenter, MouseState mouseState) {
-			previewMouseState = mouseState;
+			_previewMouseState = mouseState;
 			InvalidateAnglePreview(ActionDiagramPresenter);
 			if (PendingToolActionsCount >= 1
 				&& ActionStartMouseState.Position != mouseState.Position) {
@@ -1459,14 +1459,14 @@ namespace Dataweb.NShape {
 		/// Specifies if a double click on the rotation handle will rotate the shape by 90°
 		/// </summary>
 		public bool EnableQuickRotate {
-			get { return enableQuickRotate; }
-			set { enableQuickRotate = value; }
+			get { return _enableQuickRotate; }
+			set { _enableQuickRotate = value; }
 		}
 
 
 		private bool PerformQuickRotate(IDiagramPresenter diagramPresenter, int angle) {
 			bool result = false;
-			if (enableQuickRotate) {
+			if (_enableQuickRotate) {
 				ICommand cmd = new RotateShapesCommand(diagramPresenter.SelectedShapes, angle);
 				diagramPresenter.Project.ExecuteCommand(cmd);
 				InvalidateAnglePreview(diagramPresenter);
@@ -1479,22 +1479,22 @@ namespace Dataweb.NShape {
 		private void InvalidateAnglePreview(IDiagramPresenter diagramPresenter) {
 			// invalidate previous angle preview
 			diagramPresenter.InvalidateDiagram(
-				rectBuffer.X - rectBuffer.Width - diagramPresenter.GripSize,
-				rectBuffer.Y - rectBuffer.Height - diagramPresenter.GripSize,
-				rectBuffer.Width + rectBuffer.Width + (2 * diagramPresenter.GripSize),
-				rectBuffer.Height + rectBuffer.Height + (2 * diagramPresenter.GripSize));
+				_rectBuffer.X - _rectBuffer.Width - diagramPresenter.GripSize,
+				_rectBuffer.Y - _rectBuffer.Height - diagramPresenter.GripSize,
+				_rectBuffer.Width + _rectBuffer.Width + (2 * diagramPresenter.GripSize),
+				_rectBuffer.Height + _rectBuffer.Height + (2 * diagramPresenter.GripSize));
 
 			int requiredDistance;
 			diagramPresenter.ControlToDiagram(diagramPresenter.MinRotateRange, out requiredDistance);
 			int length = (int)Math.Round(Geometry.DistancePointPoint(ActionStartMouseState.X, ActionStartMouseState.Y, CurrentMouseState.X, CurrentMouseState.Y));
 
 			// invalidate current angle preview / instruction preview
-			rectBuffer.Location = ActionStartMouseState.Position;
+			_rectBuffer.Location = ActionStartMouseState.Position;
 			if (length > requiredDistance)
-				rectBuffer.Width = rectBuffer.Height = length;
+				_rectBuffer.Width = _rectBuffer.Height = length;
 			else
-				rectBuffer.Width = rectBuffer.Height = requiredDistance;
-			diagramPresenter.InvalidateDiagram(rectBuffer.X - rectBuffer.Width, rectBuffer.Y - rectBuffer.Height, rectBuffer.Width + rectBuffer.Width, rectBuffer.Height + rectBuffer.Height);
+				_rectBuffer.Width = _rectBuffer.Height = requiredDistance;
+			diagramPresenter.InvalidateDiagram(_rectBuffer.X - _rectBuffer.Width, _rectBuffer.Y - _rectBuffer.Height, _rectBuffer.Width + _rectBuffer.Width, _rectBuffer.Height + _rectBuffer.Height);
 		}
 
 		#endregion
@@ -1508,20 +1508,20 @@ namespace Dataweb.NShape {
 		/// The dictionary of preview shapes: The key is the original shape, the value is the preview shape.
 		/// </summary>
 		private IDictionary<Shape, Shape> Previews {
-			get { return previewShapes; }
+			get { return _previewShapes; }
 		}
 
 
 		private void AddPreview(Shape shape, Shape previewShape, IDisplayService displayService) {
-			if (originalShapes.ContainsKey(previewShape)) return;
-			if (previewShapes.ContainsKey(shape)) return;
-			// Set DisplayService for the preview shape
-			if (previewShape.DisplayService != displayService)
-				previewShape.DisplayService = displayService;
+			if (_originalShapes.ContainsKey(previewShape)) return;
+			if (_previewShapes.ContainsKey(shape)) return;
+			//// Set DisplayService for the preview shape
+			//if (previewShape.DisplayService != displayService)
+			//    previewShape.DisplayService = displayService;
 
 			// Add shape and its preview to the appropriate dictionaries
-			previewShapes.Add(shape, previewShape);
-			originalShapes.Add(previewShape, shape);
+			_previewShapes.Add(shape, previewShape);
+			_originalShapes.Add(previewShape, shape);
 
 			// Add shape's children and their previews to the appropriate dictionaries
 			if (previewShape.Children.Count > 0) {
@@ -1538,26 +1538,30 @@ namespace Dataweb.NShape {
 					processNext = (previewChildren.MoveNext() && originalChildren.MoveNext());
 				}
 			}
+
+			// Set DisplayService for the preview shape
+			if (previewShape.DisplayService != displayService)
+				previewShape.DisplayService = displayService;
 		}
 
 
 		private void RemovePreviewOf(Shape originalShape) {
-			if (previewShapes.ContainsKey(originalShape)) {
+			if (_previewShapes.ContainsKey(originalShape)) {
 				// Invalidate Preview Shape
 				Shape previewShape = Previews[originalShape];
 				previewShape.Invalidate();
 
 				// remove previews of the shape and its children from the preview's dictionary
-				previewShapes.Remove(originalShape);
+				_previewShapes.Remove(originalShape);
 				if (originalShape.Children.Count > 0) {
 					foreach (Shape childShape in originalShape.Children)
-						previewShapes.Remove(childShape);
+						_previewShapes.Remove(childShape);
 				}
 				// remove the shape and its children from the shape's dictionary
-				originalShapes.Remove(previewShape);
+				_originalShapes.Remove(previewShape);
 				if (previewShape.Children.Count > 0) {
 					foreach (Shape childShape in previewShape.Children)
-						originalShapes.Remove(childShape);
+						_originalShapes.Remove(childShape);
 				}
 			}
 		}
@@ -1565,25 +1569,25 @@ namespace Dataweb.NShape {
 
 		private void RemovePreview(Shape previewShape) {
 			Shape origShape = null;
-			if (!originalShapes.TryGetValue(previewShape, out origShape))
+			if (!_originalShapes.TryGetValue(previewShape, out origShape))
 				throw new NShapeInternalException("This preview shape has no associated original shape in this tool.");
 			else {
 				// Invalidate Preview Shape
 				previewShape.Invalidate();
 				// Remove both, original- and preview shape from the appropriate dictionaries
-				previewShapes.Remove(origShape);
-				originalShapes.Remove(previewShape);
+				_previewShapes.Remove(origShape);
+				_originalShapes.Remove(previewShape);
 			}
 		}
 
 
 		private void ClearPreviews() {
-			foreach (KeyValuePair<Shape, Shape> item in previewShapes) {
+			foreach (KeyValuePair<Shape, Shape> item in _previewShapes) {
 				Shape previewShape = item.Value;
 				DeletePreviewShape(ref previewShape);
 			}
-			previewShapes.Clear();
-			originalShapes.Clear();
+			_previewShapes.Clear();
+			_originalShapes.Clear();
 		}
 
 
@@ -1611,7 +1615,7 @@ namespace Dataweb.NShape {
 
 			Shape preview = FindPreviewOfShape(shape);
 			foreach (ShapeConnectionInfo connectionInfo in shape.GetConnectionInfos(ControlPointId.Any, null)) {
-				if (!diagramPresenter.IsLayerVisible(connectionInfo.OtherShape.Layers)) continue;
+				if (!diagramPresenter.IsLayerVisible(connectionInfo.OtherShape.HomeLayer, connectionInfo.OtherShape.SupplementalLayers)) continue;
 				if (diagramPresenter.SelectedShapes.Contains(connectionInfo.OtherShape)) {
 					// Do not connect previews if BOTH of the connected shapes are part of the selection because 
 					// this would restrict movement of the connector shapes and decreases performance (many 
@@ -1627,7 +1631,7 @@ namespace Dataweb.NShape {
 					// that has a glue point (e.g. a Label)
 					if (preview.HasControlPointCapability(connectionInfo.OwnPointId, ControlPointCapabilities.Glue)) {
 						// Only connect if the control point to be connected is not the control point to be moved
-						if (shape == selectedShapeAtCursorInfo.Shape && connectionInfo.OwnPointId != selectedShapeAtCursorInfo.ControlPointId)
+						if (shape == _selectedShapeAtCursorInfo.Shape && connectionInfo.OwnPointId != _selectedShapeAtCursorInfo.ControlPointId)
 							preview.Connect(connectionInfo.OwnPointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
 					} else
 						// Create a preview of the shape that is connected to the preview (recursive call)
@@ -1645,18 +1649,18 @@ namespace Dataweb.NShape {
 			Shape previewTargetShape;
 			// If the current passiveShape is already connected to another shape of the current selection,
 			// connect the current preview to the other preview's passiveShape
-			if (!targetShapeBuffer.TryGetValue(connectionInfo.OtherShape, out previewTargetShape)) {
+			if (!_targetShapeBuffer.TryGetValue(connectionInfo.OtherShape, out previewTargetShape)) {
 				// If the current passiveShape is not connected to any other of the selected selectedShapes,
 				// create a clone of the passiveShape and connect it to the corresponding preview
 				// If the preview exists, abort connecting (in this case, the shape is a preview of a child shape)
-				if (previewShapes.ContainsKey(connectionInfo.OtherShape))
+				if (_previewShapes.ContainsKey(connectionInfo.OtherShape))
 					return;
 				else {
 					previewTargetShape = connectionInfo.OtherShape.Type.CreatePreviewInstance(connectionInfo.OtherShape);
 					AddPreview(connectionInfo.OtherShape, previewTargetShape, diagramPresenter.DisplayService);
 				}
 				// Add passive shape and it's clone to the passive shape dictionary
-				targetShapeBuffer.Add(connectionInfo.OtherShape, previewTargetShape);
+				_targetShapeBuffer.Add(connectionInfo.OtherShape, previewTargetShape);
 			}
 			// Connect the (new or existing) preview shapes
 			// Skip connecting if the preview is already connected.
@@ -1667,7 +1671,7 @@ namespace Dataweb.NShape {
 				previewTargetShape.Connect(connectionInfo.OtherPointId, previewShape, connectionInfo.OwnPointId);
 				// check, if any shapes are connected to the connector (that is connected to the selected shape)
 				foreach (ShapeConnectionInfo connectorCI in connectionInfo.OtherShape.GetConnectionInfos(ControlPointId.Any, null)) {
-					if (!diagramPresenter.IsLayerVisible(connectorCI.OtherShape.Layers)) continue;
+					if (!diagramPresenter.IsLayerVisible(connectionInfo.OtherShape.HomeLayer, connectorCI.OtherShape.SupplementalLayers)) continue;
 					// skip if the connector is connected to the shape with more than one glue point
 					if (connectorCI.OtherShape == FindShapeOfPreview(previewShape)) continue;
 					if (connectorCI.OwnPointId != connectionInfo.OtherPointId) {
@@ -1675,7 +1679,7 @@ namespace Dataweb.NShape {
 						// If it is, connect to it's preview or skip connecting if the target preview does 
 						// not exist yet (it will be connected when creating the targt's preview)
 						if (diagramPresenter.SelectedShapes.Contains(connectorCI.OtherShape)) {
-							if (previewShapes.ContainsKey(connectorCI.OtherShape)) {
+							if (_previewShapes.ContainsKey(connectorCI.OtherShape)) {
 								Shape s = FindPreviewOfShape(connectorCI.OtherShape);
 								if (s.IsConnected(connectorCI.OtherPointId, previewTargetShape) == ControlPointId.None)
 									previewTargetShape.Connect(connectorCI.OwnPointId, s, connectorCI.OtherPointId);
@@ -1834,21 +1838,21 @@ namespace Dataweb.NShape {
 
 		private void SetSelectedShapeAtCursor(IDiagramPresenter diagramPresenter, int mouseX, int mouseY, int handleRadius, ControlPointCapabilities handleCapabilities) {
 			// Find the shape under the cursor
-			selectedShapeAtCursorInfo.Clear();
-			selectedShapeAtCursorInfo.Shape = diagramPresenter.SelectedShapes.FindShape(mouseX, mouseY, handleCapabilities, handleRadius, null);
+			_selectedShapeAtCursorInfo.Clear();
+			_selectedShapeAtCursorInfo.Shape = diagramPresenter.SelectedShapes.FindShape(mouseX, mouseY, handleCapabilities, handleRadius, null);
 
 			// If there is a shape under the cursor, find the nearest control point and caption
-			if (!selectedShapeAtCursorInfo.IsEmpty) {
+			if (!_selectedShapeAtCursorInfo.IsEmpty) {
 				ControlPointCapabilities capabilities;
 				if (CurrentMouseState.IsKeyPressed(KeysDg.Control)) capabilities = ControlPointCapabilities.Resize /*| ControlPointCapabilities.Movable*/;
 				else if (CurrentMouseState.IsKeyPressed(KeysDg.Shift)) capabilities = ControlPointCapabilities.Rotate;
-				else capabilities = gripCapabilities;
+				else capabilities = _gripCapabilities;
 
 				// Find control point at cursor that belongs to the selected shape at cursor
-				selectedShapeAtCursorInfo.ControlPointId = selectedShapeAtCursorInfo.Shape.FindNearestControlPoint(mouseX, mouseY, diagramPresenter.ZoomedGripSize, capabilities);
+				_selectedShapeAtCursorInfo.ControlPointId = _selectedShapeAtCursorInfo.Shape.FindNearestControlPoint(mouseX, mouseY, diagramPresenter.ZoomedGripSize, capabilities);
 				// Find caption at cursor (if the shape is a captioned shape)
-				if (selectedShapeAtCursorInfo.Shape is ICaptionedShape && ((ICaptionedShape)selectedShapeAtCursorInfo.Shape).CaptionCount > 0)
-					selectedShapeAtCursorInfo.CaptionIndex = ((ICaptionedShape)selectedShapeAtCursorInfo.Shape).FindCaptionFromPoint(mouseX, mouseY);
+				if (_selectedShapeAtCursorInfo.Shape is ICaptionedShape && ((ICaptionedShape)_selectedShapeAtCursorInfo.Shape).CaptionCount > 0)
+					_selectedShapeAtCursorInfo.CaptionIndex = ((ICaptionedShape)_selectedShapeAtCursorInfo.Shape).FindCaptionFromPoint(mouseX, mouseY);
 			}
 		}
 
@@ -1873,21 +1877,21 @@ namespace Dataweb.NShape {
 					// - Move grip cursor
 					// - Rotate cursor
 					// - Edit caption cursor
-					if (!selectedShapeAtCursorInfo.IsEmpty) {
+					if (!_selectedShapeAtCursorInfo.IsEmpty) {
 						// Check if cursor is over a caption and editing caption is feasible
-						if (IsEditCaptionFeasible(diagramPresenter, mouseState, selectedShapeAtCursorInfo))
+						if (IsEditCaptionFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
 							//return cursors[ToolCursor.EditCaption];
 							return cursors[ToolCursor.MoveShape];
 						// Check if cursor is over a control point and moving grips or rotating is feasible
-						if (selectedShapeAtCursorInfo.IsCursorAtGrip) {
-							if (IsMoveHandleFeasible(diagramPresenter, mouseState, selectedShapeAtCursorInfo))
+						if (_selectedShapeAtCursorInfo.IsCursorAtGrip) {
+							if (IsMoveHandleFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
 								return cursors[ToolCursor.MoveHandle];
-							else if (IsRotatatingFeasible(diagramPresenter, mouseState, selectedShapeAtCursorInfo))
+							else if (IsRotatatingFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
 								return cursors[ToolCursor.Rotate];
 							else return cursors[ToolCursor.Default];
 						}
 						// Check if cursor is inside the shape and move shape is feasible
-						if (IsMoveShapeFeasible(diagramPresenter, mouseState, selectedShapeAtCursorInfo))
+						if (IsMoveShapeFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
 							return cursors[ToolCursor.MoveShape];
 					}
 					return cursors[ToolCursor.Default];
@@ -1898,31 +1902,31 @@ namespace Dataweb.NShape {
 
 				case Action.EditCaption:
 #if DEBUG_DIAGNOSTICS
-					Assert(!SelectedShapeAtCursorInfo.IsEmpty);
-					Assert(SelectedShapeAtCursorInfo.Shape is ICaptionedShape);
+					Assert(!_selectedShapeAtCursorInfo.IsEmpty);
+					Assert(_selectedShapeAtCursorInfo.Shape is ICaptionedShape);
 #endif
 					// If the cursor is outside the caption, return default cursor
-					int captionIndex = ((ICaptionedShape)selectedShapeAtCursorInfo.Shape).FindCaptionFromPoint(mouseState.X, mouseState.Y);
-					if (captionIndex == selectedShapeAtCursorInfo.CaptionIndex)
+					int captionIndex = ((ICaptionedShape)_selectedShapeAtCursorInfo.Shape).FindCaptionFromPoint(mouseState.X, mouseState.Y);
+					if (captionIndex == _selectedShapeAtCursorInfo.CaptionIndex)
 						return cursors[ToolCursor.EditCaption];
 					else return cursors[ToolCursor.Default];
 
 				case Action.MoveHandle:
 #if DEBUG_DIAGNOSTICS
-					Assert(!SelectedShapeAtCursorInfo.IsEmpty);
-					Assert(SelectedShapeAtCursorInfo.IsCursorAtGrip);
+					Assert(!_selectedShapeAtCursorInfo.IsEmpty);
+					Assert(_selectedShapeAtCursorInfo.IsCursorAtGrip);
 #endif
-					if (selectedShapeAtCursorInfo.IsCursorAtGluePoint) {
-						Shape previewShape = FindPreviewOfShape(selectedShapeAtCursorInfo.Shape);
-						Point ptPos = previewShape.GetControlPointPosition(selectedShapeAtCursorInfo.ControlPointId);
+					if (_selectedShapeAtCursorInfo.IsCursorAtGluePoint) {
+						Shape previewShape = FindPreviewOfShape(_selectedShapeAtCursorInfo.Shape);
+						Point ptPos = previewShape.GetControlPointPosition(_selectedShapeAtCursorInfo.ControlPointId);
 						ShapeAtCursorInfo shapeAtCursorInfo = FindConnectionTarget(
 							diagramPresenter,
-							selectedShapeAtCursorInfo.Shape,
-							selectedShapeAtCursorInfo.ControlPointId,
+							_selectedShapeAtCursorInfo.Shape,
+							_selectedShapeAtCursorInfo.ControlPointId,
 							ptPos,
 							true,
 							false);
-						if (!shapeAtCursorInfo.IsEmpty && selectedShapeAtCursorInfo.CanConnect(shapeAtCursorInfo))
+						if (!shapeAtCursorInfo.IsEmpty && _selectedShapeAtCursorInfo.CanConnect(shapeAtCursorInfo))
 							return cursors[ToolCursor.Connect];
 					}
 					return cursors[ToolCursor.MoveHandle];
@@ -1948,25 +1952,25 @@ namespace Dataweb.NShape {
 			if (Previews.Count == 0 && diagramPresenter.SelectedShapes.Count > 0) {
 				// first, clone all selected shapes...
 				foreach (Shape shape in diagramPresenter.SelectedShapes) {
-					if (!diagramPresenter.IsLayerVisible(shape.Layers)) continue;
+					if (!diagramPresenter.IsLayerVisible(shape.HomeLayer, shape.SupplementalLayers)) continue;
 					AddPreview(shape, shape.Type.CreatePreviewInstance(shape), diagramPresenter.DisplayService);
 				}
 				// ...then restore connections between previews and connections between previews and non-selected shapes
-				targetShapeBuffer.Clear();
+				_targetShapeBuffer.Clear();
 				foreach (Shape selectedShape in diagramPresenter.SelectedShapes.BottomUp) {
-					if (!diagramPresenter.IsLayerVisible(selectedShape.Layers)) continue;
+					if (!diagramPresenter.IsLayerVisible(selectedShape.HomeLayer, selectedShape.SupplementalLayers)) continue;
 					// AttachGluePointToConnectionPoint the preview shape (and all it's cildren) to all the shapes the original shape was connected to
 					// Additionally, create previews for all connected shapes and connect these to the appropriate target shapes
 					ConnectPreviewOfShape(diagramPresenter, selectedShape);
 				}
-				targetShapeBuffer.Clear();
+				_targetShapeBuffer.Clear();
 			}
 		}
 
 
 		private void ResetPreviewShapes(IDiagramPresenter diagramPresenter) {
 			// Dictionary "originalShapes" contains the previewShape as "Key" and the original shape as "Value"
-			foreach (KeyValuePair<Shape, Shape> pair in originalShapes) {
+			foreach (KeyValuePair<Shape, Shape> pair in _originalShapes) {
 				// Copy all properties of the original shape to the preview shape 
 				// (assigns the original model object to the preview shape!)
 				IModelObject modelObj = pair.Value.ModelObject;
@@ -2141,11 +2145,8 @@ namespace Dataweb.NShape {
 
 
 		private void Construct() {
-			Title = "Pointer";
-			ToolTipText = "Select one or more objects by holding shift while clicking or drawing a frame."
-				+ Environment.NewLine
-				+ "Selected objects can be moved by dragging them to the target position or resized by dragging "
-				+ "a control point to the target position.";
+			Title = Dataweb.NShape.Properties.Resources.CaptionText_SelectionTool_Title;
+			ToolTipText = String.Format(Dataweb.NShape.Properties.Resources.CaptionFmt_SelectionTool_Description, Environment.NewLine);
 
 			SmallIcon = Properties.Resources.PointerIconSmall;
 			SmallIcon.MakeTransparent(Color.Fuchsia);
@@ -2153,7 +2154,7 @@ namespace Dataweb.NShape {
 			LargeIcon = Properties.Resources.PointerIconLarge;
 			LargeIcon.MakeTransparent(Color.Fuchsia);
 
-			frameRect = Rectangle.Empty;
+			_frameRect = Rectangle.Empty;
 		}
 
 		#endregion
@@ -2211,48 +2212,48 @@ namespace Dataweb.NShape {
 		// --- Description of the tool ---
 		private static Dictionary<ToolCursor, int> cursors;
 		//
-		OverlappingShapesAction overlappingShapesSelectionMode = OverlappingShapesAction.Cycle;
-		private bool enableQuickRotate = false;
-		private ControlPointCapabilities gripCapabilities = ControlPointCapabilities.Resize | ControlPointCapabilities.Rotate /*| ControlPointCapabilities.Movable*/;
+		private OverlappingShapesAction _overlappingShapesSelectionMode = OverlappingShapesAction.Cycle;
+		private bool _enableQuickRotate = false;
+		private ControlPointCapabilities _gripCapabilities = ControlPointCapabilities.Resize | ControlPointCapabilities.Rotate /*| ControlPointCapabilities.Movable*/;
 
 		// --- State after the last ProcessMouseEvent ---
 		// selected shape under the mouse cursor, being highlighted in the next drawing
-		private ShapeAtCursorInfo selectedShapeAtCursorInfo;
+		private ShapeAtCursorInfo _selectedShapeAtCursorInfo;
 		// Rectangle that represents the transformed selection area in control coordinates
-		private Rectangle frameRect;
+		private Rectangle _frameRect;
 		// Stores the distance the SelectedShape was moved on X-axis for snapping the nearest gridpoint
-		private int snapDeltaX;
+		private int _snapDeltaX;
 		// Stores the distance the SelectedShape was moved on Y-axis for snapping the nearest gridpoint
-		private int snapDeltaY;
+		private int _snapDeltaY;
 		// Index of the controlPoint that snapped to grid/point/swimline
-		private int snapPtId;
+		private int _snapPtId;
 
-		private ShapeAtCursorInfo previouslySelectedShapeAtCursor = ShapeAtCursorInfo.Empty;
-		private List<Shape> previouslySelectedShapes = new List<Shape>();
+		private ShapeAtCursorInfo _previouslySelectedShapeAtCursor = ShapeAtCursorInfo.Empty;
+		private List<Shape> _previouslySelectedShapes = new List<Shape>();
 
 		// For destincting single click / double click
-		private Timer deferredClickTimer = new Timer();
-		private ElapsedEventHandler deferredClickHandler = null;
+		private Timer _deferredClickTimer = new Timer();
+		private ElapsedEventHandler _deferredClickHandler = null;
 
 		// -- Definition of current action
 		// indicates the current action depending on the mouseButton State, selected selectedShapes and mouse movement
 		//private ToolAction currentToolAction = ToolAction.None;
 		// preview shapes (Key = original shape, Value = preview shape)
-		private Dictionary<Shape, Shape> previewShapes = new Dictionary<Shape, Shape>();
+		private Dictionary<Shape, Shape> _previewShapes = new Dictionary<Shape, Shape>();
 		// original shapes (Key = preview shape, Value = original shape)
-		private Dictionary<Shape, Shape> originalShapes = new Dictionary<Shape, Shape>();
+		private Dictionary<Shape, Shape> _originalShapes = new Dictionary<Shape, Shape>();
 		// 
 		// Specifies whether the currently calculated preview has been drawn. 
 		// As long as the calculated preview is not drawn yet, the new preview will not be calculated.
-		private MouseState previewMouseState = MouseState.Empty;
+		private MouseState _previewMouseState = MouseState.Empty;
 
 		// Buffers
 		// rectangle buffer 
-		private Rectangle rectBuffer;
+		private Rectangle _rectBuffer;
 		// used for buffering selectedShapes connected to the preview selectedShapes: key = passiveShape, values = targetShapes's clone
-		private Dictionary<Shape, Shape> targetShapeBuffer = new Dictionary<Shape, Shape>();
+		private Dictionary<Shape, Shape> _targetShapeBuffer = new Dictionary<Shape, Shape>();
 		// buffer used for storing connections that are temporarily disconnected for moving shapes
-		private List<ConnectionInfoBuffer> connectionsBuffer = new List<ConnectionInfoBuffer>();
+		private List<ConnectionInfoBuffer> _connectionsBuffer = new List<ConnectionInfoBuffer>();
 
 		#endregion
 	}

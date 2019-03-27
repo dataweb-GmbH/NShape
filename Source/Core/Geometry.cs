@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+ï»¿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -23,6 +23,22 @@ namespace Dataweb.NShape.Advanced {
 
 	/// <ToBeCompleted></ToBeCompleted>
 	public static class Geometry {
+
+		/// <summary>
+		/// Returns true if both numbers are regarded as equal.
+		/// </summary>
+		public static bool Equals(double a, double b) {
+			return Math.Abs(a - b) < EqualityDeltaDouble;
+		}
+
+
+		/// <summary>
+		/// Returns true if both numbers are regarded as equal.
+		/// </summary>
+		public static bool Equals(float a, float b) {
+			return Math.Abs(a - b) < EqualityDeltaFloat;
+		}
+
 
 		#region Calculations with Rectangles
 
@@ -167,7 +183,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="transformedDeltaY">Transformed mouse movement on Y axis</param>
 		/// <param name="sin">Sinus value of the given angle</param>
 		/// <param name="cos">Cosinus value of the given angle</param>
-		[Obsolete("Use the other version of TransformmouseMovement in conjunction with AlignMovement instead.")]
+		[Obsolete("Use the other version of TransformMouseMovement in conjunction with AlignMovement instead.")]
 		public static bool TransformMouseMovement(int deltaX, int deltaY, int angleTenthsOfDeg, ResizeModifiers modifiers, int divFactorX, int divFactorY, 
 			out float transformedDeltaX, out float transformedDeltaY, out float sin, out float cos) {
 			TransformMouseMovement(deltaX, deltaY, angleTenthsOfDeg, out transformedDeltaX, out transformedDeltaY, out sin, out cos);
@@ -1130,7 +1146,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates the cross product a x b
 		/// </summary>
 		/// <remarks>
-		/// What we actually calculate here is the z coordinate of the cross product vector in R³
+		/// What we actually calculate here is the z coordinate of the cross product vector in RÂ³
 		/// with aZ and bZ assumed to be zero. Result is the size of the area of the parallelogram A B A' B'
 		/// </remarks>
 		public static int VectorCrossProduct(int aX, int aY, int bX, int bY) {
@@ -1260,14 +1276,23 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="pY">y coordinate of normal vector end point</param>
 		// The direction of the resulting vector should point towards the half-plane that does not contain the origin.
 		public static void CalcNormalVectorOfLine(int x1, int y1, int x2, int y2, int fX, int fY, int vectorLength, out int pX, out int pY) {
-			int a, b, c;
-			CalcLine(x1, y1, x2, y2, out a, out b, out c);
-			double l;
-			if (a == 0 && b == 0) l = 1;
-			else l = Math.Sqrt(a * a + b * b);
-			// Since a, b, c is (almost) the Hesse normal form, (a, b) is the normal vector of A-B.
-			pX = (int)(fX + vectorLength * a / l);
-			pY = (int)(fY + vectorLength * b / l);
+			//// Original version, changes the normal's direction depending on the line's slope :(
+			//int a, b, c;
+			//CalcLine(x1, y1, x2, y2, out a, out b, out c);
+			//double l;
+			//if (a == 0 && b == 0) l = 1;
+			//else l = Math.Sqrt(a * a + b * b);
+			//// Since a, b, c is (almost) the Hesse normal form, (a, b) is the normal vector of A-B.
+			//pX = (int)Math.Round(fX + vectorLength * a / l);
+			//pY = (int)Math.Round(fY + vectorLength * b / l);
+
+			// New Version
+			Point normalFoot = Geometry.CalcPointOnLine(x1, y1, x2, y2, vectorLength);
+			int dx = normalFoot.X - x1;
+			int dy = normalFoot.Y - y1;
+			// The normals are (-dy, dx) and (dy, -dx).
+			pX = fX + dy;
+			pY = fY - dx;
 		}
 
 
@@ -1485,11 +1510,11 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Tests if point p is inside the given rectangle. The bounds of the rectangle can be excluded.
 		/// </summary>
-		public static bool RectangleContainsPoint(int rectX, int rectY, int rectWidth, int rectHeight, float rectRotationAngle, int pX, int pY, bool withBounds) {
-			if (rectRotationAngle != 0 && rectRotationAngle % 180 != 0) {
+		public static bool RectangleContainsPoint(int rectX, int rectY, int rectWidth, int rectHeight, float rectRotationAngleDeg, int pX, int pY, bool withBounds) {
+			if (rectRotationAngleDeg != 0 && rectRotationAngleDeg % 180 != 0) {
 				float x = pX;
 				float y = pY;
-				RotatePoint(rectX + (rectWidth / 2f), rectY + (rectHeight / 2f), -rectRotationAngle, ref x, ref y);
+				RotatePoint(rectX + (rectWidth / 2f), rectY + (rectHeight / 2f), -rectRotationAngleDeg, ref x, ref y);
 				return RectangleContainsPoint(rectX, rectY, rectWidth, rectHeight, x, y);
 			} else return RectangleContainsPoint(rectX, rectY, rectWidth, rectHeight, pX, pY);
 		}
@@ -1964,7 +1989,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <returns></returns>
 		public static bool EllipseContainsPoint(float ellipseCenterX, float ellipseCenterY, float ellipseWidth, float ellipseHeight, float ellipseAngleDeg, float x, float y) {
 			// Standard ellipse formula:
-			// (x² / a²) + (y² / b²) = 1
+			// (xÂ² / aÂ²) + (yÂ² / bÂ²) = 1
 			// Where a = radiusX and b = radiusY
 			float radiusX = ellipseWidth / 2f;
 			float radiusY = ellipseHeight / 2f;
@@ -2004,7 +2029,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <returns></returns>
 		public static bool EllipseContainsPoint(int ellipseCenterX, int ellipseCenterY, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, int x, int y) {
 			// Standard ellipse formula:
-			// (x² / a²) + (y² / b²) = 1
+			// (xÂ² / aÂ²) + (yÂ² / bÂ²) = 1
 			// Where a = radiusX and b = radiusY
 			float radiusX = ellipseWidth / 2f;
 			float radiusY = ellipseHeight / 2f;
@@ -2323,8 +2348,8 @@ namespace Dataweb.NShape.Advanced {
 
 			// Wenn det == 0 ist, sind die Linien parallel. 
 			if (det == 0) {
-				// Wenn die Linien gegensinnig laufen, also die Vektoren die Beträge [10|10] und [-10|-10] haben, schneiden sie 
-				// sich zwangsläufig - vorausgesetzt sie sind nicht parallel verschoben!
+				// Wenn die Linien gegensinnig laufen, also die Vektoren die BetrÃ¤ge [10|10] und [-10|-10] haben, schneiden sie 
+				// sich zwangslÃ¤ufig - vorausgesetzt sie sind nicht parallel verschoben!
 				if (line1Vec.X == -line2Vec.X && line1Vec.Y == -line2Vec.Y) {
 					float m1, m2, c1, c2;
 					Geometry.CalcLine(line1StartX, line1StartY, line1EndX, line1EndY, out m1, out c1);
@@ -2336,7 +2361,7 @@ namespace Dataweb.NShape.Advanced {
 			// Determinante det's berechnen 
 			int ds = (line2StartY - line1StartY) * line2Vec.X - (line2StartX - line1StartX) * line2Vec.Y;
 
-			// detdet / det berechnen und prüfen, ob s in den Grenzen liegt 
+			// detdet / det berechnen und prÃ¼fen, ob s in den Grenzen liegt 
 			float s = ds / (float)det;
 			if (s < 0.0f || s > 1.0f)
 				return false;
@@ -2376,8 +2401,8 @@ namespace Dataweb.NShape.Advanced {
 
 			// Wenn det == 0 ist, sind die Linien parallel. 
 			if (det == 0) {
-				// Wenn die Linien gegensinnig laufen, also die Vektoren die Beträge [10|10] und [-10|-10] haben, schneiden sie 
-				// sich zwangsläufig - vorausgesetzt sie sind nicht parallel verschoben!
+				// Wenn die Linien gegensinnig laufen, also die Vektoren die BetrÃ¤ge [10|10] und [-10|-10] haben, schneiden sie 
+				// sich zwangslÃ¤ufig - vorausgesetzt sie sind nicht parallel verschoben!
 				if (line1Vec.X == -line2Vec.X && line1Vec.Y == -line2Vec.Y) {
 					float m1, m2, c1, c2;
 					Geometry.CalcLine(line1StartX, line1StartY, line1EndX, line1EndY, out m1, out c1);
@@ -2389,7 +2414,7 @@ namespace Dataweb.NShape.Advanced {
 			// Determinante det's berechnen 
 			float detdet = (line2StartY - line1StartY) * line2Vec.X - (line2StartX - line1StartX) * line2Vec.Y;
 
-			// detdet / det berechnen und prüfen, ob das Ergebnis in den Grenzen liegt
+			// detdet / det berechnen und prÃ¼fen, ob das Ergebnis in den Grenzen liegt
 			float s = detdet / (float)det;
 			if (s < 0.0f || s > 1.0f)
 				return false;
@@ -2482,7 +2507,7 @@ namespace Dataweb.NShape.Advanced {
 		/// If isSegmnt is true, the line is treated as line segment.
 		/// </summary>
 		public static bool RectangleIntersectsWithLine(Rectangle rectangle, int pt1X, int pt1Y, int pt2X, int pt2Y, bool isSegment) {
-			// Strecke schneidet das Rechteck, wenn das Recteck einen der Linien-Endpunkte enthält 
+			// Strecke schneidet das Rechteck, wenn das Recteck einen der Linien-Endpunkte enthÃ¤lt 
 			// oder wenn sie eine der Seiten schneidet
 			if (RectangleContainsPoint(rectangle, pt1X, pt1Y) || RectangleContainsPoint(rectangle, pt2X, pt2Y))
 				return true;
@@ -2523,7 +2548,7 @@ namespace Dataweb.NShape.Advanced {
 		/// If isSegmnt is true, the line is treated as line segment.
 		/// </summary>
 		public static bool RectangleIntersectsWithLine(RectangleF rectangle, float pt1X, float pt1Y, float pt2X, float pt2Y, bool isSegment) {
-			// Strecke schneidet das Rechteck, wenn das Recteck einen der Linien-Endpunkte enthält 
+			// Strecke schneidet das Rechteck, wenn das Recteck einen der Linien-Endpunkte enthÃ¤lt 
 			// oder wenn sie eine der Seiten schneidet
 			if (RectangleContainsPoint(rectangle, pt1X, pt1Y) || RectangleContainsPoint(rectangle, pt2X, pt2Y))
 				return true;
@@ -3003,7 +3028,7 @@ namespace Dataweb.NShape.Advanced {
 			ellipseTop.Y = (int)Math.Round(ellipseCenterY - (ellipseHeight / 2f));
 			ellipseBottom.Y = ellipseTop.Y + ellipseHeight;
 			if (ellipseAngleDeg % 180 != 0) {
-				// No need to rotate any points if the ellipse is upside down or rotated by 360°
+				// No need to rotate any points if the ellipse is upside down or rotated by 360Â°
 				Point ellipseCenter = Point.Empty;
 				ellipseCenter.X = ellipseCenterX; ellipseCenter.Y = ellipseCenterY;
 				ellipseLeft = RotatePoint(ellipseCenter, ellipseAngleDeg, ellipseLeft);
@@ -3488,7 +3513,7 @@ namespace Dataweb.NShape.Advanced {
 				result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX2, rectY1, rectX2, rectY2);
 			} else if (lineY2 <= rectY1 || lineY2 >= rectY2 || lineX2 <= rectX1 || lineX2 >= rectX2) {
 				result = IntersectLineWithRectangle(lineX2, lineY2, lineX1, lineY1, rectX1, rectY1, rectX2, rectY2);
-			} else { // Beide sind innen, wir verlängern die Gerade über X2, Y2 hinaus
+			} else { // Beide sind innen, wir verlÃ¤ngern die Gerade Ã¼ber X2, Y2 hinaus
 				int newLineX1, newLineY1;
 				if (Math.Abs(lineX2 - lineX1) >= Math.Abs(lineY2 - lineY1)) { // X in den Nenner, Y durch Rechteck bestimmen
 					if (lineX2 >= lineX1) newLineX1 = lineX1 + rectX2 - rectX1;
@@ -4234,7 +4259,7 @@ namespace Dataweb.NShape.Advanced {
 			// Abstand des Lotpunktes von linePt1 in Richtung linePt2
 			float d = DistancePointPoint(p, a) * (float)Math.Cos(Angle(a, p, b));
 			// Falls ja ist der Abstand gleich dem Abstand von der Geraden
-			// Falls nein ist der Abstand der zum näher liegenden Strecken-Endpunkt.
+			// Falls nein ist der Abstand der zum nÃ¤her liegenden Strecken-Endpunkt.
 			if (d < 0)
 				result = DistancePointPoint(p, a);
 			else if (d > DistancePointPoint(b, a))
@@ -4248,13 +4273,13 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the distance of point p from the line segment a to b. The result is always >= 0.
 		/// </summary>
-		public static float DistancePointLineLineSegment2(int pX, int pY, int aX, int aY, int bX, int bY) {
+		public static float DistancePointLineSegment2(int pX, int pY, int aX, int aY, int bX, int bY) {
 			float result;
 			// Liegt der Lotpunkt auf der Strecke?
 			// Abstand des Lotpunktes von linePt1 in Richtung linePt2
 			float d = DistancePointPoint(pX, pY, aX, aY) * (float)Math.Cos(Angle(aX, aY, pX, pY, bX, bY));
 			// Falls ja ist der Abstand gleich dem Abstand von der Geraden
-			// Falls nein ist der Abstand der zum näher liegenden Strecken-Endpunkt.
+			// Falls nein ist der Abstand der zum nÃ¤her liegenden Strecken-Endpunkt.
 			if (d < 0)
 				result = DistancePointPoint(pX, pY, aX, aY);
 			else if (d > DistancePointPoint(bX, bY, aX, aY))
@@ -4965,9 +4990,9 @@ namespace Dataweb.NShape.Advanced {
 			float bottom = int.MinValue;
 			foreach (PointF p in points) {
 				if (p.X < left) left = p.X;
-				else if (p.X > right) right = p.X;
+				if (p.X > right) right = p.X;
 				if (p.Y < top) top = p.Y;
-				else if (p.Y > bottom) bottom = p.Y;
+				if (p.Y > bottom) bottom = p.Y;
 			}
 			rectangle.X = floor ? (int)Math.Ceiling(left) : (int)Math.Floor(left);
 			rectangle.Y = floor ? (int)Math.Ceiling(top) : (int)Math.Floor(top);
@@ -5479,7 +5504,7 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		// Löst das lineare Gleichungssystem Ax + b = 0
+		// LÃ¶st das lineare Gleichungssystem Ax + b = 0
 		/// <ToBeCompleted></ToBeCompleted>
 		public static bool SolveLinear22System(int a11, int a12, int a21, int a22, int b1, int b2, out int x, out int y) {
 			bool result = false;

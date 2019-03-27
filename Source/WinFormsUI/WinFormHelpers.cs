@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -165,7 +165,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			if (actions == null) throw new ArgumentNullException("actions");
 			if (project == null) throw new ArgumentNullException("project");
 			MenuItemDef lastMenuItemDef = null;
-			// Attention!!
+			// Caution!!
 			// We have to iterate manually instead of unsing foreach here because otherwise always the least 
 			// processed action's Execute method will be called.
 			IEnumerator<MenuItemDef> enumerator = actions.GetEnumerator();
@@ -190,7 +190,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		public static IEnumerable<ToolStripItem> GetContextMenuItemsFromActions(IEnumerable<MenuItemDef> actions, Project project) {
 			if (actions == null) throw new ArgumentNullException("actions");
 			if (project == null) throw new ArgumentNullException("project");
-			// Attention!!
+			// Caution!!
 			// We have to iterate manually instead of unsing foreach here because otherwise always the least 
 			// processed action's Execute method will be called.
 			IEnumerator<MenuItemDef> enumerator = actions.GetEnumerator();
@@ -319,43 +319,44 @@ namespace Dataweb.NShape.WinFormsUI {
 				if ((mouseButtons & MouseButtons.Right) > 0) btns |= MouseButtonsDg.Right;
 				if ((mouseButtons & MouseButtons.XButton1) > 0) btns |= MouseButtonsDg.ExtraButton1;
 				if ((mouseButtons & MouseButtons.XButton2) > 0) btns |= MouseButtonsDg.ExtraButton2;
-				this.buttons = btns;
+				Buttons = btns;
 			}
 
 
 			public void SetClicks(int clicks) {
-				this.clicks = clicks;
+				Clicks = clicks;
 			}
 
 
 			public void SetEventType(MouseEventType eventType) {
-				this.eventType = eventType;
+				EventType = eventType;
 			}
 
 
 			public void SetPosition(int x, int y) {
-				this.position.X = x;
-				this.position.Y = y;
+				Point p = Point.Empty;
+				p.Offset(x, y);
+				Position = p;
 			}
 
 
 			public void SetWheelDelta(int delta) {
-				this.wheelDelta = delta;
+				WheelDelta = delta;
 			}
 
 
 			public void SetModifiers(KeysDg modifiers) {
-				this.modifiers = modifiers;
+				Modifiers = modifiers;
 			}
 
 
 			public void Assign(MouseEventArgsDg mouseEventArgs) {
-				this.buttons = mouseEventArgs.Buttons;
-				this.clicks = mouseEventArgs.Clicks;
-				this.eventType = mouseEventArgs.EventType;
-				this.modifiers = mouseEventArgs.Modifiers;
-				this.position = mouseEventArgs.Position;
-				this.wheelDelta = mouseEventArgs.WheelDelta;
+				Buttons = mouseEventArgs.Buttons;
+				Clicks = mouseEventArgs.Clicks;
+				EventType = mouseEventArgs.EventType;
+				Modifiers = mouseEventArgs.Modifiers;
+				Position = mouseEventArgs.Position;
+				WheelDelta = mouseEventArgs.WheelDelta;
 			}
 		}
 
@@ -368,17 +369,17 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 			public void SetKeyData(int keyData) {
-				this.keyData = keyData;
+				KeyData = keyData;
 			}
 
 
 			public void SetKeyChar(char keyChar) {
-				this.keyChar = keyChar;
+				KeyChar = keyChar;
 			}
 
 
 			public void SetEventType(KeyEventType eventType) {
-				this.eventType = eventType;
+				EventType = eventType;
 			}
 		}
 

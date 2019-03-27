@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2014 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -32,6 +32,8 @@ namespace Dataweb.NShape.Designer {
 
 		static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e) {
 			if (e.Exception is System.ComponentModel.WarningException) throw e.Exception;
+			else if (e.Exception is NShapeSecurityException)
+				MessageBox.Show(e.Exception.Message, "Permission denied", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			else {
 				string errorMessage = e.Exception.Message + Environment.NewLine + "Do you want to terminate the application?";
 				if (MessageBox.Show(errorMessage, "Unhandled Exception", MessageBoxButtons.YesNo, MessageBoxIcon.Error) == DialogResult.Yes)

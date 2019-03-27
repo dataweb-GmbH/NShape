@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -50,8 +50,8 @@ namespace Dataweb.NShape.GeneralShapes {
 		/// <override></override>
 		protected override void InitializeToDefault(IStyleSet styleSet) {
 			base.InitializeToDefault(styleSet);
-			bodyHeightRatio = 1d / 3d;
-			headWidth = (int)Math.Round(Width / 2f);
+			_bodyHeightRatio = 1d / 3d;
+			_headWidth = (int)Math.Round(Width / 2f);
 		}
 
 
@@ -59,8 +59,8 @@ namespace Dataweb.NShape.GeneralShapes {
 		public override void CopyFrom(Shape source) {
 			base.CopyFrom(source);
 			if (source is ThickArrow) {
-				this.headWidth = ((ThickArrow)source).headWidth;
-				this.bodyHeightRatio = ((ThickArrow)source).bodyHeightRatio;
+				this._headWidth = ((ThickArrow)source)._headWidth;
+				this._bodyHeightRatio = ((ThickArrow)source)._bodyHeightRatio;
 			}
 			InvalidateDrawCache();
 		}
@@ -75,22 +75,23 @@ namespace Dataweb.NShape.GeneralShapes {
 
 
 		public int BodyWidth {
-			get { return Width - headWidth; }
+			get { return Width - _headWidth; }
 		}
 
 
 		[CategoryLayout()]
-		[Description("The height of the arrow's body.")]
+		[LocalizedDisplayName("PropName_ThickArrow_BodyHeight", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_ThickArrow_BodyHeight", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdBodyHeight)]
 		[RequiredPermission(Permission.Layout)]
 		public int BodyHeight {
-			get { return (int)Math.Round(Height * bodyHeightRatio); }
+			get { return (int)Math.Round(Height * _bodyHeightRatio); }
 			set {
 				Invalidate();
 				if (value > Height) throw new ArgumentOutOfRangeException("BodyHeight");
 
-				if (Height == 0) bodyHeightRatio = 0;
-				else bodyHeightRatio = value / (float)Height;
+				if (Height == 0) _bodyHeightRatio = 0;
+				else _bodyHeightRatio = value / (float)Height;
 				
 				InvalidateDrawCache();
 				Invalidate();
@@ -99,14 +100,15 @@ namespace Dataweb.NShape.GeneralShapes {
 
 
 		[CategoryLayout()]
-		[Description("The width of the arrow's tip.")]
+		[LocalizedDisplayName("PropName_ThickArrow_HeadWidth", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_ThickArrow_HeadWidth", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdHeadWidth)]
 		[RequiredPermission(Permission.Layout)]
 		public int HeadWidth {
-			get { return headWidth; }
+			get { return _headWidth; }
 			set {
 				Invalidate();
-				headWidth = value;
+				_headWidth = value;
 				InvalidateDrawCache();
 				Invalidate();
 			}
@@ -163,13 +165,13 @@ namespace Dataweb.NShape.GeneralShapes {
 			Matrix.Reset();
 			Matrix.Translate(X, Y, MatrixOrder.Prepend);
 			Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), rotationCenter, MatrixOrder.Append);
-			Matrix.TransformPoints(shapePoints);
+			Matrix.TransformPoints(_shapePoints);
 			Matrix.Reset();
 
 			Point startPoint = Point.Empty;
 			startPoint.X = startX;
 			startPoint.Y = startY;
-			Point result = Geometry.GetNearestPoint(startPoint, Geometry.IntersectPolygonLine(shapePoints, startX, startY, X, Y, true));
+			Point result = Geometry.GetNearestPoint(startPoint, Geometry.IntersectPolygonLine(_shapePoints, startX, startY, X, Y, true));
 			if (!Geometry.IsValid(result)) result = Center;
 			return result;
 		}
@@ -239,7 +241,7 @@ namespace Dataweb.NShape.GeneralShapes {
 				Path.Reset();
 				CalcShapePoints();
 				Path.StartFigure();
-				Path.AddPolygon(shapePoints);
+				Path.AddPolygon(_shapePoints);
 				Path.CloseFigure();
 				return true;
 			} else return false;
@@ -254,9 +256,9 @@ namespace Dataweb.NShape.GeneralShapes {
 				Matrix.Reset();
 				Matrix.Translate(X, Y, MatrixOrder.Prepend);
 				Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Center, MatrixOrder.Append);
-				Matrix.TransformPoints(shapePoints);
+				Matrix.TransformPoints(_shapePoints);
 
-				return Geometry.PolygonContainsPoint(shapePoints, x, y);
+				return Geometry.PolygonContainsPoint(_shapePoints, x, y);
 			} return false;
 		}
 
@@ -266,7 +268,7 @@ namespace Dataweb.NShape.GeneralShapes {
 			Rectangle result = Geometry.InvalidRectangle;
 			if (Width >= 0 && Height >= 0) {
 				CalcShapePoints();
-				Geometry.CalcBoundingRectangle(shapePoints, 0, 0, Geometry.TenthsOfDegreeToDegrees(Angle), out result);
+				Geometry.CalcBoundingRectangle(_shapePoints, 0, 0, Geometry.TenthsOfDegreeToDegrees(Angle), out result);
 				if (Geometry.IsValid(result)) {
 					result.Offset(X, Y);
 					ShapeUtils.InflateBoundingRectangle(ref result, LineStyle);
@@ -336,9 +338,9 @@ namespace Dataweb.NShape.GeneralShapes {
 				Point endPt = GetControlPointPosition(ControlPointIds.BodyEndControlPoint);
 
 				if (pointId == ControlPointIds.ArrowTipControlPoint)
-					result = Geometry.MoveArrowPoint(Center, tipPt, endPt, angle, headWidth, 0.5f, deltaX, deltaY, modifiers, out dx, out dy, out width, out angle);
+					result = Geometry.MoveArrowPoint(Center, tipPt, endPt, angle, _headWidth, 0.5f, deltaX, deltaY, modifiers, out dx, out dy, out width, out angle);
 				else
-					result = Geometry.MoveArrowPoint(Center, endPt, tipPt, angle, headWidth, 0.5f, deltaX, deltaY, modifiers, out dx, out dy, out width, out angle);
+					result = Geometry.MoveArrowPoint(Center, endPt, tipPt, angle, _headWidth, 0.5f, deltaX, deltaY, modifiers, out dx, out dy, out width, out angle);
 
 				RotateCore(angle - Angle, X, Y);
 				MoveByCore(dx, dy);
@@ -396,8 +398,8 @@ namespace Dataweb.NShape.GeneralShapes {
 				default:
 					return base.MovePointByCore(pointId, transformedDeltaX, transformedDeltaY, sin, cos, modifiers);
 			}
-			if (width < headWidth) {
-				width = headWidth;
+			if (width < _headWidth) {
+				width = _headWidth;
 				result = false;
 			}
 			MoveByCore(dx, dy);
@@ -431,32 +433,32 @@ namespace Dataweb.NShape.GeneralShapes {
 			int halfBodyHeight = (int)Math.Round(BodyHeight / 2f);
 
 			// head tip
-			shapePoints[0].X = left;
-			shapePoints[0].Y = 0;
+			_shapePoints[0].X = left;
+			_shapePoints[0].Y = 0;
 
 			// head side tip (top)
-			shapePoints[1].X = right - BodyWidth;
-			shapePoints[1].Y = top;
+			_shapePoints[1].X = right - BodyWidth;
+			_shapePoints[1].Y = top;
 
 			// head / body connection point
-			shapePoints[2].X = right - BodyWidth;
-			shapePoints[2].Y = -halfBodyHeight;
+			_shapePoints[2].X = right - BodyWidth;
+			_shapePoints[2].Y = -halfBodyHeight;
 
 			// body corner (top)
-			shapePoints[3].X = right;
-			shapePoints[3].Y = -halfBodyHeight;
+			_shapePoints[3].X = right;
+			_shapePoints[3].Y = -halfBodyHeight;
 
 			// body corner (bottom)
-			shapePoints[4].X = right;
-			shapePoints[4].Y = halfBodyHeight;
+			_shapePoints[4].X = right;
+			_shapePoints[4].Y = halfBodyHeight;
 
 			// head / body connection point
-			shapePoints[5].X = right - BodyWidth;
-			shapePoints[5].Y = halfBodyHeight;
+			_shapePoints[5].X = right - BodyWidth;
+			_shapePoints[5].Y = halfBodyHeight;
 
 			// head side tip (bottom)
-			shapePoints[6].X = right - BodyWidth;
-			shapePoints[6].Y = bottom;
+			_shapePoints[6].X = right - BodyWidth;
+			_shapePoints[6].Y = bottom;
 		}
 
 
@@ -465,12 +467,12 @@ namespace Dataweb.NShape.GeneralShapes {
 		protected const int PropertyIdBodyHeight = 9;
 		protected const int PropertyIdHeadWidth = 10;
 
-		private Point newTipPos = Point.Empty;
-		private Point oldTipPos = Point.Empty;
+		private Point _newTipPos = Point.Empty;
+		private Point _oldTipPos = Point.Empty;
 
-		private Point[] shapePoints = new Point[7];
-		private int headWidth;
-		private double bodyHeightRatio;
+		private Point[] _shapePoints = new Point[7];
+		private int _headWidth;
+		private double _bodyHeightRatio;
 		#endregion
 	}
 

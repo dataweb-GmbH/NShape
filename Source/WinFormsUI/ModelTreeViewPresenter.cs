@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -842,7 +842,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <param name="modelObject"></param>
 		public ModelObjectDragInfo(IModelObject modelObject) {
 			if (modelObject == null) throw new ArgumentNullException("modelObject");
-			this.modelObject = modelObject;
+			this._modelObject = modelObject;
 		}
 
 
@@ -850,11 +850,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the dragged model object.
 		/// </summary>
 		public IModelObject ModelObject {
-			get { return modelObject; }
+			get { return _modelObject; }
 		}
 
 
-		private IModelObject modelObject;
+		private IModelObject _modelObject;
 	}
 
 
@@ -863,38 +863,38 @@ namespace Dataweb.NShape.WinFormsUI {
 	internal class ModelTreeAdapterSelectedObjects : ICollection<IModelObject> {
 
 		public ModelTreeAdapterSelectedObjects(TreeView treeView) {
-			this.treeView = treeView;
+			this._treeView = treeView;
 		}
 
 		#region ICollection<IModelObject> Members
 
 		public void Add(IModelObject item) {
 			TreeNode node = null;
-			foreach (TreeNode n in treeView.Nodes) {
+			foreach (TreeNode n in _treeView.Nodes) {
 				if (n.Tag == item) {
 					node = n;
 					break;
 				}
 			}
-			treeView.SelectedNode = node;
+			_treeView.SelectedNode = node;
 		}
 
 		public void Clear() {
-			treeView.SelectedNode = null;
+			_treeView.SelectedNode = null;
 		}
 
 		public bool Contains(IModelObject item) {
-			return (treeView.SelectedNode.Tag == item);
+			return (_treeView.SelectedNode.Tag == item);
 		}
 
 		public void CopyTo(IModelObject[] array, int arrayIndex) {
 			if (arrayIndex >= array.Length)
 				throw new ArgumentOutOfRangeException("arrayIndex");
-			array[arrayIndex] = (IModelObject)treeView.SelectedNode.Tag;
+			array[arrayIndex] = (IModelObject)_treeView.SelectedNode.Tag;
 		}
 
 		public int Count {
-			get { return (treeView.SelectedNode == null) ? 0 : 1; }
+			get { return (_treeView.SelectedNode == null) ? 0 : 1; }
 		}
 
 		public bool IsReadOnly {
@@ -903,8 +903,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		public bool Remove(IModelObject item) {
 			bool result = false;
-			if (treeView.SelectedNode != null) {
-				treeView.SelectedNode = null;
+			if (_treeView.SelectedNode != null) {
+				_treeView.SelectedNode = null;
 				result = true;
 			}
 			return result;
@@ -915,7 +915,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region IEnumerable<IModelObject> Members
 
 		public IEnumerator<IModelObject> GetEnumerator() {
-			foreach (TreeNode node in treeView.Nodes)
+			foreach (TreeNode node in _treeView.Nodes)
 				yield return (IModelObject)node.Tag;
 			//return new ModelTreeWindowsEnumerator(treeView);
 		}
@@ -925,7 +925,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region IEnumerable Members
 
 		IEnumerator IEnumerable.GetEnumerator() {
-			foreach (TreeNode node in treeView.Nodes)
+			foreach (TreeNode node in _treeView.Nodes)
 				yield return (IModelObject)node.Tag;
 			//return new ModelTreeWindowsEnumerator(treeView);
 		}
@@ -933,8 +933,9 @@ namespace Dataweb.NShape.WinFormsUI {
 		#endregion
 
 		#region Fields
-		private TreeView treeView;
+		private TreeView _treeView;
 		#endregion
 	}
+
 	#endregion
 }

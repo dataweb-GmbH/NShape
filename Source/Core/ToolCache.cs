@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -135,30 +135,6 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		///// <summary>
-		///// Finds and returns the <see cref="T:System.Drawing.Brush" /> for the given <see cref="T:Dataweb.NShape.IFillStyle" />. 
-		///// The <see cref="T:System.Drawing.Brush" /> will be translated, scaled and rotated.
-		///// </summary>
-		///// <param name="fillStyle">Specifies the <see cref="T:Dataweb.NShape.IFillStyle" /> the brush belongs to.</param>
-		///// <param name="unrotatedBounds">Specifies the x axis aligned bounding rectangle of the unrotated shape.</param>
-		///// <param name="rotatedBounds">Specifies the x axis aligned bounding rectangle of the rotated shape.</param>
-		///// <param name="angle">Specifies the rotation angle in tenths of degrees.</param>
-		//public static Brush GetTransformedBrush(IFillStyle fillStyle, PointF center, Rectangle rotatedBounds, int angle) {
-		//    if (fillStyle == null) throw new ArgumentNullException("fillStyle");
-
-		//    Brush brush = GetBrush(fillStyle);
-		//    float angleDeg = Geometry.TenthsOfDegreeToDegrees(angle);
-		//    if (brush is LinearGradientBrush)
-		//        GdiHelpers.TransformLinearGradientBrush((LinearGradientBrush)brush, fillStyle.GradientAngle, center, rotatedBounds, angleDeg);
-		//    else if (brush is PathGradientBrush)
-		//        GdiHelpers.TransformPathGradientBrush((PathGradientBrush)brush, rotatedBounds, Point.Round(center), angleDeg);
-		//    else if (brush is TextureBrush) {
-		//        GdiHelpers.TransformTextureBrush2((TextureBrush)brush, 45, center, rotatedBounds, angleDeg);
-		//    }
-		//    return brush;
-		//}
-
-
 		/// <summary>
 		/// Returns the untransformed axis aligned bounding rectangle of the line cap defined by the given styles.
 		/// </summary>
@@ -197,6 +173,30 @@ namespace Dataweb.NShape.Advanced {
 			else if (capPoints.Length != capPath.PointCount)
 				Array.Resize(ref capPoints, capPath.PointCount);
 			Array.Copy(capPath.PathPoints, capPoints, capPoints.Length);
+		}
+
+
+		/// <summary>
+		/// Finds and returns the <see cref="T:System.Drawing.Drawing2D.GraphicsPath" /> used for creating the line cap for the given cap style. 
+		/// Can be used for drawing the line cap's interior.
+		/// </summary>
+		public static GraphicsPath GetCapPath(ICapStyle capStyle, ILineStyle lineStyle) {
+			if (capStyle == null) throw new ArgumentNullException("capStyle");
+			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+
+			// Build CapKey
+			CapKey capKey;
+			capKey.CapStyle = capStyle;
+			capKey.LineStyle = lineStyle;
+			// Find/create CapPath
+			GraphicsPath capPath;
+			if (!capPathCache.TryGetValue(capKey, out capPath)) {
+				// Scale GraphicsPath down for correcting the automatic scaling that is applied to
+				// LineCaps by GDI+ when altering the LineWidth of the pen
+				CalcCapShape(ref capPath, capStyle.CapShape, capStyle.CapSize * (1f / lineStyle.LineWidth));
+				capPathCache.Add(capKey, capPath);
+			}
+			return capPath;
 		}
 
 
@@ -708,30 +708,6 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		internal static GraphicsPath GetCapPath(ICapStyle capStyle, ILineStyle lineStyle) {
-			if (capStyle == null) throw new ArgumentNullException("capStyle");
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
-
-			// Build CapKey
-			CapKey capKey;
-			capKey.CapStyle = capStyle;
-			capKey.LineStyle = lineStyle;
-			// Find/create CapPath
-			GraphicsPath capPath;
-			if (!capPathCache.TryGetValue(capKey, out capPath)) {
-				CalcCapShape(ref capPath, capStyle.CapShape, capStyle.CapSize);
-				// Scale GraphicsPath down for correcting the automatic scaling that is applied to
-				// LineCaps by GDI+ when altering the LineWidth of the pen
-				matrix.Reset();
-				matrix.Scale(1f / lineStyle.LineWidth, 1f / lineStyle.LineWidth);
-				capPath.Transform(matrix);
-
-				capPathCache.Add(capKey, capPath);
-			}
-			return capPath;
-		}
-
-
 		private static void SetLineCap(Pen pen, ILineStyle lineStyle, ICapStyle capStyle, bool isStartCap) {
 			if (pen == null) throw new ArgumentNullException("pen");
 			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
@@ -771,7 +747,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="capPath">Reference of the GraphicsPath to (re)calculate</param>
 		/// <param name="capShape">Desired shape of the LineCap</param>
 		/// <param name="capSize">Desired Size of the LineCap</param>
-		private static void CalcCapShape(ref GraphicsPath capPath, CapShape capShape, int capSize) {
+		private static void CalcCapShape(ref GraphicsPath capPath, CapShape capShape, float capSize) {
 			Debug.Assert(capSize >= 0);
 			if (capPath == null) capPath = new GraphicsPath();
 			
@@ -989,7 +965,7 @@ namespace Dataweb.NShape.Advanced {
 		private static Rectangle rectBuffer = Rectangle.Empty;		// Rectangle buffer 
 		private static RectangleF rectFBuffer = RectangleF.Empty;	// RectangleF buffer
 		private static PointF[] pointFBuffer = new PointF[0];
-		private static Matrix matrix = new Matrix();						// Matrix for transformations
+		private static Matrix matrix = new Matrix();				// Matrix for transformations
 
 		// constants for the color-to-greyscale conversion
 		// luminance correction factor (the human eye has preferences regarding colors)

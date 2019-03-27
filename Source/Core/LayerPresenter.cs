@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -60,11 +60,11 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryNShape()]
 		public LayerController LayerController {
-			get { return layerController; }
+			get { return _layerController; }
 			set {
-				if (layerController != null) UnregisterLayerControllerEvents();
-				layerController = value;
-				if (layerController != null) RegisterLayerControllerEvents();
+				if (_layerController != null) UnregisterLayerControllerEvents();
+				_layerController = value;
+				if (_layerController != null) RegisterLayerControllerEvents();
 			}
 		}
 
@@ -72,15 +72,15 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryNShape()]
 		public IDiagramPresenter DiagramPresenter {
-			get { return diagramPresenter; }
+			get { return _diagramPresenter; }
 			set {
-				if (diagramPresenter != null) {
+				if (_diagramPresenter != null) {
 					// Unregister events and clear layer view
 					UnregisterDiagramPresenterEvents();
-					if (layerView != null) layerView.Clear();
+					if (_layerView != null) _layerView.Clear();
 				}
-				diagramPresenter = value;
-				if (diagramPresenter != null) {
+				_diagramPresenter = value;
+				if (_diagramPresenter != null) {
 					RegisterDiagramPresenterEvents();
 					TryFillLayerView();
 				}
@@ -93,22 +93,22 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		[CategoryNShape()]
 		public Project Project {
-			get { return (layerController == null) ? null : layerController.Project; }
+			get { return (_layerController == null) ? null : _layerController.Project; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryNShape()]
 		public ILayerView LayerView {
-			get { return layerView; }
+			get { return _layerView; }
 			set {
-				if (layerView != null) {
+				if (_layerView != null) {
 					// Unregister events and clear view
 					UnregisterLayerViewEvents();
-					layerView.Clear();
+					_layerView.Clear();
 				}
-				layerView = value;
-				if (layerView != null) {
+				_layerView = value;
+				if (_layerView != null) {
 					// Register events
 					RegisterLayerViewEvents();
 					TryFillLayerView();
@@ -122,15 +122,15 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		[CategoryBehavior()]
 		public bool HideDeniedMenuItems {
-			get { return hideMenuItemsIfNotGranted; }
-			set { hideMenuItemsIfNotGranted = value; }
+			get { return _hideMenuItemsIfNotGranted; }
+			set { _hideMenuItemsIfNotGranted = value; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[Browsable(false)]
 		public IReadOnlyCollection<Layer> SelectedLayers {
-			get { return selectedLayers; }
+			get { return _selectedLayers; }
 		}
 
 		#endregion
@@ -142,60 +142,64 @@ namespace Dataweb.NShape.Controllers {
 		/// Returns a collection of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" /> for constructing context menus etc.
 		/// </summary>
 		protected IEnumerable<MenuItemDef> GetMenuItemDefs() {
-			if (layerController == null || diagramPresenter == null || diagramPresenter.Diagram == null)
+			if (_layerController == null || _diagramPresenter == null || _diagramPresenter.Diagram == null)
 				yield break;
 
 			bool separatorNeeded = false;
-			foreach (MenuItemDef controllerAction in LayerController.GetMenuItemDefs(diagramPresenter.Diagram, selectedLayers)) {
+			foreach (MenuItemDef controllerAction in LayerController.GetMenuItemDefs(_diagramPresenter.Diagram, _selectedLayers)) {
 				if (!separatorNeeded) separatorNeeded = true;
 				yield return controllerAction;
 			}
 
-			string layersText = (selectedLayers.Count > 1) ? Properties.Resources.Text_Layers : Properties.Resources.Text_Layer;
+			string layersText = (_selectedLayers.Count > 1) ? Properties.Resources.Text_Layers : Properties.Resources.Text_Layer;
 
 			if (separatorNeeded) yield return new SeparatorMenuItemDef();
 
 			bool isFeasible;
 			string description;
-			char securityDomain = (diagramPresenter.Diagram != null) ? diagramPresenter.Diagram.SecurityDomainName : '-';
+			char securityDomain = (_diagramPresenter.Diagram != null) ? _diagramPresenter.Diagram.SecurityDomainName : '-';
 
-			isFeasible = selectedLayers.Count == 1;
-			if (selectedLayers.Count == 0) description = string.Empty;
-			else if (selectedLayers.Count == 1) description = string.Format(Properties.Resources.MessageFmt_RenameLayer0, selectedLayers[0].Title);
+			isFeasible = _selectedLayers.Count == 1;
+			if (_selectedLayers.Count == 0) description = string.Empty;
+			else if (_selectedLayers.Count == 1) description = string.Format(Properties.Resources.MessageFmt_RenameLayer0, _selectedLayers[0].Title);
 			else description = Properties.Resources.MessageTxt_TooManyLayersSelected;
-			yield return new DelegateMenuItemDef(Properties.Resources.CaptionTxt_RenameLayer, Properties.Resources.RenameBtn,
-				description, isFeasible, Permission.Data, securityDomain, (a, p) => BeginRenameSelectedLayer());
+			yield return new DelegateMenuItemDef(LayerController.MenuItemNameRenameLayer, 
+				Properties.Resources.CaptionTxt_RenameLayer, Properties.Resources.RenameBtn, description, 
+				isFeasible, Permission.Data, securityDomain, (a, p) => BeginRenameSelectedLayer());
 
-			isFeasible = selectedLayers.Count > 0;
+			isFeasible = _selectedLayers.Count > 0;
 			if (isFeasible)
-				description = string.Format(Properties.Resources.MessageFmt_Activate01, selectedLayers.Count, layersText);
+				description = string.Format(Properties.Resources.MessageFmt_Activate01, _selectedLayers.Count, layersText);
 			else description = Properties.Resources.MessageTxt_NoLayersSelected;
-			yield return new DelegateMenuItemDef(string.Format(Properties.Resources.CaptionFmt_Activate0, layersText),
-				Properties.Resources.Enabled, description, isFeasible, Permission.Data, securityDomain,
-				(a, p) => ActivateSelectedLayers());
+			yield return new DelegateMenuItemDef(LayerController.MenuItemNameActivateLayers,
+				string.Format(Properties.Resources.CaptionFmt_Activate0, layersText), Properties.Resources.Enabled, description, 
+				isFeasible, Permission.Data, securityDomain, (a, p) => ActivateSelectedLayers());
 
-			isFeasible = selectedLayers.Count > 0;
-			description = isFeasible ? string.Format(Properties.Resources.MessageFmt_Deactivate01, selectedLayers.Count, layersText) 
+			isFeasible = _selectedLayers.Count > 0;
+			description = isFeasible ? string.Format(Properties.Resources.MessageFmt_Deactivate01, _selectedLayers.Count, layersText) 
 				: Properties.Resources.MessageTxt_NoLayersSelected;
-			yield return new DelegateMenuItemDef(string.Format(Properties.Resources.CaptionFmt_Deactivate0, layersText),
-				Properties.Resources.Disabled, description, isFeasible, Permission.Data, securityDomain,
-				(a, p) => DeactivateSelectedLayers());
+			yield return new DelegateMenuItemDef(LayerController.MenuItemNameDeactivateLayers, 
+				string.Format(Properties.Resources.CaptionFmt_Deactivate0, layersText), Properties.Resources.Disabled, description, 
+				isFeasible, Permission.Data, securityDomain, (a, p) => DeactivateSelectedLayers()
+			);
 
 			yield return new SeparatorMenuItemDef();
 
-			isFeasible = selectedLayers.Count > 0;
-			description = isFeasible ? string.Format(Properties.Resources.MessageFmt_Show01, selectedLayers.Count, layersText) 
+			isFeasible = _selectedLayers.Count > 0;
+			description = isFeasible ? string.Format(Properties.Resources.MessageFmt_Show01, _selectedLayers.Count, layersText) 
 				: Properties.Resources.MessageTxt_NoLayersSelected;
-			yield return new DelegateMenuItemDef(string.Format(Properties.Resources.CaptionFmt_Show0, layersText),
-				Properties.Resources.Visible, description, isFeasible, Permission.None,
-				(a, p) => ShowSelectedLayers());
+			yield return new DelegateMenuItemDef(LayerController.MenuItemNameShowLayers, 
+				string.Format(Properties.Resources.CaptionFmt_Show0, layersText), Properties.Resources.Visible, description,
+				isFeasible, Permission.None, (a, p) => ShowSelectedLayers()
+			);
 
-			isFeasible = selectedLayers.Count > 0;
-			description = isFeasible ? string.Format(Properties.Resources.MessageFmt_Hide01, selectedLayers.Count, layersText) 
+			isFeasible = _selectedLayers.Count > 0;
+			description = isFeasible ? string.Format(Properties.Resources.MessageFmt_Hide01, _selectedLayers.Count, layersText) 
 				: Properties.Resources.MessageTxt_NoLayersSelected;
-			yield return new DelegateMenuItemDef(string.Format(Properties.Resources.CaptionFmt_Hide0, layersText),
-			Properties.Resources.Invisible, description, isFeasible, Permission.None,
-			(a, p) => HideSelectedLayers());
+			yield return new DelegateMenuItemDef(LayerController.MenuItemNameHideLayers, 
+				string.Format(Properties.Resources.CaptionFmt_Hide0, layersText), Properties.Resources.Invisible, description, 
+				isFeasible, Permission.None, (a, p) => HideSelectedLayers()
+			);
 		}
 
 
@@ -208,39 +212,39 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void ShowSelectedLayers() {
 			AssertLayerControllerIsSet();
-			foreach (Layer selectedLayer in selectedLayers)
-				diagramPresenter.SetLayerVisibility(selectedLayer.Id, true);
+			foreach (Layer selectedLayer in _selectedLayers)
+				_diagramPresenter.SetLayerVisibility(selectedLayer.LayerId, true);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void HideSelectedLayers() {
 			AssertLayerControllerIsSet();
-			foreach (Layer selectedLayer in selectedLayers)
-				diagramPresenter.SetLayerVisibility(selectedLayer.Id, true);
+			foreach (Layer selectedLayer in _selectedLayers)
+				_diagramPresenter.SetLayerVisibility(selectedLayer.LayerId, true);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void ActivateSelectedLayers() {
 			AssertLayerControllerIsSet();
-			foreach (Layer selectedLayer in selectedLayers)
-				diagramPresenter.SetLayerActive(selectedLayer.Id, true);
+			foreach (Layer selectedLayer in _selectedLayers)
+				_diagramPresenter.SetLayerActive(selectedLayer.LayerId, true);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void DeactivateSelectedLayers() {
 			AssertLayerControllerIsSet();
-			foreach (Layer selectedLayer in selectedLayers)
-				diagramPresenter.SetLayerActive(selectedLayer.Id, false);
+			foreach (Layer selectedLayer in _selectedLayers)
+				_diagramPresenter.SetLayerActive(selectedLayer.LayerId, false);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void BeginRenameSelectedLayer() {
-			if (selectedLayers.Count == 0) throw new NShapeException("No layers selected.");
-			layerView.BeginEditLayerName(selectedLayers[0]);
+			if (_selectedLayers.Count == 0) throw new NShapeException("No layers selected.");
+			_layerView.BeginEditLayerName(_selectedLayers[0]);
 		}
 
 		#endregion
@@ -249,73 +253,73 @@ namespace Dataweb.NShape.Controllers {
 		#region Methods (private)
 
 		private void RegisterDiagramPresenterEvents() {
-			diagramPresenter.ActiveLayersChanged += diagramPresenter_ActiveLayersChanged;
-			diagramPresenter.LayerVisibilityChanged += diagramPresenter_LayerVisibilityChanged;
-			diagramPresenter.DiagramChanged += diagramPresenter_DiagramChanged;
+			_diagramPresenter.ActiveLayersChanged += diagramPresenter_ActiveLayersChanged;
+			_diagramPresenter.LayerVisibilityChanged += diagramPresenter_LayerVisibilityChanged;
+			_diagramPresenter.DiagramChanged += diagramPresenter_DiagramChanged;
 		}
 
 
 		private void UnregisterDiagramPresenterEvents() {
-			diagramPresenter.ActiveLayersChanged -= diagramPresenter_ActiveLayersChanged;
-			diagramPresenter.LayerVisibilityChanged -= diagramPresenter_LayerVisibilityChanged;
-			diagramPresenter.DiagramChanged -= diagramPresenter_DiagramChanged;
+			_diagramPresenter.ActiveLayersChanged -= diagramPresenter_ActiveLayersChanged;
+			_diagramPresenter.LayerVisibilityChanged -= diagramPresenter_LayerVisibilityChanged;
+			_diagramPresenter.DiagramChanged -= diagramPresenter_DiagramChanged;
 		}
 
 
 		private void SetSelectedLayers(Layer layer) {
-			selectedLayers.Clear();
-			selectedLayers.Add(layer);
-			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(selectedLayers));
+			_selectedLayers.Clear();
+			_selectedLayers.Add(layer);
+			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(_selectedLayers));
 		}
 
 
 		private void SetSelectedLayers(IEnumerable<Layer> layers) {
-			selectedLayers.Clear();
-			foreach (Layer l in layers) selectedLayers.Add(l);
-			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(selectedLayers));
+			_selectedLayers.Clear();
+			foreach (Layer l in layers) _selectedLayers.Add(l);
+			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(_selectedLayers));
 		}
 
 
 		private void SelectLayer(Layer layer) {
-			selectedLayers.Add(layer);
-			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(selectedLayers));
+			_selectedLayers.Add(layer);
+			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(_selectedLayers));
 		}
 
 
 		private void UnselectLayer(Layer layer) {
-			selectedLayers.Remove(layer);
-			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(selectedLayers));
+			_selectedLayers.Remove(layer);
+			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(_selectedLayers));
 		}
 
 
 		private void UnselectAllLayers() {
-			selectedLayers.Clear();
-			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(selectedLayers));
+			_selectedLayers.Clear();
+			OnSelectedLayersChanged(this, LayerHelper.GetLayersEventArgs(_selectedLayers));
 		}
 
 
 		private void AssertLayerControllerIsSet() {
-			if (layerController == null) throw new Exception("Property 'LayerController' is not set.");
+			if (_layerController == null) throw new Exception("Property 'LayerController' is not set.");
 		}
 
 
 		private void RegisterLayerControllerEvents() {
-			layerController.DiagramChanging += layerController_DiagramChanging;
-			layerController.DiagramChanged += layerController_DiagramChanged;
-			layerController.LayersAdded += layerController_LayerAdded;
-			layerController.LayersRemoved += layerController_LayerRemoved;
-			layerController.LayerModified += layerController_LayerModified;
-			RegisterProjectEvents(layerController.Project);
+			_layerController.DiagramChanging += layerController_DiagramChanging;
+			_layerController.DiagramChanged += layerController_DiagramChanged;
+			_layerController.LayersAdded += layerController_LayerAdded;
+			_layerController.LayersRemoved += layerController_LayerRemoved;
+			_layerController.LayerModified += layerController_LayerModified;
+			RegisterProjectEvents(_layerController.Project);
 		}
 
 
 		private void UnregisterLayerControllerEvents() {
-			layerController.DiagramChanging -= layerController_DiagramChanging;
-			layerController.DiagramChanged -= layerController_DiagramChanged;
-			layerController.LayersAdded -= layerController_LayerAdded;
-			layerController.LayersRemoved -= layerController_LayerRemoved;
-			layerController.LayerModified -= layerController_LayerModified;
-			UnregisterProjectEvents(layerController.Project);
+			_layerController.DiagramChanging -= layerController_DiagramChanging;
+			_layerController.DiagramChanged -= layerController_DiagramChanged;
+			_layerController.LayersAdded -= layerController_LayerAdded;
+			_layerController.LayersRemoved -= layerController_LayerRemoved;
+			_layerController.LayerModified -= layerController_LayerModified;
+			UnregisterProjectEvents(_layerController.Project);
 		}
 
 
@@ -336,56 +340,50 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private void RegisterLayerViewEvents() {
-			layerView.LayerRenamed += layerView_LayerItemRenamed;
-			layerView.LayerLowerZoomThresholdChanged += layerView_LayerLowerZoomThresholdChanged;
-			layerView.LayerUpperZoomThresholdChanged += layerView_LayerUpperZoomThresholdChanged;
-			layerView.LayerViewMouseDown += layerView_MouseDown;
-			layerView.LayerViewMouseMove += layerView_MouseMove;
-			layerView.LayerViewMouseUp += layerView_MouseUp;
+			_layerView.LayerRenamed += layerView_LayerItemRenamed;
+			_layerView.LayerLowerZoomThresholdChanged += layerView_LayerLowerZoomThresholdChanged;
+			_layerView.LayerUpperZoomThresholdChanged += layerView_LayerUpperZoomThresholdChanged;
+			_layerView.LayerViewMouseDown += layerView_MouseDown;
+			_layerView.LayerViewMouseMove += layerView_MouseMove;
+			_layerView.LayerViewMouseUp += layerView_MouseUp;
+			_layerView.SelectedLayerChanged += _layerView_SelectedLayerChanged;
 		}
 
 
 		private void UnregisterLayerViewEvents() {
-			layerView.LayerRenamed -= layerView_LayerItemRenamed;
-			layerView.LayerLowerZoomThresholdChanged -= layerView_LayerLowerZoomThresholdChanged;
-			layerView.LayerUpperZoomThresholdChanged -= layerView_LayerUpperZoomThresholdChanged;
-			layerView.LayerViewMouseDown -= layerView_MouseDown;
-			layerView.LayerViewMouseMove -= layerView_MouseMove;
-			layerView.LayerViewMouseUp -= layerView_MouseUp;
-		}
-
-
-		private LayerIds GetSelectedLayerIds() {
-			LayerIds result = LayerIds.None;
-			foreach (Layer selectedLayer in selectedLayers)
-				result |= selectedLayer.Id;
-			return result;
+			_layerView.LayerRenamed -= layerView_LayerItemRenamed;
+			_layerView.LayerLowerZoomThresholdChanged -= layerView_LayerLowerZoomThresholdChanged;
+			_layerView.LayerUpperZoomThresholdChanged -= layerView_LayerUpperZoomThresholdChanged;
+			_layerView.LayerViewMouseDown -= layerView_MouseDown;
+			_layerView.LayerViewMouseMove -= layerView_MouseMove;
+			_layerView.LayerViewMouseUp -= layerView_MouseUp;
+			_layerView.SelectedLayerChanged -= _layerView_SelectedLayerChanged;
 		}
 
 
 		private void GetLayerState(Layer layer, out bool isActive, out bool isVisible) {
 			if (layer == null) throw new ArgumentNullException("layer");
-			if (diagramPresenter == null) throw new ArgumentNullException("DiagramPresener");
-			isActive = diagramPresenter.IsLayerActive(layer.Id);
-			isVisible = diagramPresenter.IsLayerVisible(layer.Id);
+			if (_diagramPresenter == null) throw new ArgumentNullException("DiagramPresener");
+			isActive = _diagramPresenter.IsLayerActive(layer.LayerId);
+			isVisible = _diagramPresenter.IsLayerVisible(layer.LayerId);
 		}
 
 
 		private void TryFillLayerView() {
 			// Fill view with layer items if necessary
-			if (layerController != null && diagramPresenter != null && diagramPresenter.Diagram != null)
-				AddLayerItemsToLayerView(diagramPresenter.Diagram.Layers);
+			if (_layerController != null && _diagramPresenter != null && _diagramPresenter.Diagram != null)
+				AddLayerItemsToLayerView(_diagramPresenter.Diagram.Layers);
 		}
 
 
 		private void AddLayerItemsToLayerView(IEnumerable<Layer> layers) {
-			layerView.BeginUpdate();
+			_layerView.BeginUpdate();
 			bool isActive, isVisible;
 			foreach (Layer layer in layers) {
 				GetLayerState(layer, out isActive, out isVisible);
-				layerView.AddLayer(layer, isActive, isVisible);
+				_layerView.AddLayer(layer, isActive, isVisible);
 			}
-			layerView.EndUpdate();
+			_layerView.EndUpdate();
 		}
 
 
@@ -399,7 +397,7 @@ namespace Dataweb.NShape.Controllers {
 		#region LayerController EventHandler implementations
 
 		private void layerController_DiagramChanging(object sender, EventArgs e) {
-			if (layerView != null) layerView.Clear();
+			if (_layerView != null) _layerView.Clear();
 		}
 
 
@@ -410,17 +408,17 @@ namespace Dataweb.NShape.Controllers {
 
 		private void layerController_LayerAdded(object sender, LayersEventArgs e) {
 			// Create LayerView items for the new layers
-			if (e.Layers != null && layerView != null)
+			if (e.Layers != null && _layerView != null)
 				AddLayerItemsToLayerView(e.Layers);
 		}
 
 
 		private void layerController_LayerModified(object sender, LayersEventArgs e) {
-			if (e.Layers != null && layerView != null) {
+			if (e.Layers != null && _layerView != null) {
 				bool isActive, isVisible;
 				foreach (Layer layer in e.Layers) {
 					GetLayerState(layer, out isActive, out isVisible);
-					layerView.RefreshLayer(layer, isActive, isVisible);
+					_layerView.RefreshLayer(layer, isActive, isVisible);
 				}
 			}
 		}
@@ -428,7 +426,7 @@ namespace Dataweb.NShape.Controllers {
 
 		private void layerController_LayerRemoved(object sender, LayersEventArgs e) {
 			foreach (Layer layer in e.Layers)
-				layerView.RemoveLayer(layer);
+				_layerView.RemoveLayer(layer);
 		}
 
 		#endregion
@@ -451,20 +449,27 @@ namespace Dataweb.NShape.Controllers {
 		#region IDiagramPresenter EventHandler implementations
 
 		private void diagramPresenter_LayerVisibilityChanged(object sender, LayersEventArgs e) {
+			_layerView.BeginUpdate();
 			foreach (Layer layer in e.Layers)
-				layerView.RefreshLayer(layer, diagramPresenter.IsLayerActive(layer.Id), diagramPresenter.IsLayerVisible(layer.Id));
+				_layerView.RefreshLayer(layer, _diagramPresenter.IsLayerActive(layer.LayerId), _diagramPresenter.IsLayerVisible(layer.LayerId));
+			_layerView.EndUpdate();
 		}
 
 
 		private void diagramPresenter_ActiveLayersChanged(object sender, LayersEventArgs e) {
-			foreach (Layer layer in e.Layers)
-				layerView.RefreshLayer(layer, diagramPresenter.IsLayerActive(layer.Id), diagramPresenter.IsLayerVisible(layer.Id));
+			// When activating layers, we have to update all layers in the list because activating a home layer deactivates the other home layer(s).
+			_layerView.BeginUpdate();
+			foreach (Layer layer in _diagramPresenter.Diagram.Layers)
+				_layerView.RefreshLayer(layer, _diagramPresenter.IsLayerActive(layer.LayerId), _diagramPresenter.IsLayerVisible(layer.LayerId));
+			_layerView.EndUpdate();
 		}
 
 
 		private void diagramPresenter_DiagramChanged(object sender, EventArgs e) {
-			if (layerView != null && DiagramPresenter.Diagram != null)
-				AddLayerItemsToLayerView(diagramPresenter.Diagram.Layers);
+			_layerView.BeginUpdate();
+			if (_layerView != null && DiagramPresenter.Diagram != null)
+				AddLayerItemsToLayerView(_diagramPresenter.Diagram.Layers);
+			_layerView.EndUpdate();
 		}
 
 		#endregion
@@ -472,15 +477,16 @@ namespace Dataweb.NShape.Controllers {
 
 		#region ILayerView EventHandler implementations
 
+		private void _layerView_SelectedLayerChanged(object sender, LayersEventArgs e) {
+			if (EnumerationHelper.IsEmpty(e.Layers))
+				UnselectAllLayers();
+			else
+				SetSelectedLayers(e.Layers);
+		}
+
+
 		private void layerView_MouseDown(object sender, LayerMouseEventArgs e) {
-			if (e.Layer != null) {
-				bool multiSelect = e.Modifiers == KeysDg.Shift || e.Modifiers == KeysDg.Control;
-				if (multiSelect) {
-					if (selectedLayers.Contains(e.Layer))
-						UnselectLayer(e.Layer);
-					else SelectLayer(e.Layer);
-				} else SetSelectedLayers(e.Layer);
-			} else UnselectAllLayers();
+			// Nothing to do here
 		}
 
 
@@ -494,24 +500,24 @@ namespace Dataweb.NShape.Controllers {
 				case MouseButtonsDg.Left:
 					switch (e.Item) {
 						case LayerItem.Name:
-							if (e.Layer != null && selectedLayers.Contains(e.Layer)) 
-								layerView.BeginEditLayerName(e.Layer);
+							if (e.Layer != null && _selectedLayers.Contains(e.Layer)) 
+								_layerView.BeginEditLayerName(e.Layer);
 							break;
 						case LayerItem.ActiveState:
-							if (e.Layer != null) 
-								diagramPresenter.SetLayerActive(e.Layer.Id, !diagramPresenter.IsLayerActive(e.Layer.Id));
+							if (e.Layer != null && _selectedLayers.Count > 0)
+								_diagramPresenter.SetLayerActive(_selectedLayers, !_diagramPresenter.IsLayerActive(e.Layer.LayerId));
 							break;
 						case LayerItem.Visibility:
-							if (e.Layer != null) 
-								diagramPresenter.SetLayerVisibility(e.Layer.Id, !diagramPresenter.IsLayerVisible(e.Layer.Id));
+							if (e.Layer != null && _selectedLayers.Count > 0)
+								_diagramPresenter.SetLayerVisibility(_selectedLayers, !_diagramPresenter.IsLayerVisible(e.Layer.LayerId));
 							break;
 						case LayerItem.MinZoom:
-							if (e.Layer != null && selectedLayers.Contains(e.Layer)) 
-								layerView.BeginEditLayerMinZoomBound(e.Layer);
+							if (e.Layer != null && _selectedLayers.Contains(e.Layer)) 
+								_layerView.BeginEditLayerMinZoomBound(e.Layer);
 							break;
 						case LayerItem.MaxZoom:
-							if (e.Layer != null && selectedLayers.Contains(e.Layer)) 
-								layerView.BeginEditLayerMaxZoomBound(e.Layer);
+							if (e.Layer != null && _selectedLayers.Contains(e.Layer)) 
+								_layerView.BeginEditLayerMaxZoomBound(e.Layer);
 							break;
 						case LayerItem.None:
 							// nothing to do
@@ -523,7 +529,7 @@ namespace Dataweb.NShape.Controllers {
 
 					// Open context menu
 				case MouseButtonsDg.Right:
-					layerView.OpenContextMenu(e.Position.X, e.Position.Y, GetMenuItemDefs(), LayerController.DiagramSetController.Project);
+					_layerView.OpenContextMenu(e.Position.X, e.Position.Y, GetMenuItemDefs(), LayerController.DiagramSetController.Project);
 					break;
 
 				default:
@@ -534,17 +540,17 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private void layerView_LayerItemRenamed(object sender, LayerRenamedEventArgs e) {
-			layerController.RenameLayer(diagramPresenter.Diagram, e.Layer, e.OldName, e.NewName);
+			_layerController.RenameLayer(_diagramPresenter.Diagram, e.Layer, e.OldName, e.NewName);
 		}
 
 
 		private void layerView_LayerUpperZoomThresholdChanged(object sender, LayerZoomThresholdChangedEventArgs e) {
-			layerController.SetLayerZoomBounds(diagramPresenter.Diagram, e.Layer, e.Layer.LowerZoomThreshold, e.NewZoomThreshold);
+			_layerController.SetLayerZoomBounds(_diagramPresenter.Diagram, e.Layer, e.Layer.LowerZoomThreshold, e.NewZoomThreshold);
 		}
 
 
 		private void layerView_LayerLowerZoomThresholdChanged(object sender, LayerZoomThresholdChangedEventArgs e) {
-			layerController.SetLayerZoomBounds(diagramPresenter.Diagram, e.Layer, e.NewZoomThreshold, e.Layer.UpperZoomThreshold);
+			_layerController.SetLayerZoomBounds(_diagramPresenter.Diagram, e.Layer, e.NewZoomThreshold, e.Layer.UpperZoomThreshold);
 		}
 
 		#endregion
@@ -552,14 +558,14 @@ namespace Dataweb.NShape.Controllers {
 
 		#region Fields
 
-		private LayerController layerController;
-		private IDiagramPresenter diagramPresenter;
-		private ILayerView layerView;
-		private ReadOnlyList<Layer> selectedLayers = new ReadOnlyList<Layer>();
-		private bool hideMenuItemsIfNotGranted = false;
+		private LayerController _layerController;
+		private IDiagramPresenter _diagramPresenter;
+		private ILayerView _layerView;
+		private ReadOnlyList<Layer> _selectedLayers = new ReadOnlyList<Layer>();
+		private bool _hideMenuItemsIfNotGranted = false;
 
-		private LayerEventArgs layerEventArgs = new LayerEventArgs();
-		private LayersEventArgs layersEventArgs = new LayersEventArgs();
+		private LayerEventArgs _layerEventArgs = new LayerEventArgs();
+		private LayersEventArgs _layersEventArgs = new LayersEventArgs();
 
 		#endregion
 	}
@@ -655,6 +661,7 @@ namespace Dataweb.NShape.Controllers {
 		void OpenContextMenu(int x, int y, IEnumerable<MenuItemDef> contextMenuItemDefs, Project project);
 
 		#endregion
+	
 	}
 
 
@@ -683,60 +690,87 @@ namespace Dataweb.NShape.Controllers {
 	public class LayerMouseEventArgs : MouseEventArgsDg {
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload that takes selected layers.")]
 		public LayerMouseEventArgs(Layer layer, LayerItem item, 
 			MouseEventType eventType, MouseButtonsDg buttons, int clickCount, int wheelDelta, 
 			Point position, KeysDg modifiers)
-			: base(eventType, buttons, clickCount, wheelDelta, position, modifiers) {
-			this.layer = layer;
-			this.item = item;
+			: this(layer, item, EnumerationHelper.Enumerate(layer), eventType, buttons, clickCount, wheelDelta, position, modifiers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload that takes selected layers.")]
 		public LayerMouseEventArgs(Layer layer, LayerItem item, MouseEventArgsDg mouseEventArgs)
-			: this(layer, item, mouseEventArgs.EventType, mouseEventArgs.Buttons, mouseEventArgs.Clicks, mouseEventArgs.WheelDelta, mouseEventArgs.Position, mouseEventArgs.Modifiers) {
-			if (layer == null) throw new ArgumentNullException("layer");
-			this.layer = layer;
-			this.item = item;
+			: this(layer, item, EnumerationHelper.Enumerate(layer), mouseEventArgs.EventType, mouseEventArgs.Buttons, mouseEventArgs.Clicks, mouseEventArgs.WheelDelta, mouseEventArgs.Position, mouseEventArgs.Modifiers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public LayerMouseEventArgs(Layer layer, LayerItem item, IEnumerable<Layer> selectedLayers, MouseEventArgsDg mouseEventArgs)
+			: this(layer, item, selectedLayers, mouseEventArgs.EventType, mouseEventArgs.Buttons, mouseEventArgs.Clicks, mouseEventArgs.WheelDelta, mouseEventArgs.Position, mouseEventArgs.Modifiers) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public LayerMouseEventArgs(Layer layer, LayerItem item, IEnumerable<Layer> selectedlayers, 
+			MouseEventType eventType, MouseButtonsDg buttons, int clickCount, int wheelDelta, Point position, KeysDg modifiers)
+			: base(eventType, buttons, clickCount, wheelDelta, position, modifiers) {
+			this._layer = layer;
+			this._item = item;
+			this._selectedLayers = new List<Layer>(selectedlayers);
+		}
+
+
+		/// <summary>
+		/// Gets the layer for which the mouse event was raised.
+		/// </summary>
 		public Layer Layer {
-			get { return layer; }
-			protected internal set { layer = value; }
+			get { return _layer; }
+			protected internal set { _layer = value; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public LayerItem Item {
-			get { return item; }
-			protected internal set { item = value; }
+			get { return _item; }
+			protected internal set { _item = value; }
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public IEnumerable<Layer> SelectedLayers {
+			get { return _selectedLayers; }
+			protected internal set {
+				_selectedLayers.Clear();
+				_selectedLayers.AddRange(value);
+			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal LayerMouseEventArgs()
 			: base() {
-			layer = null;
-			item = LayerItem.None;
+			_layer = null;
+			_item = LayerItem.None;
+			_selectedLayers = new List<Layer>();
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal void SetMouseEvent(MouseEventType eventType, MouseButtonsDg buttons, 
-			int clickCount, int wheelDelta, Point position, KeysDg modifiers){
-			this.eventType = eventType;
-			this.buttons = buttons;
-			this.clicks = clickCount;
-			this.modifiers = modifiers;
-			this.position = position;
-			this.wheelDelta = wheelDelta;
+			int clickCount, int wheelDelta, Point position, KeysDg modifiers) {
+			EventType = eventType;
+			Buttons = buttons;
+			Clicks = clickCount;
+			Modifiers = modifiers;
+			Position = position;
+			WheelDelta = wheelDelta;
 		}
 
 
-		private Layer layer;
-		private LayerItem item;
+		private Layer _layer;
+		private List<Layer> _selectedLayers;
+		private LayerItem _item;
 	}
 
 }

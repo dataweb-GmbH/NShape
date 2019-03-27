@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -91,7 +91,7 @@ namespace NShapeTest {
 
 			// Dataweb.NShape.Commands.CreateShapeCommand
 			// Test ZOrder assignment
-			ExecTest(project, new CreateShapesCommand(diagram, LayerIds.None, shapes, false, false),
+			ExecTest(project, new CreateShapesCommand(diagram, Layer.NoLayerId, LayerIds.None, shapes, false, false),
 				() => {
 					// a) Check whether all shapes are in the diagram
 					Assert.IsTrue(Contains(diagram.Shapes, shapes));
@@ -328,13 +328,13 @@ namespace NShapeTest {
 			BeginTest(project, projectName);
 
 			//Dataweb.NShape.Commands.AggregateCompositeShapeCommand
-			command = new AggregateCompositeShapeCommand(diagram, LayerIds.None, parentShape, childShapes);
+			command = new AggregateCompositeShapeCommand(diagram, Layer.NoLayerId, LayerIds.None, parentShape, childShapes);
 			ExecTest(project, command,
 				() => { Assert.IsTrue(Contains(parentShape.Children, childShapes)); Assert.IsFalse(Contains(diagram.Shapes, childShapes)); },
 				() => { Assert.IsFalse(Contains(parentShape.Children, childShapes)); Assert.IsTrue(Contains(diagram.Shapes, childShapes)); });
 
 			//Dataweb.NShape.Commands.GroupShapesCommand
-			command = new GroupShapesCommand(diagram, LayerIds.None, groupShape, groupMembers);
+			command = new GroupShapesCommand(diagram, Layer.NoLayerId, LayerIds.None, groupShape, groupMembers);
 			ExecTest(project, command,
 				() => { Assert.IsTrue(Contains(groupShape.Children, groupMembers)); Assert.IsFalse(Contains(diagram.Shapes, groupMembers)); },
 				() => { Assert.IsFalse(Contains(groupShape.Children, groupMembers)); Assert.IsTrue(Contains(diagram.Shapes, groupMembers)); });
@@ -346,7 +346,7 @@ namespace NShapeTest {
 				() => { Assert.IsTrue(Contains(groupShape.Children, groupMembers)); Assert.IsFalse(Contains(diagram.Shapes, groupMembers)); });
 
 			//Dataweb.NShape.Commands.SplitCompositeShapeCommand
-			command = new SplitCompositeShapeCommand(diagram, LayerIds.None, parentShape);
+			command = new SplitCompositeShapeCommand(diagram, Layer.NoLayerId, LayerIds.None, parentShape);
 			ExecTest(project, command,
 				() => { Assert.IsFalse(Contains(parentShape.Children, childShapes)); Assert.IsTrue(Contains(diagram.Shapes, childShapes)); },
 				() => { Assert.IsTrue(Contains(parentShape.Children, childShapes)); Assert.IsFalse(Contains(diagram.Shapes, childShapes)); });
@@ -536,30 +536,38 @@ namespace NShapeTest {
 			BeginTest(project, projectName);
 
 			//Dataweb.NShape.Commands.AddLayerCommand 
+			String layerName;
 			List<Layer> newLayers = new List<Layer>(5);
 			for (int i = 0; i <= 5; ++i) {
-				string layerName = "Layer " + (char)(65 + i);
+				layerName = "Layer " + (char)(65 + i);
 				ExecTest(project, new AddLayerCommand(diagram, layerName),
 					() => Assert.IsNotNull(diagram.Layers.FindLayer(layerName)),
 					() => Assert.IsNull(diagram.Layers.FindLayer(layerName)));
 				newLayers.Add(diagram.Layers.FindLayer(layerName));
 			}
+			layerName = "Home Layer";
+			ExecTest(project, new AddLayerCommand(diagram, layerName),
+				() => Assert.IsNotNull(diagram.Layers.FindLayer(layerName)),
+				() => Assert.IsNull(diagram.Layers.FindLayer(layerName)));
+			newLayers.Add(diagram.Layers.FindLayer(layerName));
+
 			
 			// Prepare test data
-			LayerIds newLayerIds = LayerIds.None;
-			foreach (Layer l in newLayers) newLayerIds |= l.Id;
-			Dictionary<Shape, LayerIds> origLayerIds = null;
+			int homeLayer = diagram.Layers.FindLayer(layerName).LayerId;
+			LayerIds layers = Layer.ConvertToLayerIds(newLayers) ^ Layer.ConvertToLayerIds(homeLayer);
+			Dictionary<Shape, LayerInfo> origLayers;
 
 			//Dataweb.NShape.Commands.AddShapesToLayersCommand
-			ExecTest(project, new AddShapesToLayersCommand(diagram, diagram.Shapes, newLayerIds),
-				() => { foreach (Shape s in diagram.Shapes) Assert.AreEqual(newLayerIds, s.Layers & newLayerIds); },
-				() => { foreach (Shape s in diagram.Shapes) Assert.AreEqual(LayerIds.None, s.Layers & newLayerIds); });
+			origLayers = GetShapeLayers(diagram.Shapes);
+			ExecTest(project, new AddShapesToLayersCommand(diagram, diagram.Shapes, homeLayer, layers),
+				() => { foreach (Shape s in diagram.Shapes) { Assert.AreEqual(homeLayer, s.HomeLayer); Assert.AreEqual(origLayers[s].SupplementalLayers | layers, s.SupplementalLayers); } },
+				() => { foreach (Shape s in diagram.Shapes) { Assert.AreEqual(origLayers[s].HomeLayer, s.HomeLayer); Assert.AreEqual(origLayers[s].SupplementalLayers, s.SupplementalLayers); } });
 
 			//Dataweb.NShape.Commands.AssignShapesToLayersCommand
-			origLayerIds = GetShapeLayers(diagram.Shapes);
-			ExecTest(project, new AssignShapesToLayersCommand(diagram, diagram.Shapes, newLayerIds),
-				() => { foreach (Shape s in diagram.Shapes) Assert.AreEqual(newLayerIds, s.Layers & LayerIds.All); },
-				() => { foreach (Shape s in diagram.Shapes) Assert.AreEqual(origLayerIds[s], s.Layers & LayerIds.All); });
+			origLayers = GetShapeLayers(diagram.Shapes);
+			ExecTest(project, new AssignShapesToLayersCommand(diagram, diagram.Shapes, homeLayer, layers),
+				() => { foreach (Shape s in diagram.Shapes) { Assert.AreEqual(homeLayer, s.HomeLayer); Assert.AreEqual(layers, s.SupplementalLayers); } },
+				() => { foreach (Shape s in diagram.Shapes) { Assert.AreEqual(origLayers[s].HomeLayer, s.HomeLayer); Assert.AreEqual(origLayers[s].SupplementalLayers, s.SupplementalLayers); } });
 
 			//Dataweb.NShape.Commands.EditLayerCommand
 			foreach (EditLayerCommand.ChangedProperty prop in Enum.GetValues(typeof(EditLayerCommand.ChangedProperty))) {
@@ -581,10 +589,10 @@ namespace NShapeTest {
 						} break;
 					case EditLayerCommand.ChangedProperty.Name: {
 							string oldValue = layer.Name;
-							string newValue = layer.Name + string.Format(" ({0})", layer.Id);
+							string newValue = layer.Name + string.Format(" ({0})", layer.LayerId);
 							ExecTest(project, new EditLayerCommand(diagram, layer, prop, oldValue, newValue),
-								() => Assert.AreEqual(diagram.Layers.FindLayer(newValue).Name, newValue),
-								() => Assert.AreEqual(diagram.Layers.FindLayer(oldValue).Name, oldValue));
+								() => { Assert.AreEqual(layer.Name, newValue); Assert.IsNotNull(diagram.Layers.FindLayer(newValue)); },
+								() => { Assert.AreEqual(layer.Name, oldValue); Assert.IsNotNull(diagram.Layers.FindLayer(oldValue).Name, oldValue); });
 						} break;
 					case EditLayerCommand.ChangedProperty.Title: {
 							string oldValue = layer.Title;
@@ -600,21 +608,31 @@ namespace NShapeTest {
 			}
 
 			//Dataweb.NShape.Commands.RemoveShapesFromLayersCommand
-			LayerIds removedLayerIds = newLayers[0].Id | newLayers[1].Id | newLayers[2].Id;
-			origLayerIds = GetShapeLayers(diagram.Shapes);
+			List<int> removedLayerIds = new List<int>();
+			LayerIds expectedLayers = LayerIds.None;
+			int expectedHomeLayer = Layer.NoLayerId;
+			for (int i = 0; i < newLayers.Count; ++i) {
+				if (i % 2 != 0) {
+					removedLayerIds.Add(newLayers[i].LayerId);
+				} else {
+					if (newLayers[i].LayerId == homeLayer) expectedHomeLayer = homeLayer;
+					else expectedLayers |= Layer.ConvertToLayerIds(newLayers[i].LayerId);
+				}
+			}
+			origLayers = GetShapeLayers(diagram.Shapes);
 			ExecTest(project, new RemoveShapesFromLayersCommand(diagram, diagram.Shapes, removedLayerIds),
-				() => { foreach (Shape s in diagram.Shapes) Assert.AreEqual(origLayerIds[s] ^ removedLayerIds, s.Layers); },
-				() => { foreach (Shape s in diagram.Shapes) Assert.AreEqual(origLayerIds[s], s.Layers); });
+				() => { foreach (Shape s in diagram.Shapes) { Assert.AreEqual(expectedHomeLayer, s.HomeLayer); Assert.AreEqual(expectedLayers, s.SupplementalLayers); } },
+				() => { foreach (Shape s in diagram.Shapes) { Assert.AreEqual(origLayers[s].HomeLayer, s.HomeLayer); Assert.AreEqual(origLayers[s].SupplementalLayers, s.SupplementalLayers); } });
 
 			//Dataweb.NShape.Commands.RemoveLayerCommand
-			origLayerIds = GetShapeLayers(diagram.Shapes);
-			ExecTest(project, new RemoveLayerCommand(diagram, newLayers),
+			origLayers = GetShapeLayers(diagram.Shapes);
+			ExecTest(project, new RemoveLayerCommand(diagram, diagram.Layers),
 				() => {
 					Assert.IsFalse(Contains(diagram.Layers, newLayers));
-					foreach (Shape s in diagram.Shapes) Assert.AreEqual(LayerIds.None, s.Layers & newLayerIds);
+					foreach (Shape s in diagram.Shapes) { Assert.AreEqual(Layer.NoLayerId, s.HomeLayer); Assert.AreEqual(LayerIds.None, s.SupplementalLayers); }
 				}, () => {
 					Assert.IsTrue(Contains(diagram.Layers, newLayers));
-					foreach (Shape s in diagram.Shapes) Assert.AreEqual(origLayerIds[s], s.Layers & newLayerIds);
+					foreach (Shape s in diagram.Shapes) { Assert.AreEqual(origLayers[s].HomeLayer, s.HomeLayer); Assert.AreEqual(origLayers[s].SupplementalLayers, s.SupplementalLayers); };
 				});
 
 			EndTest(project, projectName);
@@ -675,7 +693,7 @@ namespace NShapeTest {
 				() => Assert.AreEqual(diagram.Width, (int)oldValue));
 
 			//Dataweb.NShape.Commands.LayerPropertySetCommand
-			Layer layer = diagram.Layers[LayerIds.Layer01];
+			Layer layer = diagram.Layers[1];
 			propertyInfo = typeof(Layer).GetProperty("UpperZoomThreshold");
 			oldValue = layer.UpperZoomThreshold;
 			newValue = layer.UpperZoomThreshold - 100;
@@ -858,10 +876,10 @@ namespace NShapeTest {
 		}
 
 
-		private Dictionary<Shape, LayerIds> GetShapeLayers(IEnumerable<Shape> shapes) {
-			Dictionary<Shape, LayerIds> result = new Dictionary<Shape, LayerIds>();
-			foreach (Shape s in shapes) 
-				result.Add(s, s.Layers);
+		private Dictionary<Shape, LayerInfo> GetShapeLayers(IEnumerable<Shape> shapes) {
+			Dictionary<Shape, LayerInfo> result = new Dictionary<Shape, LayerInfo>();
+			foreach (Shape s in shapes)
+				result.Add(s, LayerInfo.Create(s.HomeLayer, s.SupplementalLayers));
 			return result;
 		}
 

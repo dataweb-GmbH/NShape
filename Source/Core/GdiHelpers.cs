@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -18,7 +18,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.IO;
+using System.Security.Cryptography;
 
 
 namespace Dataweb.NShape.Advanced {
@@ -35,6 +37,66 @@ namespace Dataweb.NShape.Advanced {
 		DefaultQuality,
 		/// <summary>Low Quality, high rendering speed.</summary>
 		LowQuality
+	}
+
+
+	/// <summary>
+	/// Used for storing the main settings for rendering quality.
+	/// </summary>
+	internal class GraphicsSettings {
+
+		public GraphicsSettings() {
+			CompositingMode = CompositingMode.SourceOver;
+			CompositingQuality = CompositingQuality.AssumeLinear;
+			InterpolationMode = InterpolationMode.NearestNeighbor;
+			PixelOffsetMode = PixelOffsetMode.None;
+			SmoothingMode = SmoothingMode.None;
+			TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
+		}
+
+		public GraphicsSettings(Graphics gfx) {
+			GetGraphicsSettings(gfx);
+		}
+
+		public CompositingMode CompositingMode { get; set; }
+
+		public CompositingQuality CompositingQuality { get; set; }
+
+		public InterpolationMode InterpolationMode { get; set; }
+
+		public PixelOffsetMode PixelOffsetMode { get; set; }
+
+		public SmoothingMode SmoothingMode { get; set; }
+
+		public TextRenderingHint TextRenderingHint { get; set; }
+
+		public void GetGraphicsSettings(Graphics gfx) {
+			CompositingMode = gfx.CompositingMode;
+			CompositingQuality = gfx.CompositingQuality;
+			InterpolationMode = gfx.InterpolationMode;
+			PixelOffsetMode = gfx.PixelOffsetMode;
+			SmoothingMode = gfx.SmoothingMode;
+			TextRenderingHint = gfx.TextRenderingHint;
+		}
+
+		public void SetGraphicsSettings(Graphics gfx) {
+			gfx.CompositingMode = CompositingMode;
+			gfx.CompositingQuality = CompositingQuality;
+			gfx.InterpolationMode = InterpolationMode;
+			gfx.PixelOffsetMode = PixelOffsetMode;
+			gfx.SmoothingMode = SmoothingMode;
+			gfx.TextRenderingHint = TextRenderingHint;
+		}
+
+		public static void SetFastestGraphicsSettings(Graphics gfx) {
+			gfx.CompositingMode = CompositingMode.SourceOver;
+			gfx.CompositingQuality = CompositingQuality.AssumeLinear;
+			gfx.InterpolationMode = InterpolationMode.NearestNeighbor;
+			gfx.PixelOffsetMode = PixelOffsetMode.None;
+			gfx.SmoothingMode = SmoothingMode.None;
+			gfx.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
+		}
+
 	}
 
 
@@ -157,9 +219,9 @@ namespace Dataweb.NShape.Advanced {
 			PointF center = PointF.Empty;
 			center.X = rect.Left + (rect.Width / 2f);
 			center.Y = rect.Top + (rect.Height / 2f);
-			matrix.Reset();
-			matrix.RotateAt(angleDeg, center);
-			matrix.TransformPoints(pts);
+			_matrix.Reset();
+			_matrix.RotateAt(angleDeg, center);
+			_matrix.TransformPoints(pts);
 			gfx.DrawLines(pen, pts);
 		}
 
@@ -175,9 +237,9 @@ namespace Dataweb.NShape.Advanced {
 				path.AddEllipse(centerX - width / 2f, centerY - height / 2f, width, height);
 
 				PointF center = new PointF(centerX, centerY);
-				matrix.Reset();
-				matrix.RotateAt(angleDeg, center);
-				path.Transform(matrix);
+				_matrix.Reset();
+				_matrix.RotateAt(angleDeg, center);
+				path.Transform(_matrix);
 				gfx.DrawPath(pen, path);
 			}
 		}
@@ -194,37 +256,38 @@ namespace Dataweb.NShape.Advanced {
 			if (graphics == null) throw new ArgumentNullException("graphics");
 			switch (renderingQuality) {
 				case RenderingQuality.MaximumQuality:
+					graphics.CompositingQuality = CompositingQuality.HighQuality;
+					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+					//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;			// produces quite blurry results
 					graphics.SmoothingMode = SmoothingMode.HighQuality;
 					//graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;	// smoothed but blurry fonts
 					graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;	// sharp but slightly chunky fonts
-					graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-					graphics.CompositingQuality = CompositingQuality.HighQuality;
-					//graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;			// produces quite blurry results
 					break;
 
 				case RenderingQuality.HighQuality:
-					// antialiasing and nice font rendering
-					graphics.SmoothingMode = SmoothingMode.HighQuality;
+					graphics.CompositingQuality = CompositingQuality.AssumeLinear;	// From MSDN: Slightly better but slightly slower than Default					
+					graphics.InterpolationMode = InterpolationMode.High;
+					graphics.SmoothingMode = SmoothingMode.HighQuality;				// antialiasing and nice font rendering
 					//graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;	// smoothed but blurry fonts
 					graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;	// sharp but slightly chunky fonts
-					graphics.InterpolationMode = InterpolationMode.High;
 					break;
 
 				case RenderingQuality.LowQuality:
+					// Fastest settings for drawing with transparency
+					graphics.CompositingQuality = CompositingQuality.HighSpeed;
+					graphics.InterpolationMode = InterpolationMode.Low;
+					graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
 					graphics.SmoothingMode = SmoothingMode.HighSpeed;
 					graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-					graphics.InterpolationMode = InterpolationMode.Low;
-					graphics.CompositingQuality = CompositingQuality.HighSpeed;
-					graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
 					break;
 
 				case RenderingQuality.DefaultQuality:
 				default:
+					graphics.CompositingQuality = CompositingQuality.Default;
+					graphics.InterpolationMode = InterpolationMode.Default;
+					graphics.PixelOffsetMode = PixelOffsetMode.Default;
 					graphics.SmoothingMode = SmoothingMode.Default;
 					graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-					graphics.InterpolationMode = InterpolationMode.Default;
-					graphics.CompositingQuality = CompositingQuality.Default;
-					graphics.PixelOffsetMode = PixelOffsetMode.Default;
 					break;
 			}
 		}
@@ -254,7 +317,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public static Bitmap GetIconBitmap(Bitmap sourceImg, Color oldBackgroundColor, Color newBackgroundColor) {
 			if (sourceImg == null) throw new ArgumentNullException("sourceImg");
-			Bitmap result = new Bitmap(sourceImg.Width, sourceImg.Height, sourceImg.PixelFormat);
+			Bitmap result = new Bitmap(sourceImg.Width, sourceImg.Height, PixelFormat.Format32bppPArgb);
 			result.SetResolution(sourceImg.HorizontalResolution, sourceImg.VerticalResolution);
 			using (Graphics gfx = Graphics.FromImage(result)) {
 				using (ImageAttributes imgAttr = new ImageAttributes()) {
@@ -361,90 +424,263 @@ namespace Dataweb.NShape.Advanced {
 			if (gamma > 0) imageAttribs.SetGamma(gamma);
 			//
 			// Reset color matrix before applying effects
-			ResetColorMatrix(colorMatrix);
+			ResetColorMatrix(_colorMatrix);
 			// Add conversion to grayScale
 			if (grayScale || (forPreview && Design.PreviewsAsGrayScale))
-				ApplyGrayScale(colorMatrix);
+				ApplyGrayScale(_colorMatrix);
 			// Add transparency
 			float transparencyFactor = forPreview ? Design.GetPreviewTransparency(transparency) / 100f : transparency / 100f;
-			if (transparencyFactor != 0) ApplyTransparency(colorMatrix, transparencyFactor);
+			if (transparencyFactor != 0) ApplyTransparency(_colorMatrix, transparencyFactor);
 			// Apply color matrix
-			imageAttribs.SetColorMatrix(colorMatrix);
+			imageAttribs.SetColorMatrix(_colorMatrix);
 			//
 			// Set color remap table
 			if (transparentColor != Color.Empty) {
-				colorMaps[0].OldColor = transparentColor;
-				colorMaps[0].NewColor = Color.Transparent;
-				imageAttribs.SetRemapTable(colorMaps);
+				_colorMaps[0].OldColor = transparentColor;
+				_colorMaps[0].NewColor = Color.Transparent;
+				imageAttribs.SetRemapTable(_colorMaps);
 			}
 			return imageAttribs;
 		}
 
 
 		/// <summary>
-		/// Draw an image into the specified bounds
+		/// Calculates the source bounds for drawing the given image into the given bounds using the specified layout.
 		/// </summary>
-		public static void DrawImage(Graphics gfx, Image image, ImageAttributes imageAttribs, ImageLayoutMode imageLayout, Rectangle dstBounds, Rectangle srcBounds) {
-			DrawImage(gfx, image, imageAttribs, imageLayout, dstBounds, srcBounds, 0);
-		}
+		public static Rectangle GetImageSourceBounds(Image image, ImageLayoutMode imageLayout, Rectangle bounds) {
+			float scaleX, scaleY;
+			float aspectRatio = CalcImageScaleAndAspect(out scaleX, out scaleY, bounds.Width, bounds.Height, image, imageLayout);
 
+			// Get the image bounds because meta files may be transformed which results in bounds that do not match the rectangle (0, 0, image.Width, image.Height).
+			GraphicsUnit gfxUnit = GraphicsUnit.Pixel;
+			Rectangle imageBounds = Rectangle.Ceiling(image.GetBounds(ref gfxUnit));
 
-		/// <summary>
-		/// Draw an image into the specified bounds
-		/// </summary>
-		public static void DrawImage(Graphics gfx, Image image, ImageAttributes imageAttribs, ImageLayoutMode imageLayout, Rectangle dstBounds, Rectangle srcBounds, float angle) {
-			PointF center = PointF.Empty;
-			center.X = dstBounds.X + (dstBounds.Width / 2f);
-			center.Y = dstBounds.Y + (dstBounds.Height / 2f);
-			DrawImage(gfx, image, imageAttribs, imageLayout, dstBounds, srcBounds, angle, center);
-		}
-
-
-		/// <summary>
-		/// Draw an image into the specified bounds
-		/// </summary>
-		public static void DrawImage(Graphics gfx, Image image, ImageAttributes imageAttribs, ImageLayoutMode imageLayout, Rectangle dstBounds, Rectangle srcBounds, float angle, PointF rotationCenter) {
-			if (gfx == null) throw new ArgumentNullException("gfx");
-			if (image == null) throw new ArgumentNullException("image");
-			// ToDo: Optimize this (draw only the drawArea part of the image, optimize calculations and variable use, draw bitmaps by using a TextureBrush)
-
-			float scaleX, scaleY, aspectRatio;
-			aspectRatio = CalcImageScaleAndAspect(out scaleX, out scaleY, dstBounds.Width, dstBounds.Height, image, imageLayout);
-
-			Rectangle destinationBounds = Rectangle.Empty;
-			// transform image bounds
+			Rectangle result = Rectangle.Empty;
 			switch (imageLayout) {
 				case ImageLayoutMode.Tile:
 				case ImageLayoutMode.FlipTile:
-					destinationBounds = dstBounds;
+					if (imageBounds.Right > bounds.Width || imageBounds.Bottom > bounds.Height) {
+						result.X = Math.Max(0, imageBounds.X);
+						result.Y = Math.Max(0, imageBounds.Y);
+						result.Width = imageBounds.Width - Math.Max(0, imageBounds.Width - bounds.Width);
+						result.Height = imageBounds.Height - Math.Max(0, imageBounds.Height - bounds.Height);
+					} else
+						result = imageBounds;
 					break;
 				case ImageLayoutMode.Original:
-					destinationBounds.X = dstBounds.X;
-					destinationBounds.Y = dstBounds.Y;
-					destinationBounds.Width = Math.Min(image.Width, dstBounds.Width);
-					destinationBounds.Height = Math.Min(image.Height, dstBounds.Height);
-					break;
-				case ImageLayoutMode.CenterTile:
-				case ImageLayoutMode.Center:
-					destinationBounds.X = dstBounds.X + (int)Math.Round((dstBounds.Width - image.Width) / 2f);
-					destinationBounds.Y = dstBounds.Y + (int)Math.Round((dstBounds.Height - image.Height) / 2f);
-					destinationBounds.Width = image.Width;
-					destinationBounds.Height = image.Height;
+					if (imageBounds.Right > bounds.Width || imageBounds.Bottom > bounds.Height) {
+						result.X = Math.Max(0, imageBounds.X);
+						result.Y = Math.Max(0, imageBounds.Y);
+						result.Width = imageBounds.Width - Math.Max(0, imageBounds.Right - bounds.Width);
+						result.Height = imageBounds.Height - Math.Max(0, imageBounds.Bottom - bounds.Height);
+					} else
+						result = imageBounds;
 					break;
 				case ImageLayoutMode.Stretch:
 				case ImageLayoutMode.Fit:
-					destinationBounds.X = dstBounds.X;
-					destinationBounds.Y = dstBounds.Y;
-					if (imageLayout == ImageLayoutMode.Fit) {
-						destinationBounds.X += (int)Math.Round((dstBounds.Width - (image.Width * scaleX)) / 2f);
-						destinationBounds.Y += (int)Math.Round((dstBounds.Height - (image.Height * scaleY)) / 2f);
-					}
-					destinationBounds.Width = (int)Math.Round(image.Width * scaleX);
-					destinationBounds.Height = (int)Math.Round(image.Height * scaleY);
+					result = imageBounds;
+					break;
+				case ImageLayoutMode.Center:
+				case ImageLayoutMode.CenterTile:
+					if (imageBounds.Width > bounds.Width || imageBounds.Height > bounds.Height) {
+						result.Width = Math.Min(imageBounds.Width, bounds.Width);
+						result.Height = Math.Min(imageBounds.Height, bounds.Height);
+						result.X = imageBounds.X + (int)Math.Round((imageBounds.Width - result.Width) / 2f);
+						result.Y = imageBounds.Y + (int)Math.Round((imageBounds.Height - result.Height) / 2f);
+					} else
+						result = imageBounds;
 					break;
 				default:
-					throw new NShapeException(string.Format("Unexpected {0} '{1}'.", imageLayout.GetType(), imageLayout));
+					throw new NShapeUnsupportedValueException(imageLayout);
 			}
+			return result;
+		}
+
+
+		/// <summary>
+		/// Calculates the destination bounds for drawing the given image into the given bounds using the specified layout.
+		/// </summary>
+		public static Rectangle GetImageDestinationBounds(Image image, ImageLayoutMode imageLayout, Rectangle bounds) {
+			float scaleX, scaleY;
+			float aspectRatio = CalcImageScaleAndAspect(out scaleX, out scaleY, bounds.Width, bounds.Height, image, imageLayout);
+
+			// Get the image bounds because meta files may be transformed which results in bounds that do not match the rectangle (0, 0, image.Width, image.Height).
+			GraphicsUnit gfxUnit = GraphicsUnit.Pixel;
+			Rectangle imageBounds = Rectangle.Ceiling(image.GetBounds(ref gfxUnit));
+
+			// Transform image bounds
+			Rectangle result = Rectangle.Empty;
+			switch (imageLayout) {
+				case ImageLayoutMode.Tile:
+				case ImageLayoutMode.FlipTile:
+					result = bounds;
+					break;
+				case ImageLayoutMode.Original:
+					result.X = bounds.X + imageBounds.X;
+					result.Y = bounds.Y + imageBounds.Y;
+					result.Width = Math.Min(imageBounds.Width, bounds.Width - imageBounds.X);
+					result.Height = Math.Min(imageBounds.Height, bounds.Height - imageBounds.Y);
+					break;
+				case ImageLayoutMode.CenterTile:
+				case ImageLayoutMode.Center:
+					result.X = Math.Max(bounds.X, bounds.X + (int)Math.Round((bounds.Width - imageBounds.Width) / 2f));
+					result.Y = Math.Max(bounds.Y, bounds.Y + (int)Math.Round((bounds.Height - imageBounds.Height) / 2f));
+					result.Width = Math.Min(bounds.Width, image.Width);
+					result.Height = Math.Min(bounds.Height, image.Height);
+					break;
+				case ImageLayoutMode.Stretch:
+				case ImageLayoutMode.Fit:
+					result.X = bounds.X;
+					result.Y = bounds.Y;
+					if (imageLayout == ImageLayoutMode.Fit) {
+						result.X += (int)Math.Round((bounds.Width - (imageBounds.Width * scaleX)) / 2f);
+						result.Y += (int)Math.Round((bounds.Height - (imageBounds.Height * scaleY)) / 2f);
+					}
+					result.Width = (int)Math.Round(imageBounds.Width * scaleX);
+					result.Height = (int)Math.Round(imageBounds.Height* scaleY);
+					break;
+				default:
+					throw new NShapeUnsupportedValueException(imageLayout);
+			}
+			return result;
+		}
+
+
+		/// <summary>
+		/// Calculates the source bounds for drawing the given image into the given bounds using the specified layout.
+		/// </summary>
+		public static Rectangle GetImageSourceClipBounds(Image image, ImageLayoutMode imageLayout, Rectangle bounds, Rectangle clipBounds) {
+			float scaleX, scaleY;
+			float aspectRatio = CalcImageScaleAndAspect(out scaleX, out scaleY, bounds.Width, bounds.Height, image, imageLayout);
+
+			// Get the image bounds because meta files may be transformed which results in bounds that do not match the rectangle (0, 0, image.Width, image.Height).
+			GraphicsUnit gfxUnit = GraphicsUnit.Pixel;
+			Rectangle imageBounds = Rectangle.Ceiling(image.GetBounds(ref gfxUnit));
+
+			Rectangle result = Rectangle.Empty;
+			switch (imageLayout) {
+				case ImageLayoutMode.Tile:
+				case ImageLayoutMode.FlipTile:
+					if (imageBounds.Right > bounds.Width || imageBounds.Bottom > bounds.Height) {
+						result.X = Math.Max(0, imageBounds.X);
+						result.Y = Math.Max(0, imageBounds.Y);
+						result.Width = imageBounds.Width - Math.Max(0, imageBounds.Width - bounds.Width);
+						result.Height = imageBounds.Height - Math.Max(0, imageBounds.Height - bounds.Height);
+					} else
+						result = imageBounds;
+					break;
+				case ImageLayoutMode.Original:
+					if (imageBounds.Right > clipBounds.Width || imageBounds.Bottom > clipBounds.Height) {
+						result.X = Math.Max(clipBounds.X, imageBounds.X);
+						result.Y = Math.Max(clipBounds.Y, imageBounds.Y);
+						result.Width = imageBounds.Width - Math.Max(0, imageBounds.Right - clipBounds.Width);
+						result.Height = imageBounds.Height - Math.Max(0, imageBounds.Bottom - clipBounds.Height);
+					} else
+						result = clipBounds;
+					break;
+				case ImageLayoutMode.Stretch:
+				case ImageLayoutMode.Fit:
+					result = imageBounds;
+					break;
+				case ImageLayoutMode.Center:
+				case ImageLayoutMode.CenterTile:
+					if (imageBounds.Width > bounds.Width || imageBounds.Height > bounds.Height) {
+						result.Width = Math.Min(imageBounds.Width, bounds.Width);
+						result.Height = Math.Min(imageBounds.Height, bounds.Height);
+						result.X = imageBounds.X + (int)Math.Round((imageBounds.Width - result.Width) / 2f);
+						result.Y = imageBounds.Y + (int)Math.Round((imageBounds.Height - result.Height) / 2f);
+					} else
+						result = imageBounds;
+					break;
+				default:
+					throw new NShapeUnsupportedValueException(imageLayout);
+			}
+			return result;
+		}
+
+
+		/// <summary>
+		/// Calculates the destination bounds for drawing the given image into the given bounds using the specified layout.
+		/// </summary>
+		public static Rectangle GetImageDestinationClipBounds(Image image, ImageLayoutMode imageLayout, Rectangle bounds, Rectangle clipBounds) {
+			float scaleX, scaleY;
+			float aspectRatio = CalcImageScaleAndAspect(out scaleX, out scaleY, bounds.Width, bounds.Height, image, imageLayout);
+
+			// Get the image bounds because meta files may be transformed which results in bounds that do not match the rectangle (0, 0, image.Width, image.Height).
+			GraphicsUnit gfxUnit = GraphicsUnit.Pixel;
+			Rectangle imageBounds = Rectangle.Ceiling(image.GetBounds(ref gfxUnit));
+
+			// Transform image bounds
+			Rectangle result = Rectangle.Empty;
+			switch (imageLayout) {
+				case ImageLayoutMode.Tile:
+				case ImageLayoutMode.FlipTile:
+					result = bounds;
+					break;
+				case ImageLayoutMode.Original:
+					result.X = clipBounds.X + imageBounds.X;
+					result.Y = clipBounds.Y + imageBounds.Y;
+					result.Width = Math.Min(imageBounds.Width, clipBounds.Width - imageBounds.X);
+					result.Height = Math.Min(imageBounds.Height, clipBounds.Height - imageBounds.Y);
+					break;
+				case ImageLayoutMode.CenterTile:
+				case ImageLayoutMode.Center:
+					result.X = Math.Max(bounds.X, bounds.X + (int)Math.Round((bounds.Width - imageBounds.Width) / 2f));
+					result.Y = Math.Max(bounds.Y, bounds.Y + (int)Math.Round((bounds.Height - imageBounds.Height) / 2f));
+					result.Width = Math.Min(bounds.Width, image.Width);
+					result.Height = Math.Min(bounds.Height, image.Height);
+					break;
+				case ImageLayoutMode.Stretch:
+				case ImageLayoutMode.Fit:
+					result.X = bounds.X;
+					result.Y = bounds.Y;
+					if (imageLayout == ImageLayoutMode.Fit) {
+						result.X += (int)Math.Round((bounds.Width - (imageBounds.Width * scaleX)) / 2f);
+						result.Y += (int)Math.Round((bounds.Height - (imageBounds.Height * scaleY)) / 2f);
+					}
+					result.Width = (int)Math.Round(imageBounds.Width * scaleX);
+					result.Height = (int)Math.Round(imageBounds.Height* scaleY);
+					break;
+				default:
+					throw new NShapeUnsupportedValueException(imageLayout);
+			}
+			return result;
+		}
+
+
+		/// <summary>
+		/// Draw an image into the specified bounds
+		/// </summary>
+		public static void DrawImage(Graphics gfx, Image image, ImageAttributes imageAttribs, ImageLayoutMode imageLayout, Rectangle destinationBounds) {
+			DrawImage(gfx, image, imageAttribs, imageLayout, destinationBounds, 0);
+		}
+
+
+		/// <summary>
+		/// Draw an image into the specified bounds
+		/// </summary>
+		public static void DrawImage(Graphics gfx, Image image, ImageAttributes imageAttribs, ImageLayoutMode imageLayout, Rectangle destinationBounds, float angle) {
+			PointF center = PointF.Empty;
+			center.X = destinationBounds.X + (destinationBounds.Width / 2f);
+			center.Y = destinationBounds.Y + (destinationBounds.Height / 2f);
+			DrawImage(gfx, image, imageAttribs, imageLayout, destinationBounds, destinationBounds, angle, center);
+		}
+
+
+		/// <summary>
+		/// Draw an image into the specified bounds
+		/// </summary>
+		public static void DrawImage(Graphics gfx, Image image, ImageAttributes imageAttribs, ImageLayoutMode imageLayout, Rectangle destinationBounds, float angle, PointF rotationCenter) {
+			DrawImage(gfx, image, imageAttribs, imageLayout, destinationBounds, destinationBounds, angle, rotationCenter);
+		}
+
+
+		/// <summary>
+		/// Draw an image into the specified bounds
+		/// </summary>
+		public static void DrawImage(Graphics gfx, Image image, ImageAttributes imageAttribs, ImageLayoutMode imageLayout, Rectangle destinationBounds, Rectangle clipBounds, float angle, PointF rotationCenter) {
+			if (gfx == null) throw new ArgumentNullException("gfx");
+			if (image == null) throw new ArgumentNullException("image");
 
 			if (angle != 0) {
 				gfx.TranslateTransform(rotationCenter.X, rotationCenter.Y);
@@ -452,91 +688,98 @@ namespace Dataweb.NShape.Advanced {
 				gfx.TranslateTransform(-rotationCenter.X, -rotationCenter.Y);
 			}
 
-			GraphicsUnit gfxUnit = GraphicsUnit.Display;
-			RectangleF imageBounds = image.GetBounds(ref gfxUnit);
-			int srcX, srcY, srcWidth, srcHeight;
+			// Draw the image
+			GraphicsUnit gfxUnit = GraphicsUnit.Pixel; // GraphicsUnit.Display; 
 			switch (imageLayout) {
 				case ImageLayoutMode.CenterTile:
 				case ImageLayoutMode.FlipTile:
-				case ImageLayoutMode.Tile:
-					int startX, startY, endX, endY;
-					if (imageLayout == ImageLayoutMode.CenterTile) {
-						int nX = (int)Math.Ceiling(dstBounds.Width / (float)image.Width);
-						int nY = (int)Math.Ceiling(dstBounds.Height / (float)image.Height);
-						if (nX == 1) startX = destinationBounds.X;
-						else startX = (int)Math.Round(destinationBounds.X - ((image.Width * nX) / 2f));
-						if (nY == 1) startY = destinationBounds.Y;
-						else startY = (int)Math.Round(destinationBounds.Y - ((image.Height * nY) / 2f));
-					} else {
-						startX = dstBounds.X;
-						startY = dstBounds.Y;
-					}
-					endX = dstBounds.Right;
-					endY = dstBounds.Bottom;
+				case ImageLayoutMode.Tile: {
+						// Calculate the bounds for the whole image (source bounds and destination bounds) for calculating 
+						// the number of tiles and the tile offset
+						Rectangle imgSourceBounds = GetImageSourceBounds(image, imageLayout, destinationBounds);
+						Rectangle imgDestinationBounds = GetImageDestinationBounds(image, imageLayout, destinationBounds);
 
-					Rectangle r = Rectangle.Empty;
-					r.Width = image.Width;
-					r.Height = image.Height;
-					for (int x = startX; x < endX; x += image.Width) {
-						for (int y = startY; y < endY; y += image.Height) {
-							// Set source bounds location
-							srcX = (x < 0) ? -startX : 0;
-							srcY = (y < 0) ? -startY : 0;
-							// Set destination bounds location
-							r.X = Math.Max(x, dstBounds.X);
-							r.Y = Math.Max(y, dstBounds.Y);
-							// set source and destination bounds' size
-							if (x + image.Width > endX)
-								srcWidth = r.Width = endX - r.X;
-							else
-								srcWidth = r.Width = image.Width - srcX;
+						// Calculate the number of tiles
+						int tileCountX = (int)Math.Ceiling(destinationBounds.Width / (float)image.Width);
+						int tileCountY = (int)Math.Ceiling(destinationBounds.Height / (float)image.Height);
+						// Calculate the 
+						int startX, startY, endX, endY;
+						if (imageLayout == ImageLayoutMode.CenterTile) {
+							// Set start coordinates for the tiles
+							if (tileCountX == 1) startX = imgDestinationBounds.X;
+							else startX = (int)Math.Round(imgDestinationBounds.X - ((image.Width * tileCountX) / 2f));
+							if (tileCountY == 1) startY = imgDestinationBounds.Y;
+							else startY = (int)Math.Round(imgDestinationBounds.Y - ((image.Height * tileCountY) / 2f));
+						} else {
+							startX = destinationBounds.X;
+							startY = destinationBounds.Y;
+						}
+						endX = destinationBounds.Right;
+						endY = destinationBounds.Bottom;
 
-							if (y + image.Height > endY)
-								srcHeight = r.Height = endY - r.Y;
-							else
-								srcHeight = r.Height = image.Height - srcY;
-
-							if (imageLayout == ImageLayoutMode.FlipTile) {
-								int modX = (x / image.Width) % 2;
-								int modY = (y / image.Height) % 2;
-								if (modX != 0) {
-									srcX = image.Width - srcX;
-									srcWidth = -srcWidth;
+						for (int x = startX; x < endX; x += image.Width) {
+							for (int y = startY; y < endY; y += image.Height) {
+								// Set source bounds for tile
+								Rectangle srcTileBounds = imgSourceBounds;
+								if (x < destinationBounds.X)
+									srcTileBounds.X = imgSourceBounds.X + (destinationBounds.X - x);
+								if (y < destinationBounds.Y)
+									srcTileBounds.Y = imgSourceBounds.Y + (destinationBounds.Y - y);
+								// Set destination bounds for tile
+								Rectangle dstTileBounds = imgSourceBounds;
+								dstTileBounds.X = Math.Max(x, destinationBounds.X);
+								dstTileBounds.Y = Math.Max(y, destinationBounds.Y);
+								// Set source and destination bounds' size
+								if (x + image.Width > endX)
+									srcTileBounds.Width =
+									dstTileBounds.Width = endX - dstTileBounds.X;
+								if (y + image.Height > endY)
+									srcTileBounds.Height =
+									dstTileBounds.Height = endY - dstTileBounds.Y;
+								// Handle the FlipTile case
+								if (imageLayout == ImageLayoutMode.FlipTile) {
+									int modX = (x / image.Width) % 2;
+									int modY = (y / image.Height) % 2;
+									if (modX != 0) {
+										srcTileBounds.X = imgSourceBounds.Right;
+										srcTileBounds.Width = -srcTileBounds.Width;
+									}
+									if (modY != 0) {
+										srcTileBounds.Y = imgSourceBounds.Bottom;
+										srcTileBounds.Height = -srcTileBounds.Height;
+									}
 								}
-								if (modY != 0) {
-									srcY = image.Height - srcY;
-									srcHeight = -srcHeight;
+								// Don't draw image if source width/height are <= 0!
+								if (imageLayout == ImageLayoutMode.FlipTile) {
+									if (srcTileBounds.Width == 0 || srcTileBounds.Height == 0)
+										continue;
+								} else {
+									if (srcTileBounds.Width <= 0 || srcTileBounds.Height <= 0)
+										continue;
 								}
+								// Draw only tiles that intersect with the clipping area
+								//if (!Geometry.RectangleIntersectsWithRectangle(dstTileBounds, clipBounds))
+								//    continue;
+								gfx.DrawImage(image, dstTileBounds, srcTileBounds.X, srcTileBounds.Y, srcTileBounds.Width, srcTileBounds.Height, gfxUnit, imageAttribs);
 							}
-							gfx.DrawImage(image, r, srcX, srcY, srcWidth, srcHeight, GraphicsUnit.Pixel, imageAttribs);
 						}
 					}
 					break;
 				case ImageLayoutMode.Original:
-					gfx.DrawImageUnscaled(image, Point.Empty);
-					break;
+				// Don't use DrawImageUnscaledAndClipped! It will not - as the name would imply - draw the image 1:1 into the 
+				// given rectangle, it will fill the given rectangle instead and therefore scale it to the extents of the rectangle. 
+				// The "Unscaled" refers to the image's resolution (DPI) settings which will be ignored in this case (it will not scale from 100px to 100mm).
 				case ImageLayoutMode.Center:
-					if (image.Width > dstBounds.Width || image.Height > dstBounds.Height) {
-						srcWidth = destinationBounds.Width = Math.Min(image.Width, dstBounds.Width);
-						srcHeight = destinationBounds.Height = Math.Min(image.Height, dstBounds.Height);
-						destinationBounds.X = dstBounds.X;
-						destinationBounds.Y = dstBounds.Y;
-					} else {
-						srcWidth = image.Width;
-						srcHeight = image.Height;
-					}
-					if (imageLayout == ImageLayoutMode.Center) {
-						srcX = image.Width - srcWidth;
-						srcY = image.Height - srcHeight;
-					} else {
-						srcX = (int)imageBounds.X;
-						srcY = (int)imageBounds.Y;
-					}
-					gfx.DrawImage(image, destinationBounds, srcX, srcY, srcWidth, srcHeight, GraphicsUnit.Pixel, imageAttribs);
-					break;
 				case ImageLayoutMode.Fit:
-				case ImageLayoutMode.Stretch:
-					gfx.DrawImage(image, destinationBounds, imageBounds.X, imageBounds.Y, imageBounds.Width, imageBounds.Height, gfxUnit, imageAttribs);
+				case ImageLayoutMode.Stretch: {
+						// Get source and destination bounds according to the layout.
+						Rectangle imgSourceClipBounds = GetImageSourceClipBounds(image, imageLayout, destinationBounds, clipBounds);
+						Rectangle imgDestinationClipBounds = GetImageDestinationClipBounds(image, imageLayout, destinationBounds, clipBounds);
+
+						// Don't draw image if source width/height are <= 0!
+						if (!(imgSourceClipBounds.Width <= 0 || imgSourceClipBounds.Height <= 0))
+							gfx.DrawImage(image, imgDestinationClipBounds, imgSourceClipBounds.X, imgSourceClipBounds.Y, imgSourceClipBounds.Width, imgSourceClipBounds.Height, gfxUnit, imageAttribs);
+					}
 					break;
 				default: throw new NShapeUnsupportedValueException(imageLayout);
 			}
@@ -570,11 +813,11 @@ namespace Dataweb.NShape.Advanced {
 			else {
 				int scaledWidth = (int)Math.Round(image.Width * scaleFactor);
 				int scaledHeight = (int)Math.Round(image.Height * scaleFactor);
-				Stopwatch sw = new Stopwatch();
-				sw.Start();
+				//Stopwatch sw = new Stopwatch();
+				//sw.Start();
 				Bitmap newImage = (Bitmap)image.GetThumbnailImage(scaledWidth, scaledHeight, null, IntPtr.Zero);
-				sw.Stop();
-				Debug.Print("Creating Thumbnail scaled to {0:F2}%: {1}", scaleFactor * 100, sw.Elapsed);
+				//sw.Stop();
+				//Debug.Print("Creating Thumbnail scaled to {0:F2}%: {1}", scaleFactor * 100, sw.Elapsed);
 				return newImage;
 			}
 		}
@@ -609,7 +852,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public static TextureBrush CreateTextureBrush(Image image, int desiredWidth, int desiredHeight, ImageAttributes imageAttribs) {
 			if (image == null) throw new ArgumentNullException("image");
-			if (!(image is Bitmap)) throw new ArgumentException(string.Format("{0} are not supported for this operation.", image.GetType().Name));
+			if (!(image is Bitmap)) throw new NotSupportedException(string.Format("{0} images are not supported for this operation.", image.GetType().Name));
 			return CreateTextureBrush(GetBrushImage(image, desiredWidth, desiredHeight), imageAttribs);
 		}
 
@@ -680,11 +923,11 @@ namespace Dataweb.NShape.Advanced {
 			switch (imageLayout) {
 				case ImageLayoutMode.Tile:
 				case ImageLayoutMode.FlipTile:
+				case ImageLayoutMode.Original:
 					// nothing to do
 					break;
 				case ImageLayoutMode.Center:
 				case ImageLayoutMode.CenterTile:
-				case ImageLayoutMode.Original:
 					((TextureBrush)brush).TranslateTransform((unrotatedBounds.Width - brush.Image.Width) / 2f, (unrotatedBounds.Height - brush.Image.Height) / 2f);
 					break;
 				case ImageLayoutMode.Stretch:
@@ -736,7 +979,7 @@ namespace Dataweb.NShape.Advanced {
 						// nothing to do
 						break;
 					default:
-						throw new NShapeException(string.Format("Unexpected {0} '{1}'", imageLayout.GetType(), imageLayout));
+						throw new NShapeUnsupportedValueException(imageLayout);
 				}
 			}
 			return aspectRatio;
@@ -804,6 +1047,109 @@ namespace Dataweb.NShape.Advanced {
 			result = (float)Math.Round(dR + dO, 6);
 
 			return result;
+		}
+
+		#endregion
+
+
+		#region Comparing Images
+
+		//public static bool AreEqual(Bitmap bitmapA, Bitmap bitmapB) {
+		//    bool areEqual = true;
+		//    // First, check image dimensions and pixel format
+		//    if (bitmapA.Width == bitmapB.Width && bitmapA.Height == bitmapB.Height && bitmapA.PixelFormat == bitmapB.PixelFormat) {
+		//        Rectangle rect = Rectangle.Empty;
+		//        rect.Width = bitmapA.Width;
+		//        rect.Height = bitmapA.Height;
+		//        BitmapData bmpDataA = null;
+		//        BitmapData bmpDataB = null;
+		//        try {
+		//            bmpDataA = bitmapA.LockBits(rect, ImageLockMode.ReadOnly, bitmapA.PixelFormat);
+		//            bmpDataB = bitmapB.LockBits(rect, ImageLockMode.ReadOnly, bitmapB.PixelFormat);
+
+		//            int offsetA = 0;
+		//            int offsetB = 0;
+		//            int rowSize = rect.Width * GetBytesPerPixel(bitmapA.PixelFormat);
+		//            for (int y = 0; areEqual && y < rect.Height; ++y) {
+		//                for (int x = 0; x < rowSize; ++x) {
+		//                    if (Marshal.ReadByte(bmpDataA.Scan0, offsetA) != Marshal.ReadByte(bmpDataB.Scan0, offsetB)) {
+		//                        areEqual = false;
+		//                        break;
+		//                    }
+		//                    ++offsetA;
+		//                    ++offsetB;
+		//                }
+		//                offsetA += bmpDataA.Stride - rowSize;
+		//                offsetB += bmpDataB.Stride - rowSize;
+		//            }
+		//        } finally {
+		//            bitmapA.UnlockBits(bmpDataA);
+		//            bitmapB.UnlockBits(bmpDataB);
+		//        }
+		//    }
+		//    return areEqual;
+		//}
+
+
+		/// <summary>
+		/// Returns the MD5 hash of the given image as HEX string.
+		/// </summary>
+		public static string CalculateHashCode(Image image) {
+			return CalculateHashCode(GetImageData(image));
+		}
+		
+
+		/// <summary>
+		/// Returns the MD5 hash of the given byte array as HEX string.
+		/// </summary>
+		public static string CalculateHashCode(byte[] data) {
+			return ByteArrayToHexString(_MD5Provider.ComputeHash(data));
+		}
+		
+
+		/// <summary>
+		/// Gets the image data as byte array.
+		/// </summary>
+		public static byte[] GetImageData(Image image) {
+			MemoryStream memStream = new MemoryStream();
+			GdiHelpers.SaveImage(image, memStream);
+			return memStream.GetBuffer();
+		}
+
+
+		public static void GetImageDataAndHashCode(Image image, out byte[] imageData, out string hashCode) {
+			imageData = GetImageData(image);
+			hashCode = CalculateHashCode(imageData);
+		}
+
+		
+		/// <summary>
+		/// Returns true if the given Images are considered as equal.
+		/// For performance reasons, the images are compred by comparing the hash codes of the underlying image data.
+		/// </summary>
+		public static bool AreEqual(Image imgA, Image imgB) {
+			return CalculateHashCode(imgA) == CalculateHashCode(imgB);
+		}
+
+
+		/// <summary>
+		/// Returns true if the given byte arrays are considered as equal.
+		/// For performance reasons, the byte arrays are compred by comparing their hash codes.
+		/// </summary>
+		public static bool AreEqual(byte[] dataA, byte[] dataB) {
+			return CalculateHashCode(dataA) == CalculateHashCode(dataB);
+		}
+
+
+		/// <summary>
+		/// Converts the given byte array to a HEX string.
+		/// </summary>
+		public static string ByteArrayToHexString(byte[] bytes) {
+			int requiredLength = bytes.Length * 2;
+			System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder(requiredLength, requiredLength);
+			foreach (byte b in bytes)
+				stringBuilder.Append(_hexStrings[b]);
+			return stringBuilder.ToString();
 		}
 
 		#endregion
@@ -1097,16 +1443,53 @@ namespace Dataweb.NShape.Advanced {
 		private static void ApplyTransparency(ColorMatrix colorMatrix, float transparencyFactor) {
 			colorMatrix.Matrix33 *= 1f - transparencyFactor;
 		}
-		
+
+
+		private static byte GetBytesPerPixel(PixelFormat pixelFormat) {
+			switch (pixelFormat) {
+				case PixelFormat.Gdi:
+				case PixelFormat.Indexed:
+				case PixelFormat.Max:
+				case PixelFormat.PAlpha:
+				case PixelFormat.Undefined:
+				case PixelFormat.Format4bppIndexed:
+					throw new NotSupportedException();
+				case PixelFormat.Format8bppIndexed:
+					return 1;
+				case PixelFormat.Format16bppArgb1555:
+				case PixelFormat.Format16bppGrayScale:
+				case PixelFormat.Format16bppRgb555:
+				case PixelFormat.Format16bppRgb565:
+				case PixelFormat.Format1bppIndexed:
+					return 2;
+				case PixelFormat.Format24bppRgb:
+					return 3;
+				case PixelFormat.Format32bppArgb:
+				case PixelFormat.Format32bppPArgb:
+				case PixelFormat.Format32bppRgb:
+					return 4;
+				case PixelFormat.Format48bppRgb:
+					return 6;
+				case PixelFormat.Format64bppArgb:
+				case PixelFormat.Format64bppPArgb:
+					return 8;
+				default:
+					throw new ArgumentException();
+			}
+		}
+
 		#endregion
 
 
 		#region Fields
 
-		private static ImageAttributes imageAttribs = new ImageAttributes();
-		private static ColorMap[] colorMaps = new ColorMap[] { new ColorMap() };
-		private static ColorMatrix colorMatrix = new ColorMatrix();
-		private static Matrix matrix = new Matrix();
+		private static ImageAttributes _imageAttribs = new ImageAttributes();
+		private static ColorMap[] _colorMaps = new ColorMap[] { new ColorMap() };
+		private static ColorMatrix _colorMatrix = new ColorMatrix();
+		private static Matrix _matrix = new Matrix();
+
+		private static MD5CryptoServiceProvider _MD5Provider = new MD5CryptoServiceProvider();
+		private static System.Text.ASCIIEncoding _asciiEncoder = new System.Text.ASCIIEncoding();
 
 		// Constants for the color-to-greyscale conversion
 		// Luminance correction factor (the human eye has preferences regarding colors)
@@ -1117,6 +1500,9 @@ namespace Dataweb.NShape.Advanced {
 		//private const float luminanceFactorRed = 0.3f;
 		//private const float luminanceFactorGreen = 0.5f;
 		//private const float luminanceFactorBlue = 0.3f;
+
+		// Mapping array for speeding up HEX string conversion: Contains a hex string for each byte value
+		private static string[] _hexStrings = { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1A", "1B", "1C", "1D", "1E", "1F", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2A", "2B", "2C", "2D", "2E", "2F", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3A", "3B", "3C", "3D", "3E", "3F", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4A", "4B", "4C", "4D", "4E", "4F", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "5A", "5B", "5C", "5D", "5E", "5F", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "6A", "6B", "6C", "6D", "6E", "6F", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "7A", "7B", "7C", "7D", "7E", "7F", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "8A", "8B", "8C", "8D", "8E", "8F", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "9A", "9B", "9C", "9D", "9E", "9F", "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "AA", "AB", "AC", "AD", "AE", "AF", "B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "BA", "BB", "BC", "BD", "BE", "BF", "C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "CA", "CB", "CC", "CD", "CE", "CF", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "DA", "DB", "DC", "DD", "DE", "DF", "E0", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "EA", "EB", "EC", "ED", "EE", "EF", "F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "FA", "FB", "FC", "FD", "FE", "FF" };
 
 		#endregion
 	}
@@ -1139,7 +1525,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Indicates whether the specified <see cref="T:Dataweb.NShape.Advanced.NamedImage" /> is null or has neither an <see cref="T:System.Drawing.Imaging.Image" /> nor an existing file to load from.
 		public static bool IsNullOrEmpty(NamedImage namedImage) {
 			if (namedImage != null) {
-				if (namedImage.image != null)
+				if (namedImage._image != null)
 					return false;
 				else if (File.Exists(namedImage.FilePath))
 					return false;
@@ -1150,7 +1536,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override string ToString() {
-			return this.name;
+			return this._name;
 		}
 
 
@@ -1158,12 +1544,13 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.NamedImage" />.
 		/// </summary>
 		public NamedImage() {
-			image = null;
-			name = string.Empty;
-			filePath = string.Empty;
-			//canLoadFromFile = false;
-			//imageType = typeof(Image);
-			imageSize = Size.Empty;
+			_image = null;
+			_name = string.Empty;
+			_filePath = string.Empty;
+			_hashCode = null;
+			//_canLoadFromFile = false;
+			//_imageType = typeof(Image);
+			_imageSize = Size.Empty;
 		}
 
 
@@ -1186,7 +1573,7 @@ namespace Dataweb.NShape.Advanced {
 			: this() {
 			if (image == null) throw new ArgumentNullException("image");
 			if (name == null) throw new ArgumentNullException("name");
-			Image = (Image)image.Clone();
+			Image = image;
 			Name = name;
 		}
 
@@ -1203,6 +1590,23 @@ namespace Dataweb.NShape.Advanced {
 			Name = name;
 			FilePath = fileName;
 			Image = (Image)image.Clone();
+		}
+
+
+		/// <summary>
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.NamedImage" />.
+		/// </summary>
+		/// <remarks>The given image will be cloned.</remarks>
+		public NamedImage(Image image, string fileName, string name, string hash)
+			: this() {
+			if (image == null) throw new ArgumentNullException("image");
+			if (fileName == null) throw new ArgumentNullException("fileName");
+			if (name == null) throw new ArgumentNullException("name");
+			Name = name;
+			FilePath = fileName;
+			Image = (Image)image.Clone();
+			Debug.Assert(hash == GdiHelpers.CalculateHashCode(Image));
+			_hashCode = hash;
 		}
 
 
@@ -1240,8 +1644,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Releases all resources.
 		/// </summary>
 		public void Dispose() {
-			if (image != null) image.Dispose();
-			image = null;
+			if (_image != null) _image.Dispose();
+			_image = null;
 		}
 
 		#endregion
@@ -1260,18 +1664,22 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public Image Image {
 			get {
-				if (image == null && File.Exists(filePath))
-					Load(filePath);
-				return image;
+				if (_image == null && File.Exists(_filePath))
+					Load(_filePath);
+				return _image;
 			}
 			set {
-				//canLoadFromFile = false;
-				//imageType = typeof(Image);
-				imageSize = Size.Empty;
-				image = value;
-				if (image != null) {
-					imageSize = image.Size;
-					//imageType = image.GetType();
+				if (_image != value) {
+					if (_image != null)
+						GdiHelpers.DisposeObject(ref _image);
+					//canLoadFromFile = false;
+					//imageType = typeof(Image);
+					_imageSize = Size.Empty;
+					_image = value;
+					if (_image != null) {
+						_imageSize = _image.Size;
+						//imageType = image.GetType();
+					}
 				}
 			}
 		}
@@ -1282,16 +1690,16 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public string Name {
 			get {
-				if (!string.IsNullOrEmpty(name))
-					return name;
-				else if (!string.IsNullOrEmpty(filePath))
-					return Path.GetFileNameWithoutExtension(filePath);
+				if (!string.IsNullOrEmpty(_name))
+					return _name;
+				else if (!string.IsNullOrEmpty(_filePath))
+					return Path.GetFileNameWithoutExtension(_filePath);
 				else return string.Empty;
 			}
 			set {
 				if (string.IsNullOrEmpty(value))
-					name = string.Empty;
-				else name = value;
+					_name = string.Empty;
+				else _name = value;
 			}
 		}
 
@@ -1300,20 +1708,51 @@ namespace Dataweb.NShape.Advanced {
 		/// Path to the image file
 		/// </summary>
 		public string FilePath {
-			get { return filePath; }
+			get { return _filePath; }
 			set {
 				if (string.IsNullOrEmpty(value))
-					filePath = string.Empty;
-				else filePath = value;
+					_filePath = string.Empty;
+				else _filePath = value;
 			}
 		}
+
+
+		/// <summary>
+		/// Gets the hash code of the image data.
+		/// If the image was not loaded yet, calculating the hash code will load the image first.
+		/// </summary>
+		public string ImageHash {
+			get {
+				if (string.IsNullOrEmpty(_hashCode) && Image != null) {
+					if (_memStream != null)
+						_hashCode = GdiHelpers.CalculateHashCode(_memStream.GetBuffer());
+					else 
+						_hashCode = GdiHelpers.CalculateHashCode(Image);
+				}
+				return _hashCode;
+			}
+		}
+
+
+		///// <summary>
+		///// Gets the image's underlying data as byte array.
+		///// </summary>
+		//internal byte[] ImageData {
+		//    get {
+		//        if (_memStream == null && Image != null) {
+		//            _memStream = new MemoryStream();
+		//            GdiHelpers.SaveImage(Image, _memStream);
+		//        }
+		//        return _memStream.GetBuffer();
+		//    }
+		//}
 
 
 		/// <summary>
 		/// Width of the image. 0 if no image is set.
 		/// </summary>
 		public int Width {
-			get { return imageSize.Width; }
+			get { return _imageSize.Width; }
 		}
 
 
@@ -1321,7 +1760,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Height of the image. 0 if no image is set.
 		/// </summary>
 		public int Height {
-			get { return imageSize.Height; }
+			get { return _imageSize.Height; }
 		}
 
 
@@ -1329,7 +1768,16 @@ namespace Dataweb.NShape.Advanced {
 		/// Size of the image. 0 if no image is set.
 		/// </summary>
 		public Size Size {
-			get { return imageSize; }
+			get { return _imageSize; }
+		}
+
+
+		/// <summary>
+		/// Returns true if FilePath refers to an existing file.
+		/// </summary>
+		/// <remarks>This property will not check whether the file is really a supported image file.</remarks>
+		public bool ImageFileExists {
+			get { return String.IsNullOrEmpty(FilePath) ? false : File.Exists(FilePath); }
 		}
 
 
@@ -1340,34 +1788,58 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="format"></param>
 		public void Save(string directoryName, ImageFormat format) {
 			if (!Directory.Exists(directoryName))
-				throw new FileNotFoundException("Directory does not exist.", directoryName);
+				throw new FileNotFoundException(Properties.Resources.MessageTxt_DirectoryDoesNotExist, directoryName);
 			string fileName = Name;
 			if (string.IsNullOrEmpty(fileName)) fileName = Guid.NewGuid().ToString();
 			fileName += GetImageFormatExtension(format);
-			image.Save(Path.Combine(directoryName, fileName), format);
+			//_image.Save(Path.Combine(directoryName, fileName), format);
+			GdiHelpers.SaveImage(_image, Path.Combine(directoryName, fileName), GdiHelpers.GetImageFileFormat(format));
 
-			if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(filePath)) {
-				filePath = fileName;
+			if (string.IsNullOrEmpty(_name) && string.IsNullOrEmpty(_filePath)) {
+				_filePath = fileName;
 				//canLoadFromFile = true;
 			}
 		}
 
 
 		/// <summary>
-		/// Loads the imagefile into this NamedImage.
+		/// Loads the image file into this NamedImage.
 		/// </summary>
 		public void Load(string fileName) {
-			if (!File.Exists(fileName)) throw new FileNotFoundException("File not found or access denied.", fileName);
+			if (!File.Exists(fileName)) throw new FileNotFoundException(Dataweb.NShape.Properties.Resources.MessageTxt_FileNotFoundOrAccessDenied, fileName);
+			if (_image != null)
+				GdiHelpers.DisposeObject(ref _image);
+			_hashCode = null;
 			// GDI+ only reads the file header and keeps the image file locked for loading the 
 			// image data later on demand. 
 			// So we have to read the entire image to a buffer and create the image from a MemoryStream
+			byte[] buffer = File.ReadAllBytes(fileName);
+			_memStream = null;
+			try {
+				// Create the image from the read byte buffer (MemoryStream constructor does *not* copy the buffer)
+				_memStream = new MemoryStream(buffer);
+				_image = Image.FromStream(_memStream, true, true);
+				_imageSize = _image.Size;
+				_imageType = _image.GetType();
+				if (!_canLoadFromFile) _canLoadFromFile = true;
+				if (_filePath != fileName) _filePath = fileName;
+				_hashCode = GdiHelpers.CalculateHashCode(buffer);
+			} catch (Exception) {
+				if (_image == null && _memStream != null)
+					GdiHelpers.DisposeObject(ref _memStream);
+				_hashCode = null;
+			}
+		}
 
-			// Create the image from the read byte buffer (MemoryStream constructor does *not* copy the buffer)
-			image = Image.FromStream(new MemoryStream(File.ReadAllBytes(fileName)), true, true);
-			imageSize = image.Size;
-			imageType = image.GetType();
-			if (!canLoadFromFile) canLoadFromFile = true;
-			if (filePath != fileName) filePath = fileName;
+
+		/// <summary>
+		/// Unloads the image.
+		/// Must not be called if there is no file the image cannot be loaded from a file again.
+		/// </summary>
+		/// <remarks>Throws a FileNotFoundException if the FilePath of this NamedImage does not point to an image file.</remarks>
+		public void Unload() {
+			if (!File.Exists(FilePath)) throw new FileNotFoundException(Dataweb.NShape.Properties.Resources.MessageTxt_FileNotFoundOrAccessDenied, FilePath);
+			GdiHelpers.DisposeObject(ref _image);
 		}
 
 
@@ -1376,30 +1848,32 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		private string GetImageFormatExtension(ImageFormat imageFormat) {
 			string result = string.Empty;
-			if (image.RawFormat.Guid == ImageFormat.Bmp.Guid) result = ".bmp";
-			else if (image.RawFormat.Guid == ImageFormat.Emf.Guid) result = ".emf";
-			else if (image.RawFormat.Guid == ImageFormat.Exif.Guid) result = ".exif";
-			else if (image.RawFormat.Guid == ImageFormat.Gif.Guid) result = ".gif";
-			else if (image.RawFormat.Guid == ImageFormat.Icon.Guid) result = ".ico";
-			else if (image.RawFormat.Guid == ImageFormat.Jpeg.Guid) result = ".jpeg";
-			else if (image.RawFormat.Guid == ImageFormat.MemoryBmp.Guid) result = ".bmp";
-			else if (image.RawFormat.Guid == ImageFormat.Png.Guid) result = ".png";
-			else if (image.RawFormat.Guid == ImageFormat.Tiff.Guid) result = ".tiff";
-			else if (image.RawFormat.Guid == ImageFormat.Wmf.Guid) result = ".wmf";
+			if (_image.RawFormat.Guid == ImageFormat.Bmp.Guid) result = ".bmp";
+			else if (_image.RawFormat.Guid == ImageFormat.Emf.Guid) result = ".emf";
+			else if (_image.RawFormat.Guid == ImageFormat.Exif.Guid) result = ".exif";
+			else if (_image.RawFormat.Guid == ImageFormat.Gif.Guid) result = ".gif";
+			else if (_image.RawFormat.Guid == ImageFormat.Icon.Guid) result = ".ico";
+			else if (_image.RawFormat.Guid == ImageFormat.Jpeg.Guid) result = ".jpeg";
+			else if (_image.RawFormat.Guid == ImageFormat.MemoryBmp.Guid) result = ".bmp";
+			else if (_image.RawFormat.Guid == ImageFormat.Png.Guid) result = ".png";
+			else if (_image.RawFormat.Guid == ImageFormat.Tiff.Guid) result = ".tiff";
+			else if (_image.RawFormat.Guid == ImageFormat.Wmf.Guid) result = ".wmf";
 			else Debug.Fail("Unsupported image format.");
 			return result;
 		}
 
+
 		#region Fields
 		
-		private Image image = null;
-		private string name = string.Empty;
-		private string filePath = string.Empty;
-		private Size imageSize = Size.Empty;
-		private bool canLoadFromFile = false;
-		private Type imageType = typeof(Image);
-		private System.Text.ASCIIEncoding asciiEncoder = new System.Text.ASCIIEncoding();
-		
+		private Image _image = null;
+		private string _name = string.Empty;
+		private string _filePath = string.Empty;
+		private string _hashCode = null;
+		private Size _imageSize = Size.Empty;
+		private bool _canLoadFromFile = false;
+		private Type _imageType = typeof(Image);
+		private MemoryStream _memStream = null;
+
 		#endregion
 	}
 

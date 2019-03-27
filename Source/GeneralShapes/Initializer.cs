@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2014 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -91,7 +91,7 @@ namespace Dataweb.NShape.GeneralShapes {
 
 		private const string namespaceName = "GeneralShapes";
 
-		private const int preferredRepositoryVersion = 5;
+		private const int preferredRepositoryVersion = 6;
 
 		#endregion
 	}

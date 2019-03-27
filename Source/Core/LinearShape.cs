@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -30,6 +30,17 @@ namespace Dataweb.NShape.Advanced {
 	/// </summary>
 	public abstract class LineShapeBase : ShapeBase, ILinearShape {
 
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameInsertConnectionPoint = "InsertConnectionPiontsAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameInsertVertex = "InsertVertexAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameRemoveConnectionPoint = "RemoveConnectionPointAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameRemoveVertex = "RemoveVertexAction";
+
+
+
 		#region [Public] Shape Members
 
 		/// <override></override>
@@ -40,10 +51,10 @@ namespace Dataweb.NShape.Advanced {
 				// Copy templated properties
 				ICapStyle capStyle;
 				capStyle = sourceLine.StartCapStyleInternal;
-				privateStartCapStyle = (Template != null && capStyle == ((LineShapeBase)Template.Shape).StartCapStyleInternal) ? null : capStyle;
+				_privateStartCapStyle = (Template != null && capStyle == ((LineShapeBase)Template.Shape).StartCapStyleInternal) ? null : capStyle;
 
 				capStyle = sourceLine.EndCapStyleInternal;
-				privateEndCapStyle = (Template != null && capStyle == ((LineShapeBase)Template.Shape).EndCapStyleInternal) ? null : capStyle;
+				_privateEndCapStyle = (Template != null && capStyle == ((LineShapeBase)Template.Shape).EndCapStyleInternal) ? null : capStyle;
 
 				// Copy Control points (exactly)
 			    CopyControlPoints(sourceLine);
@@ -58,11 +69,11 @@ namespace Dataweb.NShape.Advanced {
 		public override void MakePreview(IStyleSet styleSet) {
 			base.MakePreview(styleSet);
 			if (StartCapStyleInternal == null)
-				privateStartCapStyle = styleSet.GetPreviewStyle(styleSet.CapStyles.None);
-			else privateStartCapStyle = styleSet.GetPreviewStyle(StartCapStyleInternal);
+				_privateStartCapStyle = styleSet.GetPreviewStyle(styleSet.CapStyles.None);
+			else _privateStartCapStyle = styleSet.GetPreviewStyle(StartCapStyleInternal);
 			if (EndCapStyleInternal == null)
-				privateEndCapStyle = styleSet.GetPreviewStyle(styleSet.CapStyles.None);
-			else privateEndCapStyle = styleSet.GetPreviewStyle(EndCapStyleInternal);
+				_privateEndCapStyle = styleSet.GetPreviewStyle(styleSet.CapStyles.None);
+			else _privateEndCapStyle = styleSet.GetPreviewStyle(EndCapStyleInternal);
 		}
 
 
@@ -102,7 +113,7 @@ namespace Dataweb.NShape.Advanced {
 		public override void Connect(ControlPointId ownPointId, Shape otherShape, ControlPointId otherPointId) {
 			if (otherShape == null) throw new ArgumentNullException("otherShape");
 			if (otherShape.IsConnected(ControlPointId.Any, this) == ControlPointId.Reference)
-				throw new InvalidOperationException(string.Format("The specified {0} is already connected to this {1} via Point-To-Shape connection.", otherShape.Type.Name, this.Type.Name));
+				throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_TheSpecified0IsAlreadyConnectedToThis1ViaPointToShapeConnection, otherShape.Type.Name, this.Type.Name));
 			base.Connect(ownPointId, otherShape, otherPointId);
 		}
 		
@@ -123,12 +134,14 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Invalidate() {
-			base.Invalidate();
-			if (DisplayService != null) {
-				if (IsShapedLineCap(StartCapStyleInternal) && Geometry.IsValid(StartCapBounds))
-					DisplayService.Invalidate(StartCapBounds);
-				if (IsShapedLineCap(EndCapStyleInternal) && Geometry.IsValid(EndCapBounds))
-					DisplayService.Invalidate(EndCapBounds);
+			if (!SuspendingInvalidation) {
+				base.Invalidate();
+				if (DisplayService != null) {
+					if (IsShapedLineCap(StartCapStyleInternal) && Geometry.IsValid(StartCapBounds))
+						DisplayService.Invalidate(StartCapBounds);
+					if (IsShapedLineCap(EndCapStyleInternal) && Geometry.IsValid(EndCapBounds))
+						DisplayService.Invalidate(EndCapBounds);
+				}
 			}
 		}
 
@@ -136,7 +149,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override Point GetControlPointPosition(ControlPointId controlPointId) {
 			if (controlPointId == ControlPointId.None || controlPointId == ControlPointId.Any)
-				throw new InvalidOperationException(string.Format("{0} is not a valid value for this operation", controlPointId));
+				throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidValueForThisOperation, controlPointId));
 			else if (controlPointId == ControlPointId.Reference) {
 				Point p = Point.Empty;
 				p.Offset(X, Y);
@@ -144,7 +157,7 @@ namespace Dataweb.NShape.Advanced {
 			} else {
 				int idx = GetControlPointIndex(controlPointId);
 				if (idx >= 0) 
-					return controlPoints[idx].GetPosition();
+					return _controlPoints[idx].GetPosition();
 				else {
 					Debug.Fail("ControlPointId not found!");
 					return Geometry.InvalidPoint;
@@ -172,9 +185,9 @@ namespace Dataweb.NShape.Advanced {
 				if ((controlPointCapability & ControlPointCapabilities.Connect) != 0 && IsConnectionPointEnabled(controlPointId))
 					return true;
 				if (pointIdx >= 0 && pointIdx < ControlPointCount) {
-					if (controlPoints[pointIdx] is VertexControlPoint)
+					if (_controlPoints[pointIdx] is VertexControlPoint)
 						return ((controlPointCapability & ControlPointCapabilities.Resize) != 0);
-					else if (controlPoints[pointIdx] is DynamicConnectionPoint)
+					else if (_controlPoints[pointIdx] is DynamicConnectionPoint)
 						return ((controlPointCapability & ControlPointCapabilities.Movable) != 0);
 				}
 			}
@@ -199,12 +212,12 @@ namespace Dataweb.NShape.Advanced {
 				isFeasible = false;
 				description = Properties.Resources.MessageTxt_TheLineAlreadyHasTheMaximumNumberOfVertices;
 			}
-			yield return new CommandMenuItemDef(Properties.Resources.CaptionTxt_InsertVertex, null, description, isFeasible,
+			yield return new CommandMenuItemDef(MenuItemNameInsertVertex, Properties.Resources.CaptionTxt_InsertVertex, null, description, isFeasible,
 				new AddVertexCommand(this, mouseX, mouseY));
 
 			isFeasible = ContainsPoint(mouseX, mouseY) && (clickedPointId == ControlPointId.None || clickedPointId == ControlPointId.Reference);
 			description = Properties.Resources.MessageTxt_YouHaveToClickOnTheLineInOrderToInsertNewPoints;
-			yield return new CommandMenuItemDef(Properties.Resources.CaptionTxt_InsertConnectionPoint, null, description, isFeasible,
+			yield return new CommandMenuItemDef(MenuItemNameInsertConnectionPoint, Properties.Resources.CaptionTxt_InsertConnectionPoint, null, description, isFeasible,
 				new AddConnectionPointCommand(this, mouseX, mouseY));
 
 			isFeasible = false;
@@ -217,8 +230,8 @@ namespace Dataweb.NShape.Advanced {
 					} else description = Properties.Resources.MessageTxt_ControlPointIsConnected;
 				} else description = Properties.Resources.MessageTxt_GlueControlPointsMayNotBeRemoved;
 			} else description = Properties.Resources.MessageTxt_NoResizePointWasClicked;
-			yield return new CommandMenuItemDef(Properties.Resources.CaptionTxt_RemoveVertex, null, description, isFeasible,
-				new RemoveVertexCommand(this, clickedPointId));
+			yield return new CommandMenuItemDef(MenuItemNameRemoveVertex, Properties.Resources.CaptionTxt_RemoveVertex, 
+				null, description, isFeasible, new RemoveVertexCommand(this, clickedPointId));
 
 			isFeasible = false;
 			if (HasControlPointCapability(clickedPointId, ControlPointCapabilities.Connect | ControlPointCapabilities.Movable)
@@ -227,8 +240,8 @@ namespace Dataweb.NShape.Advanced {
 					isFeasible = true;
 				else description = Properties.Resources.MessageTxt_ConnectionPointIsConnected;
 			} else description = Properties.Resources.MessageTxt_NoConnectionPointWasClicked;
-			yield return new CommandMenuItemDef(Properties.Resources.CaptionTxt_RemoveConnectionPoint, null, description, isFeasible,
-				new RemoveConnectionPointCommand(this, clickedPointId));
+			yield return new CommandMenuItemDef(MenuItemNameRemoveConnectionPoint, Properties.Resources.CaptionTxt_RemoveConnectionPoint, 
+				null, description, isFeasible, new RemoveConnectionPointCommand(this, clickedPointId));
 
 		}
 
@@ -255,16 +268,16 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void SaveFieldsCore(IRepositoryWriter writer, int version) {
 			base.SaveFieldsCore(writer, version);
-			writer.WriteStyle(privateStartCapStyle);
-			writer.WriteStyle(privateEndCapStyle);
+			writer.WriteStyle(_privateStartCapStyle);
+			writer.WriteStyle(_privateEndCapStyle);
 		}
 
 
 		/// <override></override>
 		protected override void LoadFieldsCore(IRepositoryReader reader, int version) {
 			base.LoadFieldsCore(reader, version);
-			privateStartCapStyle = reader.ReadCapStyle();
-			privateEndCapStyle = reader.ReadCapStyle();
+			_privateStartCapStyle = reader.ReadCapStyle();
+			_privateEndCapStyle = reader.ReadCapStyle();
 		}
 
 
@@ -274,9 +287,9 @@ namespace Dataweb.NShape.Advanced {
 				// Save vertices
 				writer.BeginWriteInnerObjects();
 				for (int i = 0; i < ControlPointCount; ++i) {
-					LineControlPoint linePt = controlPoints[i];
+					LineControlPoint linePt = _controlPoints[i];
 					// Dynamic connection points will be converted into vertices in versions < 4.
-					if (controlPoints[i] is VertexControlPoint || version < 4) {
+					if (_controlPoints[i] is VertexControlPoint || version < 4) {
 						Point p = linePt.GetPosition();
 
 						writer.BeginWriteInnerObject();
@@ -293,8 +306,8 @@ namespace Dataweb.NShape.Advanced {
 				if (version >= 4) {
 					writer.BeginWriteInnerObjects();
 					for (int i = 0; i < ControlPointCount; ++i) {
-						if (controlPoints[i] is DynamicConnectionPoint) {
-							DynamicConnectionPoint linePt = (DynamicConnectionPoint)controlPoints[i];
+						if (_controlPoints[i] is DynamicConnectionPoint) {
+							DynamicConnectionPoint linePt = (DynamicConnectionPoint)_controlPoints[i];
 
 							writer.BeginWriteInnerObject();
 							writer.WriteInt32(i);
@@ -315,8 +328,8 @@ namespace Dataweb.NShape.Advanced {
 		protected override void LoadInnerObjectsCore(string propertyName, IRepositoryReader reader, int version) {
 			if (propertyName == attrNameVertices) {
 				// Clear control points and vertex count
-				controlPoints.Clear();
-				vertexCount = 0;
+				_controlPoints.Clear();
+				_vertexCount = 0;
 
 				// Load vertices
 				reader.BeginReadInnerObjects();
@@ -329,7 +342,7 @@ namespace Dataweb.NShape.Advanced {
 					// Create point
 					Point vertex = Point.Empty;
 					vertex.Offset(x, y);
-					InsertControlPoint(controlPoints.Count, CreateVertex(pointId, vertex));
+					InsertControlPoint(_controlPoints.Count, CreateVertex(pointId, vertex));
 					reader.EndReadInnerObject();
 				}
 				reader.EndReadInnerObjects();
@@ -393,13 +406,13 @@ namespace Dataweb.NShape.Advanced {
 				case ControlPointId.FirstVertex:
 				case ControlPointId.LastVertex:
 				case ControlPointId.Reference:
-					throw new ArgumentException("Invalid ControlPointId for this operation.");
+					throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidControlPointIdForThisOperation, pointId));
 			}
 			int idx = GetControlPointIndex(pointId);
 			if (idx < 0 || idx >= ControlPointCount)
-				throw new ArgumentOutOfRangeException(string.Format("Line does not contain control point {0}", pointId));
+				throw new ArgumentOutOfRangeException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_LineDoesNotContainControlPoint0, pointId));
 			if (GetControlPoint(idx) is VertexControlPoint) 
-				throw new InvalidOperationException(string.Format("Control point {0} is a vertex.", pointId));
+				throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ControlPoint0IsAVertex, pointId));
 			RemoveControlPoint(idx);
 		}
 
@@ -421,7 +434,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		[Browsable(false)]
 		public virtual int VertexCount {
-			get { return vertexCount; }
+			get { return _vertexCount; }
 		}
 
 
@@ -459,12 +472,12 @@ namespace Dataweb.NShape.Advanced {
 		/// Internal start CapStyle of the line. May be published by a decendant through a property
 		/// </summary>
 		protected ICapStyle StartCapStyleInternal {
-			get { return privateStartCapStyle ?? ((LineShapeBase)Template.Shape).StartCapStyleInternal; }
+			get { return _privateStartCapStyle ?? ((LineShapeBase)Template.Shape).StartCapStyleInternal; }
 			set {
 				Invalidate();
 				if (Owner != null) Owner.NotifyChildResizing(this);
 				
-				privateStartCapStyle = (Template != null && value == ((LineShapeBase)Template.Shape).StartCapStyleInternal) ? null : value;
+				_privateStartCapStyle = (Template != null && value == ((LineShapeBase)Template.Shape).StartCapStyleInternal) ? null : value;
 				InvalidateDrawCache();
 				
 				if (Owner != null) Owner.NotifyChildResized(this);
@@ -477,12 +490,12 @@ namespace Dataweb.NShape.Advanced {
 		/// Internal end CapStyle of the line. May be published by a decendant through a property
 		/// </summary>
 		protected ICapStyle EndCapStyleInternal {
-			get { return privateEndCapStyle ?? ((LineShapeBase)Template.Shape).EndCapStyleInternal; }
+			get { return _privateEndCapStyle ?? ((LineShapeBase)Template.Shape).EndCapStyleInternal; }
 			set {
 				Invalidate();
 				if (Owner != null) Owner.NotifyChildResizing(this);
 
-				privateEndCapStyle = (Template != null && value == ((LineShapeBase)Template.Shape).EndCapStyleInternal) ? null : value;
+				_privateEndCapStyle = (Template != null && value == ((LineShapeBase)Template.Shape).EndCapStyleInternal) ? null : value;
 				InvalidateDrawCache();
 
 				if (Owner != null) Owner.NotifyChildResized(this);
@@ -494,9 +507,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected float StartCapAngle {
 			get {
-				if (float.IsNaN(startCapAngle))
-					startCapAngle = CalcCapAngle(ControlPointId.FirstVertex);
-				return startCapAngle;
+				if (float.IsNaN(_startCapAngle))
+					_startCapAngle = CalcCapAngle(ControlPointId.FirstVertex);
+				return _startCapAngle;
 			}
 		}
 
@@ -504,9 +517,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected float EndCapAngle {
 			get {
-				if (float.IsNaN(endCapAngle)) 
-					endCapAngle = CalcCapAngle(ControlPointId.LastVertex);
-				return endCapAngle;
+				if (float.IsNaN(_endCapAngle)) 
+					_endCapAngle = CalcCapAngle(ControlPointId.LastVertex);
+				return _endCapAngle;
 			}
 		}
 
@@ -514,13 +527,13 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected Rectangle StartCapBounds {
 			get {
-				if (!Geometry.IsValid(startCapBounds) && !float.IsNaN(StartCapAngle)) {
+				if (!Geometry.IsValid(_startCapBounds) && !float.IsNaN(StartCapAngle)) {
 					if (IsShapedLineCap(StartCapStyleInternal))
-						startCapBounds = ToolCache.GetCapBounds(StartCapStyleInternal, LineStyle, StartCapAngle);
-					else startCapBounds = Rectangle.Empty;
-					startCapBounds.Offset(GetControlPointPosition(ControlPointId.FirstVertex));
+						_startCapBounds = ToolCache.GetCapBounds(StartCapStyleInternal, LineStyle, StartCapAngle);
+					else _startCapBounds = Rectangle.Empty;
+					_startCapBounds.Offset(GetControlPointPosition(ControlPointId.FirstVertex));
 				}
-				return startCapBounds;
+				return _startCapBounds;
 			}
 		}
 
@@ -528,13 +541,13 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected Rectangle EndCapBounds {
 			get {
-				if (!Geometry.IsValid(endCapBounds) && !float.IsNaN(EndCapAngle)) {
+				if (!Geometry.IsValid(_endCapBounds) && !float.IsNaN(EndCapAngle)) {
 					if (IsShapedLineCap(EndCapStyleInternal))
-						endCapBounds = ToolCache.GetCapBounds(EndCapStyleInternal, LineStyle, EndCapAngle);
-					else endCapBounds = Rectangle.Empty;
-					endCapBounds.Offset(GetControlPointPosition(ControlPointId.LastVertex));
+						_endCapBounds = ToolCache.GetCapBounds(EndCapStyleInternal, LineStyle, EndCapAngle);
+					else _endCapBounds = Rectangle.Empty;
+					_endCapBounds.Offset(GetControlPointPosition(ControlPointId.LastVertex));
 				}
-				return endCapBounds;
+				return _endCapBounds;
 			}
 		}
 
@@ -543,9 +556,7 @@ namespace Dataweb.NShape.Advanced {
 
 		#region [Protected Internal] Methods (Inherited)
 
-		/// <summary>
-		/// Protetced internal constructur. Should only be called by the <see cref="T:Dataweb.NShape.Advanced.ShapeType" />'s <see cref="T:Dataweb.NShape.Advanced.CreateShapeDelegate" />
-		/// </summary>
+		/// <override></override>
 		protected internal LineShapeBase(ShapeType shapeType, Template template)
 			: base(shapeType, template) {
 			Construct();
@@ -553,9 +564,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 
-		/// <summary>
-		/// Protetced internal constructor. Should only be called by the <see cref="T:Dataweb.NShape.Advanced.ShapeType" />'s <see cref="T:Dataweb.NShape.Advanced.CreateShapeDelegate" />
-		/// </summary>
+		/// <override></override>
 		protected internal LineShapeBase(ShapeType shapeType, IStyleSet styleSet)
 			: base(shapeType, styleSet) {
 			Construct();
@@ -566,17 +575,17 @@ namespace Dataweb.NShape.Advanced {
 		protected internal override void InitializeToDefault(IStyleSet styleSet) {
 			base.InitializeToDefault(styleSet);
 			
-			privateStartCapStyle = styleSet.CapStyles.None;
-			privateEndCapStyle = styleSet.CapStyles.None;
+			_privateStartCapStyle = styleSet.CapStyles.None;
+			_privateEndCapStyle = styleSet.CapStyles.None;
 			
-			controlPoints[0].SetPosition(Point.Empty);
-			controlPoints[1].SetPosition(20, 20);
+			_controlPoints[0].SetPosition(Point.Empty);
+			_controlPoints[1].SetPosition(20, 20);
 		}
 
 
 		/// <override></override>
 		protected internal override int ControlPointCount {
-			get { return controlPoints.Count; }
+			get { return _controlPoints.Count; }
 		}
 
 
@@ -629,12 +638,12 @@ namespace Dataweb.NShape.Advanced {
 		protected override void ProcessExecModelPropertyChange(IModelMapping propertyMapping) {
 			switch (propertyMapping.ShapePropertyId) {
 				case PropertyIdStartCapStyle:
-					privateStartCapStyle = (propertyMapping.GetStyle() as ICapStyle);
+					_privateStartCapStyle = (propertyMapping.GetStyle() as ICapStyle);
 					InvalidateDrawCache();
 					Invalidate();
 					break;
 				case PropertyIdEndCapStyle:
-					privateEndCapStyle = (propertyMapping.GetStyle() as ICapStyle);
+					_privateEndCapStyle = (propertyMapping.GetStyle() as ICapStyle);
 					InvalidateDrawCache();
 					Invalidate();
 					break;
@@ -661,7 +670,7 @@ namespace Dataweb.NShape.Advanced {
 			Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(angle), rotationCenter);
 			// Rotate vertices
 			Point[] vertex = new Point[1];
-			foreach (LineControlPoint linePt in controlPoints) {
+			foreach (LineControlPoint linePt in _controlPoints) {
 				if (linePt is VertexControlPoint) {
 					vertex[0] = linePt.GetPosition();
 					Matrix.TransformPoints(vertex);
@@ -701,14 +710,14 @@ namespace Dataweb.NShape.Advanced {
 
 			// Move vertices
 			Point p = Point.Empty;
-			foreach (LineControlPoint linePt in controlPoints) {
+			foreach (LineControlPoint linePt in _controlPoints) {
 				if (linePt is DynamicConnectionPoint) 
 					continue;
 				linePt.Offset(deltaX, deltaY);
 			}
 			// Move CapBounds (if calculated)
-			if (Geometry.IsValid(startCapBounds)) startCapBounds.Offset(deltaX, deltaY);
-			if (Geometry.IsValid(endCapBounds)) endCapBounds.Offset(deltaX, deltaY);
+			if (Geometry.IsValid(_startCapBounds)) _startCapBounds.Offset(deltaX, deltaY);
+			if (Geometry.IsValid(_endCapBounds)) _endCapBounds.Offset(deltaX, deltaY);
 			TransformDrawCache(deltaX, deltaY, 0, X, Y);
 			return true;
 		}
@@ -731,13 +740,13 @@ namespace Dataweb.NShape.Advanced {
 			if (pointId == ControlPointId.Reference)
 				return -1;
 			else if (IsFirstVertex(pointId))
-				return firstVertexIdx;
+				return _firstVertexIdx;
 			else if (IsLastVertex(pointId))
-				return lastVertexIdx;
+				return _lastVertexIdx;
 			else {
 				// Find point id
 				for (int i = ControlPointCount - 1; i >= 0; --i) {
-					if (controlPoints[i].Id == pointId)
+					if (_controlPoints[i].Id == pointId)
 						return i;
 				}
 				return -1;
@@ -765,9 +774,9 @@ namespace Dataweb.NShape.Advanced {
 		protected override ControlPointId GetControlPointId(int pointIdx) {
 			if (pointIdx == 0)
 				return ControlPointId.FirstVertex;
-			else if (pointIdx == lastVertexIdx)
+			else if (pointIdx == _lastVertexIdx)
 				return ControlPointId.LastVertex;
-			else return controlPoints[pointIdx].Id;
+			else return _controlPoints[pointIdx].Id;
 		}
 
 
@@ -781,8 +790,8 @@ namespace Dataweb.NShape.Advanced {
 		protected override void InvalidateDrawCache() {
 			base.InvalidateDrawCache();
 			// Do not delete shapePoints or cap buffers here for performance reasons
-			startCapAngle = endCapAngle = float.NaN;
-			startCapBounds = endCapBounds = Geometry.InvalidRectangle;
+			_startCapAngle = _endCapAngle = float.NaN;
+			_startCapBounds = _endCapBounds = Geometry.InvalidRectangle;
 		}
 
 
@@ -801,9 +810,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void RecalcDrawCache() {
 			if (IsShapedLineCap(StartCapStyleInternal))
-				DoRecalcCapPoints(ControlPointId.FirstVertex, StartCapStyleInternal, StartCapAngle, ref startCapPointBuffer);
+				DoRecalcCapPoints(ControlPointId.FirstVertex, StartCapStyleInternal, StartCapAngle, ref _startCapPointBuffer);
 			if (IsShapedLineCap(EndCapStyleInternal))
-				DoRecalcCapPoints(ControlPointId.LastVertex, EndCapStyleInternal, EndCapAngle, ref endCapPointBuffer);
+				DoRecalcCapPoints(ControlPointId.LastVertex, EndCapStyleInternal, EndCapAngle, ref _endCapPointBuffer);
 			drawCacheIsInvalid = false;
 		}
 
@@ -828,8 +837,8 @@ namespace Dataweb.NShape.Advanced {
 						Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(deltaAngle), rotationCenter, MatrixOrder.Append);
 					}
 					if (shapePoints != null) Matrix.TransformPoints(shapePoints);
-					if (startCapPointBuffer != null) Matrix.TransformPoints(startCapPointBuffer);
-					if (endCapPointBuffer != null) Matrix.TransformPoints(endCapPointBuffer);
+					if (_startCapPointBuffer != null) Matrix.TransformPoints(_startCapPointBuffer);
+					if (_endCapPointBuffer != null) Matrix.TransformPoints(_endCapPointBuffer);
 				}
 			}
 		}
@@ -841,13 +850,13 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected bool IsFirstVertex(ControlPointId pointId) {
-			return (pointId == ControlPointId.FirstVertex || controlPoints[firstVertexIdx].Id == pointId);
+			return (pointId == ControlPointId.FirstVertex || _controlPoints[_firstVertexIdx].Id == pointId);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected bool IsLastVertex(ControlPointId pointId) {
-			return (pointId == ControlPointId.LastVertex || controlPoints[lastVertexIdx].Id == pointId);
+			return (pointId == ControlPointId.LastVertex || _controlPoints[_lastVertexIdx].Id == pointId);
 		}
 
 
@@ -882,9 +891,9 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		protected bool StartCapIntersectsWith(Rectangle rectangle) {
 			if (IsShapedLineCap(StartCapStyleInternal)) {
-				if (Geometry.RectangleIntersectsWithRectangle(startCapBounds, rectangle)) {
-					if (startCapPointBuffer == null) UpdateDrawCache();
-					if (Geometry.PolygonIntersectsWithRectangle(startCapPointBuffer, rectangle))
+				if (Geometry.RectangleIntersectsWithRectangle(_startCapBounds, rectangle)) {
+					if (_startCapPointBuffer == null) UpdateDrawCache();
+					if (Geometry.PolygonIntersectsWithRectangle(_startCapPointBuffer, rectangle))
 						return true;
 				}
 			}
@@ -897,9 +906,9 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		protected bool EndCapIntersectsWith(Rectangle rectangle) {
 			if (IsShapedLineCap(EndCapStyleInternal)) {
-				if (Geometry.RectangleIntersectsWithRectangle(endCapBounds, rectangle)) {
-					if (endCapPointBuffer == null) UpdateDrawCache();
-					if (Geometry.PolygonIntersectsWithRectangle(endCapPointBuffer, rectangle))
+				if (Geometry.RectangleIntersectsWithRectangle(_endCapBounds, rectangle)) {
+					if (_endCapPointBuffer == null) UpdateDrawCache();
+					if (Geometry.PolygonIntersectsWithRectangle(_endCapPointBuffer, rectangle))
 						return true;
 				}
 			}
@@ -911,15 +920,15 @@ namespace Dataweb.NShape.Advanced {
 		/// Performs a hit test on the LineCap
 		/// </summary>
 		protected bool StartCapContainsPoint(int pointX, int pointY) {
-			if (Geometry.RectangleContainsPoint(startCapBounds, pointX, pointY)) {
-				if (startCapPointBuffer == null) UpdateDrawCache();
-				if (Geometry.PolygonIsConvex(startCapPointBuffer)) {
+			if (Geometry.RectangleContainsPoint(_startCapBounds, pointX, pointY)) {
+				if (_startCapPointBuffer == null) UpdateDrawCache();
+				if (Geometry.PolygonIsConvex(_startCapPointBuffer)) {
 					// Check convex polygon
-					if (Geometry.ConvexPolygonContainsPoint(startCapPointBuffer, pointX, pointY))
+					if (Geometry.ConvexPolygonContainsPoint(_startCapPointBuffer, pointX, pointY))
 						return true;
 				} else {
 					// Check non-convex polygon
-					if (Geometry.PolygonContainsPoint(startCapPointBuffer, pointX, pointY))
+					if (Geometry.PolygonContainsPoint(_startCapPointBuffer, pointX, pointY))
 					    return true;
 				}
 			}
@@ -931,15 +940,15 @@ namespace Dataweb.NShape.Advanced {
 		/// Performs a hit test on the LineCap
 		/// </summary>
 		protected bool EndCapContainsPoint(int pointX, int pointY) {
-			if (Geometry.RectangleContainsPoint(endCapBounds, pointX, pointY)) {
-				if (endCapPointBuffer == null) UpdateDrawCache();
-				if (Geometry.PolygonIsConvex(endCapPointBuffer)) {
+			if (Geometry.RectangleContainsPoint(_endCapBounds, pointX, pointY)) {
+				if (_endCapPointBuffer == null) UpdateDrawCache();
+				if (Geometry.PolygonIsConvex(_endCapPointBuffer)) {
 					// Check convex polygon
-					if (Geometry.ConvexPolygonContainsPoint(endCapPointBuffer, pointX, pointY))
+					if (Geometry.ConvexPolygonContainsPoint(_endCapPointBuffer, pointX, pointY))
 						return true;
 				} else {
 					// Check non-convex polygon
-					if (Geometry.PolygonContainsPoint(endCapPointBuffer, pointX, pointY))
+					if (Geometry.PolygonContainsPoint(_endCapPointBuffer, pointX, pointY))
 						return true;
 				}
 			}
@@ -967,15 +976,12 @@ namespace Dataweb.NShape.Advanced {
 		protected void DrawStartCapBackground(Graphics graphics, int pointX, int pointY) {
 			if (IsShapedLineCap(StartCapStyleInternal)) {
 				Brush capBrush = ToolCache.GetBrush(StartCapStyleInternal.ColorStyle, LineStyle);
-
 				GraphicsPath capPath = ToolCache.GetCapPath(StartCapStyleInternal, LineStyle);
-				Point startPoint = shapePoints[0];
-				// Due to the fact that GDI+ scales CustomCaps along with the LineWidth of its Pen.
-				// Therefore, we have to upscale the Graphicspath again for drawing the bounds.
+				// Due to the fact that GDI+ scales CustomCaps along with the LineWidth of its 
+				// pen, we have to upscale the GraphicsPath for drawing the bounds.
 				Matrix.Reset();
-				Matrix.Scale(LineStyle.LineWidth, LineStyle.LineWidth, MatrixOrder.Append);
 				Matrix.Rotate(90 + StartCapAngle, MatrixOrder.Append);
-				Matrix.Translate(startPoint.X, startPoint.Y, MatrixOrder.Append);
+				Matrix.Translate(pointX, pointY, MatrixOrder.Append);
 				try {
 					capPath.Transform(Matrix);
 					graphics.FillPath(capBrush, capPath);
@@ -993,15 +999,13 @@ namespace Dataweb.NShape.Advanced {
 		protected void DrawEndCapBackground(Graphics graphics, int pointX, int pointY) {
 			if (IsShapedLineCap(EndCapStyleInternal)) {
 				Brush capBrush = ToolCache.GetBrush(EndCapStyleInternal.ColorStyle, LineStyle);
-
 				GraphicsPath capPath = ToolCache.GetCapPath(EndCapStyleInternal, LineStyle);
-				Point endPoint = shapePoints[shapePoints.Length - 1];
 				// Due to the fact that GDI+ scales CustomCaps along with the LineWidth of its Pen.
 				// Therefore, we have to upscale the Graphicspath again for drawing the bounds.
 				Matrix.Reset();
 				Matrix.Scale(LineStyle.LineWidth, LineStyle.LineWidth, MatrixOrder.Append);
 				Matrix.Rotate(90 + EndCapAngle, MatrixOrder.Append);
-				Matrix.Translate(endPoint.X, endPoint.Y, MatrixOrder.Append);
+				Matrix.Translate(pointX, pointY, MatrixOrder.Append);
 				try {
 					capPath.Transform(Matrix);
 					graphics.FillPath(capBrush, capPath);
@@ -1030,7 +1034,7 @@ namespace Dataweb.NShape.Advanced {
 				if (!sci.IsEmpty && sci.OtherPointId == ControlPointId.Reference) {
 					Point pos = CalcGluePoint(gluePointId, sci.OtherShape);
 					if (Geometry.IsValid(pos)) {
-						controlPoints[GetControlPointIndex(gluePointId)].SetPosition(pos);
+						_controlPoints[GetControlPointIndex(gluePointId)].SetPosition(pos);
 						return true;
 					}
 				}
@@ -1043,9 +1047,9 @@ namespace Dataweb.NShape.Advanced {
 		/// Constructs a new instance.
 		/// </summary>
 		protected virtual void Construct() {
-            if (controlPoints != null) 
+            if (_controlPoints != null) 
                 throw new InvalidOperationException("Construct() was already called and must not be called twice.");
-			controlPoints = new List<LineControlPoint>(MinVertexCount);
+			_controlPoints = new List<LineControlPoint>(MinVertexCount);
 			for (int i = MinVertexCount - 1; i >= 0; --i)
 				InsertControlPoint(0, CreateVertex(i + 1, Point.Empty));
 			shapePoints = new Point[MinVertexCount];
@@ -1077,20 +1081,20 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected IEnumerable<LineControlPoint> ControlPoints {
 			get {
-				return controlPoints;
+				return _controlPoints;
 			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected LineControlPoint GetControlPoint(int index) {
-			return controlPoints[index];
+			return _controlPoints[index];
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetControlPoint(int index, LineControlPoint controlPoint) {
-			controlPoints[index] = controlPoint;
+			_controlPoints[index] = controlPoint;
 		}
 
 
@@ -1105,9 +1109,9 @@ namespace Dataweb.NShape.Advanced {
 				changedDynCtrlPoints = StoreDynControlPointPositions();
 			}
 
-			controlPoints.Insert(index, controlPoint);
+			_controlPoints.Insert(index, controlPoint);
 			if (controlPoint is VertexControlPoint)
-				++vertexCount;
+				++_vertexCount;
 			MaintainFirstVertexIndex();
 			MaintainLastVertexIndex();
 
@@ -1130,15 +1134,15 @@ namespace Dataweb.NShape.Advanced {
 			// Store all positions of dynamic control points and re-calculate 
 			// them after removing the control point
 			Dictionary<ControlPointId, Point> changedDynCtrlPoints = null;
-			bool isVertex = controlPoints[index] is VertexControlPoint;
+			bool isVertex = _controlPoints[index] is VertexControlPoint;
 			if (isVertex) {
 				Invalidate();
 				changedDynCtrlPoints = StoreDynControlPointPositions();
 			}
 
-			if (controlPoints[index] is VertexControlPoint)
-				--vertexCount;
-			controlPoints.RemoveAt(index);
+			if (_controlPoints[index] is VertexControlPoint)
+				--_vertexCount;
+			_controlPoints.RemoveAt(index);
 			MaintainFirstVertexIndex();
 			MaintainLastVertexIndex();
 
@@ -1390,7 +1394,7 @@ namespace Dataweb.NShape.Advanced {
 
 		private void DoRecalcCapPoints(ControlPointId pointId, ICapStyle capStyle, float capAngle, ref PointF[] pointBuffer) {
 			int ptIdx = GetControlPointIndex(pointId);
-			Point p = controlPoints[ptIdx].GetPosition();
+			Point p = _controlPoints[ptIdx].GetPosition();
 			p.Offset(-X, -Y);
 
 			//int vertexIdx = GetVertexIndex(pointId);
@@ -1447,31 +1451,31 @@ namespace Dataweb.NShape.Advanced {
 			int vertexIdx;
 			int startIdx, stopIdx, step;
 			if (IsLastVertex(pointId)) {
-				startIdx = controlPoints.Count - 1;
+				startIdx = _controlPoints.Count - 1;
 				stopIdx = 0;
 				step = -1;
 				vertexIdx = VertexCount;
 			} else {
 				startIdx = 0;
-				stopIdx = controlPoints.Count;
+				stopIdx = _controlPoints.Count;
 				step = 1;
 				vertexIdx = -1;
 			}
 
 			for (int i = startIdx; i != stopIdx; i += step) {
-				if (controlPoints[i] is VertexControlPoint) {
+				if (_controlPoints[i] is VertexControlPoint) {
 					vertexIdx += step;
 					switch (pointId) {
 						case ControlPointId.FirstVertex:
-							if (IsFirstVertex(controlPoints[i].Id))
+							if (IsFirstVertex(_controlPoints[i].Id))
 								return vertexIdx;
 							break;
 						case ControlPointId.LastVertex:
-							if (IsLastVertex(controlPoints[i].Id))
+							if (IsLastVertex(_controlPoints[i].Id))
 								return vertexIdx;
 							break;
 						default:
-							if (controlPoints[i].Id == pointId)
+							if (_controlPoints[i].Id == pointId)
 								return vertexIdx;
 							break;
 					}
@@ -1492,7 +1496,7 @@ namespace Dataweb.NShape.Advanced {
 					int ptIdx = GetControlPointIndex(pointId);
 					do {
 						ptIdx += step;
-					} while (ptIdx > 0 && ptIdx < ptCnt && !HasControlPointCapability(controlPoints[ptIdx].Id, capabilities));
+					} while (ptIdx > 0 && ptIdx < ptCnt && !HasControlPointCapability(_controlPoints[ptIdx].Id, capabilities));
 
 					if (ptIdx >= 0 && ptIdx < ptCnt)
 						return GetControlPointId(ptIdx);
@@ -1502,9 +1506,9 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void MaintainFirstVertexIndex() {
-			for (int i = 0; i < controlPoints.Count; ++i) {
-				if (controlPoints[i] is VertexControlPoint) {
-					firstVertexIdx = i;
+			for (int i = 0; i < _controlPoints.Count; ++i) {
+				if (_controlPoints[i] is VertexControlPoint) {
+					_firstVertexIdx = i;
 					break;
 				}
 			}
@@ -1512,9 +1516,9 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void MaintainLastVertexIndex() {
-			for (int i = controlPoints.Count - 1; i >= 0; --i) {
-				if (controlPoints[i] is VertexControlPoint) {
-					lastVertexIdx = i;
+			for (int i = _controlPoints.Count - 1; i >= 0; --i) {
+				if (_controlPoints[i] is VertexControlPoint) {
+					_lastVertexIdx = i;
 					break;
 				}
 			}
@@ -1523,10 +1527,10 @@ namespace Dataweb.NShape.Advanced {
 
 		private void MaintainVertexCount() {
 			int vtxCnt = 0;
-			foreach (LineControlPoint linePt in controlPoints)
+			foreach (LineControlPoint linePt in _controlPoints)
 				if (linePt is VertexControlPoint)
 					++vtxCnt;
-			vertexCount = vtxCnt;
+			_vertexCount = vtxCnt;
 		}
 
 
@@ -1535,16 +1539,16 @@ namespace Dataweb.NShape.Advanced {
 			// Maintain maximum number of points: Not more than MaxVertexCount and not more than the source has
 			int maxPointCount = Math.Min(MaxVertexCount, srcLine.VertexCount);
 			if (ControlPointCount > maxPointCount) {
-				for (int i = ControlPointCount - 1; controlPoints.Count > srcLine.VertexCount; --i) {
+				for (int i = ControlPointCount - 1; _controlPoints.Count > srcLine.VertexCount; --i) {
 					// Do not remove the first and the last vertex!
-					if (i == firstVertexIdx || i == lastVertexIdx) continue;
-					controlPoints.RemoveAt(i);
+					if (i == _firstVertexIdx || i == _lastVertexIdx) continue;
+					_controlPoints.RemoveAt(i);
 				}
 				MaintainFirstVertexIndex();
 				MaintainLastVertexIndex();
 				// Set the vertex count equal to the point count as the copied points 
 				// will all become vertices
-				vertexCount = controlPoints.Count;
+				_vertexCount = _controlPoints.Count;
 			}
 
 			// Copy vertices
@@ -1557,12 +1561,12 @@ namespace Dataweb.NShape.Advanced {
 					p = source.GetControlPointPosition(vertexId);
 					++vertexIdx;
 					if (vertexId == ControlPointId.FirstVertex) {
-						Debug.Assert(controlPoints[vertexIdx] is VertexControlPoint);
+						Debug.Assert(_controlPoints[vertexIdx] is VertexControlPoint);
 						// Move start point
 						Point vertexPos = GetControlPointPosition(ControlPointId.FirstVertex);
 						MovePointByCore(ControlPointId.FirstVertex, p.X - vertexPos.X, p.Y - vertexPos.Y, ResizeModifiers.None);
 					} else if (vertexId == ControlPointId.LastVertex) {
-						Debug.Assert(controlPoints[vertexIdx] is VertexControlPoint);
+						Debug.Assert(_controlPoints[vertexIdx] is VertexControlPoint);
 						// Move end point
 						Point vertexPos = GetControlPointPosition(ControlPointId.LastVertex);
 						MovePointByCore(ControlPointId.LastVertex, p.X - vertexPos.X, p.Y - vertexPos.Y, ResizeModifiers.None);
@@ -1576,7 +1580,7 @@ namespace Dataweb.NShape.Advanced {
 						// If there destination already has enough vertices, replace the shape's vertex
 						SetControlPoint(vertexIdx, new VertexControlPoint(vertexId, p));
 					}
-					Debug.Assert(controlPoints[vertexIdx] is VertexControlPoint);
+					Debug.Assert(_controlPoints[vertexIdx] is VertexControlPoint);
 				}
 			}
 			Debug.Assert(VertexCount == ControlPointCount);
@@ -1602,23 +1606,23 @@ namespace Dataweb.NShape.Advanced {
 		private void CopyControlPoints(LineShapeBase source) {
 			if (source == null) throw new ArgumentNullException("source");
 			// Ensure that the number of control points matches the source
-			if (controlPoints.Count > source.ControlPointCount)
-				controlPoints.RemoveRange(source.ControlPointCount, controlPoints.Count - source.ControlPointCount);
+			if (_controlPoints.Count > source.ControlPointCount)
+				_controlPoints.RemoveRange(source.ControlPointCount, _controlPoints.Count - source.ControlPointCount);
 
 			// Copy at least first and last vertex. Do not exceed MaxVertexCount!
 			int verticesToCopy = MaxVertexCount;
 			for (int i = 0; i < source.ControlPointCount; ++i) {
 				// Copy point
 				LineControlPoint dstPoint = null;
-				CopyControlPoint(source, source.controlPoints[i], ref dstPoint, verticesToCopy > 0);
+				CopyControlPoint(source, source._controlPoints[i], ref dstPoint, verticesToCopy > 0);
 				if (dstPoint is VertexControlPoint) --verticesToCopy;
 				// Assign copied point
-				if (i < controlPoints.Count) controlPoints[i] = dstPoint;
-				else controlPoints.Add(dstPoint);
+				if (i < _controlPoints.Count) _controlPoints[i] = dstPoint;
+				else _controlPoints.Add(dstPoint);
 			}
-			firstVertexIdx = source.firstVertexIdx;
-			lastVertexIdx = source.lastVertexIdx;
-			vertexCount = Math.Min(MaxVertexCount, source.vertexCount);
+			_firstVertexIdx = source._firstVertexIdx;
+			_lastVertexIdx = source._lastVertexIdx;
+			_vertexCount = Math.Min(MaxVertexCount, source._vertexCount);
 #if DEBUG_DIAGNOSTICS
 			int vtxCnt = VertexCount;
 			MaintainVertexCount();
@@ -1677,7 +1681,7 @@ namespace Dataweb.NShape.Advanced {
 				Point newPos = CalculateConnectionFoot(item.Value.X, item.Value.Y);
 				Debug.Assert(Geometry.IsValid(newPos));
 				int idx = GetControlPointIndex(item.Key);
-				controlPoints[idx].SetPosition(newPos);
+				_controlPoints[idx].SetPosition(newPos);
 			}
 		}
 
@@ -1757,7 +1761,7 @@ namespace Dataweb.NShape.Advanced {
 
 			ControlPointId IEnumerator<ControlPointId>.Current {
 				get {
-					if (currentId == ControlPointId.None) throw new InvalidOperationException("ControlPointId.None is not a valid ControlPointId for iterating.");
+					if (currentId == ControlPointId.None) throw new InvalidOperationException(Properties.Resources.MessageTxt_ControlPointIdNoneIsNotAValidControlPointIdForIterating);
 					return currentId;
 				}
 			}
@@ -1817,23 +1821,22 @@ namespace Dataweb.NShape.Advanced {
 		private readonly static Type[] connectionPointAttrTypes = new Type[] { typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) };
 
 		// List of control points (absolute and relative).
-		private List<LineControlPoint> controlPoints = null;
-		private int vertexCount = 0;
-		private int firstVertexIdx = 0;
-		private int lastVertexIdx = 1;
+		private List<LineControlPoint> _controlPoints = null;
+		private int _vertexCount = 0;
+		private int _firstVertexIdx = 0;
+		private int _lastVertexIdx = 1;
 
 		// Styles
-		private ICapStyle privateStartCapStyle = null;
-		private ICapStyle privateEndCapStyle = null;
+		private ICapStyle _privateStartCapStyle = null;
+		private ICapStyle _privateEndCapStyle = null;
 
 		// drawing stuff
-		private float startCapAngle = float.NaN;
-		private float endCapAngle = float.NaN;
-		private Rectangle startCapBounds = Rectangle.Empty;		// Rectangle for invalidating the line caps
-		private Rectangle endCapBounds = Rectangle.Empty;		// Rectangle for invalidating the line caps
-		private PointF[] startCapPointBuffer = null;			// buffer for the startCap - used for drawing and hit- / intersection testing
-		private PointF[] endCapPointBuffer = null;				// buffer for the startCap - used for drawing and hit- / intersection testing
-		//private Matrix matrix = new Matrix();
+		private float _startCapAngle = float.NaN;
+		private float _endCapAngle = float.NaN;
+		private Rectangle _startCapBounds = Rectangle.Empty;		// Rectangle for invalidating the line caps
+		private Rectangle _endCapBounds = Rectangle.Empty;		// Rectangle for invalidating the line caps
+		private PointF[] _startCapPointBuffer = null;			// buffer for the startCap - used for drawing and hit- / intersection testing
+		private PointF[] _endCapPointBuffer = null;				// buffer for the startCap - used for drawing and hit- / intersection testing
 
 		#endregion
 	}

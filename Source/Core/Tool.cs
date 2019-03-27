@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Timers;
 
 using Dataweb.NShape.Advanced;
@@ -47,25 +48,25 @@ namespace Dataweb.NShape {
 		public ToolExecutedEventArgs(Tool tool, ToolResult eventType)
 			: base() {
 			if (tool == null) throw new ArgumentNullException("tool");
-			this.tool = tool;
-			this.eventType = eventType;
+			this._tool = tool;
+			this._eventType = eventType;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Tool Tool {
-			get { return tool; }
+			get { return _tool; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ToolResult EventType {
-			get { return eventType; }
+			get { return _eventType; }
 		}
 
 
-		private Tool tool;
-		private ToolResult eventType;
+		private Tool _tool;
+		private ToolResult _eventType;
 
 	}
 
@@ -82,13 +83,13 @@ namespace Dataweb.NShape {
 		/// Releases all resources.
 		/// </summary>
 		public virtual void Dispose() {
-			if (smallIcon != null)
-				smallIcon.Dispose();
-			smallIcon = null;
+			if (_smallIcon != null)
+				_smallIcon.Dispose();
+			_smallIcon = null;
 
-			if (largeIcon != null)
-				largeIcon.Dispose();
-			largeIcon = null;
+			if (_largeIcon != null)
+				_largeIcon.Dispose();
+			_largeIcon = null;
 		}
 
 		#endregion
@@ -98,7 +99,7 @@ namespace Dataweb.NShape {
 		/// A culture independent name, used as title if no title was specified.
 		/// </summary>
 		public string Name {
-			get { return name; }
+			get { return _name; }
 		}
 
 
@@ -106,8 +107,8 @@ namespace Dataweb.NShape {
 		/// A culture dependent title, used as label for toolbox items.
 		/// </summary>
 		public string Title {
-			get { return title; }
-			set { title = value; }
+			get { return _title; }
+			set { _title = value; }
 		}
 
 
@@ -116,8 +117,8 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public virtual string Description {
 			// TODO 2: Remove this implementation, when all derived classes have a better one.
-			get { return description; }
-			set { description = value; }
+			get { return _description; }
+			set { _description = value; }
 		}
 
 
@@ -125,8 +126,8 @@ namespace Dataweb.NShape {
 		/// Specifies the toolbox category.
 		/// </summary>
 		public string Category {
-			get { return category; }
-			set { category = value; }
+			get { return _category; }
+			set { _category = value; }
 		}
 
 
@@ -143,8 +144,8 @@ namespace Dataweb.NShape {
 		/// A small icon for this <see cref="T:Dataweb.NShape.Advanced.Tool" />.
 		/// </summary>
 		public Bitmap SmallIcon {
-			get { return smallIcon; }
-			set { smallIcon = value; }
+			get { return _smallIcon; }
+			set { _smallIcon = value; }
 		}
 
 
@@ -152,8 +153,8 @@ namespace Dataweb.NShape {
 		/// A large icon for this <see cref="T:Dataweb.NShape.Advanced.Tool" />.
 		/// </summary>
 		public Bitmap LargeIcon {
-			get { return largeIcon; }
-			set { largeIcon = value; }
+			get { return _largeIcon; }
+			set { _largeIcon = value; }
 		}
 
 
@@ -161,8 +162,8 @@ namespace Dataweb.NShape {
 		/// Specifies the minimum distance the mouse has to be moved before the tool is starting a drag action.
 		/// </summary>
 		public Size MinimumDragDistance {
-			get { return minDragDistance; }
-			set { minDragDistance = value; }
+			get { return _minDragDistance; }
+			set { _minDragDistance = value; }
 		}
 
 
@@ -170,8 +171,8 @@ namespace Dataweb.NShape {
 		/// Specifies the interval (in ms) used for determine if two subsequent clicks are interpreted as double click.
 		/// </summary>
 		public int DoubleClickTime {
-			get { return doubleClickInterval; }
-			set { doubleClickInterval = value; }
+			get { return _doubleClickInterval; }
+			set { _doubleClickInterval = value; }
 		}
 
 
@@ -196,11 +197,11 @@ namespace Dataweb.NShape {
 		/// <returns>True if the event was handled, false if the event was not handled.</returns>
 		public virtual bool ProcessMouseEvent(IDiagramPresenter diagramPresenter, MouseEventArgsDg e) {
 			if (diagramPresenter == null) throw new ArgumentNullException("display");
-			currentMouseState.Buttons = e.Buttons;
-			currentMouseState.Modifiers = e.Modifiers;
-			currentMouseState.Clicks = e.Clicks;
-			currentMouseState.Ticks = DateTime.UtcNow.Ticks;
-			diagramPresenter.ControlToDiagram(e.Position, out currentMouseState.Position);
+			_currentMouseState.Buttons = e.Buttons;
+			_currentMouseState.Modifiers = e.Modifiers;
+			_currentMouseState.Clicks = e.Clicks;
+			_currentMouseState.Ticks = DateTime.UtcNow.Ticks;
+			diagramPresenter.ControlToDiagram(e.Position, out _currentMouseState.Position);
 			diagramPresenter.Update();
 			return false;
 		}
@@ -247,7 +248,7 @@ namespace Dataweb.NShape {
 			// Reset the tool's state
 			CancelCore();
 
-			currentMouseState = MouseState.Empty;
+			_currentMouseState = MouseState.Empty;
 
 			OnToolExecuted(CancelledEventArgs);
 		}
@@ -258,8 +259,8 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public virtual bool WantsAutoScroll {
 			get {
-				if (pendingActions.Count == 0) return false;
-				else return pendingActions.Peek().WantsAutoScroll;
+				if (_pendingActions.Count == 0) return false;
+				else return _pendingActions.Peek().WantsAutoScroll;
 			}
 		}
 
@@ -300,7 +301,7 @@ namespace Dataweb.NShape {
 		/// Indicates if the tool has pending actions.
 		/// </summary>
 		public bool IsToolActionPending {
-			get { return pendingActions.Count > 0; }
+			get { return _pendingActions.Count > 0; }
 		}
 
 
@@ -316,9 +317,9 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.Tool" />.
 		/// </summary>
 		protected Tool() {
-			smallIcon = new Bitmap(16, 16);
-			largeIcon = new Bitmap(32, 32);
-			name = "Tool_" + this.GetHashCode().ToString();
+			_smallIcon = new Bitmap(16, 16, PixelFormat.Format32bppPArgb);
+			_largeIcon = new Bitmap(32, 32, PixelFormat.Format32bppPArgb);
+			_name = "Tool_" + this.GetHashCode().ToString();
 			ExecutedEventArgs = new ToolExecutedEventArgs(this, ToolResult.Executed);
 			CancelledEventArgs = new ToolExecutedEventArgs(this, ToolResult.Canceled);
 		}
@@ -330,7 +331,7 @@ namespace Dataweb.NShape {
 		protected Tool(string category)
 			: this() {
 			if (!string.IsNullOrEmpty(category))
-				this.category = category;
+				this._category = category;
 		}
 
 
@@ -351,7 +352,7 @@ namespace Dataweb.NShape {
 		/// Position is in Diagram coordinates.
 		/// </summary>
 		protected MouseState CurrentMouseState {
-			get { return currentMouseState; }
+			get { return _currentMouseState; }
 		}
 
 
@@ -360,8 +361,8 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected IDiagramPresenter ActionDiagramPresenter {
 			get {
-				if (pendingActions.Count == 0) throw new NShapeException("The action's current display was not set yet. Call StartToolAction method to set the action's current display.");
-				else return pendingActions.Peek().DiagramPresenter;
+				if (_pendingActions.Count == 0) throw new NShapeException("The action's current display was not set yet. Call StartToolAction method to set the action's current display.");
+				else return _pendingActions.Peek().DiagramPresenter;
 			}
 		}
 
@@ -372,8 +373,8 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected MouseState ActionStartMouseState {
 			get {
-				if (pendingActions.Count == 0) throw new NShapeInternalException("The action's start mouse state was not set yet. Call SetActionStartPosition method to set the start position.");
-				else return pendingActions.Peek().MouseState;
+				if (_pendingActions.Count == 0) throw new NShapeInternalException("The action's start mouse state was not set yet. Call SetActionStartPosition method to set the start position.");
+				else return _pendingActions.Peek().MouseState;
 			}
 		}
 
@@ -383,8 +384,8 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected ActionDef CurrentToolAction {
 			get {
-				if (pendingActions.Count > 0)
-					return pendingActions.Peek();
+				if (_pendingActions.Count > 0)
+					return _pendingActions.Peek();
 				else return ActionDef.Empty;
 			}
 		}
@@ -394,7 +395,7 @@ namespace Dataweb.NShape {
 		/// Indicates whether a tool action is pending.
 		/// </summary>
 		protected IEnumerable<ActionDef> PendingToolActions {
-			get { return pendingActions; }
+			get { return _pendingActions; }
 		}
 
 
@@ -402,7 +403,7 @@ namespace Dataweb.NShape {
 		/// Specifies the number of pending tool actions.
 		/// </summary>
 		protected int PendingToolActionsCount {
-			get { return pendingActions.Count; }
+			get { return _pendingActions.Count; }
 		}
 
 
@@ -428,12 +429,12 @@ namespace Dataweb.NShape {
 		protected virtual void StartToolAction(IDiagramPresenter diagramPresenter, int action, MouseState mouseState, bool wantAutoScroll) {
 			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
 			if (mouseState == MouseState.Empty) throw new ArgumentException("mouseState");
-			if (pendingActions.Count > 0) {
-				if (pendingActions.Peek().DiagramPresenter != diagramPresenter)
+			if (_pendingActions.Count > 0) {
+				if (_pendingActions.Peek().DiagramPresenter != diagramPresenter)
 					throw new NShapeException("There are actions pending for an other diagram presenter!");
 			}
 			ActionDef actionDef = ActionDef.Create(diagramPresenter, action, mouseState, wantAutoScroll);
-			pendingActions.Push(actionDef);
+			_pendingActions.Push(actionDef);
 		}
 
 
@@ -442,14 +443,14 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>When overriding this method, the call to the base implementation has to be called at last.</remarks>
 		protected virtual void EndToolAction() {
-			if (pendingActions.Count <= 0) throw new InvalidOperationException("No tool actions pending.");
-			IDiagramPresenter diagramPresenter = pendingActions.Peek().DiagramPresenter;
+			if (_pendingActions.Count <= 0) throw new InvalidOperationException("No tool actions pending.");
+			IDiagramPresenter diagramPresenter = _pendingActions.Peek().DiagramPresenter;
 			if (diagramPresenter != null) {
 				Invalidate(diagramPresenter);
 				diagramPresenter.Capture = false;
 				diagramPresenter.SetCursor(CursorProvider.DefaultCursorID);
 			}
-			pendingActions.Pop();
+			_pendingActions.Pop();
 		}
 
 
@@ -463,7 +464,7 @@ namespace Dataweb.NShape {
 		/// Called when a tool action has finished. Raises the ToolExecuted event.
 		/// </summary>
 		protected virtual void OnToolExecuted(ToolExecutedEventArgs eventArgs) {
-			if (IsToolActionPending) throw new InvalidOperationException(string.Format("{0} tool actions pending.", pendingActions.Count));
+			if (IsToolActionPending) throw new InvalidOperationException(string.Format("{0} tool actions pending.", _pendingActions.Count));
 			if (ToolExecuted != null) ToolExecuted(this, eventArgs);
 		}
 
@@ -624,17 +625,17 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected void InvalidateConnectionTargets(IDiagramPresenter diagramPresenter, int currentPosX, int currentPosY) {
 			// invalidate selectedShapes in last range
-			diagramPresenter.InvalidateGrips(shapesInRange, ControlPointCapabilities.Connect);
+			diagramPresenter.InvalidateGrips(_shapesInRange, ControlPointCapabilities.Connect);
 
 			if (Geometry.IsValid(currentPosX, currentPosY)) {
 				ShapeAtCursorInfo shapeAtCursor = FindConnectionTargetFromPosition(diagramPresenter, currentPosX, currentPosY, false, true);
 				if (!shapeAtCursor.IsEmpty) shapeAtCursor.Shape.Invalidate();
 
 				// invalidate selectedShapes in current range
-				shapesInRange.Clear();
-				shapesInRange.AddRange(FindVisibleShapes(diagramPresenter, currentPosX, currentPosY, ControlPointCapabilities.Connect, pointHighlightRange));
-				if (shapesInRange.Count > 0)
-					diagramPresenter.InvalidateGrips(shapesInRange, ControlPointCapabilities.Connect);
+				_shapesInRange.Clear();
+				_shapesInRange.AddRange(FindVisibleShapes(diagramPresenter, currentPosX, currentPosY, ControlPointCapabilities.Connect, _pointHighlightRange));
+				if (_shapesInRange.Count > 0)
+					diagramPresenter.InvalidateGrips(_shapesInRange, ControlPointCapabilities.Connect);
 			}
 		}
 
@@ -689,10 +690,10 @@ namespace Dataweb.NShape {
 			else shapeAtCursor = FindConnectionTargetFromPosition(diagramPresenter, newGluePtPos.X, newGluePtPos.Y, false, false);
 
 			// Add shapes in range to the shapebuffer and then remove all excluded shapes
-			shapeBuffer.Clear();
-			shapeBuffer.AddRange(shapesInRange);
+			_shapeBuffer.Clear();
+			_shapeBuffer.AddRange(_shapesInRange);
 			foreach (Shape excludedShape in excludedShapes) {
-				shapeBuffer.Remove(excludedShape);
+				_shapeBuffer.Remove(excludedShape);
 				if (excludedShape == shapeAtCursor.Shape)
 					shapeAtCursor.Clear();
 			}
@@ -706,9 +707,9 @@ namespace Dataweb.NShape {
 			// Draw all connectionPoints of all shapes in range (except the excluded ones, see above)
 			diagramPresenter.ResetTransformation();
 			try {
-				for (int i = shapeBuffer.Count - 1; i >= 0; --i) {
-					Shape s = shapeBuffer[i];
-					foreach (int ptId in s.GetControlPointIds(ControlPointCapabilities.Connect)) {
+				for (int i = _shapeBuffer.Count - 1; i >= 0; --i) {
+					Shape s = _shapeBuffer[i];
+					foreach (ControlPointId ptId in s.GetControlPointIds(ControlPointCapabilities.Connect)) {
 						if (!(shape.CanConnect(gluePtId, s, ptId) && s.CanConnect(ptId, shape, gluePtId))) 
 							continue;
 						IndicatorDrawMode drawMode = IndicatorDrawMode.Normal;
@@ -1060,7 +1061,7 @@ namespace Dataweb.NShape {
 		protected IEnumerable<Shape> FindVisibleShapes(IDiagramPresenter diagramPresenter, int x, int y, ControlPointCapabilities pointCapabilities, int distance) {
 			if (diagramPresenter.Diagram == null) yield break;
 			foreach (Shape s in diagramPresenter.Diagram.Shapes.FindShapes(x, y, pointCapabilities, distance)) {
-				if (s.Layers == LayerIds.None || diagramPresenter.IsLayerVisible(s.Layers)) 
+				if (diagramPresenter.IsLayerVisible(s.HomeLayer, s.SupplementalLayers)) 
 					yield return s;
 			}
 		}
@@ -1079,7 +1080,7 @@ namespace Dataweb.NShape {
 			if (diagramPresenter.Diagram != null) {
 				foreach (Shape s in FindVisibleShapes(diagramPresenter, x, y, ControlPointCapabilities.Connect, range)) {
 					if (s == shape) continue;
-					if (s.Layers != LayerIds.None && !diagramPresenter.IsLayerVisible(s.Layers)) continue;
+					if (!diagramPresenter.IsLayerVisible(s.HomeLayer, s.SupplementalLayers)) continue;
 					// Skip shapes below the last matching shape
 					if (s.ZOrder < resultZOrder) continue;
 					// Skip shapes already connected to the found shape via point-to-shape connection
@@ -1394,46 +1395,46 @@ namespace Dataweb.NShape {
 		#region Fields
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected int margin = 1;
+		protected const int margin = 1;
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Color transparentColor = Color.LightGray;
+		protected readonly Color transparentColor = Color.LightGray;
 
 		// --- Description of the tool ---
 		// Unique name of the tool.
-		private string name;
+		private string _name;
 		// Title that will be displayed in the tool box
-		private string title;
+		private string _title;
 		// Category title of the tool, used for grouping tools in the tool box
-		private string category;
+		private string _category;
 		// Hint that will be displayed when the mouse is hovering the tool
-		private string description;
+		private string _description;
 		// small icon of the tool
-		private Bitmap smallIcon;
+		private Bitmap _smallIcon;
 		// the large icon of the tool
-		private Bitmap largeIcon;
+		private Bitmap _largeIcon;
 		// minimum distance the mouse has to move before a drag action is considered as drag action
-		private Size minDragDistance = new Size(4, 4);
+		private Size _minDragDistance = new Size(4, 4);
 		// the interval which is used to determine whether two subsequent clicks are interpreted as double click.
-		private int doubleClickInterval = 500;
+		private int _doubleClickInterval = 500;
 		//
 		// margin and background colors of the toolbox icons "LargeIcon" and "SmallIcon"
 		// highlighting connection targets in range
-		private int pointHighlightRange = 50;
+		private int _pointHighlightRange = 50;
 		//
 		// --- Mouse state after last mouse event ---
 		// State of the mouse after the last ProcessMouseEvents call
-		private MouseState currentMouseState = MouseState.Empty;
+		private MouseState _currentMouseState = MouseState.Empty;
 		// Shapes whose connection points will be highlighted in the next drawing
-		private List<Shape> shapesInRange = new List<Shape>();
+		private List<Shape> _shapesInRange = new List<Shape>();
 
 		// --- Definition of current action(s) ---
 		// The stack contains 
 		// - the display that is edited with this tool,
 		// - transformed coordinates of the mouse position when an action has started (diagram coordinates)
-		private Stack<ActionDef> pendingActions = new Stack<ActionDef>(1);
+		private Stack<ActionDef> _pendingActions = new Stack<ActionDef>(1);
 		// 
 		// Work buffer for shapes
-		private List<Shape> shapeBuffer = new List<Shape>();
+		private List<Shape> _shapeBuffer = new List<Shape>();
 
 		#endregion
 	}

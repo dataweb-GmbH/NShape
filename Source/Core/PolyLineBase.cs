@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -263,17 +263,19 @@ namespace Dataweb.NShape.Advanced {
 					return result;
 				}
 			}
-			if (!Geometry.IsValid(result)) throw new NShapeException("The given Point is not part of the line shape.");
+			if (!Geometry.IsValid(result)) throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_TheGivenPoint0IsNotPartOfTheLineShape, point);
 			return result;
 		}
 
 
 		/// <override></override>
 		public override void Invalidate() {
-			base.Invalidate();
-			if (DisplayService != null) {
-				foreach (LineSegment segment in GetLineSegments())
-					InvalidateSegment(segment.VertexA.GetPosition(), segment.VertexB.GetPosition());
+			if (!SuspendingInvalidation) {
+				base.Invalidate();
+				if (DisplayService != null) {
+					foreach (LineSegment segment in GetLineSegments())
+						InvalidateSegment(segment.VertexA.GetPosition(), segment.VertexB.GetPosition());
+				}
 			}
 		}
 
@@ -355,9 +357,10 @@ namespace Dataweb.NShape.Advanced {
 					line.MoveControlPointTo(ControlPointId.FirstVertex, r.Left, r.Top + dh, ResizeModifiers.None);
 					line.MoveControlPointTo(ControlPointId.LastVertex, r.Right, r.Bottom - dh, ResizeModifiers.None);
 					// Add vertices
-					line.InsertVertex(ControlPointId.LastVertex, r.Left + dw, r.Bottom - dh);
-					line.InsertVertex(ControlPointId.LastVertex, r.Right - dw, r.Top + dh);
-
+					if (line.MaxVertexCount >= 4) {
+						line.InsertVertex(ControlPointId.LastVertex, r.Left + dw, r.Bottom - dh);
+						line.InsertVertex(ControlPointId.LastVertex, r.Right - dw, r.Top + dh);
+					}
 					//int dh = r.Height / 8;
 					//// Move vertices
 					//line.MoveControlPointTo(ControlPointId.FirstVertex, r.Left, r.Bottom - dh, ResizeModifiers.None);
@@ -537,7 +540,7 @@ namespace Dataweb.NShape.Advanced {
 		public override ControlPointId InsertVertex(ControlPointId beforePointId, int x, int y) {
 			ControlPointId newPointId = ControlPointId.None;
 			if (IsFirstVertex(beforePointId) || beforePointId == ControlPointId.Reference || beforePointId == ControlPointId.None)
-				throw new ArgumentException(string.Format("{0} is not a valid control point id for this operation.", beforePointId));
+				throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidControlPointIdForThisOperation, beforePointId));
 
 			// Create new vertex
 			newPointId = GetNewControlPointId();
@@ -563,7 +566,7 @@ namespace Dataweb.NShape.Advanced {
 			// ToDo: Falls die Distanz des Punktes x|y > 0 ist: Ausrechnen wo der Punkt sein muss (entlang der Lotrechten durch den Punkt verschieben)
 			ControlPointId insertBeforeId = FindInsertionPointId(x, y, true);
 			ControlPointId result = InsertVertex(insertBeforeId, x, y);
-			if (result == ControlPointId.None) throw new NShapeException("Cannot add vertex {0}.", new Point(x, y));
+			if (result == ControlPointId.None) throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_CannotAddVertex0, new Point(x, y));
 			return result;
 		}
 
@@ -571,7 +574,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override void RemoveVertex(ControlPointId controlPointId) {
 			if (controlPointId == ControlPointId.Any || controlPointId == ControlPointId.Reference || controlPointId == ControlPointId.None)
-				throw new ArgumentException(string.Format("{0} is not a valid ControlPointId for this operation.", controlPointId));
+				throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidControlPointForThisOperation, controlPointId));
 			if (IsFirstVertex(controlPointId) || IsLastVertex(controlPointId))
 				throw new InvalidOperationException(string.Format("ControlPoint {0} is a GluePoint and therefore must not be removed.", controlPointId));
 
@@ -798,7 +801,7 @@ namespace Dataweb.NShape.Advanced {
 				}
 				lastPoint = currPoint;
 			}
-			Debug.Assert(false, "No insert position found!");
+			//Debug.Assert(false, "No insert position found!");
 			return ControlPointId.LastVertex;
 		}
 

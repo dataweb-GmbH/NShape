@@ -1,4 +1,4 @@
-namespace Dataweb.NShape.WinFormsUI {
+﻿namespace Dataweb.NShape.WinFormsUI {
 	internal partial class StyleListBox {
 		/// <summary> 
 		/// Required designer variable.

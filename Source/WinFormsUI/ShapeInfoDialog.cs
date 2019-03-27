@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -105,7 +105,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			string result = string.Empty;
 			foreach (ShapeConnectionInfo sci in shape.GetConnectionInfos(id, null))
 				result += string.Format("{0}{1} with Point {2}",
-					(result.Length > 0) ? ", " : "",
+					(result.Length > 0) ? ", " : string.Empty,
 					(sci.OtherShape.Template != null) ? sci.OtherShape.Template.ToString() : sci.OtherShape.Type.Name,
 					sci.OtherPointId);
 			return result;
@@ -130,7 +130,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		private Project project = null;
 		private Shape shape = null;
 		private Shape shapeClone = null;
-		private Diagram diagram = new Diagram("");
+		private Diagram diagram = new Diagram(string.Empty);
 		private PointHighlightingTool tool = new PointHighlightingTool();
 	}
 

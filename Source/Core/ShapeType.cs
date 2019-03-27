@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -17,6 +17,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Diagnostics;
+using System.Threading;
 
 
 namespace Dataweb.NShape.Advanced {
@@ -140,14 +141,14 @@ namespace Dataweb.NShape.Advanced {
 			if (createShapeDelegate == null) throw new ArgumentNullException("Shape creation delegate");
 			if (getPropertyDefinitionsDelegate == null) throw new ArgumentNullException("Property infos");
 			//
-			this.name = name;
-			this.libraryName = libraryName;
-			this.categoryTitle = categoryTitle ?? string.Empty;
-			this.description = description ?? string.Empty;
-			this.createShapeDelegate = createShapeDelegate;
-			this.getPropertyDefinitionsDelegate = getPropertyDefinitionsDelegate;
-			this.freehandReferenceImage = freehandReferenceImage;
-			this.supportsAutoTemplates = supportsTemplates;
+			this._name = name;
+			this._libraryName = libraryName;
+			this._categoryTitle = categoryTitle ?? string.Empty;
+			this._description = description ?? string.Empty;
+			this._createShapeDelegate = createShapeDelegate;
+			this._getPropertyDefinitionsDelegate = getPropertyDefinitionsDelegate;
+			this._freehandReferenceImage = freehandReferenceImage;
+			this._supportsAutoTemplates = supportsTemplates;
 		}
 
 
@@ -155,7 +156,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Name of shape type, used to identify a shape type for creating shapes.
 		/// </summary>
 		public string Name { 
-			get { return name; } 
+			get { return _name; } 
 		}
 
 
@@ -163,7 +164,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Indicates the name of the library this shape type is implemented in.
 		/// </summary>
 		public string LibraryName {
-			get { return libraryName; }
+			get { return _libraryName; }
 		}
 
 
@@ -171,7 +172,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Indicates the complete unique name of the shape type.
 		/// </summary>
 		public string FullName {
-			get { return string.Format("{0}.{1}", libraryName, name); }
+			get { return string.Format("{0}.{1}", _libraryName, _name); }
 		}
 
 
@@ -179,7 +180,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Indicates the default culture depending name for the toolbox category.
 		/// </summary>
 		public string DefaultCategoryTitle { 
-			get { return categoryTitle.Value; } 
+			get { return _categoryTitle.Value; } 
 		}
 
 
@@ -187,8 +188,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Specifies the culture depending description of the shape type.
 		/// </summary>
 		public string Description {
-			get { return description.Value; }
-			set { description = value; }
+			get { return _description.Value; }
+			set { _description = value; }
 		}
 
 
@@ -197,7 +198,7 @@ namespace Dataweb.NShape.Advanced {
 		/// shape type.
 		/// </summary>
 		public bool SupportsAutoTemplates {
-			get { return supportsAutoTemplates; }
+			get { return _supportsAutoTemplates; }
 		}
 
 
@@ -206,7 +207,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <returns></returns>
 		public Bitmap FreehandReferenceImage {
-			get { return freehandReferenceImage; }
+			get { return _freehandReferenceImage; }
 		}
 
 
@@ -214,11 +215,10 @@ namespace Dataweb.NShape.Advanced {
 		/// Create a completely new shape instance which will be initialized with the standard styles.
 		/// </summary>
 		public Shape CreateInstance() {
-			if (styleSetProvider == null)
-				throw new InvalidOperationException(string.Format("No style set provider found for shape type '{0}'. "
-				+ "Probably the shape type is not registered with the project.", FullName));
-			Shape result = createShapeDelegate(this, null);
-			result.InitializeToDefault(styleSetProvider.StyleSet);
+			if (_styleSetProvider == null)
+				throw new InvalidOperationException(string.Format(Properties.Resources.MessageFmt_NoStyleSetProviderFoundForShapeType0, FullName));
+			Shape result = _createShapeDelegate(this, null);
+			result.InitializeToDefault(_styleSetProvider.StyleSet);
 			return result;
 		}
 
@@ -228,7 +228,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public Shape CreateInstance(Template template) {
 			if (template == null) throw new ArgumentNullException("template");
-			Shape result = createShapeDelegate(this, template);
+			Shape result = _createShapeDelegate(this, template);
 			result.CopyFrom(template.Shape);	// Template will not be copied
 			return result;
 		}
@@ -241,7 +241,7 @@ namespace Dataweb.NShape.Advanced {
 			if (shape == null) throw new ArgumentNullException("shape");
 			Shape result = ShapeDuplicator.CloneShapeAndModelObject(shape);
 			Debug.Assert(shape.ModelObject == null || shape.ModelObject != result.ModelObject);
-			result.MakePreview(styleSetProvider.StyleSet);
+			result.MakePreview(_styleSetProvider.StyleSet);
 			return result;
 		}
 
@@ -253,7 +253,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Repository version for which the property definitions are to be fetched.
 		/// </param>
 		public IEnumerable<EntityPropertyDefinition> GetPropertyDefinitions(int version) {
-			return getPropertyDefinitionsDelegate(version);
+			return _getPropertyDefinitionsDelegate(version);
 		}
 
 
@@ -269,8 +269,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Used by the project to supplement a design.
 		/// </summary>
 		internal IStyleSetProvider StyleSetProvider {
-			get { return styleSetProvider; }
-			set { styleSetProvider = value; }
+			get { return _styleSetProvider; }
+			set { _styleSetProvider = value; }
 		}
 
 
@@ -279,30 +279,30 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <returns></returns>
 		internal Shape CreateInstanceForLoading() {
-			return this.createShapeDelegate(this, null);
+			return this._createShapeDelegate(this, null);
 		}
 
 
 		#region Fields
 
 		// Name of the shape type
-		private string name;
+		private string _name;
 		// Name of the shape type's library
-		private string libraryName;
+		private string _libraryName;
 		// Localizable default for the shape type category e.g. in the toolbox.
-		private ResourceString categoryTitle;
+		private ResourceString _categoryTitle;
 		// Localizable description for the shape type.
-		private ResourceString description;
+		private ResourceString _description;
 		// StyleSetProvider for retrieving the current StyleSet
-		private IStyleSetProvider styleSetProvider;
+		private IStyleSetProvider _styleSetProvider;
 		// Delegate for constructing shapes
-		private CreateShapeDelegate createShapeDelegate;
+		private CreateShapeDelegate _createShapeDelegate;
 		// Delegate for fetching the shape type definitions.
-		private GetPropertyDefinitionsDelegate getPropertyDefinitionsDelegate;
+		private GetPropertyDefinitionsDelegate _getPropertyDefinitionsDelegate;
 		// Image used by the FreeHandTool to identify a drawn shape
-		private Bitmap freehandReferenceImage = null;
+		private Bitmap _freehandReferenceImage = null;
 		// True, if automatic templates make sense for this shape type
-		bool supportsAutoTemplates = true;
+		private bool _supportsAutoTemplates = true;
 
 		#endregion
 	}
@@ -333,13 +333,13 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public void Add(ShapeType shapeType) {
 			if (shapeType == null) throw new ArgumentNullException("shapeType");
-			shapeTypes.Add(shapeType.FullName, shapeType);
+			_shapeTypes.Add(shapeType.FullName, shapeType);
 		}
 
 
 		public bool Remove(ShapeType shapeType) {
 			if (shapeType == null) throw new ArgumentNullException("shapeType");
-			return shapeTypes.Remove(shapeType.FullName);
+			return _shapeTypes.Remove(shapeType.FullName);
 		}
 
 
@@ -349,19 +349,19 @@ namespace Dataweb.NShape.Advanced {
 
 
 		public int Count {
-			get { return shapeTypes.Count; }
+			get { return _shapeTypes.Count; }
 		}
 
 
 		public void Clear() {
-			shapeTypes.Clear();
+			_shapeTypes.Clear();
 		}
 
 
 		#region IEnumerable<Type> Members
 
 		public IEnumerator<ShapeType> GetEnumerator() {
-			return shapeTypes.Values.GetEnumerator();
+			return _shapeTypes.Values.GetEnumerator();
 		}
 
 		#endregion
@@ -370,7 +370,7 @@ namespace Dataweb.NShape.Advanced {
 		#region IEnumerable Members
 
 		IEnumerator IEnumerable.GetEnumerator() {
-			return shapeTypes.Values.GetEnumerator();
+			return _shapeTypes.Values.GetEnumerator();
 		}
 
 		#endregion
@@ -380,7 +380,7 @@ namespace Dataweb.NShape.Advanced {
 
 		public void CopyTo(Array array, int index) {
 			if (array == null) throw new ArgumentNullException("array");
-			shapeTypes.Values.CopyTo((ShapeType[])array, index);
+			_shapeTypes.Values.CopyTo((ShapeType[])array, index);
 		}
 
 
@@ -389,8 +389,13 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
+		/// <override></override>
 		public object SyncRoot {
-			get { throw new NotImplementedException(); }
+			get {
+				if (_syncRoot == null)
+					Interlocked.CompareExchange(ref _syncRoot, new object(), null);
+				return _syncRoot;
+			}
 		}
 
 		#endregion
@@ -405,8 +410,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <returns>Shape type with given name.</returns>
 		protected ShapeType GetShapeType(string typeName) {
 			ShapeType result = null;
-			if (!shapeTypes.TryGetValue(typeName, out result)) {
-				foreach (KeyValuePair<string, ShapeType> item in shapeTypes) {
+			if (!_shapeTypes.TryGetValue(typeName, out result)) {
+				foreach (KeyValuePair<string, ShapeType> item in _shapeTypes) {
 					// if no matching type name was found, check if the given type projectName was a type projectName without namespace
 					if (string.Compare(item.Value.Name, typeName, StringComparison.InvariantCultureIgnoreCase) == 0) {
 						if (result == null) result = item.Value;
@@ -423,8 +428,8 @@ namespace Dataweb.NShape.Advanced {
 		#region Fields
 
 		// Files shape types under their names.
-		private Dictionary<string, ShapeType> shapeTypes 
-			= new Dictionary<string, ShapeType>(StringComparer.InvariantCultureIgnoreCase);
+		private Dictionary<string, ShapeType> _shapeTypes = new Dictionary<string, ShapeType>(StringComparer.InvariantCultureIgnoreCase);
+		private object _syncRoot = null;
 
 		#endregion
 

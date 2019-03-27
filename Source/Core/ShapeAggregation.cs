@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -58,8 +58,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Shape Owner {
-			get { return owner; }
-			protected set { owner = value; }
+			get { return _owner; }
+			protected set { _owner = value; }
 		}
 
 
@@ -86,35 +86,35 @@ namespace Dataweb.NShape.Advanced {
 
 			if (source is ShapeAggregation) {
 				ShapeAggregation src = (ShapeAggregation)source;
-				this.aggregationAngle = src.aggregationAngle;
-				this.rotationCenter = src.rotationCenter;
+				this._aggregationAngle = src._aggregationAngle;
+				this._rotationCenter = src._rotationCenter;
 				//
 				int shapeCnt = shapes.Count;
 				// Copy center points of the shapes
-				this.shapePositions.Clear();
+				this.ShapePositions.Clear();
 				for (int i = 0; i < shapeCnt; ++i) {
-					Point shapePos = src.shapePositions[src.shapes[i]];
-					this.shapePositions.Add(shapes[i], shapePos);
+					Point shapePos = src.ShapePositions[src.shapes[i]];
+					this.ShapePositions.Add(shapes[i], shapePos);
 				}
 				// Copy relative positions of the children
-				relativePointPositions.Clear();
+				RelativePointPositions.Clear();
 				for (int i = 0; i < shapeCnt; ++i) {
 					// Copy all items
-					PointPositions srcPtPositions = src.relativePointPositions[src.shapes[i]];
+					PointPositions srcPtPositions = src.RelativePointPositions[src.shapes[i]];
 					PointPositions dstPtPositions = new PointPositions();
 					foreach (KeyValuePair<ControlPointId, RelativePosition> item in srcPtPositions.Items)
 						dstPtPositions.Items.Add(item.Key, item.Value);
-					relativePointPositions.Add(shapes[i], dstPtPositions);
+					RelativePointPositions.Add(shapes[i], dstPtPositions);
 				}
 			} else {
 				// If the source ShapeCollection is not a ShapeAggregation, 
 				// store unrotated ShapePositions nevertheless
-				this.shapePositions.Clear();
+				this.ShapePositions.Clear();
 				foreach (Shape shape in shapes) {
 					Point shapePos = Point.Empty;
 					shapePos.Offset(shape.X, shape.Y);
-					this.shapePositions.Add(shape, shapePos);
-					this.relativePointPositions.Add(shape, new PointPositions(shape, Owner));
+					this.ShapePositions.Add(shape, shapePos);
+					this.RelativePointPositions.Add(shape, new PointPositions(shape, Owner));
 				}
 			}
 		}
@@ -209,9 +209,9 @@ namespace Dataweb.NShape.Advanced {
 					RevertRotation();
 
 					// set new rotation center and angle
-					aggregationAngle = (aggregationAngle + angle) % 3600;
-					rotationCenter.X = rotationCenterX;
-					rotationCenter.Y = rotationCenterY;
+					_aggregationAngle = (_aggregationAngle + angle) % 3600;
+					_rotationCenter.X = rotationCenterX;
+					_rotationCenter.Y = rotationCenterY;
 
 					// rotate child shapes around the parent's center
 					foreach (Shape shape in shapes) {
@@ -223,15 +223,15 @@ namespace Dataweb.NShape.Advanced {
 						if (gluePointState == GluePointState.AllConnected || gluePointState == GluePointState.SomeConnected)
 							continue;
 						// Rotate shape
-						if (!shape.Rotate(aggregationAngle, rotationCenter.X, rotationCenter.Y))
+						if (!shape.Rotate(_aggregationAngle, _rotationCenter.X, _rotationCenter.Y))
 							result = false;
 						// Check whether the shape has connected shapes
 						foreach (ShapeConnectionInfo connInfo in shape.GetConnectionInfos(ControlPointId.Any, null)) {
 							Shape connectedShape = connInfo.OtherShape;
 							// Skip shapes that are not part of the aggregation
-							if (shapePositions.ContainsKey(connectedShape)) {
+							if (ShapePositions.ContainsKey(connectedShape)) {
 								// Rotate connected shape
-								if (!connectedShape.Rotate(aggregationAngle, rotationCenter.X, rotationCenter.Y))
+								if (!connectedShape.Rotate(_aggregationAngle, _rotationCenter.X, _rotationCenter.Y))
 									result = false;
 								// Move control points to the expected positions
 								RestorePointPositions(connectedShape);
@@ -264,9 +264,9 @@ namespace Dataweb.NShape.Advanced {
 						// Update unrotated shape center - regardless wether the shape is moved or not (shapes with
 						// connected glue points will not be moved)
 						// Due to the fact that Point is a value Type, we have to overwrite the Point with a new Point.
-						Point shapePos = shapePositions[shape];
+						Point shapePos = ShapePositions[shape];
 						shapePos.Offset(deltaX, deltaY);
-						shapePositions[shape] = shapePos;
+						ShapePositions[shape] = shapePos;
 
 						// Get glue point states and handle connected glue points if there are any:
 						//   * Skip all shapes with connected glue points as they will move with their partner shape anyway
@@ -284,7 +284,7 @@ namespace Dataweb.NShape.Advanced {
 							// Skip shapes that are not part of the aggregation
 							Shape connectedShape = connInfo.OtherShape;
 							Point expectedShapePos;
-							if (shapePositions.TryGetValue(connectedShape, out expectedShapePos)) {
+							if (ShapePositions.TryGetValue(connectedShape, out expectedShapePos)) {
 								expectedShapePos.Offset(deltaX, deltaY);
 								// Move control points to the expected positions
 								if (connectedShape is IPlanarShape) {
@@ -370,8 +370,8 @@ namespace Dataweb.NShape.Advanced {
 				shape.Parent = null;
 				shape.DisplayService = null;
 			}
-			shapePositions.Clear();
-			relativePointPositions.Clear();
+			ShapePositions.Clear();
+			RelativePointPositions.Clear();
 			base.ClearCore();
 		}
 
@@ -394,8 +394,8 @@ namespace Dataweb.NShape.Advanced {
 			bool result = base.RemoveCore(shape);
 			if (result) {
 				// Remove positions of the (unrotated) shape and reset bounding rectangle
-				shapePositions.Remove(shape);
-				relativePointPositions.Remove(shape);
+				ShapePositions.Remove(shape);
+				RelativePointPositions.Remove(shape);
 				// Reset shape's parent and display service
 				shape.Parent = null;
 				shape.DisplayService = null;
@@ -418,31 +418,45 @@ namespace Dataweb.NShape.Advanced {
 		#endregion
 
 
+		/// <summary>List of unrotated positions (X/Y) of the shapes</summary>
+		protected Dictionary<Shape, Point> ShapePositions {
+			get { return _shapePositions; }
+			set { _shapePositions = value; }
+		}
+
+
+		/// <summary>List of RelativePosition for each shape's anchor control points</summary>
+		protected Dictionary<Shape, PointPositions> RelativePointPositions {
+			get { return _relativePointPositions; }
+			set { _relativePointPositions = value; }
+		}
+
+
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SuspendUpdate() {
-			++suspendCounter;
+			++_suspendCounter;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void ResumeUpdate() {
-			Debug.Assert(suspendCounter > 0);
-			--suspendCounter;
+			Debug.Assert(_suspendCounter > 0);
+			--_suspendCounter;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected bool UpdateSuspended { get { return suspendCounter > 0; } }
+		protected bool UpdateSuspended { get { return _suspendCounter > 0; } }
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		internal bool RestorePointPositions(Shape shape) {
+		private bool RestorePointPositions(Shape shape) {
 			bool result = true;
 			try {
 				SuspendUpdate();
 				Rectangle ownerBounds = Owner.GetBoundingRectangle(true);
 				// Move given child shape to its new absolute position calculated from relativePosition
-				PointPositions ptPositions = relativePointPositions[shape];
+				PointPositions ptPositions = RelativePointPositions[shape];
 				Debug.Assert(ptPositions != null);
 
 				// Now restore positions of the anchor points
@@ -473,17 +487,17 @@ namespace Dataweb.NShape.Advanced {
 			}
 			return result;
 		}
-	
-		
+
+
 		/// <ToBeCompleted></ToBeCompleted>
-		internal IEnumerable<Point> GetPointPositions(Shape shape, IEnumerable<RelativePosition> relativePositions) {
+		private IEnumerable<Point> GetPointPositions(Shape shape, IEnumerable<RelativePosition> relativePositions) {
 			foreach (RelativePosition relPos in relativePositions)
 				yield return shape.CalculateAbsolutePosition(relPos);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		internal IEnumerable<ControlPointId> GetAnchorPointIds(Shape shape) {
+		protected IEnumerable<ControlPointId> GetAnchorPointIds(Shape shape) {
 			// Get the 'Anchor' points of the given shape
 			IEnumerable<ControlPointId> anchorPointIds;
 			// As long as we do not have attributes for control points that specify move restrictions etc, we
@@ -493,7 +507,7 @@ namespace Dataweb.NShape.Advanced {
 				anchorPointIds = GetLineAnchorPoints(shape);
 			} else if (shape is DiameterShapeBase) {
 				Rectangle dstBounds = Rectangle.Empty;
-				PointPositions ptPositions = relativePointPositions[shape];
+				PointPositions ptPositions = RelativePointPositions[shape];
 				Geometry.CalcBoundingRectangle(GetPointPositions(Owner, ptPositions.Items.Values), out dstBounds);
 				anchorPointIds = GetDiameterShapeAnchorPoints((DiameterShapeBase)shape, dstBounds);
 			} else if (shape is ImageBasedShape) {
@@ -502,7 +516,7 @@ namespace Dataweb.NShape.Advanced {
 				anchorPointIds = GetIsoscelesTriangleAnchorPoints((IsoscelesTriangleBase)shape);
 			} else if (shape is RegularPolygoneBase) {
 				Rectangle dstBounds = Rectangle.Empty;
-				PointPositions ptPositions = relativePointPositions[shape];
+				PointPositions ptPositions = RelativePointPositions[shape];
 				Geometry.CalcBoundingRectangle(GetPointPositions(Owner, ptPositions.Items.Values), out dstBounds);
 				anchorPointIds = GetRegularPolygonAnchorPoints((RegularPolygoneBase)shape, dstBounds);
 			} else
@@ -512,7 +526,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		internal GluePointState GetGluePointState(Shape shape) {
+		protected GluePointState GetGluePointState(Shape shape) {
 			int gluePtCnt = 0, connectedGluePtCnt = 0;
 			foreach (ControlPointId gluePtId in shape.GetControlPointIds(ControlPointCapabilities.Glue)) {
 				++gluePtCnt;
@@ -539,48 +553,48 @@ namespace Dataweb.NShape.Advanced {
 
 		private void Construct(Shape owner, int capacity) {
 			if (owner == null) throw new ArgumentNullException("owner");
-			this.owner = owner;
+			this._owner = owner;
 			if (capacity <= 0) {
-				shapePositions = new Dictionary<Shape, Point>();
-				relativePointPositions = new Dictionary<Shape, PointPositions>();
+				_shapePositions = new Dictionary<Shape, Point>();
+				_relativePointPositions = new Dictionary<Shape, PointPositions>();
 			} else {
-				shapePositions = new Dictionary<Shape, Point>(capacity);
-				relativePointPositions = new Dictionary<Shape, PointPositions>(capacity);
+				_shapePositions = new Dictionary<Shape, Point>(capacity);
+				_relativePointPositions = new Dictionary<Shape, PointPositions>(capacity);
 			}
 		}
 
 
 		private void AddShapePosition(Shape shape) {
 			// Transform the shape to the coordinate system of the rotated aggregation
-			if (aggregationAngle != 0) shape.Rotate(-aggregationAngle, rotationCenter.X, rotationCenter.Y);
+			if (_aggregationAngle != 0) shape.Rotate(-_aggregationAngle, _rotationCenter.X, _rotationCenter.Y);
 
 			// Get the shape's original center point (for restoring the unrotated position)
 			Point shapeCenter = Point.Empty;
 			shapeCenter.X = shape.X;
 			shapeCenter.Y = shape.Y;
-			shapePositions.Add(shape, shapeCenter);
+			ShapePositions.Add(shape, shapeCenter);
 
 			// Transform the shape back to the diagram's coordinate system
-			if (aggregationAngle != 0) shape.Rotate(aggregationAngle, rotationCenter.X, rotationCenter.Y);
+			if (_aggregationAngle != 0) shape.Rotate(_aggregationAngle, _rotationCenter.X, _rotationCenter.Y);
 		}
 
 
 		private void AddRelativePosition(Shape shape) {
 			// Transform the shape to the coordinate system of the rotated aggregation
-			if (aggregationAngle != 0) shape.Rotate(-aggregationAngle, rotationCenter.X, rotationCenter.Y);
+			if (_aggregationAngle != 0) shape.Rotate(-_aggregationAngle, _rotationCenter.X, _rotationCenter.Y);
 
 			PointPositions ptPositions = new PointPositions(shape, Owner);
-			relativePointPositions.Add(shape, ptPositions);
+			RelativePointPositions.Add(shape, ptPositions);
 
 			// Transform the shape back to the diagram's coordinate system
-			if (aggregationAngle != 0) shape.Rotate(aggregationAngle, rotationCenter.X, rotationCenter.Y);
+			if (_aggregationAngle != 0) shape.Rotate(_aggregationAngle, _rotationCenter.X, _rotationCenter.Y);
 		}
 	
 
 		private void RevertRotation() {
 			foreach (Shape shape in shapes) {
-				Point unrotatedShapeCenter = shapePositions[shape];
-				shape.Rotate(-aggregationAngle, shape.X, shape.Y);
+				Point unrotatedShapeCenter = ShapePositions[shape];
+				shape.Rotate(-_aggregationAngle, shape.X, shape.Y);
 				shape.MoveTo(unrotatedShapeCenter.X, unrotatedShapeCenter.Y);
 			}
 		}
@@ -591,16 +605,16 @@ namespace Dataweb.NShape.Advanced {
 			// update it in the shapePositions dictionary
 			Point currentPos = Point.Empty;
 			currentPos.Offset(shape.X, shape.Y);
-			if (aggregationAngle != 0)
-				currentPos = Geometry.RotatePoint(rotationCenter,
-					-Geometry.TenthsOfDegreeToDegrees(aggregationAngle), currentPos);
-			shapePositions[shape] = currentPos;
+			if (_aggregationAngle != 0)
+				currentPos = Geometry.RotatePoint(_rotationCenter,
+					-Geometry.TenthsOfDegreeToDegrees(_aggregationAngle), currentPos);
+			ShapePositions[shape] = currentPos;
 		}
 
 
 		private void UpdateRelativePositions(Shape shape) {
 			PointPositions ptPositions = new PointPositions(shape, Owner);
-			relativePointPositions[shape] = ptPositions;
+			RelativePointPositions[shape] = ptPositions;
 		}
 
 
@@ -711,15 +725,26 @@ namespace Dataweb.NShape.Advanced {
 		#region Types and Fields
 
 		/// <ToBeCompleted></ToBeCompleted>
-		internal enum GluePointState { HasNone, AllConnected, SomeConnected, NoneConnected };
+		protected enum GluePointState {
+			/// <ToBeCompleted></ToBeCompleted>
+			HasNone,
+			/// <ToBeCompleted></ToBeCompleted>
+			AllConnected,
+			/// <ToBeCompleted></ToBeCompleted>
+			SomeConnected,
+			/// <ToBeCompleted></ToBeCompleted>
+			NoneConnected
+		};
 
-		/// <ToBeCompleted></ToBeCompleted>
-		internal class PointPositions {
+			/// <ToBeCompleted></ToBeCompleted>
+		protected class PointPositions {
 
+			/// <ToBeCompleted></ToBeCompleted>
 			public PointPositions() {
 				items = new SortedList<ControlPointId, RelativePosition>();
 			}
 
+			/// <ToBeCompleted></ToBeCompleted>
 			public PointPositions(Shape shape, Shape owner)
 				: this() {
 				if (shape == null) throw new ArgumentNullException("shape");
@@ -739,24 +764,26 @@ namespace Dataweb.NShape.Advanced {
 				}
 			}
 
+			/// <ToBeCompleted></ToBeCompleted>
 			public SortedList<ControlPointId, RelativePosition> Items {
 				get { return items; }
 			}
 
+			/// <ToBeCompleted></ToBeCompleted>
 			private SortedList<ControlPointId, RelativePosition> items;
 		}
 
 
 		/// <summary>List of unrotated positions (X/Y) of the shapes</summary>
-		internal Dictionary<Shape, Point> shapePositions;
+		private Dictionary<Shape, Point> _shapePositions;
 		/// <summary>List of RelativePosition for each shape's anchor control points</summary>
-		internal Dictionary<Shape, PointPositions> relativePointPositions;
+		private Dictionary<Shape, PointPositions> _relativePointPositions;
 
-		private Shape owner = null;
-		private int suspendCounter = 0;
+		private Shape _owner = null;
+		private int _suspendCounter = 0;
 		// Fields for rotating shapes
-		private int aggregationAngle = 0;	// rotation angle in degrees
-		private Point rotationCenter = Point.Empty;
+		private int _aggregationAngle = 0;	// rotation angle in degrees
+		private Point _rotationCenter = Point.Empty;
 		
 		#endregion
 	}
@@ -789,7 +816,7 @@ namespace Dataweb.NShape.Advanced {
 		public override void CopyFrom(IShapeCollection source) {
 			base.CopyFrom(source);
 			if (source is GroupShapeAggregation)
-			   this.center = ((GroupShapeAggregation)source).Center;
+			   this._center = ((GroupShapeAggregation)source).Center;
 			else CalcCenter();
 		}
 
@@ -799,7 +826,7 @@ namespace Dataweb.NShape.Advanced {
 			bool result = true;
 			try {
 				SuspendUpdate();
-				center.Offset(deltaX, deltaY);
+				_center.Offset(deltaX, deltaY);
 				base.NotifyParentMoved(deltaX, deltaY);
 			} finally { ResumeUpdate(); }
 
@@ -870,7 +897,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Point Center {
-			get { return center; }
+			get { return _center; }
 		}
 
 
@@ -976,13 +1003,13 @@ namespace Dataweb.NShape.Advanced {
 		
 		private void CalcCenter() {
 			Rectangle r = GetBoundingRectangle(true);
-			center.X = r.X + (int)Math.Round(r.Width / 2f);
-			center.Y = r.Y + (int)Math.Round(r.Height / 2f);
+			_center.X = r.X + (int)Math.Round(r.Width / 2f);
+			_center.Y = r.Y + (int)Math.Round(r.Height / 2f);
 		}
 
 
 		#region Fields
-		private Point center = Point.Empty;
+		private Point _center = Point.Empty;
 		#endregion
 	}
 
@@ -1015,15 +1042,15 @@ namespace Dataweb.NShape.Advanced {
 				IList<Shape> shapeList = (IList<Shape>)collection;
 				int cnt = shapeList.Count;
 				// Create dictionary of relative positions
-				relativePointPositions = new Dictionary<Shape, PointPositions>(cnt);
+				RelativePointPositions = new Dictionary<Shape, PointPositions>(cnt);
 				// Add shapes
 				foreach (Shape shape in shapeList)
 					Add(shape);
 			} else {
 				// Create dictionary of relative positions
 				if (collection is ICollection<Shape>)
-					relativePointPositions = new Dictionary<Shape, PointPositions>(((ICollection<Shape>)collection).Count);
-				else relativePointPositions = new Dictionary<Shape, PointPositions>();
+					RelativePointPositions = new Dictionary<Shape, PointPositions>(((ICollection<Shape>)collection).Count);
+				else RelativePointPositions = new Dictionary<Shape, PointPositions>();
 				// Add shapes
 				foreach (Shape shape in collection)
 					Add(shape);
@@ -1062,7 +1089,7 @@ namespace Dataweb.NShape.Advanced {
 					GluePointState gluePointState = GetGluePointState(shape);
 					if (gluePointState == GluePointState.AllConnected)
 						continue;
-					PointPositions ptPositions = relativePointPositions[shape];
+					PointPositions ptPositions = RelativePointPositions[shape];
 					Debug.Assert(ptPositions != null);
 
 					// Now restore positions of the anchor points

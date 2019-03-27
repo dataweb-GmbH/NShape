@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -75,17 +75,17 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.RequiredPermissionAttribute" />.
 		/// </summary>
 		public RequiredPermissionAttribute(Permission requiredPermission) {
-			permission = requiredPermission;
+			_permission = requiredPermission;
 		}
 
 		/// <summary>
 		/// Specifies the set of <see cref="T:Dataweb.NShape.Permission" /> required required.
 		/// </summary>
 		public Permission Permission {
-			get { return permission; }
+			get { return _permission; }
 		}
 
-		private Permission permission;
+		private Permission _permission;
 	}
 
 
@@ -102,7 +102,7 @@ namespace Dataweb.NShape {
 	/// Controls the access to diagram operations.
 	/// </summary>
 	public interface ISecurityManager {
-	
+
 		/// <summary>
 		/// Checks whether the given domain-independent permission is granted by for the current role.
 		/// </summary>
@@ -176,19 +176,23 @@ namespace Dataweb.NShape {
 	/// </summary>
 	public class RoleBasedSecurityManager : ISecurityManager {
 
+		/// <ToBeCompleted></ToBeCompleted>
+		public const char NoSecurityDomain = '\0';
+
+
 		/// <summary>
 		/// Creates a default security object with standard roles and domains.
 		/// </summary>
 		public RoleBasedSecurityManager() {
 			char domain;
 
-			AddRole(roleNameAdministrator, "May do anything.");
-			AddRole(roleNameSuperUser, "May do almost anything.");
-			AddRole(roleNameDesigner, "Creates and edits diagrams.");
-			AddRole(roleNameOperator, "Works with prepared diagrams.");
-			AddRole(roleNameGuest, "Views diagrams.");
-			currentUserRole = roles[0];
-			currentRole = StandardRole.Administrator;
+			AddRole(roleNameAdministrator, Dataweb.NShape.Properties.Resources.CaptionTxt_RoleDescriptionAdmin);
+			AddRole(roleNameSuperUser, Dataweb.NShape.Properties.Resources.CaptionTxt_RoleDescriptionSuperUser);
+			AddRole(roleNameDesigner, Dataweb.NShape.Properties.Resources.CaptionTxt_RoleDescriptionDesigner);
+			AddRole(roleNameOperator, Dataweb.NShape.Properties.Resources.CaptionTxt_RoleDescriptionOperator);
+			AddRole(roleNameGuest, Dataweb.NShape.Properties.Resources.CaptionTxt_RoleDescriptionGuest);
+			_currentRole = StandardRole.Administrator;
+			_currentUserRole = GetRole(GetRoleName(_currentRole), true);
 
 			// Set General permissions
 			AddPermissions(roleNameAdministrator, Permission.All);
@@ -199,7 +203,7 @@ namespace Dataweb.NShape {
 
 			// Set permissions for domain A
 			domain = 'A';
-			AddDomain(domain, "SuperUser creates diagrams, Designer only modifies designs and styles, Operator modifies layout and data.");
+			AddDomain(domain, Dataweb.NShape.Properties.Resources.CaptionTxt_DomainDescriptionA);
 			AddPermissions(domain, roleNameAdministrator, Permission.All);
 			AddPermissions(domain, roleNameSuperUser, 
 				Permission.Connect
@@ -217,7 +221,7 @@ namespace Dataweb.NShape {
 
 			// Set permissions for domain B
 			domain = 'B';
-			AddDomain(domain, "SuperUser and Designer create diagrams, Operator may modify layout and data data.");
+			AddDomain(domain, Dataweb.NShape.Properties.Resources.CaptionTxt_DomainDescriptionB);
 			AddPermissions(domain, roleNameAdministrator, Permission.All);
 			AddPermissions(domain, roleNameSuperUser, 
 				Permission.Connect 
@@ -243,29 +247,29 @@ namespace Dataweb.NShape {
 		/// Defines the role of the current user.
 		/// </summary>
 		public string CurrentRoleName {
-			get { return currentUserRole.name; }
+			get { return _currentUserRole.name; }
 			set {
 				switch (value) {
-						case roleNameAdministrator:
-							currentRole = StandardRole.Administrator;
-							break;
-						case roleNameSuperUser:
-							currentRole = StandardRole.SuperUser;
-							break;
-						case roleNameDesigner:
-							currentRole = StandardRole.Designer;
-							break;
-						case roleNameOperator:
-							currentRole = StandardRole.Operator;
-							break;
-						case roleNameGuest:
-							currentRole = StandardRole.Guest;
-							break;
-						default:
-							currentRole = StandardRole.Custom;
-							break;
+					case roleNameAdministrator:
+						_currentRole = StandardRole.Administrator;
+						break;
+					case roleNameSuperUser:
+						_currentRole = StandardRole.SuperUser;
+						break;
+					case roleNameDesigner:
+						_currentRole = StandardRole.Designer;
+						break;
+					case roleNameOperator:
+						_currentRole = StandardRole.Operator;
+						break;
+					case roleNameGuest:
+						_currentRole = StandardRole.Guest;
+						break;
+					default:
+						_currentRole = StandardRole.Custom;
+						break;
 				}
-				currentUserRole = GetRole(value, true);
+				_currentUserRole = GetRole(value, true);
 			}
 		}
 
@@ -274,28 +278,28 @@ namespace Dataweb.NShape {
 		/// Defines the role of the current user.
 		/// </summary>
 		public StandardRole CurrentRole {
-			get { return currentRole; }
+			get { return _currentRole; }
 			set {
 				switch (value) {
 					case StandardRole.Administrator:
-						currentUserRole = GetRole(roleNameAdministrator, true);
+						_currentUserRole = GetRole(roleNameAdministrator, true);
 						break;
 					case StandardRole.SuperUser:
-						currentUserRole = GetRole(roleNameSuperUser, true);
+						_currentUserRole = GetRole(roleNameSuperUser, true);
 						break;
 					case StandardRole.Designer:
-						currentUserRole = GetRole(roleNameDesigner, true);
+						_currentUserRole = GetRole(roleNameDesigner, true);
 						break;
 					case StandardRole.Operator:
-						currentUserRole = GetRole(roleNameOperator, true);
+						_currentUserRole = GetRole(roleNameOperator, true);
 						break;
 					case StandardRole.Guest:
-						currentUserRole = GetRole(roleNameGuest, true);
+						_currentUserRole = GetRole(roleNameGuest, true);
 						break;
 					case StandardRole.Custom:
-						throw new ArgumentException("Custom roles are set by setting the CurrentRoleName property.");
+						throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_CustomRolesAreSetBySettingTheCurrentRoleNameProperty);
 				}
-				currentRole = value;
+				_currentRole = value;
 			}
 		}
 
@@ -304,25 +308,25 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public bool IsGranted(Permission permission) {
-		    return currentUserRole.IsGranted(permission, SecurityAccess.Modify);
+		    return _currentUserRole.IsGranted(permission, SecurityAccess.Modify);
 		}
 
 
 		/// <override></override>
 		public bool IsGranted(Permission permission, SecurityAccess access) {
-			return currentUserRole.IsGranted(permission, access);
+			return _currentUserRole.IsGranted(permission, access);
 		}
 
 
 		/// <override></override>
 		public bool IsGranted(Permission permission, char domainName) {
-		    return currentUserRole.IsGranted(permission, domainName);
+		    return _currentUserRole.IsGranted(permission, domainName);
 		}
 
 
 		/// <override></override>
 		public bool IsGranted(Permission permission, SecurityAccess access, char domainName) {
-			return currentUserRole.IsGranted(permission, access, domainName);
+			return _currentUserRole.IsGranted(permission, access, domainName);
 		}
 
 
@@ -371,9 +375,9 @@ namespace Dataweb.NShape {
 		/// Adds a domain to the security.
 		/// </summary>
 		public void AddDomain(char name, string description) {
-			if (!IsValidDomainName(name)) throw new ArgumentException("This is not an allowed domain name.");
+			if (!IsValidDomainName(name)) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ThisIsNotAnAllowedDomainName);
 			if (description == null) throw new ArgumentNullException("description");
-			if (domains[name - 'A'] != null) throw new ArgumentException("A domain with this name exists already.");
+			if (domains[name - 'A'] != null) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ADomainWithThisNameExistsAlready);
 			domains[name - 'A'] = description;
 		}
 
@@ -382,8 +386,8 @@ namespace Dataweb.NShape {
 		/// Removes a domain from the security.
 		/// </summary>
 		public void RemoveDomain(char name) {
-			if (!IsValidDomainName(name)) throw new ArgumentException("This is not an allowed domain name.");
-			if (domains[name - 'A'] == null) throw new ArgumentException("A domain with this name does not exist.");
+			if (!IsValidDomainName(name)) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ThisIsNotAnAllowedDomainName);
+			if (domains[name - 'A'] == null) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ADomainWithThisNameDoesNotExist);
 			domains[name - 'A'] = null;
 		}
 
@@ -393,7 +397,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public void AddRole(string name, string description) {
 			if (name == null) throw new ArgumentNullException("name");
-			roles.Add(new UserRole(name, description));
+			roles.Add(name.ToLowerInvariant(), new UserRole(name, description));
 		}
 
 
@@ -402,7 +406,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public void AddRole(string name, string description, string sourceRoleName) {
 			if (name == null) throw new ArgumentNullException("name");
-			roles.Add(GetRole(sourceRoleName, true).Clone());
+			roles.Add(name.ToLowerInvariant(), GetRole(sourceRoleName, true).Clone());
 		}
 
 
@@ -645,7 +649,7 @@ namespace Dataweb.NShape {
 				case StandardRole.Operator: return roleNameOperator;
 				case StandardRole.SuperUser: return roleNameSuperUser;
 				default: 
-					throw new InvalidOperationException(string.Format("{0} is not a valid role for this operation.", role));
+					throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidRoleForThisOperation, role));
 			}
 		}
 
@@ -785,29 +789,45 @@ namespace Dataweb.NShape {
 			}
 
 
-			//public bool IsGranted(Permission permissions, char domain) {
-			//    AssertValidDomainQualifier(domain);
-			//    AssertDomainPermissionSet(permissions);
-			//    Permission shapePermissions = permissions & ShapePermissions;
-			//    return ((domainPermissionSets[domain - 'A'] & shapePermissions) == shapePermissions);
-			//}
+#if DEBUG
+			public override String ToString()
+			{
+				System.Text.StringBuilder sb = new System.Text.StringBuilder();
+				sb.AppendFormat("User role '{0}'", name);
+				sb.AppendFormat("Description: '{0}'", description);
+				sb.AppendFormat("General View Permissions: {0}, {1}", generalPermissionSetView, Environment.NewLine);
+				sb.AppendFormat("General Modify Permissions: {0}, {1}", generalPermissionSetModify, Environment.NewLine);
+				sb.AppendFormat("Shape View Permissions: ", Environment.NewLine);
+				for (Int32 i = 0; i < 26; ++i) {
+					if (domainPermissionSetsView[i] == Permission.None) continue;
+					sb.AppendFormat("{0}: {1}, ", Convert.ToChar(i + 'A'), domainPermissionSetsView[i], Environment.NewLine);
+				}
+				sb.Append(Environment.NewLine);
+				sb.AppendFormat("Shape Modify Permissions: ");
+				for (Int32 i = 0; i < 26; ++i) {
+					if (domainPermissionSetsModify[i] == Permission.None) continue;
+					sb.AppendFormat("{0}: {1}, ", Convert.ToChar(i + 'A'), domainPermissionSetsModify[i], Environment.NewLine);
+				}
+				return sb.ToString();
+			}
+#endif
 
 
-			private void AssertValidDomainQualifier(char domain) {
+			private void AssertValidDomainQualifier(Char domain) {
 				if (domain < 'A' || domain > 'Z')
-					throw new ArgumentOutOfRangeException("domain", "The domain qualifier has to be an upper case  ANSI letter (A-Z).");
+					throw new ArgumentOutOfRangeException("domain", Dataweb.NShape.Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
 			}
 
 
 			private void AssertGeneralPermissionSet(Permission permissions) {
 				if (permissions != Permission.All && (permissions & ShapePermissions) != 0) 
-					throw new ArgumentException(string.Format("'{0}' is not a domain independent permission set", (permissions & ShapePermissions)));
+					throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotADomainIndependentPermissionSet, (permissions & ShapePermissions)));
 			}
 
 
 			private void AssertDomainPermissionSet(Permission permissions) {
 				if (permissions != Permission.All && (permissions & GeneralPermissions) != 0)
-					throw new ArgumentException(string.Format("'{0}' is not a domain dependent permission set", (permissions & GeneralPermissions)));
+					throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotADomainDependentPermissionSet, (permissions & GeneralPermissions)));
 			}
 
 
@@ -827,16 +847,15 @@ namespace Dataweb.NShape {
 		}
 
 
-		private UserRole GetRole(string name, bool throwOnNotFound) {
-			UserRole result = null;
-			foreach (UserRole r in roles) {
-				if (r.name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) {
-					result = r;
-					break;
-				}
+		private UserRole GetRole(string name, bool throwIfNotFound) {
+			UserRole result;
+			if (roles.TryGetValue(name.ToLowerInvariant(), out result))
+				return result;
+			else {
+				if (throwIfNotFound)
+					throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Role0DoesNotExist, name));
+				return null;
 			}
-			if (result == null && throwOnNotFound) throw new ArgumentException(string.Format("The role '{0}' does not exist.", name));
-			return result;
 		}
 
 
@@ -866,11 +885,11 @@ namespace Dataweb.NShape {
 		private string[] domains = new string[26];
 
 		// List of known roles.
-		private List<UserRole> roles = new List<UserRole>(10);
+		private SortedList<String, UserRole> roles = new SortedList<String, UserRole>();
 
 		// Reference of current Role.
-		private UserRole currentUserRole;
-		private StandardRole currentRole;
+		private UserRole _currentUserRole;
+		private StandardRole _currentRole;
 
 		private const string roleNameAdministrator = "Administrator";
 		private const string roleNameSuperUser = "Super User";

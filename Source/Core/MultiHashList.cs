@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -28,27 +28,27 @@ namespace Dataweb.Utilities {
 		/// </summary>
 		/// <param name="capacity"></param>
 		public MultiHashList(int capacity) {
-			listCapacity = capacity / order;
-			list = new List<Element>(listCapacity);
-			for (int i = 0; i < listCapacity; ++i) list.Add(null);
+			_listCapacity = capacity / _order;
+			_list = new List<Element>(_listCapacity);
+			for (int i = 0; i < _listCapacity; ++i) _list.Add(null);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Add(uint key, T value) {
 			Element newElement = new Element(key, value);
-			if (list[(int)(key % listCapacity)] == null)
-				list[(int)(key % listCapacity)] = newElement;
+			if (_list[(int)(key % _listCapacity)] == null)
+				_list[(int)(key % _listCapacity)] = newElement;
 			else {
 				Element e;
 #if DEBUG_DIAGNOSTICS
 				int cnt = 0;
-				for (e = list[(int)(key % list.Capacity)]; !e.item.Equals(value) && e.next != null; e = e.next) 
+				for (e = _list[(int)(key % _list.Capacity)]; !e.item.Equals(value) && e.next != null; e = e.next) 
 					++cnt;
-				if (cnt > maxListLen) maxListLen = cnt;
-				else if (cnt > 0 && cnt < minListLen) minListLen = cnt;
+				if (cnt > _maxListLen) _maxListLen = cnt;
+				else if (cnt > 0 && cnt < _minListLen) _minListLen = cnt;
 #else
-				for (e = list[(int)(key % listCapacity)]; !(e.item.Equals(value) && e.key == key) && e.next != null; e = e.next) ;
+				for (e = _list[(int)(key % _listCapacity)]; !(e.item.Equals(value) && e.key == key) && e.next != null; e = e.next) ;
 #endif
 				// Do not insert the same shape with the same key a second time.
 				// TODO 2: Optimize the second comparison.
@@ -59,13 +59,13 @@ namespace Dataweb.Utilities {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool Remove(uint key, T value) {
-			if (list[(int)(key % listCapacity)] == null) return false;
+			if (_list[(int)(key % _listCapacity)] == null) return false;
 			Element e;
-			if (list[(int)(key % listCapacity)].item.Equals(value)) {
-				list[(int)(key % listCapacity)] = list[(int)(key % list.Capacity)].next;
+			if (_list[(int)(key % _listCapacity)].item.Equals(value)) {
+				_list[(int)(key % _listCapacity)] = _list[(int)(key % _list.Capacity)].next;
 				return true;
 			} else {
-				for (e = list[(int)(key % list.Capacity)]; 
+				for (e = _list[(int)(key % _list.Capacity)]; 
 					e.next != null && (e.next.key != key || !e.next.item.Equals(value)); 
 					e = e.next) ;
 				// Either e.next is null or the one we are searching for
@@ -79,16 +79,16 @@ namespace Dataweb.Utilities {
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Clear() {
 			// Clear list by overwriting all items with null
-			for (int i = list.Count - 1; i >= 0; --i) 
-				list[i] = null;
+			for (int i = _list.Count - 1; i >= 0; --i) 
+				_list[i] = null;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IEnumerable<T> this[uint key] {
 			get {
-				if (list[(int)(key % listCapacity)] == null) yield break;
-				for (Element e = list[(int)(key % listCapacity)]; e != null; e = e.next)
+				if (_list[(int)(key % _listCapacity)] == null) yield break;
+				for (Element e = _list[(int)(key % _listCapacity)]; e != null; e = e.next)
 					if (e.key == key) yield return e.item;
 			}
 		}
@@ -100,7 +100,7 @@ namespace Dataweb.Utilities {
 		/// Returns the number of entries in the longest list.
 		/// </summary>
 		public int MaxListLength {
-			get { return maxListLen; }
+			get { return _maxListLen; }
 		}
 
 
@@ -110,8 +110,8 @@ namespace Dataweb.Utilities {
 		public int ListCount {
 			get {
 				int cnt = 0;
-				for (int i = list.Count - 1; i >= 0; --i ) {
-					if (list[i] != null) ++cnt;
+				for (int i = _list.Count - 1; i >= 0; --i ) {
+					if (_list[i] != null) ++cnt;
 				}
 				return cnt;
 			}
@@ -131,12 +131,12 @@ namespace Dataweb.Utilities {
 		}
 
 
-		private const int order = 3;
-		private int listCapacity;
-		private List<Element> list;
+		private const int _order = 3;
+		private int _listCapacity;
+		private List<Element> _list;
 #if DEBUG_DIAGNOSTICS
-		private int maxListLen = 0;
-		private int minListLen = 0;
+		private int _maxListLen = 0;
+		private int _minListLen = 0;
 #endif
 	}
 

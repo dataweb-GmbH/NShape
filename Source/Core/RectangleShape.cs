@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -54,20 +54,21 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryLayout()]
-		[Description("The horizontal size of the Shape.")]
+		[LocalizedDisplayName("PropName_RectangleShape_Width")]
+		[LocalizedDescription("PropDesc_RectangleBase_Width")]
 		[PropertyMappingId(PropertyIdWidth)]
 		[RequiredPermission(Permission.Layout)]
 		public virtual int Width {
-			get { return size.Width; }
+			get { return _size.Width; }
 			set {
 				if (value < 0) throw new ArgumentOutOfRangeException("Width");
-				if (value != size.Width) {
+				if (value != _size.Width) {
 					Invalidate();
 					//
 					if (Owner != null) Owner.NotifyChildResizing(this);
-					int delta = value - size.Width;
+					int delta = value - _size.Width;
 					//
-					size.Width = value;
+					_size.Width = value;
 					InvalidateDrawCache();
 					//
 					if (ChildrenCollection != null) ChildrenCollection.NotifyParentSized(delta, 0);
@@ -81,20 +82,21 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryLayout()]
-		[Description("The vertical size of the Shape.")]
+		[LocalizedDisplayName("PropName_RectangleBase_Height")]
+		[LocalizedDescription("PropDesc_RectangleBase_Height")]
 		[PropertyMappingId(PropertyIdHeight)]
 		[RequiredPermission(Permission.Layout)]
 		public virtual int Height {
-			get { return size.Height; }
+			get { return _size.Height; }
 			set {
 				if (value < 0) throw new ArgumentOutOfRangeException("Height");
-				if (value != size.Height) {
+				if (value != _size.Height) {
 					Invalidate();
 					//
 					if (Owner != null) Owner.NotifyChildResizing(this);
-					int delta = value - size.Height;
+					int delta = value - _size.Height;
 					//
-					size.Height = value;
+					_size.Height = value;
 					InvalidateDrawCache();
 					//
 					if (ChildrenCollection != null) ChildrenCollection.NotifyParentSized(0, delta);
@@ -119,8 +121,8 @@ namespace Dataweb.NShape.Advanced {
 		public override void CopyFrom(Shape source) {
 			base.CopyFrom(source);
 			if (source is RectangleBase) {
-				size.Width = ((RectangleBase)source).Width;
-				size.Height = ((RectangleBase)source).Height;
+				_size.Width = ((RectangleBase)source).Width;
+				_size.Height = ((RectangleBase)source).Height;
 			} else {
 				// If not, try to calculate the size a good as possible
 				Rectangle srcBounds = Geometry.InvalidRectangle;
@@ -139,7 +141,7 @@ namespace Dataweb.NShape.Advanced {
 					srcBounds = source.GetBoundingRectangle(true);
 				}
 				if (Geometry.IsValid(srcBounds))
-					size = srcBounds.Size;
+					_size = srcBounds.Size;
 			}
 
 		}
@@ -171,8 +173,8 @@ namespace Dataweb.NShape.Advanced {
 				float ptY = y;
 				Geometry.RotatePoint(X, Y, Geometry.TenthsOfDegreeToDegrees(-Angle), ref x, ref y);
 			}
-			result.A = (int)Math.Round((x - (X - (Width / 2f))) / (Width / 1000f));
-			result.B = (int)Math.Round((y - (Y - (Height / 2f))) / (Height / 1000f));
+			result.A = (Width != 0) ? (int)Math.Round((x - (X - (Width / 2f))) / (Width / 1000f)) : x - X;
+			result.B = (Height != 0) ? (int)Math.Round((y - (Y - (Height / 2f))) / (Height / 1000f)) : y - Y;
 			return result;
 		}
 
@@ -357,8 +359,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected internal override void InitializeToDefault(IStyleSet styleSet) {
 			base.InitializeToDefault(styleSet);
-			size.Width = 60;
-			size.Height = 40;
+			_size.Width = 60;
+			_size.Height = 40;
 		}
 
 
@@ -384,39 +386,39 @@ namespace Dataweb.NShape.Advanced {
 					|| Geometry.RectangleContainsRectangle(r, x, y, width, height))
 					return true;
 			} else {
-				if (rotatedBounds.Length != 4)
-					Array.Resize<PointF>(ref rotatedBounds, 4);
+				if (_rotatedBounds.Length != 4)
+					Array.Resize<PointF>(ref _rotatedBounds, 4);
 				float angle = Geometry.TenthsOfDegreeToDegrees(Angle);
 				float ptX, ptY;
 				ptX = X - (Width / 2f);		// left
 				ptY = Y - (Height / 2f);	// top
 				Geometry.RotatePoint(X, Y, angle, ref ptX, ref ptY);
-				rotatedBounds[0].X = ptX;
-				rotatedBounds[0].Y = ptY;
+				_rotatedBounds[0].X = ptX;
+				_rotatedBounds[0].Y = ptY;
 
 				ptX = X + (Width / 2f);		// right
 				ptY = Y - (Height / 2f);	// top
 				Geometry.RotatePoint(X, Y, angle, ref ptX, ref ptY);
-				rotatedBounds[1].X = ptX;
-				rotatedBounds[1].Y = ptY;
+				_rotatedBounds[1].X = ptX;
+				_rotatedBounds[1].Y = ptY;
 
 				ptX = X + (Width / 2f);		// right
 				ptY = Y + (Height / 2f);	// bottom
 				Geometry.RotatePoint(X, Y, angle, ref ptX, ref ptY);
-				rotatedBounds[2].X = ptX;
-				rotatedBounds[2].Y = ptY;
+				_rotatedBounds[2].X = ptX;
+				_rotatedBounds[2].Y = ptY;
 
 				ptX = X - (Width / 2f);		// left
 				ptY = Y + (Height / 2f);	// bottom
 				Geometry.RotatePoint(X, Y, angle, ref ptX, ref ptY);
-				rotatedBounds[3].X = ptX;
-				rotatedBounds[3].Y = ptY;
+				_rotatedBounds[3].X = ptX;
+				_rotatedBounds[3].Y = ptY;
 
 				Rectangle rectangle = Rectangle.Empty;
 				rectangle.Offset(x, y);
 				rectangle.Width = width;
 				rectangle.Height = height;
-				if (Geometry.PolygonIntersectsWithRectangle(rotatedBounds, rectangle))
+				if (Geometry.PolygonIntersectsWithRectangle(_rotatedBounds, rectangle))
 					return true;
 			}
 			return false;
@@ -427,7 +429,7 @@ namespace Dataweb.NShape.Advanced {
 		protected override bool MovePointByCore(ControlPointId pointId, float transformedDeltaX, float transformedDeltaY, float sin, float cos, ResizeModifiers modifiers) {
 			bool result = true;
 			int dx = 0, dy = 0;
-			int width = size.Width; int height = size.Height;
+			int width = _size.Width; int height = _size.Height;
 			int newWidth = -1, newHeight = -1;
 			switch (pointId) {
 				case ControlPointIds.TopLeftControlPoint:
@@ -471,8 +473,8 @@ namespace Dataweb.NShape.Advanced {
 			}
 			System.Diagnostics.Debug.Assert(newWidth >= 0 && newHeight >= 0);
 			// Perform Resizing
-			size.Width = newWidth;
-			size.Height = newHeight;
+			_size.Width = newWidth;
+			_size.Height = newHeight;
 			MoveByCore(dx, dy);
 
 			return result;
@@ -579,8 +581,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected const int PropertyIdHeight = 8;
 
-		private Size size = Size.Empty;
-		private PointF[] rotatedBounds = new PointF[4];
+		private Size _size = Size.Empty;
+		private PointF[] _rotatedBounds = new PointF[4];
 
 		#endregion
 	}
@@ -1177,34 +1179,35 @@ namespace Dataweb.NShape.Advanced {
 			switch (pointId) {
 				case ControlPointIds.TopCenterControlPoint:
 					result = (transformedDeltaX == 0);
-					if (!Geometry.MoveRectangleTop(width, height, 0, centerPosFactorX, centerPosFactorY, DivFactorX, DivFactorY, transformedDeltaX, transformedDeltaY, cos, sin, modifiers, out dx, out dy, out width, out height))
+					if (!Geometry.MoveRectangleTop(width, height, 0, _centerPosFactorX, _centerPosFactorY, DivFactorX, DivFactorY, transformedDeltaX, transformedDeltaY, cos, sin, modifiers, out dx, out dy, out width, out height))
 						result = false;
 					break;
 
 				case ControlPointIds.BottomLeftControlPoint:
-					if (!Geometry.MoveRectangleBottomLeft(width, height, 0, 0, centerPosFactorX, centerPosFactorY, DivFactorX, DivFactorY, transformedDeltaX, transformedDeltaY, cos, sin, modifiers, out dx, out dy, out width, out height))
+					if (!Geometry.MoveRectangleBottomLeft(width, height, 0, 0, _centerPosFactorX, _centerPosFactorY, DivFactorX, DivFactorY, transformedDeltaX, transformedDeltaY, cos, sin, modifiers, out dx, out dy, out width, out height))
 						result = false;
 					break;
 
 				case ControlPointIds.BottomRightControlPoint:
-					if (!Geometry.MoveRectangleBottomRight(width, height, 0, 0, centerPosFactorX, centerPosFactorY, DivFactorX, DivFactorY, transformedDeltaX, transformedDeltaY, cos, sin, modifiers, out dx, out dy, out width, out height))
+					if (!Geometry.MoveRectangleBottomRight(width, height, 0, 0, _centerPosFactorX, _centerPosFactorY, DivFactorX, DivFactorY, transformedDeltaX, transformedDeltaY, cos, sin, modifiers, out dx, out dy, out width, out height))
 						result = false;
 					break;
 
 				case ControlPointIds.BottomCenterControlPoint:
 					result = (transformedDeltaX == 0);
-					if (!Geometry.MoveRectangleBottom(width, height, 0, centerPosFactorX, centerPosFactorY, DivFactorX, DivFactorY, transformedDeltaX, transformedDeltaY, cos, sin, modifiers, out dx, out dy, out width, out height))
+					if (!Geometry.MoveRectangleBottom(width, height, 0, _centerPosFactorX, _centerPosFactorY, DivFactorX, DivFactorY, transformedDeltaX, transformedDeltaY, cos, sin, modifiers, out dx, out dy, out width, out height))
 						result = false;
 					break;
 
 				default:
 					break;
 			}
-			Width = width;
-			Height = height;
-			MoveByCore(dx, dy);
-			ControlPointsHaveMoved();
-
+			if (Width != width || Height != height || dx != 0 || dy != 0) {
+				Width = width;
+				Height = height;
+				MoveByCore(dx, dy);
+				ControlPointsHaveMoved();
+			}
 			return result;
 		}
 
@@ -1212,9 +1215,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void CalcControlPoints() {
 			int left = (int)Math.Round(-Width / 2f);
-			int top = (int)Math.Round(-Height * centerPosFactorY);
+			int top = (int)Math.Round(-Height * _centerPosFactorY);
 			int right = left + Width;
-			int bottom = (int)Math.Round(Height - (Height * centerPosFactorY));
+			int bottom = (int)Math.Round(Height - (Height * _centerPosFactorY));
 
 			ControlPoints[0].X = 0;
 			ControlPoints[0].Y = top;
@@ -1277,8 +1280,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculated the untransformed shape points of the triangle
 		/// </summary>
 		protected virtual void CalculateShapePoints() {
-			int left = (int)Math.Round(-Width * centerPosFactorX);
-			int top = (int)Math.Round(-Height * centerPosFactorY);
+			int left = (int)Math.Round(-Width * _centerPosFactorX);
+			int top = (int)Math.Round(-Height * _centerPosFactorY);
 			int right = left + Width;
 			int bottom = top + Height;
 
@@ -1320,11 +1323,11 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected virtual float CenterPosFactorX { get { return centerPosFactorX; } }
+		protected virtual float CenterPosFactorX { get { return _centerPosFactorX; } }
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected virtual float CenterPosFactorY { get { return centerPosFactorY; } }
+		protected virtual float CenterPosFactorY { get { return _centerPosFactorY; } }
 
 
 		#region Fields
@@ -1332,8 +1335,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected Point[] shapePoints = new Point[3];
 		
-		private const float centerPosFactorX = 0.5f;
-		private const float centerPosFactorY = 0.66666666f;
+		private const float _centerPosFactorX = 0.5f;
+		private const float _centerPosFactorY = 0.66666666f;
 
 		#endregion
 	}

@@ -1,4 +1,4 @@
-namespace Dataweb.NShape.WinFormsUI {
+﻿namespace Dataweb.NShape.WinFormsUI {
 
 	partial class Display {
 		/// <summary>
@@ -20,42 +20,42 @@ namespace Dataweb.NShape.WinFormsUI {
 				// Detach components 
 				if (Diagram != null) Diagram = null;
 				if (DiagramController != null) DiagramController = null;
-				if (diagramSetController != null) DiagramSetController = null;
+				if (_diagramSetController != null) DiagramSetController = null;
 
 				// Dispose pens
-				DisposeObject(ref gridPen);
-				DisposeObject(ref outlineInteriorPen);
-				DisposeObject(ref outlineNormalPen);
-				DisposeObject(ref outlineHilightPen);
-				DisposeObject(ref outlineInactivePen);
-				DisposeObject(ref handleNormalPen);
-				DisposeObject(ref handleHilightPen);
-				DisposeObject(ref handleInactivePen);
-				DisposeObject(ref toolPreviewPen);
-				DisposeObject(ref outerSnapPen);
-				DisposeObject(ref innerSnapPen);
+				DisposeObject(ref _gridPen);
+				DisposeObject(ref _outlineInteriorPen);
+				DisposeObject(ref _outlineNormalPen);
+				DisposeObject(ref _outlineHilightPen);
+				DisposeObject(ref _outlineInactivePen);
+				DisposeObject(ref _handleNormalPen);
+				DisposeObject(ref _handleHilightPen);
+				DisposeObject(ref _handleInactivePen);
+				DisposeObject(ref _toolPreviewPen);
+				DisposeObject(ref _outerSnapPen);
+				DisposeObject(ref _innerSnapPen);
 
 				// Dispose brushes
-				DisposeObject(ref controlBrush);
-				DisposeObject(ref handleInteriorBrush);
-				DisposeObject(ref toolPreviewBackBrush);
-				DisposeObject(ref inplaceTextboxBackBrush);
-				DisposeObject(ref diagramShadowBrush);
+				DisposeObject(ref _controlBrush);
+				DisposeObject(ref _handleInteriorBrush);
+				DisposeObject(ref _toolPreviewBackBrush);
+				DisposeObject(ref _inplaceTextboxBackBrush);
+				DisposeObject(ref _diagramShadowBrush);
 
 				// other drawing stuff
-				DisposeObject(ref previewTextFormatter);
-				DisposeObject(ref rotatePointPath);
-				DisposeObject(ref connectionPointPath);
-				DisposeObject(ref resizePointPath);
+				DisposeObject(ref _previewTextFormatter);
+				DisposeObject(ref _rotatePointPath);
+				DisposeObject(ref _connectionPointPath);
+				DisposeObject(ref _resizePointPath);
 
 				// Dispose other GDI+ objects
-				foreach (System.Collections.Generic.KeyValuePair<int, System.Windows.Forms.Cursor> pair in registeredCursors) {
+				foreach (System.Collections.Generic.KeyValuePair<int, System.Windows.Forms.Cursor> pair in _registeredCursors) {
 					// Dispose only cursors that were loaded from a resource
 					if (pair.Value.Tag != null) pair.Value.Dispose();
 				}
-				registeredCursors.Clear();
+				_registeredCursors.Clear();
 
-				DisposeObject(ref infoGraphics);
+				DisposeObject(ref _infoGraphics);
 			}
 			base.Dispose(disposing);
 		}

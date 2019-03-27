@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -584,8 +584,8 @@ namespace Dataweb.NShape.WinFormsUI {
 			bool result = false;
 			// Check if the property is already mapped to an other property
 			if (IsModelPropertyMapped(rowIndex)) {
-				string errMsg = string.Format("'{0}' is already mapped to an other property.", propertyMappingGrid.Rows[rowIndex].Cells[shapeColumnIdx].Value);
-				propertyMappingGrid.Rows[rowIndex].Cells[shapeColumnIdx].Value = null;
+				string errMsg = string.Format("'{0}' is already mapped to an other property.", propertyMappingGrid.Rows[rowIndex].Cells[modelColumnIdx].Value);
+				propertyMappingGrid.Rows[rowIndex].Cells[modelColumnIdx].Value = null;
 				//throw new NShapeException(errMsg);
 				MessageBox.Show(this, errMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return result;

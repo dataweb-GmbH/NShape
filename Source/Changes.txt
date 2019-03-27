@@ -1,10 +1,153 @@
-====================================================================================================
+ï»¿====================================================================================================
 Known issues:
 ====================================================================================================
 
 - Transparent bitmap images with 8 bit color depth are not rendered correctly when compiling in 
   x64/AnyCPU configuration on x64 OS.
 
+
+====================================================================================================
+Changes in 2.2.1.16:
+====================================================================================================
+- New Feature: Localization support: All user relevant texts are defined as resource strings now
+
+- New Feature: Extending the number of supported layers. See documentation for an explanaition of 
+  the new concept.
+- Interface Change: Deprecated the following methods because of the layer concept changes:
+	interface IDiagramPresenter:
+		Deprecated Members:		
+		LayerIds ActiveLayers { get; }
+		LayerIds HiddenLayers { get; }
+		
+		Added Members:		
+		ICollection<int> ActiveLayerIds { get; }
+		ICollection<int> HiddenLayerIds { get; }
+		LayerIds GetVisibleLayerIds();
+		void SetLayerActive(int layerId, bool active);
+		void SetLayerActive(IEnumerable<int> layerIds, bool active);
+		void SetLayerActive(IEnumerable<Layer> layers, bool active);
+		void SetLayerVisibility(int layerId, bool visible);
+		void SetLayerVisibility(IEnumerable<int> layerIds, bool visible);
+		void SetLayerVisibility(IEnumerable<Layer> layers, bool visible);
+	
+	interface ILayerCollection:
+		Added Members:
+		int GetNextAvailableLayerId();
+		
+	class Diagram:
+		Deprecated Members:
+		public void AddShapeToLayers(Shape shape, LayerIds layers)
+		public void AddShapesToLayers(IEnumerable<Shape> shapes, LayerIds layerIds)
+		public void RemoveShapeFromLayers(Shape shape, LayerIds layers)
+		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, LayerIds layers)
+		
+		Added Members:
+		public static bool IsShapeVisible(Shape shape, LayerIds visibleLayers, ICollection<int> visibleHomeLayers)
+		public void AddShapeToLayers(Shape shape, int homeLayer)
+		public void AddShapeToLayers(Shape shape, IEnumerable<int> layerIds)
+		public void AddShapeToLayers(Shape shape, int homeLayer, LayerIds supplementalLayers)
+		public void AddShapesToLayers(IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers)
+		public void RemoveShapeFromLayers(Shape shape)
+		public void RemoveShapeFromLayers(Shape shape, int homeLayer)
+		public void RemoveShapeFromLayers(Shape shape, int homeLayer, LayerIds layers)
+		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, int homeLayer)
+		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers)
+		public Image CreateImage(ImageFileFormat imageFormat, IEnumerable<Shape> shapes, IEnumerable<int> visibleLayerIds, int margin, bool withBackground, Color backgroundColor, int dpi)
+	
+	class DiagramSetController:
+		Deprecated Members:
+		public void InsertShape(Diagram diagram, Shape shape, LayerIds activeLayers, bool withModelObjects)
+		
+		Added members:
+		public void InsertShapes(Diagram diagram, IEnumerable<Shape> shapes, IEnumerable<int> activeLayerIds, bool withModelObjects)
+		
+	class Layer:
+		Added Members:
+		public const int NoLayerId = 0;
+		public static LayerIds ConvertToLayerIds(int layerNo)
+		public static LayerIds ConvertToLayerIds(IEnumerable<int> layerNos)
+		public static LayerIds ConvertToLayerIds(IEnumerable<Layer> layers)
+		public static int ConvertToLayerId(LayerIds layerId)
+		public static bool IsCombinable(int layerNo)
+		
+	class NamedImage:
+		Added Member:
+		string ImageHash { get; }
+		
+
+- Interface Change: Added method IDiagramPresenter.GetVisibleLayers()
+- Interface Change: Added static method Diagram.IsShapeVisible
+- Interface Change: Added overloaded versions of Diagram.CreateImage that accept the visible layers.
+- Interface change: Not all menu items had names, but they should, so all MenuItemDef constructors 
+  now take a name as first parameter. As a consequence, all other constructors of MenuItemDef and 
+  derived classes are now deprecated. There are constants for the MenuItemNames.
+- Interface Change: As CommandMenuItems without a command make no sense, we changed the following:
+  * All constructor overloads of the CommandMenuItemDef class are deprecated now.
+  * The 'command' parameter of the CommandMenuItemDef constructors may no longer be null.
+- Interface Change: CaptionedShapeBase.CharacterStyle property is now virtual.
+- Interface Change: CaptionedShapeBase.ParagraphStyle property is now virtual.
+- Interface Change: TextBase's former private method "FitShapeToText" is now protected virtual. 
+  This method sets Width and Height to the Text's size and will be called in AutoSize mode when...
+  * ... the shape's Text property changes.
+  * ... the shape's CharacterStyle changes.  
+  * ... the shape's ParagraphStyle changes.
+  When overriding this method, make sure not to use anything from the draw cache as this method will 
+  be called in RecalcDrawCache *before* the base.RecalcDrawCache() is called!  
+- Interface Change: Replaced protected fields of class TextBase:
+  * 
+  * Renamed
+- Interface Change: Renamed TextBase's protected class GluePointCalcInfo to LabelPositionInfo
+- Changed Behavior: Reverse scaling of line cap shapes is now done in the ToolCache. The cap's 
+  vertexes are scaled down when calculating them so the automatic upscaling of GDI+ scales them the 
+  desired size. Therefore, the cap's graphics paths no longer need to be scaled when drawing them.
+- Changed Behavior: When loading an existing repository in NShapeDesigner, it will no longer 
+  automatically create a diagram if the repository has no diagram. 
+  Newly created repositories are not affected.
+- Changed Behavior: Display's "CopyImageToClipboard" function did not execute the same code as the 
+  appropriate display context menu item. Now it does: Image will be copied with background if no 
+  shapes were selected and without background if shapes were selected.
+- Changed Behavior: The constructors of NamedImage no longer clone the given image in order to avoid 
+  unnecessary image copying. So if you create a NamedImage e.g. from embedded resources, you have to 
+  clone these resources new instead of passing them to the constructor directly.
+- Bugfix: The CachedRepository now disposes its cached resources correctly.
+- Bugfix: XmlStore's buffers for diagrams to load and embedded images are now reset correctly when 
+  closing the store.
+- Bugfix: Some ICommand implementations used Int32 instead of ControlPointId as data type for 
+  control point ids.
+- Bugfix: A bug in CaptionedShapeBase.CopyFrom has been fixed: The ParagraphStyle was not copied.
+- Bugfix: When a shape was connected to a connection point at the end of a line and the line was
+  rotated around this point, the connected shape's FollowConnectionPointWithGluePoint method was not 
+  called.
+- Bugfix: PolylineBase did not respect the MaxVertexCount of the line in DrawThumbnail().
+- Bugfix: Renamed the RegularPolygonBase's EntityField from "Diameter" to "Radius" because it 
+  stores the radius, not the diameter.
+- Bugfix: When rotating an unconnected label, the label's pin glyph was drawn incorrectly.
+- Bugfix: Geometry.CalcBoundingRectangle(IEnumerable<PointF> points, out Rectangle rect, bool floor)
+  did not calculate a correct bounding rectangle when all points had the same X coordinate.
+- Bugfix: Geometry.CalcNormalVectorOfLine() no longer changes the normal vector's direction 
+  depending on the line's slope.
+- Bugfix: When using XmlStore and embedded images, saving project, creating a picture shape and 
+  saving again no longer crashes.
+- Improvement: Support for large diagram background images by drawing a lower resolution version 
+  while editing.
+- Improvement: The NShapeSecurityException constructor accepting a command only will now build a 
+  better error message.
+- Improvement: Improved RoleBasedSecurityManager's performance.
+- Improvement: The "ExportDiagramDialog" also has a new check box "Export only shapes of visible 
+  layers"
+- Improvement: NShapeSecurityExceptions will be catched by the NShapeDesigner's ThreadException 
+  handler. A normal error message box will be shown instead of the "Do you want to terminate the 
+  application?" message box.
+- Improvement: The SelectionTool's context menu item "Select > Shape of Type" now uses the 
+  selected shapes (if there are any).
+- Improvement: Improved IDisposable implementation of shapes.
+- Improvement: In .NET 4.x, the implementation of Clipboard.SetData() has changed: The clipboard 
+  will always be emptied when calling the function. In order to be able to copy both, an EMF and a 
+  Bitmap image to the clipboard, there are 2 new methods:
+  		Display.CopyImagesToClipboard(bool clearClipboard);
+		Display.CopyImagesToClipboard(IEnumerable<int> visibleLayers, bool clearClipboard);
+- Improvement: XmlStore's embedded images that are used many times are now saved only once.
+  
 
 ====================================================================================================
 Changes in 2.2.1:
@@ -501,7 +644,7 @@ Improvements:
 - NShape Designer does not load the diagram shapes when opening the project (if the Store supports 
   partial loading, e.g. the SQLStore). The shapes will be loaded when clicking the diagram's tab. 
 - Closing many "NShape Designer" instances at once will no longer produce an error message.
-- Demo Program „Shuffle Game“ now works with Display.ShapeClick event instead of Display.MouseClick 
+- Demo Program â€žShuffle Gameâ€œ now works with Display.ShapeClick event instead of Display.MouseClick 
   event and uses more NShape specific methods for finding and moving shapes.
 - LayerController now uses the new LayerEditCommand instead of the PropertySetCommand<Layer>, thus
   avoiding the usage of reflection
@@ -528,13 +671,13 @@ Bugfixes:
 - A call to Repository.Update() was missing in Tutorial "Templates"
 - TerminalMapping on ReferencePoint were not stored in Repository
 - TerminalMappings were not restored when loading from an SQL Repository
-- Diagram.CreateImage(): Image background color was not working for „Classic EMF“ format
+- Diagram.CreateImage(): Image background color was not working for â€žClassic EMFâ€œ format
 - Cutting and pasting connected shapes no longer disconnects the shapes.
 - Layouter Dialog: When having no shapes selected, switching between diagrams in NShape Designer now 
   correctly refreshes the layouted shapes.
 - Setting a ContextMenuStrip for the ToolBoxListView component now works as expected and no longer
   resets the property to null.
-- Pressing „Del“ key when no shapes are selected no longer results in an exception.
+- Pressing â€žDelâ€œ key when no shapes are selected no longer results in an exception.
 - CircularArc consisting of 2 points now inserts itself correctly into the spatial index of the 
   diagram and therefore is now clickable as expected.
 - CircularArc consisting of 2 points no longer throws an exception when right-clicking it
@@ -544,8 +687,8 @@ Bugfixes:
 - PictureShape with an empty picture (height or width 0) no longer produces an exception
 - Scrolling with mouse wheel and scrolling with universal scroll (middle mouse button) now raises
   Scroll events as expected
-- Deleted entities are no longer returned when by the Repository’s GetXXXs() methods.
-- If trying to fetch a deleted object with the Repositoriy’s GetXXX(object id) method, an NShapeException 
+- Deleted entities are no longer returned when by the Repositoryâ€™s GetXXXs() methods.
+- If trying to fetch a deleted object with the Repositoriyâ€™s GetXXX(object id) method, an NShapeException 
   is now thrown.
 - UniteRectangles(RectangleF a, RectangleF b) now behaves like UniteRectangles(Rectangle a, Rectangle b).
 - When adding Vertices and deleting them in the same order they were created, undoing/redoing this changes
@@ -666,8 +809,8 @@ Changes in 1.0.7:
 	  Diagram.Title is now "General" instead of "Identification"
 	  Diagram.Id is now "General" instead of "Identification"
 - Property CaptionedShapeBase.CaptionCount is not visible in PropertyGrid any longer
-- Bugfix: Orientation of Captions's text is corrected only for shape angle >90° and <270° instead 
-  of >90° and <=270°
+- Bugfix: Orientation of Captions's text is corrected only for shape angle >90Â° and <270Â° instead 
+  of >90Â° and <=270Â°
 - Changed value of LayerIds.All from int.MinValue to int.MaxValue.
 - Bugfix: Display.CreateImage() no longer throws a NullReferenceException if no DisplayService is assigned
   (means: If Diagram is not displayed in a Display

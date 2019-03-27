@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -40,9 +40,9 @@ namespace Dataweb.NShape {
 		public SqlStore()
 			: base() {
 			ProviderName = "System.Data.SqlClient";
-			serverName = "localhost";
-			databaseName = "NShapeDB";
-			ConnectionString = CalcConnectionString(serverName, databaseName);
+			_serverName = "localhost";
+			_databaseName = "NShapeDB";
+			ConnectionString = CalcConnectionString(_serverName, _databaseName);
 		}
 
 
@@ -54,28 +54,28 @@ namespace Dataweb.NShape {
 			if (serverName == null) throw new ArgumentNullException("serverName");
 			if (databaseName == null) throw new ArgumentNullException("databaseName");
 			this.ProviderName = "System.Data.SqlClient";
-			this.serverName = serverName;
-			this.databaseName = databaseName;
+			this._serverName = serverName;
+			this._databaseName = databaseName;
 			ConnectionString = CalcConnectionString(serverName, databaseName);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public string DatabaseName {
-			get { return this.databaseName; }
+			get { return this._databaseName; }
 			set {
-				ConnectionString = CalcConnectionString(this.serverName, value);
-				this.databaseName = value;
+				ConnectionString = CalcConnectionString(this._serverName, value);
+				this._databaseName = value;
 			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public string ServerName {
-			get { return this.serverName; }
+			get { return this._serverName; }
 			set {
-				ConnectionString = CalcConnectionString(value, databaseName);
-				this.serverName = value;
+				ConnectionString = CalcConnectionString(value, _databaseName);
+				this._serverName = value;
 			}
 		}
 
@@ -806,9 +806,9 @@ namespace Dataweb.NShape {
 			//
 			// Build CheckStyleInUse and CheckTemplateInUse command
 			const string checkShapeCmdFmt = "EXISTS(SELECT {0}.Id FROM {0} WHERE {0}.Id IN (SELECT Shape FROM DiagramShape JOIN Diagram ON DiagramShape.Diagram = Diagram.Id WHERE Diagram.Project = @Project AND Diagram.Id = @Diagram) {1})";
-			string styleExistsStatement = "";
-			string templateExistsStatement = "";
-			string modelObjExistsStatement = "";
+			string styleExistsStatement = string.Empty;
+			string templateExistsStatement = string.Empty;
+			string modelObjExistsStatement = string.Empty;
 			foreach (IEntityType et in storeCache.EntityTypes) {
 				if (et.Category != EntityCategory.Shape) continue;
 				if (et.FullName == "Core.ShapeGroup") continue;
@@ -861,8 +861,8 @@ namespace Dataweb.NShape {
 				if (et.Category != EntityCategory.Shape && et.Category != EntityCategory.ModelObject)
 					continue;
 				SetCommand(et.FullName, RepositoryCommandType.CheckShapeTypeInUse,
-					CreateCommand("SELECT CASE WHEN (" + 
-							string.Format((et.Category == EntityCategory.Shape) ? checkShapeCmdFmt : checkModelObjCmdFmt, SqlTableNameForEntityName(et.FullName), "")
+					CreateCommand("SELECT CASE WHEN (" +
+							string.Format((et.Category == EntityCategory.Shape) ? checkShapeCmdFmt : checkModelObjCmdFmt, SqlTableNameForEntityName(et.FullName), string.Empty)
 							+ ") THEN 1 ELSE 0 END",
 						CreateParameter("Project", DbType.Int32),
 						CreateParameter("Diagram", DbType.Int32)
@@ -1210,8 +1210,8 @@ namespace Dataweb.NShape {
 		}
 
 
-		private string serverName;
-		private string databaseName;
+		private string _serverName;
+		private string _databaseName;
 
 		// Sizing parameters for command storage tables
 		const int ColumnSizeSysCmdKind = 40;

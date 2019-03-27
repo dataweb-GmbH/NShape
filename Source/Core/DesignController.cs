@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -98,8 +98,8 @@ namespace Dataweb.NShape.Controllers {
 		[Browsable(false)]
 		public IEnumerable<Design> Designs {
 			get {
-				if (project == null) return EmptyEnumerator<Design>.Empty;
-				else return project.Repository.GetDesigns();
+				if (_project == null) return EmptyEnumerator<Design>.Empty;
+				else return _project.Repository.GetDesigns();
 			}
 		}
 
@@ -109,11 +109,11 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		[CategoryNShape()]
 		public Project Project {
-			get { return project; }
+			get { return _project; }
 			set {
-				if (project != null) UnregisterProjectEventHandlers();
-				project = value;
-				if (project != null) RegisterProjectEventHandlers();
+				if (_project != null) UnregisterProjectEventHandlers();
+				_project = value;
+				if (_project != null) RegisterProjectEventHandlers();
 			}
 		}
 
@@ -133,7 +133,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanDelete(Design design) {
-			return (design != null && design != project.Design);
+			return (design != null && design != _project.Design);
 		}
 
 
@@ -181,7 +181,7 @@ namespace Dataweb.NShape.Controllers {
 			//
 			Design design = new Design(string.Format("Design {0}", designCnt));
 			ICommand cmd = new CreateDesignCommand(design);
-			project.ExecuteCommand(cmd);
+			_project.ExecuteCommand(cmd);
 		}
 
 
@@ -229,7 +229,7 @@ namespace Dataweb.NShape.Controllers {
 				default: throw new NShapeUnsupportedValueException(typeof(StyleCategory), category);
 			}
 			ICommand cmd = new CreateStyleCommand(design, style);
-			project.ExecuteCommand(cmd);
+			_project.ExecuteCommand(cmd);
 		}
 
 
@@ -246,7 +246,7 @@ namespace Dataweb.NShape.Controllers {
 			
 			if (performPropertyChange) {
 				ICommand cmd = new StylePropertySetCommand(design, style, propertyInfo, oldValue, newValue);
-				project.ExecuteCommand(cmd);
+				_project.ExecuteCommand(cmd);
 				if (StyleChanged != null) StyleChanged(this, GetStyleEventArgs(design, style));
 			} else propertyInfo.SetValue(style, oldValue, null);
 		}
@@ -256,7 +256,7 @@ namespace Dataweb.NShape.Controllers {
 		public void DeleteDesign(Design design) {
 			if (design == null) throw new ArgumentNullException("design");
 			ICommand cmd = new DeleteDesignCommand(design);
-			project.ExecuteCommand(cmd);
+			_project.ExecuteCommand(cmd);
 		}
 
 
@@ -265,7 +265,7 @@ namespace Dataweb.NShape.Controllers {
 			if (design == null) throw new ArgumentNullException("design");
 			if (style == null) throw new ArgumentNullException("style");
 			ICommand cmd = new DeleteStyleCommand(design, style);
-			project.ExecuteCommand(cmd);
+			_project.ExecuteCommand(cmd);
 		}
 
 		#endregion
@@ -286,22 +286,22 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private DesignEventArgs GetDesignEventArgs(Design design) {
-			designEventArgs.Design = design;
-			return designEventArgs;
+			_designEventArgs.Design = design;
+			return _designEventArgs;
 		}
 
 
 		private StyleEventArgs GetStyleEventArgs(Design design, IStyle style) {
-			styleEventArgs.Design = design;
-			styleEventArgs.Style = style;
-			return styleEventArgs;
+			_styleEventArgs.Design = design;
+			_styleEventArgs.Style = style;
+			return _styleEventArgs;
 		}
 
 
 		private Design GetOwnerDesign(IStyle style) {
-			if (project.Design.ContainsStyle(style))
-				return project.Design;
-			foreach (Design design in project.Repository.GetDesigns()) {
+			if (_project.Design.ContainsStyle(style))
+				return _project.Design;
+			foreach (Design design in _project.Repository.GetDesigns()) {
 				if (design.ContainsStyle(style))
 					return design;
 			}
@@ -335,44 +335,44 @@ namespace Dataweb.NShape.Controllers {
 		#region [Private] Methods: (Un)Registering events
 
 		private void RegisterProjectEventHandlers() {
-			Debug.Assert(project != null);
-			project.Opened += project_Opened;
-			project.Closing += project_Closing;
-			if (project.IsOpen) Initialize();
+			Debug.Assert(_project != null);
+			_project.Opened += project_Opened;
+			_project.Closing += project_Closing;
+			if (_project.IsOpen) Initialize();
 		}
 
 
 		private void UnregisterProjectEventHandlers() {
 			Uninitialize();
-			if (project != null) {
-				project.Opened -= project_Opened;
-				project.Closing -= project_Closing;
+			if (_project != null) {
+				_project.Opened -= project_Opened;
+				_project.Closing -= project_Closing;
 			}
 		}
 
 
 		private void RegisterRepositoryEventHandlers() {
-			Debug.Assert(project != null && project.Repository != null);
-			if (project != null && project.Repository != null) {
-				project.Repository.DesignInserted += Repository_DesignInserted;
-				project.Repository.DesignUpdated += Repository_DesignUpdated;
-				project.Repository.DesignDeleted += Repository_DesignDeleted;
-				project.Repository.StyleInserted += Repository_StyleInserted;
-				project.Repository.StyleUpdated += Repository_StyleUpdated;
-				project.Repository.StyleDeleted += Repository_StyleDeleted;
+			Debug.Assert(_project != null && _project.Repository != null);
+			if (_project != null && _project.Repository != null) {
+				_project.Repository.DesignInserted += Repository_DesignInserted;
+				_project.Repository.DesignUpdated += Repository_DesignUpdated;
+				_project.Repository.DesignDeleted += Repository_DesignDeleted;
+				_project.Repository.StyleInserted += Repository_StyleInserted;
+				_project.Repository.StyleUpdated += Repository_StyleUpdated;
+				_project.Repository.StyleDeleted += Repository_StyleDeleted;
 			}
 		}
 
 
 		private void UnregisterRepositoryEventHandlers() {
-			Debug.Assert(project != null && project.Repository != null);
-			if (project != null && project.Repository != null) {
-				project.Repository.DesignInserted -= Repository_DesignInserted;
-				project.Repository.DesignUpdated -= Repository_DesignUpdated;
-				project.Repository.DesignDeleted -= Repository_DesignDeleted;
-				project.Repository.StyleInserted -= Repository_StyleInserted;
-				project.Repository.StyleUpdated -= Repository_StyleUpdated;
-				project.Repository.StyleDeleted -= Repository_StyleDeleted;
+			Debug.Assert(_project != null && _project.Repository != null);
+			if (_project != null && _project.Repository != null) {
+				_project.Repository.DesignInserted -= Repository_DesignInserted;
+				_project.Repository.DesignUpdated -= Repository_DesignUpdated;
+				_project.Repository.DesignDeleted -= Repository_DesignDeleted;
+				_project.Repository.StyleInserted -= Repository_StyleInserted;
+				_project.Repository.StyleUpdated -= Repository_StyleUpdated;
+				_project.Repository.StyleDeleted -= Repository_StyleDeleted;
 			}
 		}
 
@@ -425,9 +425,9 @@ namespace Dataweb.NShape.Controllers {
 
 		#region Fields
 
-		private Project project;
-		private DesignEventArgs designEventArgs = new DesignEventArgs();
-		private StyleEventArgs styleEventArgs = new StyleEventArgs();
+		private Project _project;
+		private DesignEventArgs _designEventArgs = new DesignEventArgs();
+		private StyleEventArgs _styleEventArgs = new StyleEventArgs();
 
 		#endregion
 	}

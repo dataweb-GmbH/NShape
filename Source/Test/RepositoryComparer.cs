@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -336,14 +336,14 @@ namespace NShapeTest {
 				//
 				// Compare Layers
 				Assert.AreEqual<int>(diagramA.Layers.Count, diagramB.Layers.Count);
-				SortedList<LayerIds, Layer> layersA = new SortedList<LayerIds, Layer>();
-				foreach (Layer l in diagramA.Layers) layersA.Add(l.Id, l);
-				SortedList<LayerIds, Layer> layersB = new SortedList<LayerIds, Layer>();
-				foreach (Layer l in diagramB.Layers) layersB.Add(l.Id, l);
-				foreach (KeyValuePair<LayerIds, Layer> pair in layersA) {
+				SortedList<int, Layer> layersA = new SortedList<int, Layer>();
+				foreach (Layer l in diagramA.Layers) layersA.Add(l.LayerId, l);
+				SortedList<int, Layer> layersB = new SortedList<int, Layer>();
+				foreach (Layer l in diagramB.Layers) layersB.Add(l.LayerId, l);
+				foreach (KeyValuePair<int, Layer> pair in layersA) {
 					Layer layerA = pair.Value;
 					Layer layerB = layersB[pair.Key];
-					Assert.AreEqual<LayerIds>(layerA.Id, layerB.Id);
+					Assert.AreEqual<int>(layerA.LayerId, layerB.LayerId);
 					Assert.AreEqual<int>(layerA.LowerZoomThreshold, layerB.LowerZoomThreshold);
 					Assert.AreEqual<int>(layerA.UpperZoomThreshold, layerB.UpperZoomThreshold);
 					CompareString(layerA.Name, layerB.Name, false);
@@ -374,7 +374,7 @@ namespace NShapeTest {
 				CompareId(shapeA, shapeB);
 				CompareId(shapeA.Diagram, shapeB.Diagram);
 				CompareId(shapeA.Template, shapeB.Template);
-				Assert.AreEqual<LayerIds>(shapeA.Layers, shapeB.Layers);
+				Assert.AreEqual<LayerIds>(shapeA.SupplementalLayers, shapeB.SupplementalLayers);
 				Assert.AreEqual<IDisplayService>(shapeA.DisplayService, shapeB.DisplayService);
 				if (version <= 3 && shapeA is ILinearShape) {
 					CompareBounds(shapeA.GetBoundingRectangle(true), shapeB.GetBoundingRectangle(true), version);

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -29,15 +29,14 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.PropertyMappingIdAttribute" />.
 		/// </summary>
 		public PropertyMappingIdAttribute(int id) {
-			this.id = id;
+			Id = id;
 		}
 
 		/// <summary>
 		/// The id value used for identifying the property.
 		/// </summary>
-		public int Id { get { return id; } }
+		public int Id { get; private set; }
 
-		private int id;
 	}
 
 
@@ -143,8 +142,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.ModelMappingBase" />.
 		/// </summary>
 		protected ModelMappingBase(int modelPropertyId, int shapePropertyId) {
-			this.shapePropertyId = shapePropertyId;
-			this.modelPropertyId = modelPropertyId;
+			this._shapePropertyId = shapePropertyId;
+			this._modelPropertyId = modelPropertyId;
 		}
 
 
@@ -159,13 +158,13 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public int ShapePropertyId {
-			get { return shapePropertyId; }
+			get { return _shapePropertyId; }
 		}
 
 
 		/// <override></override>
 		public int ModelPropertyId {
-			get { return modelPropertyId; }
+			get { return _modelPropertyId; }
 		}
 
 		/// <override></override>
@@ -229,15 +228,15 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public object Id {
-			get { return id; }
+			get { return _id; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void AssignId(object id) {
 			if (id == null) throw new ArgumentNullException("id");
-			if (this.id != null) throw new InvalidOperationException(string.Format("{0} has already a id.", GetType().Name));
-			this.id = id;
+			if (this._id != null) throw new InvalidOperationException(string.Format("{0} has already a id.", GetType().Name));
+			this._id = id;
 
 		}
 
@@ -245,8 +244,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual void LoadFields(IRepositoryReader reader, int version) {
 			if (reader == null) throw new ArgumentNullException("reader");
-			shapePropertyId = reader.ReadInt32();
-			modelPropertyId = reader.ReadInt32();
+			_shapePropertyId = reader.ReadInt32();
+			_modelPropertyId = reader.ReadInt32();
 		}
 
 
@@ -261,8 +260,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual void SaveFields(IRepositoryWriter writer, int version) {
 			if (writer == null) throw new ArgumentNullException("writer");
-			writer.WriteInt32(shapePropertyId);
-			writer.WriteInt32(modelPropertyId);
+			writer.WriteInt32(_shapePropertyId);
+			writer.WriteInt32(_modelPropertyId);
 		}
 
 
@@ -287,9 +286,9 @@ namespace Dataweb.NShape.Advanced {
 
 
 		// Fields
-		private object id = null;
-		private int shapePropertyId;
-		private int modelPropertyId;
+		private object _id = null;
+		private int _shapePropertyId;
+		private int _modelPropertyId;
 	}
 
 
@@ -340,9 +339,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="slope">Defines a factor for the mapped value.</param>
 		public NumericModelMapping(int shapePropertyId, int modelPropertyId, MappingType mappingType, float intercept, float slope)
 			: base(modelPropertyId, shapePropertyId) {
-			this.mappingType = mappingType;
-			this.intercept = intercept;
-			this.slope = slope;
+			this._mappingType = mappingType;
+			this._intercept = intercept;
+			this._slope = slope;
 		}
 
 
@@ -357,8 +356,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override bool CanGetInteger {
 			get {
-				return (mappingType == MappingType.FloatInteger
-					|| mappingType == MappingType.IntegerInteger);
+				return (_mappingType == MappingType.FloatInteger
+					|| _mappingType == MappingType.IntegerInteger);
 			}
 		}
 
@@ -366,8 +365,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override bool CanSetInteger {
 			get {
-				return (mappingType == MappingType.IntegerFloat
-					|| mappingType == MappingType.IntegerInteger);
+				return (_mappingType == MappingType.IntegerFloat
+					|| _mappingType == MappingType.IntegerInteger);
 			}
 		}
 
@@ -375,8 +374,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override bool CanGetFloat {
 			get {
-				return (mappingType == MappingType.IntegerFloat
-					|| mappingType == MappingType.FloatFloat);
+				return (_mappingType == MappingType.IntegerFloat
+					|| _mappingType == MappingType.FloatFloat);
 			}
 		}
 
@@ -384,8 +383,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override bool CanSetFloat {
 			get {
-				return (mappingType == MappingType.FloatInteger
-					|| mappingType == MappingType.FloatFloat);
+				return (_mappingType == MappingType.FloatInteger
+					|| _mappingType == MappingType.FloatFloat);
 			}
 		}
 
@@ -411,26 +410,26 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override int GetInteger() {
 			if (CanGetInteger)
-				checked { return (int)Math.Round(Intercept + (value * Slope)); } else throw new NotSupportedException();
+				checked { return (int)Math.Round(Intercept + (_value * Slope)); } else throw new NotSupportedException();
 		}
 
 
 		/// <override></override>
 		public override void SetInteger(int value) {
-			if (CanSetInteger) checked { this.value = value; } else throw new NotSupportedException();
+			if (CanSetInteger) checked { this._value = value; } else throw new NotSupportedException();
 		}
 
 
 		/// <override></override>
 		public override float GetFloat() {
 			if (CanGetFloat)
-				checked { return (float)Math.Round(Intercept + (value * Slope), 6); } else throw new NotSupportedException();
+				checked { return (float)Math.Round(Intercept + (_value * Slope), 6); } else throw new NotSupportedException();
 		}
 
 
 		/// <override></override>
 		public override void SetFloat(float value) {
-			if (CanSetFloat) checked { this.value = value; } else throw new NotSupportedException();
+			if (CanSetFloat) checked { this._value = value; } else throw new NotSupportedException();
 		}
 
 
@@ -460,7 +459,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The entity type name of <see cref="T:Dataweb.NShape.Advanced.NumericModelMapping" />.
 		/// </summary>
 		public static string EntityTypeName {
-			get { return entityTypeName; }
+			get { return _entityTypeName; }
 		}
 
 
@@ -484,18 +483,18 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override void LoadFields(IRepositoryReader reader, int version) {
 			base.LoadFields(reader, version);
-			mappingType = (MappingType)reader.ReadInt32();
-			intercept = reader.ReadFloat();
-			slope = reader.ReadFloat();
+			_mappingType = (MappingType)reader.ReadInt32();
+			_intercept = reader.ReadFloat();
+			_slope = reader.ReadFloat();
 		}
 
 
 		/// <override></override>
 		public override void SaveFields(IRepositoryWriter writer, int version) {
 			base.SaveFields(writer, version);
-			writer.WriteInt32((int)mappingType);
-			writer.WriteFloat(intercept);
-			writer.WriteFloat(slope);
+			writer.WriteInt32((int)_mappingType);
+			writer.WriteFloat(_intercept);
+			writer.WriteFloat(_slope);
 		}
 
 		#endregion
@@ -505,7 +504,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The <see cref="T:Dataweb.NShape.Advanced.NumericModelMapping.MappingType" /> specifying the mapping capabilities of this <see cref="T:Dataweb.NShape.Advanced.NumericModelMapping" />.
 		/// </summary>
 		public MappingType Type {
-			get { return mappingType; }
+			get { return _mappingType; }
 		}
 
 
@@ -513,8 +512,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Defines a factor for the mapping.
 		/// </summary>
 		public float Slope {
-			get { return slope; }
-			set { slope = value; }
+			get { return _slope; }
+			set { _slope = value; }
 		}
 
 
@@ -522,8 +521,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Defines an offset for the mapping.
 		/// </summary>
 		public float Intercept {
-			get { return intercept; }
-			set { intercept = value; }
+			get { return _intercept; }
+			set { _intercept = value; }
 		}
 
 
@@ -537,12 +536,12 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Fields
 
-		private const string entityTypeName = "NumericModelMapping";
+		private const string _entityTypeName = "NumericModelMapping";
 
-		private MappingType mappingType;
-		private double value = 0;
-		private float slope = 1;
-		private float intercept = 0;
+		private MappingType _mappingType;
+		private double _value = 0;
+		private float _slope = 1;
+		private float _intercept = 0;
 
 		#endregion
 	}
@@ -592,8 +591,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="format">The format for the mapped value.</param>
 		public FormatModelMapping(int shapePropertyId, int modelPropertyId, MappingType mappingType, string format)
 			: base(modelPropertyId, shapePropertyId) {
-			this.format = format;
-			this.mappingType = mappingType;
+			this._format = format;
+			this._mappingType = mappingType;
 		}
 
 
@@ -613,7 +612,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override bool CanSetInteger {
-			get { return (mappingType == MappingType.IntegerString); }
+			get { return (_mappingType == MappingType.IntegerString); }
 		}
 
 
@@ -625,7 +624,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override bool CanSetFloat {
-			get { return (mappingType == MappingType.FloatString); }
+			get { return (_mappingType == MappingType.FloatString); }
 		}
 
 
@@ -637,7 +636,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override bool CanSetString {
-			get { return (mappingType == MappingType.StringString); }
+			get { return (_mappingType == MappingType.StringString); }
 		}
 
 
@@ -655,7 +654,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void SetInteger(int value) {
-			if (CanSetInteger) intValue = value;
+			if (CanSetInteger) _intValue = value;
 			else throw new NotSupportedException();
 		}
 
@@ -668,7 +667,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void SetFloat(float value) {
-			if (CanSetFloat) floatValue = value;
+			if (CanSetFloat) _floatValue = value;
 			else throw new NotSupportedException();
 		}
 
@@ -676,14 +675,14 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override string GetString() {
 			try {
-				switch (mappingType) {
+				switch (_mappingType) {
 					case MappingType.FloatString:
-						return string.Format(Format, floatValue);
+						return string.Format(Format, _floatValue);
 					case MappingType.IntegerString:
-						return string.Format(Format, intValue);
+						return string.Format(Format, _intValue);
 					case MappingType.StringString:
-						return string.Format(Format, stringValue);
-					default: throw new NShapeUnsupportedValueException(mappingType);
+						return string.Format(Format, _stringValue);
+					default: throw new NShapeUnsupportedValueException(_mappingType);
 				}
 			} catch (FormatException exc) {
 				return exc.Message + " " + Format;
@@ -693,7 +692,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void SetString(string value) {
-			if (CanSetString) stringValue = value;
+			if (CanSetString) _stringValue = value;
 			else throw new NotSupportedException();
 		}
 
@@ -712,7 +711,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The entity type name of <see cref="T:Dataweb.NShape.Advanced.FormatModelMapping" />.
 		/// </summary>
 		public static string EntityTypeName {
-			get { return entityTypeName; }
+			get { return _entityTypeName; }
 		}
 
 
@@ -731,16 +730,16 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override void LoadFields(IRepositoryReader reader, int version) {
 			base.LoadFields(reader, version);
-			mappingType = (MappingType)reader.ReadInt32();
-			format = reader.ReadString();
+			_mappingType = (MappingType)reader.ReadInt32();
+			_format = reader.ReadString();
 		}
 
 
 		/// <override></override>
 		public override void SaveFields(IRepositoryWriter writer, int version) {
 			base.SaveFields(writer, version);
-			writer.WriteInt32((int)mappingType);
-			writer.WriteString(format);
+			writer.WriteInt32((int)_mappingType);
+			writer.WriteString(_format);
 		}
 
 		#endregion
@@ -750,17 +749,17 @@ namespace Dataweb.NShape.Advanced {
 		/// The <see cref="T:Dataweb.NShape.Advanced.FormatModelMapping.MappingType" /> specifying the mapping capabilities of this <see cref="T:Dataweb.NShape.Advanced.NumericModelMapping" />.
 		/// </summary>
 		public MappingType Type {
-			get { return mappingType; }
+			get { return _mappingType; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public string Format {
-			get { return format; }
+			get { return _format; }
 			set {
 				if (value == null) throw new ArgumentNullException("Format");
 				if (value == string.Empty) throw new ArgumentException("Format");
-				format = value;
+				_format = value;
 			}
 		}
 
@@ -775,13 +774,13 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Fields
 
-		private const string entityTypeName = "FormatModelMapping";
+		private const string _entityTypeName = "FormatModelMapping";
 
-		private MappingType mappingType;
-		private string format;
-		private int intValue;
-		private float floatValue;
-		private string stringValue;
+		private MappingType _mappingType;
+		private string _format;
+		private int _intValue;
+		private float _floatValue;
+		private string _stringValue;
 
 		#endregion
 	}
@@ -814,10 +813,10 @@ namespace Dataweb.NShape.Advanced {
 		/// </param>
 		public StyleModelMapping(int shapePropertyId, int modelPropertyId, MappingType mappingType)
 			: base(modelPropertyId, shapePropertyId) {
-			this.mappingType = mappingType;
+			this._mappingType = mappingType;
 			if (mappingType == MappingType.IntegerStyle)
-				intRanges = new SortedList<int, IStyle>();
-			else floatRanges = new SortedList<float, IStyle>();
+				_intRanges = new SortedList<int, IStyle>();
+			else _floatRanges = new SortedList<float, IStyle>();
 		}
 
 
@@ -833,7 +832,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="style">Specifies the style that is used for all values outside the user defined ranges.</param>
 		public StyleModelMapping(int shapePropertyId, int modelPropertyId, MappingType mappingType, IStyle style)
 			: this(shapePropertyId, modelPropertyId, mappingType) {
-			defaultStyle = style;
+			_defaultStyle = style;
 		}
 
 
@@ -849,12 +848,12 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override IModelMapping Clone() {
-			StyleModelMapping result = new StyleModelMapping(ShapePropertyId, ModelPropertyId, Type, defaultStyle);
-			if (intRanges != null) {
-				foreach (KeyValuePair<int, IStyle> item in intRanges)
+			StyleModelMapping result = new StyleModelMapping(ShapePropertyId, ModelPropertyId, Type, _defaultStyle);
+			if (_intRanges != null) {
+				foreach (KeyValuePair<int, IStyle> item in _intRanges)
 					result.AddValueRange(item.Key, item.Value);
-			} else if (floatRanges != null) {
-				foreach (KeyValuePair<float, IStyle> item in floatRanges)
+			} else if (_floatRanges != null) {
+				foreach (KeyValuePair<float, IStyle> item in _floatRanges)
 					result.AddValueRange(item.Key, item.Value);
 			}
 			return result;
@@ -869,7 +868,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override bool CanSetInteger {
-			get { return (mappingType == MappingType.IntegerStyle); }
+			get { return (_mappingType == MappingType.IntegerStyle); }
 		}
 
 
@@ -881,7 +880,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override bool CanSetFloat {
-			get { return (mappingType == MappingType.FloatStyle); }
+			get { return (_mappingType == MappingType.FloatStyle); }
 		}
 
 
@@ -911,7 +910,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void SetInteger(int value) {
-			if (CanSetInteger) intValue = value;
+			if (CanSetInteger) _intValue = value;
 			else throw new NotSupportedException();
 		}
 
@@ -924,7 +923,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void SetFloat(float value) {
-			if (CanSetFloat) floatValue = value;
+			if (CanSetFloat) _floatValue = value;
 			else throw new NotSupportedException();
 		}
 
@@ -944,30 +943,30 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override IStyle GetStyle() {
 			IStyle result;
-			if (mappingType == MappingType.IntegerStyle) {
-				result = defaultStyle;
+			if (_mappingType == MappingType.IntegerStyle) {
+				result = _defaultStyle;
 				int fromValue = int.MinValue;
-				foreach (KeyValuePair<int, IStyle> rangeItem in intRanges) {
-					if (fromValue == int.MinValue && intValue < rangeItem.Key)
+				foreach (KeyValuePair<int, IStyle> rangeItem in _intRanges) {
+					if (fromValue == int.MinValue && _intValue < rangeItem.Key)
 						break;
-					else if (fromValue <= intValue && intValue < rangeItem.Key) {
-						result = intRanges[fromValue];
+					else if (fromValue <= _intValue && _intValue < rangeItem.Key) {
+						result = _intRanges[fromValue];
 						break;
 					} else result = rangeItem.Value;
 					fromValue = rangeItem.Key;
 				}
-			} else if (mappingType == MappingType.FloatStyle) {
-				result = defaultStyle;
-				if (float.IsNaN(floatValue))
+			} else if (_mappingType == MappingType.FloatStyle) {
+				result = _defaultStyle;
+				if (float.IsNaN(_floatValue))
 					return result;
 				//if (float.IsNegativeInfinity(floatValue))
 				//   return floatRanges.ContainsKey(floatValue) ? floatRanges[floatValue] : result;
 				float fromValue = float.NegativeInfinity;
-				foreach (KeyValuePair<float, IStyle> rangeItem in floatRanges) {
-					if (fromValue == float.NegativeInfinity && floatValue < rangeItem.Key)
+				foreach (KeyValuePair<float, IStyle> rangeItem in _floatRanges) {
+					if (fromValue == float.NegativeInfinity && _floatValue < rangeItem.Key)
 						break;
-					else if (fromValue <= floatValue && floatValue < rangeItem.Key) {
-						result = floatRanges[fromValue];
+					else if (fromValue <= _floatValue && _floatValue < rangeItem.Key) {
+						result = _floatRanges[fromValue];
 						break;
 					} else result = rangeItem.Value;
 					fromValue = rangeItem.Key;
@@ -1009,19 +1008,19 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override void LoadFields(IRepositoryReader reader, int version) {
 			base.LoadFields(reader, version);
-			mappingType = (MappingType)reader.ReadInt32();
-			if (mappingType == MappingType.IntegerStyle)
-				intRanges = new SortedList<int, IStyle>();
-			else floatRanges = new SortedList<float, IStyle>();
-			defaultStyle = ReadStyle(reader);
+			_mappingType = (MappingType)reader.ReadInt32();
+			if (_mappingType == MappingType.IntegerStyle)
+				_intRanges = new SortedList<int, IStyle>();
+			else _floatRanges = new SortedList<float, IStyle>();
+			_defaultStyle = ReadStyle(reader);
 		}
 
 
 		/// <override></override>
 		public override void SaveFields(IRepositoryWriter writer, int version) {
 			base.SaveFields(writer, version);
-			writer.WriteInt32((int)mappingType);
-			WriteStyle(writer, defaultStyle);
+			writer.WriteInt32((int)_mappingType);
+			WriteStyle(writer, _defaultStyle);
 		}
 
 
@@ -1029,23 +1028,23 @@ namespace Dataweb.NShape.Advanced {
 		public override void LoadInnerObjects(string propertyName, IRepositoryReader reader, int version) {
 			base.LoadInnerObjects(propertyName, reader, version);
 			Debug.Assert(propertyName == "ValueRanges");
-			Debug.Assert((intRanges != null && intRanges.Count == 0)
-				|| (floatRanges != null && floatRanges.Count == 0));
+			Debug.Assert((_intRanges != null && _intRanges.Count == 0)
+				|| (_floatRanges != null && _floatRanges.Count == 0));
 			reader.BeginReadInnerObjects();
 			while (reader.BeginReadInnerObject()) {
 				IStyle style = null;
-				switch (mappingType) {
+				switch (_mappingType) {
 					case MappingType.IntegerStyle:
 						int intValue = (int)reader.ReadFloat();
 						style = ReadStyle(reader);
-						intRanges.Add(intValue, style);
+						_intRanges.Add(intValue, style);
 						break;
 					case MappingType.FloatStyle:
 						float floatValue = reader.ReadFloat();
 						style = ReadStyle(reader);
-						floatRanges.Add(floatValue, style);
+						_floatRanges.Add(floatValue, style);
 						break;
-					default: throw new NShapeUnsupportedValueException(mappingType);
+					default: throw new NShapeUnsupportedValueException(_mappingType);
 				}
 				reader.EndReadInnerObject();
 			}
@@ -1058,9 +1057,9 @@ namespace Dataweb.NShape.Advanced {
 			base.SaveInnerObjects(propertyName, writer, version);
 			Debug.Assert(propertyName == "ValueRanges");
 			writer.BeginWriteInnerObjects();
-			switch (mappingType) {
+			switch (_mappingType) {
 				case MappingType.IntegerStyle:
-					foreach (KeyValuePair<int, IStyle> range in intRanges) {
+					foreach (KeyValuePair<int, IStyle> range in _intRanges) {
 						writer.BeginWriteInnerObject();
 						writer.WriteFloat(range.Key);
 						WriteStyle(writer, range.Value);
@@ -1068,14 +1067,14 @@ namespace Dataweb.NShape.Advanced {
 					}
 					break;
 				case MappingType.FloatStyle:
-					foreach (KeyValuePair<float, IStyle> range in floatRanges) {
+					foreach (KeyValuePair<float, IStyle> range in _floatRanges) {
 						writer.BeginWriteInnerObject();
 						writer.WriteFloat(range.Key);
 						WriteStyle(writer, range.Value);
 						writer.EndWriteInnerObject();
 					}
 					break;
-				default: throw new NShapeUnsupportedValueException(mappingType);
+				default: throw new NShapeUnsupportedValueException(_mappingType);
 			}
 			writer.EndWriteInnerObjects();
 		}
@@ -1087,7 +1086,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The <see cref="T:Dataweb.NShape.Advanced.StyleModelMapping.MappingType" /> specifying the mapping capabilities of this <see cref="T:Dataweb.NShape.Advanced.NumericModelMapping" />.
 		/// </summary>
 		public MappingType Type {
-			get { return mappingType; }
+			get { return _mappingType; }
 		}
 
 
@@ -1096,10 +1095,10 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public int ValueRangeCount {
 			get {
-				if (mappingType == MappingType.IntegerStyle)
-					return intRanges.Count;
-				else if (mappingType == MappingType.FloatStyle)
-					return floatRanges.Count;
+				if (_mappingType == MappingType.IntegerStyle)
+					return _intRanges.Count;
+				else if (_mappingType == MappingType.FloatStyle)
+					return _floatRanges.Count;
 				else throw new NotSupportedException();
 			}
 		}
@@ -1110,11 +1109,11 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public IEnumerable<object> ValueRanges {
 			get {
-				if (mappingType == MappingType.IntegerStyle) {
-					foreach (KeyValuePair<int, IStyle> range in intRanges)
+				if (_mappingType == MappingType.IntegerStyle) {
+					foreach (KeyValuePair<int, IStyle> range in _intRanges)
 						yield return range.Key;
-				} else if (mappingType == MappingType.FloatStyle) {
-					foreach (KeyValuePair<float, IStyle> range in floatRanges)
+				} else if (_mappingType == MappingType.FloatStyle) {
+					foreach (KeyValuePair<float, IStyle> range in _floatRanges)
 						yield return range.Key;
 				} else throw new NotSupportedException();
 			}
@@ -1126,8 +1125,8 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public IStyle this[int key] {
 			get {
-				if (mappingType == MappingType.IntegerStyle)
-					return intRanges[key];
+				if (_mappingType == MappingType.IntegerStyle)
+					return _intRanges[key];
 				else throw new NotSupportedException();
 			}
 		}
@@ -1138,8 +1137,8 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public IStyle this[float key] {
 			get {
-				if (mappingType == MappingType.FloatStyle)
-					return floatRanges[key];
+				if (_mappingType == MappingType.FloatStyle)
+					return _floatRanges[key];
 				else throw new NotSupportedException();
 			}
 		}
@@ -1149,10 +1148,10 @@ namespace Dataweb.NShape.Advanced {
 		/// Deletes the current value ranges.
 		/// </summary>
 		public void ClearValueRanges() {
-			if (mappingType == MappingType.IntegerStyle) {
-				intRanges.Clear();
-			} else if (mappingType == MappingType.FloatStyle) {
-				floatRanges.Clear();
+			if (_mappingType == MappingType.IntegerStyle) {
+				_intRanges.Clear();
+			} else if (_mappingType == MappingType.FloatStyle) {
+				_floatRanges.Clear();
 			} else throw new NotSupportedException();
 		}
 
@@ -1163,8 +1162,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="lowerValue">The lower bound of the value range.</param>
 		/// <param name="style">The <see cref="T:Dataweb.NShape.IStyle" /> representing the range of values.</param>
 		public void AddValueRange(int lowerValue, IStyle style) {
-			if (mappingType == MappingType.IntegerStyle)
-				intRanges.Add(lowerValue, style);
+			if (_mappingType == MappingType.IntegerStyle)
+				_intRanges.Add(lowerValue, style);
 			else throw new NotSupportedException();
 		}
 
@@ -1175,8 +1174,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="lowerValue">The upper bound of the value range.</param>
 		/// <param name="style">The <see cref="T:Dataweb.NShape.IStyle" /> representing the range of values.</param>
 		public void AddValueRange(float lowerValue, IStyle style) {
-			if (mappingType == MappingType.FloatStyle)
-				floatRanges.Add(lowerValue, style);
+			if (_mappingType == MappingType.FloatStyle)
+				_floatRanges.Add(lowerValue, style);
 			else throw new NotSupportedException();
 		}
 
@@ -1185,8 +1184,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Removes the value range assaciated with the given key.
 		/// </summary>
 		public bool RemoveValueRange(int value) {
-			if (mappingType == MappingType.IntegerStyle)
-				return intRanges.Remove(value);
+			if (_mappingType == MappingType.IntegerStyle)
+				return _intRanges.Remove(value);
 			else throw new NotSupportedException();
 		}
 
@@ -1195,8 +1194,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Removes the value range assaciated with the given key.
 		/// </summary>
 		public bool RemoveValueRange(float value) {
-			if (mappingType == MappingType.FloatStyle)
-				return floatRanges.Remove(value);
+			if (_mappingType == MappingType.FloatStyle)
+				return _floatRanges.Remove(value);
 			else throw new NotSupportedException();
 		}
 
@@ -1261,12 +1260,12 @@ namespace Dataweb.NShape.Advanced {
 
 		private const string entityTypeName = "StyleModelMapping";
 
-		private MappingType mappingType;
-		private int intValue;
-		private float floatValue;
-		private IStyle defaultStyle = null;
-		private SortedList<int, IStyle> intRanges = null;
-		private SortedList<float, IStyle> floatRanges = null;
+		private MappingType _mappingType;
+		private int _intValue;
+		private float _floatValue;
+		private IStyle _defaultStyle = null;
+		private SortedList<int, IStyle> _intRanges = null;
+		private SortedList<float, IStyle> _floatRanges = null;
 
 		#endregion
 	}

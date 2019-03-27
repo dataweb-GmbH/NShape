@@ -1,4 +1,4 @@
-namespace Dataweb.NShape.WinFormsUI {
+﻿namespace Dataweb.NShape.WinFormsUI {
 	partial class LibraryManagementDialog {
 		/// <summary>
 		/// Required designer variable.

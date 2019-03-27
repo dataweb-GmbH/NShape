@@ -1,4 +1,4 @@
-namespace Dataweb.NShape.Designer {
+﻿namespace Dataweb.NShape.Designer {
 
 	partial class DiagramSettingsForm {
 		/// <summary>
@@ -31,9 +31,9 @@ namespace Dataweb.NShape.Designer {
 			// 
 			// propertyGrid
 			// 
-			this.propertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.propertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.propertyGrid.Location = new System.Drawing.Point(-1, 0);
 			this.propertyGrid.Name = "propertyGrid";
 			this.propertyGrid.Size = new System.Drawing.Size(302, 264);

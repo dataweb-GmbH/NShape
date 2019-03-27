@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -69,7 +69,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		public AddColumnCommand(EntitySymbol shape, string columnText)
 			: base(shape, columnText) {
-			base.description = string.Format("Add column to {0}", shape.Type.Name);
+			base.Description = string.Format("Add column to {0}", shape.Type.Name);
 		}
 		
 		
@@ -97,7 +97,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		
 		public InsertColumnCommand(EntitySymbol shape, int beforeColumnIndex, string columnText)
 			: base(shape, columnText) {
-			base.description = string.Format("Insert new column in {0}", shape.Type.Name);
+			base.Description = string.Format("Insert new column in {0}", shape.Type.Name);
 			this.beforeIndex = beforeColumnIndex;
 		}
 
@@ -134,7 +134,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		public EditColumnCommand(EntitySymbol shape, int columnIndex, string columnText)
 			: base(shape, columnText) {
-			base.description = string.Format("Edit column '{0}' in {1}", columnText, shape.Type.Name);
+			base.Description = string.Format("Edit column '{0}' in {1}", columnText, shape.Type.Name);
 			this.oldColumnText = shape.ColumnNames[columnIndex];
 			this.columnIndex = columnIndex;
 		}
@@ -175,7 +175,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		public RemoveColumnCommand(EntitySymbol shape, int removeColumnIndex, string columnText)
 			: base(shape, columnText) {
-			base.description = string.Format("Remove column '{0}' from {1}", columnText, shape.Type.Name);
+			base.Description = string.Format("Remove column '{0}' from {1}", columnText, shape.Type.Name);
 			this.removeIndex = removeColumnIndex;
 		}
 
@@ -212,6 +212,14 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 
 	public class EntitySymbol : RectangleBase {
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameAppendColumn = "AppendColumnAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameInsertColumn = "InsertColumnAction";
+		/// <ToBeCompleted></ToBeCompleted>
+		public const string MenuItemNameRemoveColumn = "RemoveColumnAction";
+
 
 		/// <override></override>
 		public override void CopyFrom(Shape source) {
@@ -490,7 +498,8 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		#region [Public] Properties
 
 		[CategoryAppearance()]
-		[Description("Defines the appearence of the shape's interior.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_EntitySymbol_ColumnBackgroundColorStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_EntitySymbol_ColumnBackgroundColorStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdColumnBackgroundColorStyle)]
 		[RequiredPermission(Permission.Present)]
 		public virtual IColorStyle ColumnBackgroundColorStyle {
@@ -502,8 +511,9 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		}
 
 
-		[Category("Text Appearance")]
-		[Description("Determines the style of the shape's column names.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[CategoryAppearance()]
+		[LocalizedDisplayName("PropName_EntitySymbol_ColumnCharacterStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_EntitySymbol_ColumnCharacterStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdColumnCharacterStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICharacterStyle ColumnCharacterStyle {
@@ -517,8 +527,9 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		}
 
 
-		[Category("Text Appearance")]
-		[Description("Determines the layout of the shape's column names.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[CategoryAppearance()]
+		[LocalizedDisplayName("PropName_EntitySymbol_ColumnParagraphStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_EntitySymbol_ColumnParagraphStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdColumnParagraphStyle)]
 		[RequiredPermission(Permission.Present)]
 		public IParagraphStyle ColumnParagraphStyle {
@@ -533,8 +544,9 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		}
 
 
-		[Category("Text Layout")]
-		[Description("The column names of this table.")]
+		[CategoryLayout()]
+		[LocalizedDisplayName("Propname_EntitySymbol_ColumnNames", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_EntitySymbol_ColumnNames", typeof(Properties.Resources))]
 		[RequiredPermission(Permission.Present)]
 		[TypeConverter("Dataweb.NShape.WinFormsUI.TextTypeConverter")]
 		[Editor("Dataweb.NShape.WinFormsUI.TextUITypeEditor", typeof(UITypeEditor))]
@@ -667,20 +679,20 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				}
 			}
 
-			yield return new CommandMenuItemDef(Properties.Resources.CaptionTxt__AppendColumn, null, string.Empty, true,
-				new AddColumnCommand(this, newColumnTxt));
+			yield return new CommandMenuItemDef(MenuItemNameAppendColumn, Properties.Resources.CaptionTxt__AppendColumn, 
+				null, string.Empty, true, new AddColumnCommand(this, newColumnTxt));
 
 			bool isFeasible = captionIdx >= 0;
 			string description = Properties.Resources.MessageTxt_NoCaptionClicked;
 			if (isFeasible)
 				description = string.Format(Properties.Resources.MessageFmt_InsertNewColumnBeforeColumn0, columnNames[captionIdx]);
-			yield return new CommandMenuItemDef(Properties.Resources.CaptionTxt_InsertColumn,
-				null, description, isFeasible, isFeasible ? new InsertColumnCommand(this, captionIdx, newColumnTxt) : null);
+			yield return new CommandMenuItemDef(MenuItemNameInsertColumn, Properties.Resources.CaptionTxt_InsertColumn,
+				null, description, isFeasible, new InsertColumnCommand(this, captionIdx, newColumnTxt));
 			
 			if (isFeasible)
 				description = string.Format(Properties.Resources.MessageFmt_RemoveColumn0, columnNames[captionIdx]);
-			yield return new CommandMenuItemDef(Properties.Resources.CaptionTxt_RemoveColumn,
-				null, description, isFeasible, isFeasible ? new RemoveColumnCommand(this, captionIdx, columnCaptions[captionIdx - 1].Text) : null);
+			yield return new CommandMenuItemDef(MenuItemNameRemoveColumn, Properties.Resources.CaptionTxt_RemoveColumn,
+				null, description, isFeasible, new RemoveColumnCommand(this, captionIdx, columnCaptions[captionIdx - 1].Text));
 		}
 
 
@@ -2063,7 +2075,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				Path.StartFigure();
 				Path.AddLines(points);
 				Path.CloseFigure();
-				// Ecke hinzuf�gen
+				// Ecke hinzufügen
 				points = new Point[3];
 				points[0].X = -halfWidth + currWidth - size;
 				points[0].Y = -halfHeight;
@@ -2101,7 +2113,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		public override Shape Clone() {
-			Shape result = new VectorImage(Type, this.Template, resourceName, resourceAssembly);
+			Shape result = new VectorImage(Type, Template, this._resourceName, this._resourceAssembly);
 			result.CopyFrom(this);
 			return result;
 		}

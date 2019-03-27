@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -200,7 +200,7 @@ namespace Dataweb.NShape.Advanced {
 						yield return cell;
 				}
 			} else {
-				if (arcIsInvalid) RecalculateArc();
+				if (_arcIsInvalid) RecalculateArc();
 				// The outer bounding rectangle (including the control points) is required here
 				Rectangle bounds = CalculateBoundingRectangle(false);
 				int cellsLeft, cellsTop, cellsRight, cellsBottom;
@@ -251,15 +251,15 @@ namespace Dataweb.NShape.Advanced {
 
 			isFeasible = (clickedPointId == ControlPointId.None || clickedPointId == ControlPointId.Reference) && ContainsPoint(mouseX, mouseY) && VertexCount < 3;
 			description = Properties.Resources.MessageTxt_YouHaveToClickOnTheLineInOrderToInsertNewPoints;
-			yield return new CommandMenuItemDef(Properties.Resources.CaptionTxt_InsertConnectionPoint, null, description, isFeasible,
-				new AddVertexCommand(this, mouseX, mouseY));
+			yield return new CommandMenuItemDef(MenuItemNameInsertConnectionPoint, Properties.Resources.CaptionTxt_InsertConnectionPoint, 
+				null, description, isFeasible, new AddVertexCommand(this, mouseX, mouseY));
 
 			isFeasible = (clickedPointId != ControlPointId.None && !HasControlPointCapability(clickedPointId, ControlPointCapabilities.Glue) && VertexCount > 2);
 			if (clickedPointId == ControlPointId.None || clickedPointId == ControlPointId.Reference)
 				description = Properties.Resources.MessageTxt_NoControlPointWasClicked;
 			else description = Properties.Resources.MessageTxt_GlueControlPointsMayNotBeRemoved;
-			yield return new CommandMenuItemDef(Properties.Resources.CaptionTxt_RemovePoint, null, description, isFeasible,
-				new RemoveVertexCommand(this, clickedPointId));
+			yield return new CommandMenuItemDef(MenuItemNameRemoveVertex, Properties.Resources.CaptionTxt_RemovePoint, 
+				null, description, isFeasible, new RemoveVertexCommand(this, clickedPointId));
 		}
 
 
@@ -360,19 +360,19 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override ControlPointId InsertVertex(ControlPointId beforePointId, int x, int y) {
 			if (IsFirstVertex(beforePointId) || beforePointId == ControlPointId.Reference || beforePointId == ControlPointId.None)
-				throw new NShapeException("{0} is not a valid {1} for this operation.", beforePointId, typeof(ControlPointId).Name);
-			if (VertexCount >= MaxVertexCount) throw new NShapeException("Number of maximum vertices reached.");
+				throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidControlPointForThisOperation, beforePointId);
+			if (VertexCount >= MaxVertexCount) throw new NShapeException(Properties.Resources.MessageTxt_NumberOfMaximumVerticesReached);
 
-			radiusPointId = GetNewControlPointId();
-			return InsertVertex(beforePointId, radiusPointId, x, y);
+			_radiusPointId = GetNewControlPointId();
+			return InsertVertex(beforePointId, _radiusPointId, x, y);
 		}
 
 
 		/// <override></override>
 		public override ControlPointId InsertVertex(ControlPointId beforePointId, ControlPointId newVertexId, int x, int y) {
 			if (IsFirstVertex(beforePointId) || beforePointId == ControlPointId.Reference || beforePointId == ControlPointId.None)
-				throw new NShapeException("{0} is not a valid {1} for this operation.", beforePointId, typeof(ControlPointId).Name);
-			if (VertexCount >= MaxVertexCount) throw new NShapeException("Number of maximum vertices reached.");
+				throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidControlPointForThisOperation, beforePointId);
+			if (VertexCount >= MaxVertexCount) throw new NShapeException(Properties.Resources.MessageTxt_NumberOfMaximumVerticesReached);
 
 			// Create new LineControlPoint
 			LineControlPoint ctrlPoint = new VertexControlPoint(newVertexId, x, y);
@@ -396,7 +396,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override ControlPointId AddVertex(int x, int y) {
-			if (VertexCount >= MaxVertexCount) throw new InvalidOperationException("Number of maximum vertices reached.");
+			if (VertexCount >= MaxVertexCount) throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_NumberOfMaximumVerticesReached);
 			return InsertVertex(ControlPointId.LastVertex, x, y);
 		}
 
@@ -404,19 +404,19 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override void RemoveVertex(ControlPointId controlPointId) {
 			if (IsFirstVertex(controlPointId) || IsLastVertex(controlPointId))
-				throw new InvalidOperationException("Start- and end pioints of linear shapes cannot be removed.");
-			Debug.Assert(controlPointId == radiusPointId);
+				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_StartAndEndPointOfLinearShapesCannotBeRemoved);
+			Debug.Assert(controlPointId == _radiusPointId);
 			
 			int idx = GetControlPointIndex(controlPointId);
 			RemoveControlPoint(idx);
 			
-			radiusPointId = ControlPointId.None;
+			_radiusPointId = ControlPointId.None;
 		}
 
 
 		/// <override></override>
 		public override ControlPointId AddConnectionPoint(int x, int y) {
-			if (!ContainsPoint(x, y)) throw new NShapeException("Coordinates {0},{1} are not part of this shape.", x, y);
+			if (!ContainsPoint(x, y)) throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_Coordinates01AreNotPartOfThisShape, x, y);
 
 			ControlPointId pointId = GetNewControlPointId();
 			RelativePosition relPos = CalculateRelativePosition(x, y);
@@ -432,7 +432,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Invalidate() {
-			if (DisplayService != null) {
+			if (DisplayService != null && !SuspendingInvalidation) {
 				base.Invalidate();
 
 				int margin = 1;
@@ -445,16 +445,16 @@ namespace Dataweb.NShape.Advanced {
 				top = Math.Min(StartPoint.Y, EndPoint.Y);
 				bottom = Math.Max(StartPoint.Y, EndPoint.Y);
 				if (!IsLine) {
-					if (arcIsInvalid) RecalculateArc();
-					if (!arcIsInvalid) {
-						if (arcBounds.Left < left)
-							left = (int)Math.Floor(arcBounds.Left);
-						if (arcBounds.Top < top)
-							top = (int)Math.Floor(arcBounds.Top);
-						if (arcBounds.Right > right)
-							right = (int)Math.Ceiling(arcBounds.Right);
-						if (arcBounds.Bottom > bottom)
-							bottom = (int)Math.Ceiling(arcBounds.Bottom);
+					if (_arcIsInvalid) RecalculateArc();
+					if (!_arcIsInvalid) {
+						if (_arcBounds.Left < left)
+							left = (int)Math.Floor(_arcBounds.Left);
+						if (_arcBounds.Top < top)
+							top = (int)Math.Floor(_arcBounds.Top);
+						if (_arcBounds.Right > right)
+							right = (int)Math.Ceiling(_arcBounds.Right);
+						if (_arcBounds.Bottom > bottom)
+							bottom = (int)Math.Ceiling(_arcBounds.Bottom);
 					}
 				}
 				DisplayService.Invalidate(left - margin, top - margin, right - left + margin + margin, bottom - top + margin + margin);
@@ -493,7 +493,7 @@ namespace Dataweb.NShape.Advanced {
 					DrawOutline(graphics, pen);
 
 					if (hasInvalidCapIntersection) 
-						arcIsInvalid = false;
+						_arcIsInvalid = false;
 				} finally {
 					shapePoints[0] = startPoint;
 					shapePoints[lastIdx] = endPoint;
@@ -759,14 +759,14 @@ namespace Dataweb.NShape.Advanced {
 			if (IsLine) {
 				ShapeUtils.DrawLinesSafe(graphics, pen, shapePoints);
 			} else {
-				Debug.Assert(Geometry.IsValid(arcBounds));
+				Debug.Assert(Geometry.IsValid(_arcBounds));
 				Debug.Assert(!float.IsNaN(StartAngle));
 				Debug.Assert(!float.IsNaN(SweepAngle));
 				try {
-					graphics.DrawArc(pen, arcBounds, StartAngle, SweepAngle);
+					graphics.DrawArc(pen, _arcBounds, StartAngle, SweepAngle);
 				} catch (OutOfMemoryException) {
 					Pen penWithoutCaps = ToolCache.GetPen(LineStyle, null, null);
-					graphics.DrawArc(pen, arcBounds, StartAngle, SweepAngle);
+					graphics.DrawArc(pen, _arcBounds, StartAngle, SweepAngle);
 				}
 			}
 			base.DrawOutline(graphics, pen);
@@ -819,13 +819,13 @@ namespace Dataweb.NShape.Advanced {
 
 		#region [Protected] Methods
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <override></override>
 		protected internal CircularArcBase(ShapeType shapeType, Template template)
 			: base(shapeType, template) {
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <override></override>
 		protected internal CircularArcBase(ShapeType shapeType, IStyleSet styleSet)
 			: base(shapeType, styleSet) {
 		}
@@ -854,7 +854,7 @@ namespace Dataweb.NShape.Advanced {
 				result.Width = (int)Math.Ceiling(Math.Max(StartPoint.X, EndPoint.X) + halfLineWidth) - result.X;
 				result.Height = (int)Math.Ceiling(Math.Max(StartPoint.Y, EndPoint.Y) + halfLineWidth) - result.Y;
 			} else {
-				if (arcIsInvalid) RecalculateArc();
+				if (_arcIsInvalid) RecalculateArc();
 
 				float left = Center.X - Radius - halfLineWidth;
 				float top = Center.Y - Radius - halfLineWidth;
@@ -911,7 +911,7 @@ namespace Dataweb.NShape.Advanced {
 					StartPoint.X, StartPoint.Y, EndPoint.X, EndPoint.Y, true))
 					return true;
 			} else {
-				if (arcIsInvalid) RecalculateArc();
+				if (_arcIsInvalid) RecalculateArc();
 				// Calculate Points for outer and inner arc (bounds of the arc's line)
 				float lineRadius = LineStyle.LineWidth / 2f;
 				int innerRadius = (int)Math.Floor(Radius - lineRadius);
@@ -933,9 +933,9 @@ namespace Dataweb.NShape.Advanced {
 		protected override bool MoveByCore(int deltaX, int deltaY) {
 			// move cap bounds and cap points			
 			if (base.MoveByCore(deltaX, deltaY)) {
-				if (Geometry.IsValid(center)) {
-					center.X += deltaX;
-					center.Y += deltaY;
+				if (Geometry.IsValid(_center)) {
+					_center.X += deltaX;
+					_center.Y += deltaY;
 				}
 				return true;
 			} else {
@@ -976,7 +976,7 @@ namespace Dataweb.NShape.Advanced {
 			GetControlPoint(pointIndex).Offset(deltaX, deltaY);
 
 			if (maintainAspect) {
-				int radPointIdx = GetControlPointIndex(radiusPointId);
+				int radPointIdx = GetControlPointIndex(_radiusPointId);
 				if (IsLine) {
 					MaintainGluePointPosition(otherGluePtId, nextPtId);
 					if (VertexCount > 2)
@@ -1059,12 +1059,12 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void InvalidateDrawCache() {
 			base.InvalidateDrawCache();
-			arcIsInvalid = true;
-			center = Geometry.InvalidPointF;
-			radius = float.NaN;
-			arcStartAngle = float.NaN;
-			arcSweepAngle = float.NaN;
-			arcBounds = Geometry.InvalidRectangleF;
+			_arcIsInvalid = true;
+			_center = Geometry.InvalidPointF;
+			_radius = float.NaN;
+			_arcStartAngle = float.NaN;
+			_arcSweepAngle = float.NaN;
+			_arcBounds = Geometry.InvalidRectangleF;
 		}
 
 
@@ -1079,11 +1079,11 @@ namespace Dataweb.NShape.Advanced {
 		protected override void RecalcDrawCache() {
 			RecalcShapePoints();
 			// Recalculate arc parameters (RecalculateArc does nothing if IsLine is true)
-			if (arcIsInvalid) RecalculateArc();
+			if (_arcIsInvalid) RecalculateArc();
 			// Calculate boundingRectangle of the arc (required for drawing and invalidating)
-			arcBounds.X = center.X - X - radius;
-			arcBounds.Y = center.Y - Y - radius;
-			arcBounds.Width = arcBounds.Height = Math.Max(0.1f, radius + radius);
+			_arcBounds.X = _center.X - X - _radius;
+			_arcBounds.Y = _center.Y - Y - _radius;
+			_arcBounds.Width = _arcBounds.Height = Math.Max(0.1f, _radius + _radius);
 
 			base.RecalcDrawCache();
 		}
@@ -1092,7 +1092,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void TransformDrawCache(int deltaX, int deltaY, int deltaAngle, int rotationCenterX, int rotationCenterY) {
 			base.TransformDrawCache(deltaX, deltaY, deltaAngle, rotationCenterX, rotationCenterY);
-			if (Geometry.IsValid(arcBounds)) arcBounds.Offset(deltaX, deltaY);
+			if (Geometry.IsValid(_arcBounds)) _arcBounds.Offset(deltaX, deltaY);
 		}
 
 
@@ -1139,17 +1139,17 @@ namespace Dataweb.NShape.Advanced {
 				if (VertexCount == 2)
 					return Geometry.VectorLinearInterpolation(StartPoint, EndPoint, 0.5f);
 				else if (VertexCount == 3) {
-					if (radiusPointId == ControlPointId.None) {
+					if (_radiusPointId == ControlPointId.None) {
 						// If radiusPointId is not set, find it now.
 						for (int i = ControlPointCount - 2; i > 0; --i) {
 							LineControlPoint ctrlPoint = GetControlPoint(i);
 							if (ctrlPoint is VertexControlPoint) {
-								radiusPointId = ctrlPoint.Id;
+								_radiusPointId = ctrlPoint.Id;
 								break;
 							}
 						}
 					}
-					return GetControlPointPosition(radiusPointId);
+					return GetControlPointPosition(_radiusPointId);
 				} else throw new ArgumentOutOfRangeException("VertexCount");
 			}
 		}
@@ -1157,25 +1157,25 @@ namespace Dataweb.NShape.Advanced {
 
 		private PointF Center {
 			get {
-				if (IsLine) center = Geometry.VectorLinearInterpolation((PointF)StartPoint, (PointF)EndPoint, 0.5f);
-				else if (arcIsInvalid) RecalculateArc();
-				return center;
+				if (IsLine) _center = Geometry.VectorLinearInterpolation((PointF)StartPoint, (PointF)EndPoint, 0.5f);
+				else if (_arcIsInvalid) RecalculateArc();
+				return _center;
 			}
 		}
 
 
 		private float StartAngle {
 			get {
-				if (arcIsInvalid) RecalculateArc();
-				return arcStartAngle;
+				if (_arcIsInvalid) RecalculateArc();
+				return _arcStartAngle;
 			}
 		}
 
 
 		private float SweepAngle {
 			get {
-				if (arcIsInvalid) RecalculateArc();
-				return arcSweepAngle;
+				if (_arcIsInvalid) RecalculateArc();
+				return _arcSweepAngle;
 			}
 		}
 
@@ -1183,8 +1183,8 @@ namespace Dataweb.NShape.Advanced {
 		private float Radius {
 			get {
 				if (IsLine) return float.PositiveInfinity;
-				else if (arcIsInvalid) RecalculateArc();
-				return radius;
+				else if (_arcIsInvalid) RecalculateArc();
+				return _radius;
 			}
 		}
 
@@ -1226,15 +1226,15 @@ namespace Dataweb.NShape.Advanced {
 
 		private void RecalculateArc(Point startPt, Point radiusPt, Point endPt) {
 			if (!IsLine) {
-				Geometry.CalcCircumCircle(startPt.X, startPt.Y, radiusPt.X, radiusPt.Y, endPt.X, endPt.Y, out center, out radius);
-				if (Geometry.IsValid(center)) {
+				Geometry.CalcCircumCircle(startPt.X, startPt.Y, radiusPt.X, radiusPt.Y, endPt.X, endPt.Y, out _center, out _radius);
+				if (Geometry.IsValid(_center)) {
 					// Calculate center point and radius
-					CalculateAngles(center, startPt, radiusPt, endPt, out arcStartAngle, out arcSweepAngle);
+					CalculateAngles(_center, startPt, radiusPt, endPt, out _arcStartAngle, out _arcSweepAngle);
 					// Calculate arc's bounds
-					arcBounds.X = center.X - radius;
-					arcBounds.Y = center.Y - radius;
-					arcBounds.Width = arcBounds.Height = radius + radius;
-					arcIsInvalid = false;
+					_arcBounds.X = _center.X - _radius;
+					_arcBounds.Y = _center.Y - _radius;
+					_arcBounds.Width = _arcBounds.Height = _radius + _radius;
+					_arcIsInvalid = false;
 				}
 			}
 		}
@@ -1452,7 +1452,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private int CalcRelativeAngleFromPoint(Point p) {
-			if (arcIsInvalid) RecalculateArc();
+			if (_arcIsInvalid) RecalculateArc();
 			// Calculate a new radius point between the StartPoint and p
 			PointF tmpP = Geometry.VectorLinearInterpolation(StartPoint.X, StartPoint.Y, p.X, p.Y, 0.5f);
 			Point rp = Point.Round(Geometry.CalcPointOnLine(Center.X, Center.Y, tmpP.X, tmpP.Y, Radius));
@@ -1471,7 +1471,7 @@ namespace Dataweb.NShape.Advanced {
 
 		private Point CalcPointFromRelativeAngle(int relativeAngle, int radiusOffset) {
 			// Ensure that all arc parameters are calculated properly
-			if (arcIsInvalid) RecalculateArc();
+			if (_arcIsInvalid) RecalculateArc();
 
 			float startAng, sweepAng;
 			CalculateAngles(Center, StartPoint, RadiusPoint, EndPoint, out startAng, out sweepAng);
@@ -1561,15 +1561,15 @@ namespace Dataweb.NShape.Advanced {
 		#region Fields
 
 		// Property buffers
-		private bool arcIsInvalid = true;
-		private PointF center = Geometry.InvalidPointF;
-		private float radius = float.NaN;
-		private ControlPointId radiusPointId = ControlPointId.None;
+		private bool _arcIsInvalid = true;
+		private PointF _center = Geometry.InvalidPointF;
+		private float _radius = float.NaN;
+		private ControlPointId _radiusPointId = ControlPointId.None;
 
 		// Draw cache
-		private float arcStartAngle = float.NaN;
-		private float arcSweepAngle = float.NaN;
-		private RectangleF arcBounds = Geometry.InvalidRectangleF;
+		private float _arcStartAngle = float.NaN;
+		private float _arcSweepAngle = float.NaN;
+		private RectangleF _arcBounds = Geometry.InvalidRectangleF;
 
 		#endregion
 	}

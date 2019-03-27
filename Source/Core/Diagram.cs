@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -269,21 +269,39 @@ namespace Dataweb.NShape {
 	/// Displays shapes in layers.
 	/// </summary>
 	[TypeDescriptionProvider(typeof(TypeDescriptionProviderDg))]
-	public sealed class Diagram : IEntity, ISecurityDomainObject {
+	public sealed class Diagram : IEntity, ISecurityDomainObject, IDisposable {
 
 		/// <summary>
 		/// Maximum number of pixels for bitmap pictures.
 		/// </summary>
 		public const int MaxBitmapPixelCount = 188457984;
 
+
+		/// <summary>
+		/// Returns true if the shape is assigned at least to one of the visible shared layers.
+		/// </summary>
+		public static bool IsShapeVisible(Shape shape, LayerIds visibleLayers, ICollection<int> visibleHomeLayers) {
+			if (shape.SupplementalLayers == LayerIds.None && shape.HomeLayer == Layer.NoLayerId)
+				return true;
+			else {
+				if (IsSupplementalLayerVisible(shape, visibleLayers))
+					return true;
+				else if (IsHomeLayerVisible(shape, visibleHomeLayers))
+					return true;
+				else
+					return false;
+			}
+		}
+
+
 		/// <summary>
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Diagram" />.
 		/// </summary>
 		public Diagram(string name) {
 			if (name == null) throw new ArgumentNullException("name");
-			this.name = name;
-			diagramShapes = new DiagramShapeCollection(this, expectedShapes);
-			layers = new LayerCollection(this);
+			this._name = name;
+			_diagramShapes = new DiagramShapeCollection(this, _expectedShapes);
+			_layers = new LayerCollection(this);
 			// A new diagram has no layers.
 
 			// Set size to DIN A4
@@ -292,6 +310,17 @@ namespace Dataweb.NShape {
 				Height = (int)Math.Round((gfx.DpiY * (1/25.4f)) * 297);
 			}
 		}
+
+
+		/// <override></override>
+		public void Dispose() {
+			InvalidateDrawCache();
+			GdiHelpers.DisposeObject(ref _backImage);
+			GdiHelpers.DisposeObject(ref _backImageLowRes);
+			GdiHelpers.DisposeObject(ref _colorBrush);
+			GdiHelpers.DisposeObject(ref _imageAttribs);
+		}
+
 
 		#region [Public] Events
 
@@ -316,11 +345,12 @@ namespace Dataweb.NShape {
 		/// Culture invariant name.
 		/// </summary>
 		[CategoryGeneral()]
-		[Description("The name of the diagram.")]
+		[LocalizedDisplayName("PropName_Diagram_Name")]
+		[Description("PropDesc_Diagram_Name")]
 		[RequiredPermission(Permission.Data)]
 		public string Name {
-			get { return name; }
-			set { name = value ?? string.Empty; }
+			get { return _name; }
+			set { _name = value ?? string.Empty; }
 		}
 
 
@@ -328,14 +358,15 @@ namespace Dataweb.NShape {
 		/// Culture depending title.
 		/// </summary>
 		[CategoryGeneral()]
-		[Description("The displayed text of the diagram.")]
+		[LocalizedDisplayName("PropName_Diagram_Title")]
+		[LocalizedDescription("PropDesc_Diagram_Title")]
 		[RequiredPermission(Permission.Present)]
 		public string Title {
-			get { return string.IsNullOrEmpty(title) ? name : title; }
+			get { return string.IsNullOrEmpty(_title) ? _name : _title; }
 			set {
-				if (value == name || string.IsNullOrEmpty(value))
-					title = null;
-				else title = value;
+				if (value == _name || string.IsNullOrEmpty(value))
+					_title = null;
+				else _title = value;
 			}
 		}
 
@@ -344,20 +375,21 @@ namespace Dataweb.NShape {
 		/// Width of diagram in pixels.
 		/// </summary>
 		[CategoryLayout()]
-		[Description("The width of the diagram.")]
+		[LocalizedDisplayName("PropName_Diagram_Width")]
+		[LocalizedDescription("PropDesc_Diagram_Width")]
 		[RequiredPermission(Permission.Layout)]
 		public int Width {
-			get { return size.Width; }
+			get { return _size.Width; }
 			set {
-				if (size.Width != value) {
-					if (displayService != null)
-						displayService.Invalidate(0, 0, Width, Height);
+				if (_size.Width != value) {
+					if (_displayService != null)
+						_displayService.Invalidate(0, 0, Width, Height);
 
-					size.Width = (value <= 0) ? 1 : value;
+					_size.Width = (value <= 0) ? 1 : value;
 					OnResized(EventArgs.Empty);
 					
-					if (displayService != null) 
-						displayService.Invalidate(0, 0, Width, Height);
+					if (_displayService != null) 
+						_displayService.Invalidate(0, 0, Width, Height);
 				}
 			}
 		}
@@ -367,20 +399,21 @@ namespace Dataweb.NShape {
 		/// Height of diagram in pixels.
 		/// </summary>
 		[CategoryLayout()]
-		[Description("The height of the diagram.")]
+		[LocalizedDisplayName("PropName_Diagram_Height")]
+		[LocalizedDescription("PropDesc_Diagram_Height")]
 		[RequiredPermission(Permission.Layout)]
 		public int Height {
-			get { return size.Height; }
+			get { return _size.Height; }
 			set {
-				if (size.Height != value) {
-					if (displayService != null)
-						displayService.Invalidate(0, 0, Width, Height);
+				if (_size.Height != value) {
+					if (_displayService != null)
+						_displayService.Invalidate(0, 0, Width, Height);
 
-					size.Height = (value <= 0) ? 1 : value;
+					_size.Height = (value <= 0) ? 1 : value;
 					OnResized(EventArgs.Empty);
 
-					if (displayService != null)
-						displayService.Invalidate(0, 0, Width, Height);
+					if (_displayService != null)
+						_displayService.Invalidate(0, 0, Width, Height);
 				}
 			}
 		}
@@ -391,17 +424,17 @@ namespace Dataweb.NShape {
 		/// </summary>
 		[Browsable(false)]
 		public Size Size {
-			get { return size; }
+			get { return _size; }
 			set {
-				if (displayService != null)
-					displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null)
+					_displayService.Invalidate(0, 0, Width, Height);
 
-				size.Width = (value.Width <= 0) ? 1 : value.Width;
-				size.Height = (value.Height <= 0) ? 1 : value.Height;
+				_size.Width = (value.Width <= 0) ? 1 : value.Width;
+				_size.Height = (value.Height <= 0) ? 1 : value.Height;
 				OnResized(EventArgs.Empty);
 
-				if (displayService != null)
-					displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null)
+					_displayService.Invalidate(0, 0, Width, Height);
 			}
 		}
 
@@ -410,18 +443,19 @@ namespace Dataweb.NShape {
 		/// Background color of the diagram.
 		/// </summary>
 		[CategoryAppearance()]
-		[Description("The background color of the diagram.")]
+		[LocalizedDisplayName("PropName_Diagram_BackgroundColor")]
+		[LocalizedDescription("PropDesc_Diagram_BackgroundColor")]
 		[RequiredPermission(Permission.Present)]
 		public Color BackgroundColor {
-			get { return backColor; }
+			get { return _backColor; }
 			set { 
-				backColor = value;
-				if (colorBrush != null) {
-					colorBrush.Dispose();
-					colorBrush = null;
+				_backColor = value;
+				if (_colorBrush != null) {
+					_colorBrush.Dispose();
+					_colorBrush = null;
 				}
-				if (displayService != null)
-					displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null)
+					_displayService.Invalidate(0, 0, Width, Height);
 			}
 		}
 
@@ -430,18 +464,19 @@ namespace Dataweb.NShape {
 		/// Second color of background gradient.
 		/// </summary>
 		[CategoryAppearance()]
-		[Description("The second color of the diagram's color gradient.")]
+		[LocalizedDisplayName("PropName_Diagram_BackgroundGradientColor")]
+		[LocalizedDescription("PropDesc_Diagram_BackgroundGradientColor")]
 		[RequiredPermission(Permission.Present)]
 		public Color BackgroundGradientColor {
-			get { return targetColor; }
+			get { return _targetColor; }
 			set { 
-				targetColor = value;
-				if (colorBrush != null) {
-					colorBrush.Dispose();
-					colorBrush = null;
+				_targetColor = value;
+				if (_colorBrush != null) {
+					_colorBrush.Dispose();
+					_colorBrush = null;
 				}
-				if (displayService != null)
-					displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null)
+					_displayService.Invalidate(0, 0, Width, Height);
 			}
 		}
 
@@ -450,15 +485,25 @@ namespace Dataweb.NShape {
 		/// Background image of diagram.
 		/// </summary>
 		[CategoryAppearance()]
-		[Description("The background image of the diagram.")]
+		[LocalizedDisplayName("PropName_Diagram_BackgroundImage")]
+		[LocalizedDescription("PropDesc_Diagram_BackgroundImage")]
 		[Editor("Dataweb.NShape.WinFormsUI.NamedImageUITypeEditor, Dataweb.NShape.WinFormsUI", typeof(UITypeEditor))]
 		[RequiredPermission(Permission.Present)]
 		public NamedImage BackgroundImage {
-			get { return backImage; }
+			get { return _backImage; }
 			set {
-				backImage = value;
+				if (_backImage != null) {
+					GdiHelpers.DisposeObject(ref _backImage);
+					GdiHelpers.DisposeObject(ref _backImageLowRes); 
+				}
+
+				_backImage = value;
+
 				InvalidateDrawCache();
-				if (displayService != null) displayService.Invalidate(0, 0, Width, Height);
+				// Create the fastRedraw brush now as this action can take some time with big images...
+				UpdateFastRedrawBackImage();
+				//
+				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
 			}
 		}
 
@@ -467,14 +512,15 @@ namespace Dataweb.NShape {
 		/// Image layout of background image.
 		/// </summary>
 		[CategoryAppearance()]
-		[Description("The display mode of the diagram's background image.")]
+		[LocalizedDisplayName("PropName_Diagram_BackgroundImageLayout")]
+		[LocalizedDescription("PropDesc_Diagram_BackgroundImageLayout")]
 		[RequiredPermission(Permission.Present)]
 		public ImageLayoutMode BackgroundImageLayout {
-			get { return imageLayout; }
+			get { return _imageLayout; }
 			set { 
-				imageLayout = value;
+				_imageLayout = value;
 				InvalidateDrawCache();
-				if (displayService != null) displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
 			}
 		}
 
@@ -483,15 +529,16 @@ namespace Dataweb.NShape {
 		/// Gamma correction factor for the background image.
 		/// </summary>
 		[CategoryAppearance()]
-		[Description("Gamma correction for the diagram's background image.")]
+		[LocalizedDisplayName("PropName_Diagram_BackgroundImageGamma")]
+		[LocalizedDescription("PropDesc_Diagram_BackgroundImageGamma")]
 		[RequiredPermission(Permission.Present)]
 		public float BackgroundImageGamma {
-			get { return imageGamma; }
+			get { return _imageGamma; }
 			set {
 				if (value <= 0) throw new ArgumentOutOfRangeException("Value has to be greater 0.");
-				imageGamma = value;
+				_imageGamma = value;
 				InvalidateDrawCache();
-				if (displayService != null) displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
 			}
 		}
 
@@ -500,14 +547,15 @@ namespace Dataweb.NShape {
 		/// Specifies if the background image should be displayed as gray scale image.
 		/// </summary>
 		[CategoryAppearance()]
-		[Description("Specifies if the diagram's background image is drawn as gray scale image instead.")]
+		[LocalizedDisplayName("PropName_Diagram_BackgroundImageGrayscale")]
+		[LocalizedDescription("PropDesc_Diagram_BackgroundImageGrayscale")]
 		[RequiredPermission(Permission.Present)]
 		public bool BackgroundImageGrayscale {
-			get { return imageGrayScale; }
+			get { return _imageGrayScale; }
 			set {
-				imageGrayScale = value;
+				_imageGrayScale = value;
 				InvalidateDrawCache();
-				if (displayService != null) displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
 			}
 		}
 
@@ -516,15 +564,16 @@ namespace Dataweb.NShape {
 		/// Transparency of the background image in percentage.
 		/// </summary>
 		[CategoryAppearance()]
-		[Description("Specifies the transparency in percentage for the diagram's background image.")]
+		[LocalizedDisplayName("PropName_Diagram_BackgroundImageTransparency")]
+		[LocalizedDescription("PropDesc_Diagram_BackgroundImageTransparency")]
 		[RequiredPermission(Permission.Present)]
 		public byte BackgroundImageTransparency {
-			get { return imageTransparency; }
+			get { return _imageTransparency; }
 			set {
 				if (value < 0 || value > 100) throw new ArgumentOutOfRangeException("The value has to be between 0 and 100.");
-				imageTransparency = value;
+				_imageTransparency = value;
 				InvalidateDrawCache();
-				if (displayService != null) displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
 			}
 		}
 
@@ -533,14 +582,15 @@ namespace Dataweb.NShape {
 		/// The specified color of the background image will be transparent.
 		/// </summary>
 		[CategoryAppearance()]
-		[Description("Specifies a color that will be transparent in the diagram's background image.")]
+		[LocalizedDisplayName("PropName_Diagram_BackgroundImageTransparentColor")]
+		[LocalizedDescription("PropDesc_Diagram_BackgroundImageTransparentColor")]
 		[RequiredPermission(Permission.Present)]
 		public Color BackgroundImageTransparentColor {
-			get { return imageTransparentColor; }
+			get { return _imageTransparentColor; }
 			set {
-				imageTransparentColor = value;
+				_imageTransparentColor = value;
 				InvalidateDrawCache();
-				if (displayService != null) displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
 			}
 		}
 
@@ -550,13 +600,14 @@ namespace Dataweb.NShape {
 		/// </summary>
 		[Browsable(false)]
 		public IDisplayService DisplayService {
-			get { return displayService; }
+			get { return _displayService; }
 			set {
-				if (displayService != value) {
-					displayService = value;
-					diagramShapes.SetDisplayService(displayService);
+				if (_displayService != value) {
+					_displayService = value;
+					_diagramShapes.SetDisplayService(_displayService);
 				}
-				if (displayService != null) displayService.Invalidate(0, 0, Width, Height);
+				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
+				else InvalidateDrawCache();
 			}
 		}
 
@@ -566,7 +617,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		[Browsable(false)]
 		public ILayerCollection Layers {
-		   get { return layers; }
+		   get { return _layers; }
 		}
 
 
@@ -575,7 +626,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		[Browsable(false)]
 		public IShapeCollection Shapes {
-			get { return diagramShapes; }
+			get { return _diagramShapes; }
 		}
 
 
@@ -583,14 +634,15 @@ namespace Dataweb.NShape {
 		/// Indicates the name of the security domain this shape belongs to.
 		/// </summary>
 		[CategoryGeneral()]
-		[Description("Modify the security domain of the diagram.")]
+		[LocalizedDisplayName("PropName_Diagram_SecurityDomainName")]
+		[LocalizedDescription("PropDesc_Diagram_SecurityDomainName")]
 		[RequiredPermission(Permission.Security)]
 		public char SecurityDomainName {
-			get { return securityDomainName; }
+			get { return _securityDomainName; }
 			set {
 				if (value < 'A' || value > 'Z')
 					throw new ArgumentOutOfRangeException("SecurityDomainName", "The domain qualifier has to be an upper case  ANSI letter (A-Z).");
-				securityDomainName = value; 
+				_securityDomainName = value; 
 			}
 		}
 
@@ -601,12 +653,12 @@ namespace Dataweb.NShape {
 		/// </summary>
 		[Browsable(false)]
 		public bool HighQualityRendering {
-			get { return highQualityRendering; }
+			get { return _highQualityRendering; }
 			set {
-				highQualityRendering = value;
-				if (colorBrush != null) {
-					colorBrush.Dispose();
-					colorBrush = null;
+				_highQualityRendering = value;
+				if (_colorBrush != null) {
+					_colorBrush.Dispose();
+					_colorBrush = null;
 				}
 			}
 		}
@@ -619,30 +671,76 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Gets all <see cref="T:Dataweb.NShape.LayerIds" /> the given <see cref="T:Dataweb.NShape.Advanced.NShape" /> is part of.
 		/// </summary>
+		[Obsolete("Use GetShapeLayerIds instead.")]
 		public LayerIds GetShapeLayers(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			return shape.Layers;
+			return shape.SupplementalLayers;
 		}
-		
+
+
+		/// <summary>
+		/// Returns the id of each home- and supplemental layer the given <see cref="T:Dataweb.NShape.Advanced.NShape" /> is part of.
+		/// </summary>
+		/// <param name="shape"></param>
+		/// <returns></returns>
+		public IEnumerable<int> GetShapeLayerIds(Shape shape) {
+			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape.HomeLayer != Layer.NoLayerId)
+				yield return shape.HomeLayer;
+			foreach (int layerId in LayerHelper.GetAllLayerIds(shape.SupplementalLayers))
+				yield return layerId;
+		}
+
 
 		/// <summary>
 		/// Associates the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
-		public void AddShapeToLayers(Shape shape, LayerIds layerIds) {
+		[Obsolete("Use an overload taking home layer and/or supplemental layers instead.")]
+		public void AddShapeToLayers(Shape shape, LayerIds layers) {
+			AddShapeToLayers(shape, Layer.NoLayerId, layers);
+		}
+
+
+		/// <summary>
+		/// Associates the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
+		/// </summary>
+		public void AddShapeToLayers(Shape shape, int homeLayer) {
+			AddShapeToLayers(shape, homeLayer, LayerIds.None);
+		}
+
+
+		/// <summary>
+		/// Associates the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
+		/// </summary>
+		public void AddShapeToLayers(Shape shape, int homeLayer, LayerIds supplementalLayers) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			shape.Layers |= layerIds;
-			shape.Invalidate();
+			if (homeLayer != Layer.NoLayerId)
+				shape.HomeLayer = homeLayer;
+			if (supplementalLayers != LayerIds.None)
+				shape.SupplementalLayers |= supplementalLayers;
 		}
 
 
 		/// <summary>
 		/// Associates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
-		public void AddShapesToLayers(IEnumerable<Shape> shapes, LayerIds layerIds) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public void AddShapesToLayers(IEnumerable<Shape> shapes, LayerIds layers) {
+			AddShapesToLayers(shapes, Layer.NoLayerId, layers);
+		}
+
+
+		/// <summary>
+		/// Associates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
+		/// </summary>
+		public void AddShapesToLayers(IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
 			if (shapes == null) throw new ArgumentNullException("shapes");
+			// Assign layers
 			foreach (Shape shape in shapes) {
-				shape.Layers |= layerIds;
-				shape.Invalidate();
+				if (homeLayer != Layer.NoLayerId)
+					shape.HomeLayer = homeLayer;
+				if (supplementalLayers != LayerIds.None)
+					shape.SupplementalLayers |= supplementalLayers;
 			}
 		}
 
@@ -650,24 +748,78 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Disociates the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
-		public void RemoveShapeFromLayers(Shape shape, LayerIds layerIds) {
+		[Obsolete("Use an overload taking home layer and/or supplemental layers instead.")]
+		public void RemoveShapeFromLayers(Shape shape, LayerIds layers) {
+			RemoveShapeFromLayers(shape, Layer.NoLayerId, layers);
+		}
+
+
+		/// <summary>
+		/// Disociates the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
+		/// </summary>
+		public void RemoveShapeFromLayers(Shape shape, int homeLayer) {
+			RemoveShapeFromLayers(shape, homeLayer, LayerIds.None);
+		}
+
+
+		/// <summary>
+		/// Removes the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> from all specified layers.
+		/// </summary>
+		public void RemoveShapeFromLayers(Shape shape, int homeLayer, LayerIds supplementalLayers) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			if (layerIds == LayerIds.None) return;
-			if (layerIds == LayerIds.All)
-				shape.Layers = LayerIds.None;
-			else shape.Layers ^= (shape.Layers & layerIds);
-			shape.Invalidate();
+			// Remove home layer (if applicable)
+			if (homeLayer == shape.HomeLayer)
+				shape.HomeLayer = Layer.NoLayerId;
+			// Remove shared layers
+			if (supplementalLayers != LayerIds.None) {
+				if (supplementalLayers == LayerIds.All)
+					shape.SupplementalLayers = LayerIds.None;
+				else
+					shape.SupplementalLayers ^= (shape.SupplementalLayers & supplementalLayers);
+			}
+		}
+
+
+		/// <summary>
+		/// Removes the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> from all layers.
+		/// </summary>
+		public void RemoveShapeFromLayers(Shape shape) {
+			if (shape == null) throw new ArgumentNullException("shape");
+			shape.SupplementalLayers = LayerIds.None;
+			shape.HomeLayer = Layer.NoLayerId;
 		}
 
 
 		/// <summary>
 		/// Disociates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
-		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, LayerIds layerIds) {
+		[Obsolete("Use an overload taking home layer and/or supplemental layers instead.")]
+		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, LayerIds layers) {
 			if (shapes == null) throw new ArgumentNullException("shapes");
+			RemoveShapesFromLayers(shapes, Layer.NoLayerId, layers);
+		}
+
+
+		/// <summary>
+		/// Disociates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
+		/// </summary>
+		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, int homeLayer) {
+			if (shapes == null) throw new ArgumentNullException("shapes");
+			RemoveShapesFromLayers(shapes, homeLayer, LayerIds.None);
+		}
+
+
+		/// <summary>
+		/// Disociates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
+		/// </summary>
+		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
+			if (shapes == null) throw new ArgumentNullException("shapes");
+			// Assign layers
 			foreach (Shape shape in shapes) {
-				shape.Layers ^= (shape.Layers & layerIds);
-				shape.Invalidate();
+				if (homeLayer == shape.HomeLayer)
+					shape.HomeLayer = Layer.NoLayerId;
+				if (supplementalLayers != LayerIds.None)
+					shape.SupplementalLayers ^= (shape.SupplementalLayers & supplementalLayers);
 			}
 		}
 
@@ -676,8 +828,8 @@ namespace Dataweb.NShape {
 		/// Delete all content of this <see cref="T:Dataweb.NShape.Diagram" />.
 		/// </summary>
 		public void Clear() {
-			diagramShapes.Clear();
-			layers.Clear();
+			_diagramShapes.Clear();
+			_layers.Clear();
 		}
 
 		#endregion
@@ -713,7 +865,20 @@ namespace Dataweb.NShape {
 		/// <param name="shapes">The shapes that should be drawn. If null/Nothing, the whole diagram area will be exported.</param>
 		/// <param name="withBackground">Specifies whether the diagram's background should be exported to the graphics file.</param>
 		public Image CreateImage(ImageFileFormat imageFormat, IEnumerable<Shape> shapes, bool withBackground) {
-			return CreateImage(imageFormat, shapes, 0, withBackground, Color.White, -1);
+			return CreateImage(imageFormat, shapes, null, 0, withBackground, Color.White, -1);
+		}
+
+
+		/// <summary>
+		/// Exports the part of the diagram that encloses all given shapes to an image of the given format.
+		/// Pass null/Nothing for Parameter shapes in order to expor the whole diagram area.
+		/// </summary>
+		/// <param name="imageFormat">Specifies the format of the graphics file.</param>
+		/// <param name="shapes">The shapes that should be drawn. If null/Nothing, the whole diagram area will be exported.</param>
+		/// <param name="visibleLayerIds">Specifies the layers that should be visible.</param>
+		/// <param name="withBackground">Specifies whether the diagram's background should be exported to the graphics file.</param>
+		public Image CreateImage(ImageFileFormat imageFormat, IEnumerable<Shape> shapes, IEnumerable<int> visibleLayerIds, bool withBackground) {
+			return CreateImage(imageFormat, shapes, visibleLayerIds, 0, withBackground, Color.White, -1);
 		}
 
 
@@ -725,7 +890,20 @@ namespace Dataweb.NShape {
 		/// <param name="shapes">The shapes that should be drawn. If null/Nothing, the whole diagram area will be exported.</param>
 		/// <param name="margin">Specifies the thickness of the margin around the exported diagram area.</param>
 		public Image CreateImage(ImageFileFormat imageFormat, IEnumerable<Shape> shapes, int margin) {
-			return CreateImage(imageFormat, shapes, margin, false, Color.White, -1);
+			return CreateImage(imageFormat, shapes, null, margin, false, Color.White, -1);
+		}
+
+
+		/// <summary>
+		/// Exports the part of the diagram that encloses all given shapes to an image of the given format.
+		/// Pass null/Nothing for Parameter shapes in order to expor the whole diagram area.
+		/// </summary>
+		/// <param name="imageFormat">Specifies the format of the graphics file.</param>
+		/// <param name="shapes">The shapes that should be drawn. If null/Nothing, the whole diagram area will be exported.</param>
+		/// <param name="visibleLayerIds">Specifies the layers that should be visible.</param>
+		/// <param name="margin">Specifies the thickness of the margin around the exported diagram area.</param>
+		public Image CreateImage(ImageFileFormat imageFormat, IEnumerable<Shape> shapes, IEnumerable<int> visibleLayerIds, int margin) {
+			return CreateImage(imageFormat, shapes, visibleLayerIds, margin, false, Color.White, -1);
 		}
 
 
@@ -740,10 +918,26 @@ namespace Dataweb.NShape {
 		/// <param name="backgroundColor">Specifies a color for the exported image's background. 
 		/// If the diagram is exported with background, the diagram's background will be drawn over the specified background color.</param>
 		public Image CreateImage(ImageFileFormat imageFormat, IEnumerable<Shape> shapes, int margin, bool withBackground, Color backgroundColor) {
-			return CreateImage(imageFormat, shapes, margin, withBackground, backgroundColor, -1);
+			return CreateImage(imageFormat, shapes, null, margin, withBackground, backgroundColor, -1);
 		}
-		
-		
+
+
+		/// <summary>
+		/// Exports the part of the diagram that encloses all given shapes (plus margin on each side) to an image of the given format.
+		/// Pass null/Nothing for Parameter shapes in order to expor the whole diagram area.
+		/// </summary>
+		/// <param name="imageFormat">Specifies the format of the graphics file.</param>
+		/// <param name="shapes">The shapes that should be drawn. If null/Nothing, the whole diagram area will be exported.</param>
+		/// <param name="visibleLayerIds">Specifies the layers that should be visible.</param>
+		/// <param name="margin">Specifies the thickness of the margin around the exported diagram area.</param>
+		/// <param name="withBackground">Specifies whether the diagram's background should be exported to the graphics file.</param>
+		/// <param name="backgroundColor">Specifies a color for the exported image's background. 
+		/// If the diagram is exported with background, the diagram's background will be drawn over the specified background color.</param>
+		public Image CreateImage(ImageFileFormat imageFormat, IEnumerable<Shape> shapes, IEnumerable<int> visibleLayerIds, int margin, bool withBackground, Color backgroundColor) {
+			return CreateImage(imageFormat, shapes, visibleLayerIds, margin, withBackground, backgroundColor, -1);
+		}
+
+
 		/// <summary>
 		/// Exports the part of the diagram that encloses all given shapes (plus margin on each side) to an image of the given format.
 		/// Pass null/Nothing for Parameter shapes in order to expor the whole diagram area.
@@ -756,8 +950,36 @@ namespace Dataweb.NShape {
 		/// If the diagram is exported with background, the diagram's background will be drawn over the specified background color.</param>
 		/// <param name="dpi">Specifies the resolution for the export file. Only applies to pixel based image file formats.</param>
 		public Image CreateImage(ImageFileFormat imageFormat, IEnumerable<Shape> shapes, int margin, bool withBackground, Color backgroundColor, int dpi) {
+			return CreateImage(imageFormat, shapes, null, margin, withBackground, backgroundColor, dpi);
+		}
+
+		
+		/// <summary>
+		/// Exports the part of the diagram that encloses all given shapes (plus margin on each side) to an image of the given format.
+		/// Pass null/Nothing for Parameter shapes in order to expor the whole diagram area.
+		/// </summary>
+		/// <param name="imageFormat">Specifies the format of the graphics file.</param>
+		/// <param name="shapes">The shapes that should be drawn. If null/Nothing, the whole diagram area will be exported.</param>
+		/// <param name="visibleLayerIds">Specifies the visible layers.</param>
+		/// <param name="margin">Specifies the thickness of the margin around the exported diagram area.</param>
+		/// <param name="withBackground">Specifies whether the diagram's background should be exported to the graphics file.</param>
+		/// <param name="backgroundColor">Specifies a color for the exported image's background. 
+		/// If the diagram is exported with background, the diagram's background will be drawn over the specified background color.</param>
+		/// <param name="dpi">Specifies the resolution for the export file. Only applies to pixel based image file formats.</param>
+		public Image CreateImage(ImageFileFormat imageFormat, IEnumerable<Shape> shapes, IEnumerable<int> visibleLayerIds, int margin, bool withBackground, Color backgroundColor, int dpi) {
 			Image result = null;
 			
+			// Split up the visible layers (shared layers and exclusive layers)
+			LayerIds visibleLayers;
+			HashCollection<int> visibleHomeLayers;
+			if (visibleLayerIds != null) {
+				visibleLayers = Layer.ConvertToLayerIds(visibleLayerIds);
+				visibleHomeLayers = new HashCollection<int>(visibleLayerIds);
+			} else {
+				visibleLayers = LayerIds.All;
+				visibleHomeLayers = new HashCollection<int>(LayerHelper.GetAllLayerIds(Layers));
+			}
+
 			// Get/Create info graphics
 			bool disposeInfoGfx;
 			Graphics infoGraphics;
@@ -787,11 +1009,13 @@ namespace Dataweb.NShape {
 					// Calculate the bounding rectangle of the given shapes
 					Rectangle boundingRect = Rectangle.Empty;
 					foreach (Shape shape in shapes) {
-						boundingRect = shape.GetBoundingRectangle(true);
-						if (boundingRect.Left < left) left = boundingRect.Left;
-						if (boundingRect.Top < top) top = boundingRect.Top;
-						if (boundingRect.Right > right) right = boundingRect.Right;
-						if (boundingRect.Bottom > bottom) bottom = boundingRect.Bottom;
+						if (IsShapeVisible(shape, visibleLayers, visibleHomeLayers)) {
+							boundingRect = shape.GetBoundingRectangle(true);
+							if (boundingRect.Left < left) left = boundingRect.Left;
+							if (boundingRect.Top < top) top = boundingRect.Top;
+							if (boundingRect.Right > right) right = boundingRect.Right;
+							if (boundingRect.Bottom > bottom) bottom = boundingRect.Bottom;
+						}
 					}
 					if (Geometry.IsValid(left, top, right, bottom))
 						imageBounds = Rectangle.FromLTRB(left, top, right, bottom);
@@ -802,7 +1026,7 @@ namespace Dataweb.NShape {
 
 				bool originalQualitySetting = this.HighQualityRendering;
 				HighQualityRendering = true;
-				UpdateBrushes();
+				UpdateBackgroundBrush();
 
 				float scaleX = 1, scaleY = 1;
 				switch (imageFormat) {
@@ -837,14 +1061,17 @@ namespace Dataweb.NShape {
 							imgWidth = (int)Math.Round(scaleX * imageBounds.Width);
 							imgHeight = (int)Math.Round(scaleY * imageBounds.Height);
 						}
-						// Maximum number of pixels GDI can handle for Bitmaps.
-						if (imgWidth * imgHeight > Diagram.MaxBitmapPixelCount)
-							throw new NotSupportedException(string.Format(
-								"The diagram size of {0} x {1} at {2} dpi exceeds maximum size for bitmap pictures of {3} pixels.", 
-								imgWidth, imgHeight, dpi, Diagram.MaxBitmapPixelCount
-							));
-						result = new Bitmap(Math.Max(1, imgWidth), Math.Max(1, imgHeight));
-						((Bitmap)result).SetResolution(dpi, dpi);
+						try {
+							result = new Bitmap(Math.Max(1, imgWidth), Math.Max(1, imgHeight), PixelFormat.Format32bppArgb);
+							((Bitmap)result).SetResolution(dpi, dpi);
+						} catch (OutOfMemoryException) {
+							// Maximum number of pixels GDI can handle for Bitmaps.
+							if (imgWidth * imgHeight > Diagram.MaxBitmapPixelCount)
+								throw new NotSupportedException(string.Format(
+									"The diagram size of {0} x {1} at {2} dpi exceeds maximum size for bitmap pictures of {3} pixels.",
+									imgWidth, imgHeight, dpi, Diagram.MaxBitmapPixelCount
+								));
+						}
 						break;
 
 					default:
@@ -883,14 +1110,20 @@ namespace Dataweb.NShape {
 					if (withBackground) DrawBackground(gfx, imageBounds);
 					// Draw diagram shapes
 					if (shapes == null) {
-						foreach (Shape shape in diagramShapes.BottomUp) shape.Draw(gfx);
+						foreach (Shape shape in _diagramShapes.BottomUp)
+							if (IsShapeVisible(shape, visibleLayers, visibleHomeLayers))
+								shape.Draw(gfx);
 					} else {
 						// Add shapes to ShapeCollection (in order to maintain zOrder while drawing)
 						int cnt = (shapes is ICollection) ? ((ICollection)shapes).Count : -1;
 						ShapeCollection shapeCollection = new ShapeCollection(cnt);
 						foreach (Shape s in shapes) {
+							// Sort out shapes that are invisible due to invisible layers.
+							if (!IsShapeVisible(s, visibleLayers, visibleHomeLayers)) 
+								continue;
 							// Sort out duplicate references to shapes (as they can occur in the result of Diagram.FindShapes())
-							if (shapeCollection.Contains(s)) continue;
+							if (shapeCollection.Contains(s)) 
+								continue;
 							shapeCollection.Add(s, s.ZOrder);
 						}
 						// Draw shapes
@@ -903,7 +1136,7 @@ namespace Dataweb.NShape {
 				}
 				// Restore original graphics settings
 				HighQualityRendering = originalQualitySetting;
-				UpdateBrushes();
+				UpdateBackgroundBrush();
 
 				return result;
 			} finally {
@@ -927,24 +1160,42 @@ namespace Dataweb.NShape {
 			bounds.Height = Math.Min(clipRectangle.Bottom, Height) - bounds.Y;
 
 			// draw diagram background color
-			UpdateBrushes();
+			UpdateBackgroundBrush();
 			//graphics.FillRectangle(colorBrush, clipRectangle);
-			graphics.FillRectangle(colorBrush, bounds);
+			graphics.FillRectangle(_colorBrush, bounds);
 
 			// draw diagram background image
-			if (!NamedImage.IsNullOrEmpty(backImage)) {
+			if (!NamedImage.IsNullOrEmpty(_backImage)) {
 				Rectangle diagramBounds = Rectangle.Empty;
 				diagramBounds.Width = Width;
 				diagramBounds.Height = Height;
-				if (imageAttribs == null) imageAttribs = GdiHelpers.GetImageAttributes(imageLayout, imageGamma, imageTransparency, imageGrayScale, false, imageTransparentColor);
-				if (!useBrushForBackgroundImage || backImage.Image is Metafile)
-					GdiHelpers.DrawImage(graphics, backImage.Image, imageAttribs, imageLayout, diagramBounds, diagramBounds);
-				else {
-					if (imageBrush == null) imageBrush = GdiHelpers.CreateTextureBrush(backImage.Image, imageAttribs);
-					Point center = Point.Empty;
-					center.Offset(Width / 2, Height / 2);
-					GdiHelpers.TransformTextureBrush(imageBrush, imageLayout, diagramBounds, center, 0);
-					graphics.FillRectangle(imageBrush, bounds);
+				if (this._isFastRedrawEnabled && _backImageLowRes != null) {
+					// Draw only the part of the image inside the cliprectangle.
+					Rectangle imgClipBounds = Rectangle.Intersect(diagramBounds, clipRectangle);
+
+					// Most layout modes will not stretch the image to the full resolution image's bounds, so we have to do it manually.
+					float scaleFactor = GetLowResImageScaleFactor(_backImage.Image);
+
+					// Get source and destination bounds according to the layout.
+					//RectangleF imgSourceBounds = GdiHelpers.GetImageSourceBounds(_backImage.Image, _imageLayout, diagramBounds);
+					//Rectangle imgDestinationBounds = GdiHelpers.GetImageDestinationBounds(_backImage.Image, _imageLayout, diagramBounds);
+					RectangleF imgSourceBounds = GdiHelpers.GetImageSourceClipBounds(_backImage.Image, _imageLayout, diagramBounds, imgClipBounds);
+					Rectangle imgDestinationBounds = GdiHelpers.GetImageDestinationClipBounds(_backImage.Image, _imageLayout, diagramBounds, imgClipBounds);
+					imgSourceBounds.X *= scaleFactor;
+					imgSourceBounds.Y *= scaleFactor;
+					imgSourceBounds.Width *= scaleFactor;
+					imgSourceBounds.Height *= scaleFactor;
+					
+					// Don't draw image if source width/height are <= 0!
+					if (!(imgSourceBounds.Width <= 0 || imgSourceBounds.Height <= 0))
+						graphics.DrawImage(_backImageLowRes, imgDestinationBounds, imgSourceBounds.X, imgSourceBounds.Y, imgSourceBounds.Width, imgSourceBounds.Height, GraphicsUnit.Pixel, ImageAttribs);
+				} else {
+					RectangleF imgSourceBounds = GdiHelpers.GetImageSourceBounds(_backImage.Image, _imageLayout, diagramBounds);
+					Rectangle imgDestinationBounds = GdiHelpers.GetImageDestinationBounds(_backImage.Image, _imageLayout, diagramBounds);
+
+					// Draw only the part of the image inside the cliprectangle.
+					Rectangle imgClipBounds = Rectangle.Intersect(Rectangle.Round(imgSourceBounds), clipRectangle);
+					GdiHelpers.DrawImage(graphics, _backImage.Image, ImageAttribs, _imageLayout, diagramBounds, imgClipBounds, 0, Geometry.InvalidPointF);
 				}
 			}
 		}
@@ -953,21 +1204,30 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Draws the diagram shapes.
 		/// </summary>
-		/// <param name="graphics"></param>
-		/// <param name="layers"></param>
-		/// <param name="clipRectangle"></param>
-		public void DrawShapes(Graphics graphics, LayerIds layers, Rectangle clipRectangle) {
+		public void DrawShapes(Graphics graphics, IEnumerable<int> visibleLayerIds, Rectangle clipRectangle) {
+			// Split up visible layers in shaped layers and home layers for improved performance			
+			HashCollection<int> visibleHomeLayers = new HashCollection<int>(visibleLayerIds);
+			LayerIds visibleLayers = Layer.ConvertToLayerIds(visibleLayerIds);
+			
+			DrawShapes(graphics, visibleLayers, visibleHomeLayers, clipRectangle);
+		}
+			
+		/// <summary>
+		/// Draws the diagram shapes.
+		/// </summary>
+		internal void DrawShapes(Graphics graphics, LayerIds visibleLayers, HashCollection<int> visibleHomeLayers, Rectangle clipRectangle) {
 			if (graphics == null) throw new ArgumentNullException("graphics");
 			int x = clipRectangle.X;
 			int y = clipRectangle.Y;
 			int width = clipRectangle.Width;
 			int height = clipRectangle.Height;
-			
-			foreach (Shape shape in diagramShapes.BottomUp) {
-				// Paint shape if it intersects with the clipping area
-				if (shape.Layers != LayerIds.None && (shape.Layers & layers) == 0) continue;
-				if (Geometry.RectangleIntersectsWithRectangle(shape.GetBoundingRectangle(false), x, y, width, height))
-					shape.Draw(graphics);
+
+			foreach (Shape shape in _diagramShapes.BottomUp) {
+				// Paint shape if it intersects with the clipping area and is visible
+				if (IsShapeVisible(shape, visibleLayers, visibleHomeLayers)) {
+					if (Geometry.RectangleIntersectsWithRectangle(shape.GetBoundingRectangle(false), x, y, width, height))
+						shape.Draw(graphics);
+				}
 			}
 		}
 		
@@ -1003,6 +1263,21 @@ namespace Dataweb.NShape {
 			if (Resized != null) Resized(this, e);
 		}
 
+
+		/// <summary>
+		/// Specifies whether the background image (if set) will be excluded from rendering.
+		/// </summary>
+		internal bool IsFastRedrawEnabled {
+			get { return _isFastRedrawEnabled; }
+			set {
+				if (_isFastRedrawEnabled != value) {
+					_isFastRedrawEnabled = value;
+					if (_displayService != null)
+						_displayService.Invalidate(0, 0, Width, Height);
+				}
+			}
+		}
+
 		
 		#region IEntity Members (Explicit implementation)
 
@@ -1010,7 +1285,7 @@ namespace Dataweb.NShape {
 		/// The entity type name of <see cref="T:Dataweb.NShape.Diagram" />.
 		/// </summary>
 		public static string EntityTypeName {
-			get { return entityTypeName; }
+			get { return _entityTypeName; }
 		}
 
 
@@ -1041,89 +1316,96 @@ namespace Dataweb.NShape {
 
 		[CategoryGeneral()]
 		object IEntity.Id {
-			get { return id; }
+			get { return _id; }
 		}
 
 
 		void IEntity.AssignId(object id) {
 			if (id == null)
 				throw new ArgumentNullException("id");
-			if (this.id != null)
+			if (this._id != null)
 				throw new InvalidOperationException(string.Format("{0} has already a id.", GetType().Name));
-			this.id = id;
+			this._id = id;
 		}
 
 
 		void IEntity.LoadFields(IRepositoryReader reader, int version) {
-			name = reader.ReadString();
-			if (version >= 3) title = reader.ReadString();
-			if (version >= 4) securityDomainName = reader.ReadChar();
-			size.Width = reader.ReadInt32();
-			size.Height = reader.ReadInt32();
-			backColor = Color.FromArgb(reader.ReadInt32());
-			targetColor = Color.FromArgb(reader.ReadInt32());
+			_name = reader.ReadString();
+			if (version >= 3) _title = reader.ReadString();
+			if (version >= 4) _securityDomainName = reader.ReadChar();
+			_size.Width = reader.ReadInt32();
+			_size.Height = reader.ReadInt32();
+			_backColor = Color.FromArgb(reader.ReadInt32());
+			_targetColor = Color.FromArgb(reader.ReadInt32());
 			string imgName = reader.ReadString();
 			Image img = reader.ReadImage();
-			if (img != null) backImage = new NamedImage(img, imgName);
-			imageLayout = (ImageLayoutMode)reader.ReadByte();
-			imageGamma = reader.ReadFloat();
-			imageTransparency = reader.ReadByte();
-			imageGrayScale = reader.ReadBool();
-			imageTransparentColor = Color.FromArgb(reader.ReadInt32());
+			// Use setter in order to ensure the lowRes image exists when drawing
+			if (img != null) BackgroundImage = new NamedImage(img, imgName);
+			_imageLayout = (ImageLayoutMode)reader.ReadByte();
+			_imageGamma = reader.ReadFloat();
+			_imageTransparency = reader.ReadByte();
+			_imageGrayScale = reader.ReadBool();
+			_imageTransparentColor = Color.FromArgb(reader.ReadInt32());
 		}
 
 
 		void IEntity.LoadInnerObjects(string propertyName, IRepositoryReader reader, int version) {
 			Debug.Assert(propertyName == "Layers");
-			Debug.Assert(layers.Count == 0);
+			Debug.Assert(_layers.Count == 0);
 			reader.BeginReadInnerObjects();
 			while (reader.BeginReadInnerObject()) {
-				int id = reader.ReadInt32();
+				int layerId;
+				if (version < 6)
+					layerId = Layer.ConvertToLayerId((LayerIds)reader.ReadInt32());
+				else
+					layerId = reader.ReadInt32();
 				string name = reader.ReadString();
-				Layer l = new Layer(name);
-				l.Id = (LayerIds)id;
+				Layer l = new Layer(layerId, name);
 				l.Title = reader.ReadString();
 				l.LowerZoomThreshold = reader.ReadInt32();
 				l.UpperZoomThreshold = reader.ReadInt32();
 				reader.EndReadInnerObject();
-				layers.Add(l);
+				_layers.Add(l);
 			}
 			reader.EndReadInnerObjects();
 		}
 
 
 		void IEntity.SaveFields(IRepositoryWriter writer, int version) {
-			writer.WriteString(name);
-			if (version >= 3) writer.WriteString(title);
-			if (version >= 4) writer.WriteChar(securityDomainName);
-			writer.WriteInt32(size.Width);
-			writer.WriteInt32(size.Height);
+			writer.WriteString(_name);
+			if (version >= 3) writer.WriteString(_title);
+			if (version >= 4) writer.WriteChar(_securityDomainName);
+			writer.WriteInt32(_size.Width);
+			writer.WriteInt32(_size.Height);
 			writer.WriteInt32(BackgroundColor.ToArgb());
 			writer.WriteInt32(BackgroundGradientColor.ToArgb());
-			if (NamedImage.IsNullOrEmpty(backImage)) {
+			if (NamedImage.IsNullOrEmpty(_backImage)) {
 				writer.WriteString(string.Empty);
 				writer.WriteImage(null);
 			} else {
-				writer.WriteString(backImage.Name);
-				object imgTag = backImage.Image.Tag;
-				backImage.Image.Tag = backImage.Name;
-				writer.WriteImage(backImage.Image);
-				backImage.Image.Tag = imgTag;
+				writer.WriteString(_backImage.Name);
+				object imgTag = _backImage.Image.Tag;
+				_backImage.Image.Tag = _backImage.Name;
+				writer.WriteImage(_backImage.Image);
+				_backImage.Image.Tag = imgTag;
 			}
-			writer.WriteByte((byte)imageLayout);
-			writer.WriteFloat(imageGamma);
-			writer.WriteByte(imageTransparency);
-			writer.WriteBool(imageGrayScale);
-			writer.WriteInt32(imageTransparentColor.ToArgb());
+			writer.WriteByte((byte)_imageLayout);
+			writer.WriteFloat(_imageGamma);
+			writer.WriteByte(_imageTransparency);
+			writer.WriteBool(_imageGrayScale);
+			writer.WriteInt32(_imageTransparentColor.ToArgb());
 		}
 
 
 		void IEntity.SaveInnerObjects(string propertyName, IRepositoryWriter writer, int version) {
 			Debug.Assert(propertyName == "Layers");
 			writer.BeginWriteInnerObjects();
-			foreach (Layer l in layers) {
+			foreach (Layer l in _layers) {
 				writer.BeginWriteInnerObject();
-				writer.WriteInt32((int)l.Id);
+				if (version < 6)
+					writer.WriteInt32((int)Layer.ConvertToLayerIds(l.LayerId));
+				else 
+					writer.WriteInt32((int)l.LayerId);
 				writer.WriteString(l.Name);
 				writer.WriteString(l.Title);
 				writer.WriteInt32(l.LowerZoomThreshold);
@@ -1144,39 +1426,128 @@ namespace Dataweb.NShape {
 		#endregion
 
 
+		#region [Private] Properties
+
+		/// <summary>
+		/// Gets image attributes for special image effects (e.g. image opacity, grayscale mode, color keying).
+		/// Returns null if no special effects have to be applied.
+		/// </summary>
+		ImageAttributes ImageAttribs {
+			get {
+				if (_imageAttribs == null) {
+					// If the image attribute's parameters are all set to their default, we don't need them (which gives a nice performance plus).
+					if (_imageGamma != 1 || _imageTransparency != 0 || _imageGrayScale || _imageTransparentColor.A != 0)
+						_imageAttribs = GdiHelpers.GetImageAttributes(_imageLayout, _imageGamma, _imageTransparency, _imageGrayScale, false, _imageTransparentColor);
+				}
+				return _imageAttribs; 
+			}
+		}
+
+		#endregion
+
+
+		#region [Private Static] Methods
+
+		/// <summary>
+		/// Returns true if the shape is assigned at least to one of the visible shared layers.
+		/// </summary>
+		private static bool IsSupplementalLayerVisible(Shape shape, LayerIds visibleSupplementalLayers) {
+			Debug.Assert(shape != null);
+			if (visibleSupplementalLayers == LayerIds.None || shape.SupplementalLayers == LayerIds.None)
+				return false;
+			return ((shape.SupplementalLayers & visibleSupplementalLayers) == 0) ? false : true;
+		}
+
+
+		/// <summary>
+		/// Returns true if the shape is assigned at least to one of the visible layers.
+		/// </summary>
+		/// <remarks>
+		/// It's strongly recommended to use a collection type with a fast implementation of the Contains() method, 
+		/// <see cref="T:Dataweb.NShape.Advanced.HashCollection´1" /> for example.
+		/// </remarks>
+		private static bool IsHomeLayerVisible(Shape shape, ICollection<int> visibleHomeLayerIds) {
+			if (visibleHomeLayerIds.Count == 0)
+				return false;
+			// No home layer assigned -> visible regarding the home layers
+			if (shape.HomeLayer == Layer.NoLayerId)
+				return false;
+			return visibleHomeLayerIds.Contains(shape.HomeLayer);
+		}
+
+		#endregion
+
+
 		#region [Private] Methods
 
 		private void InvalidateDrawCache() {
-			if (imageAttribs != null) {
-				imageAttribs.Dispose();
-				imageAttribs = null;
+			GdiHelpers.DisposeObject(ref _imageAttribs);
+			GdiHelpers.DisposeObject(ref _backImageLowRes);
+			if (!NamedImage.IsNullOrEmpty(_backImage))
+				if (_backImage.ImageFileExists)
+					_backImage.Unload();
+		}
+
+
+		private void UpdateBackgroundBrush() {
+			if (_colorBrush == null) {
+				if (BackgroundGradientColor != BackgroundColor && _highQualityRendering) {
+					_colorBrushBounds.Location = Point.Empty;
+					_colorBrushBounds.Width = 100;
+					_colorBrushBounds.Height = 100;
+					_colorBrush = new LinearGradientBrush(_colorBrushBounds, BackgroundGradientColor, BackgroundColor, 45);
+				} else _colorBrush = new SolidBrush(BackgroundColor);
 			}
-			if (imageBrush != null) {
-				imageBrush.Dispose();
-				imageBrush = null;
+			if (_colorBrush is LinearGradientBrush && Size != _colorBrushBounds.Size) {
+				LinearGradientBrush gradientBrush = (LinearGradientBrush)_colorBrush;
+				_colorBrushBounds.Location = Point.Empty; 
+				_colorBrushBounds.Width = Width;
+				_colorBrushBounds.Height = Height;
+				PointF center = PointF.Empty;
+				center.X = _colorBrushBounds.X + (_colorBrushBounds.Width / 2f);
+				center.Y = _colorBrushBounds.Y + (_colorBrushBounds.Height / 2f);
+				GdiHelpers.TransformLinearGradientBrush(gradientBrush, 45, _colorBrushBounds, center, 0);
 			}
 		}
 
 
-		private void UpdateBrushes() {
-			if (colorBrush == null) {
-				if (BackgroundGradientColor != BackgroundColor && highQualityRendering) {
-					colorBrushBounds.Location = Point.Empty;
-					colorBrushBounds.Width = 100;
-					colorBrushBounds.Height = 100;
-					colorBrush = new LinearGradientBrush(colorBrushBounds, BackgroundGradientColor, BackgroundColor, 45);
-				} else colorBrush = new SolidBrush(BackgroundColor);
+		// Create a low-quality texture brush that is shown while editing the diagram. 
+		private void UpdateFastRedrawBackImage() {
+			if (_backImageLowRes == null && !NamedImage.IsNullOrEmpty(BackgroundImage)) {
+				Size brushImageSize = GetLowResImageSize(BackgroundImage.Image);
+				if (brushImageSize != Geometry.InvalidSize)
+					_backImageLowRes = _backImage.Image.GetThumbnailImage(brushImageSize.Width, brushImageSize.Height, null, IntPtr.Zero);
 			}
-			if (colorBrush is LinearGradientBrush && Size != colorBrushBounds.Size) {
-				LinearGradientBrush gradientBrush = (LinearGradientBrush)colorBrush;
-				colorBrushBounds.Location = Point.Empty; 
-				colorBrushBounds.Width = Width;
-				colorBrushBounds.Height = Height;
-				PointF center = PointF.Empty;
-				center.X = colorBrushBounds.X + (colorBrushBounds.Width / 2f);
-				center.Y = colorBrushBounds.Y + (colorBrushBounds.Height / 2f);
-				GdiHelpers.TransformLinearGradientBrush(gradientBrush, 45, colorBrushBounds, center, 0);
+		}
+
+
+		/// <summary>
+		/// Returns the size of the low res image.
+		/// If a low res image is not needed, Geometry.InvalidSize will be returned.
+		/// </summary>
+		private Size GetLowResImageSize(Image image) {
+			Size result = Geometry.InvalidSize;
+
+			float scaleFactor = GetLowResImageScaleFactor(image);
+			if (scaleFactor < 1) {
+				result.Width = Math.Max(1, (int)Math.Round(image.Width * scaleFactor));
+				result.Height = Math.Max(1, (int)Math.Round(image.Height * scaleFactor));
 			}
+			//double highestRatio = Math.Max((double)fastRedrawImageSize / (double)image.Width, (double)fastRedrawImageSize / (double)image.Height);
+			//float scaleX = (float)Math.Round(highestRatio, 6);
+			//float scaleY = (float)Math.Round(highestRatio, 6);
+			//if (scaleX <= 0.9 || scaleY <= 0.9) {
+			//    result.Width = Math.Max(1, (int)Math.Round(image.Width * scaleX));
+			//    result.Height = Math.Max(1, (int)Math.Round(image.Height * scaleY));
+			//}
+			
+			return result;
+		}
+
+
+		private float GetLowResImageScaleFactor(Image image) {
+			double highestRatio = Math.Max((double)_fastRedrawImageSize / (double)image.Width, (double)_fastRedrawImageSize / (double)image.Height);
+			return (highestRatio < 0.9) ? (float)Math.Round(highestRatio, 6) : 1f;
 		}
 
 		#endregion
@@ -1187,40 +1558,42 @@ namespace Dataweb.NShape {
 		/// <summary>Defines the cell size of the diagram's spatial index.</summary>
 		public const int CellSize = 100;
 
-		private const string entityTypeName = "Core.Diagram";
-		private const int expectedShapes = 10000;
+		private const string _entityTypeName = "Core.Diagram";
+		private const int _expectedShapes = 10000;
+		private const int _fastRedrawImageSize = 1024;
 
-		private object id;
-		private string title;
-		private string name;
-		private IDisplayService displayService;
-		private LayerCollection layers = null;
-		private DiagramShapeCollection diagramShapes = null;
-		private Size size = new Size(1, 1);
-		private char securityDomainName = 'A';
+		private object _id;
+		private string _title;
+		private string _name;
+		private IDisplayService _displayService;
+		private LayerCollection _layers = null;
+		private DiagramShapeCollection _diagramShapes = null;
+		private Size _size = new Size(1, 1);
+		private char _securityDomainName = 'A';
 
 		// Rendering stuff
-		private Color backColor = Color.WhiteSmoke;
-		private Color targetColor = Color.White;
-		private bool highQualityRendering = true;
-		private bool useBrushForBackgroundImage = true;
+		private Color _backColor = Color.WhiteSmoke;
+		private Color _targetColor = Color.White;
+		private bool _highQualityRendering = true;
 		// Background image stuff
-		private NamedImage backImage;
-		private ImageLayoutMode imageLayout;
-		private float imageGamma = 1.0f;
-		private byte imageTransparency = 0;
-		private bool imageGrayScale = false;
-		private Color imageTransparentColor = Color.Empty;
+		private NamedImage _backImage;
+		private Image _backImageLowRes;
+		private ImageLayoutMode _imageLayout;
+		private float _imageGamma = 1.0f;
+		private byte _imageTransparency = 0;
+		private bool _imageGrayScale = false;
+		private Color _imageTransparentColor = Color.Empty;
+		private bool _isFastRedrawEnabled = false;
 		// Drawing and Painting stuff
-		private Brush colorBrush = null;					// Brush for painting the diagram's background
-		private ImageAttributes imageAttribs = null; // ImageAttributes for drawing the background image
-		private TextureBrush imageBrush = null;		// Brush for painting the diagram's background image
-		private Rectangle colorBrushBounds = Rectangle.Empty;
+		private Brush _colorBrush = null;					// Brush for painting the diagram's background color
+		private ImageAttributes _imageAttribs = null; // ImageAttributes for drawing the background image
+		private Rectangle _colorBrushBounds = Rectangle.Empty;
 		
 		// Buffers
-		private List<Shape> shapeBuffer = new List<Shape>();
+		private List<Shape> _shapeBuffer = new List<Shape>();
 
 		#endregion
+
 	}
 
 }

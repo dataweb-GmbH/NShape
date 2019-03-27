@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -260,7 +260,7 @@ namespace Dataweb.NShape.Designer {
 						}
 					}
 				} catch (Exception exc) {
-					MessageBox.Show(this, exc.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					MessageBox.Show(this, exc.Message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				}
 			}
 		}
@@ -326,7 +326,7 @@ namespace Dataweb.NShape.Designer {
 			if (mode == Mode.CreateSchema) {
 				if (CreateDatabase(ProviderName, ServerName, DatabaseName))
 					MessageBox.Show(this, "Database successfully created.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-			} else MessageBox.Show(this, useDBGeneratorMsg, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			} else MessageBox.Show(this, useDBGeneratorMsg, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 
 
@@ -334,7 +334,7 @@ namespace Dataweb.NShape.Designer {
 			if (mode == Mode.CreateSchema) {
 				if (DropDatabase(ProviderName, ServerName, DatabaseName))
 					MessageBox.Show(this, "Database successfully dropped.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-			} else MessageBox.Show(this, useDBGeneratorMsg, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			} else MessageBox.Show(this, useDBGeneratorMsg, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 
 

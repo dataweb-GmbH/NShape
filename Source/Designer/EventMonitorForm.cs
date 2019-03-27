@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
 
+using Dataweb.NShape.Advanced;
 using Dataweb.NShape.Controllers;
 
 
@@ -27,6 +28,8 @@ namespace Dataweb.NShape.Designer {
 		public EventMonitorForm() {
 			InitializeComponent();
 			Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+
+			alwaysOnTopCheckBox.Checked = true;
 		}
 
 
@@ -320,8 +323,13 @@ namespace Dataweb.NShape.Designer {
 		private void uncheckAllMenuItem_Click(object sender, EventArgs e) {
 			CheckAllItems(false);
 		}
-		
-		
+
+
+		private void alwaysOnTopCheckBox_CheckedChanged(object sender, EventArgs e) {
+			TopMost = alwaysOnTopCheckBox.Checked;
+		}
+
+	
 		private void EventMonitorForm_FormClosed(object sender, FormClosedEventArgs e) {
 			UnregisterAllEvents();
 		}
@@ -377,5 +385,6 @@ namespace Dataweb.NShape.Designer {
 		List<object> eventSources = new List<object>();
 
 		#endregion
+
 	}
 }

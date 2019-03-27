@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -50,14 +50,14 @@ namespace Dataweb.NShape.GeneralShapes {
 				int left = (int)Math.Round(-Size / 2f);
 				int top = (int)Math.Round(-Size / 2f);
 
-				shapeRect.X = left;
-				shapeRect.Y = top;
-				shapeRect.Width = Size;
-				shapeRect.Height = Size;
+				_shapeRect.X = left;
+				_shapeRect.Y = top;
+				_shapeRect.Width = Size;
+				_shapeRect.Height = Size;
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddRectangle(shapeRect);
+				Path.AddRectangle(_shapeRect);
 				Path.CloseFigure();
 				return true;
 			} else return false;
@@ -65,7 +65,7 @@ namespace Dataweb.NShape.GeneralShapes {
 
 
 		#region Fields
-		Rectangle shapeRect;
+		private Rectangle _shapeRect;
 		#endregion
 	}
 

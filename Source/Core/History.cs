@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -82,7 +82,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Gets a <see cref="T:Dataweb.NShape.Advanced.IReadOnlyCollection" /> of <see cref="T:Dataweb.NShape.ICommand" /> processed by the action that raised the event.
 		/// </summary>
 		public IReadOnlyCollection<ICommand> Commands {
-			get { return commands; }
+			get { return _commands; }
 		}
 
 
@@ -90,8 +90,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Specifies if the command was reverted.
 		/// </summary>
 		public bool Reverted {
-			get { return reverted; }
-			internal set { reverted = value; }
+			get { return _reverted; }
+			internal set { _reverted = value; }
 		}
 
 
@@ -100,23 +100,23 @@ namespace Dataweb.NShape.Advanced {
 
 
 		internal void Add(ICommand command){
-			commands.Add(command);
+			_commands.Add(command);
 		}
 
 
 		internal void AddRange(IEnumerable<ICommand> commands) {
 			this.Clear();
-			this.commands.AddRange(commands);
+			this._commands.AddRange(commands);
 		}
 
 
 		internal void Clear() {
-			commands.Clear();
+			_commands.Clear();
 		}
 
 
-		private ReadOnlyList<ICommand> commands = new ReadOnlyList<ICommand>();
-		private bool reverted;
+		private ReadOnlyList<ICommand> _commands = new ReadOnlyList<ICommand>();
+		private bool _reverted;
 	}
 
 
@@ -129,7 +129,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Constructs a new history.
 		/// </summary>
 		public History() {
-			commands = new List<ICommand>(100);
+			_commands = new List<ICommand>(100);
 		}
 
 
@@ -147,8 +147,8 @@ namespace Dataweb.NShape.Advanced {
 		/// While aggregating commands, the CommandAdded event will not be raised.
 		/// </summary>
 		public void BeginAggregatingCommands() {
-			aggregatingCommands = true;
-			aggregatedCommand = new AggregatedCommand();
+			_aggregatingCommands = true;
+			_aggregatedCommand = new AggregatedCommand();
 		}
 
 
@@ -158,9 +158,9 @@ namespace Dataweb.NShape.Advanced {
 		/// Does not execute the collected commands.
 		/// </summary>
 		public void EndAggregatingCommands() {
-			aggregatingCommands = false;
-			AddCommand(aggregatedCommand);
-			aggregatedCommand = null;
+			_aggregatingCommands = false;
+			AddCommand(_aggregatedCommand);
+			_aggregatedCommand = null;
 		}
 
 
@@ -168,10 +168,10 @@ namespace Dataweb.NShape.Advanced {
 		/// Cancels the aggregation of commands. All collected commands will be undone and not added to the history.
 		/// </summary>
 		public void CancelAggregatingCommands() {
-			if (aggregatingCommands) {
-				aggregatingCommands = false;
-				aggregatedCommand.Revert();
-				aggregatedCommand = null;
+			if (_aggregatingCommands) {
+				_aggregatingCommands = false;
+				_aggregatedCommand.Revert();
+				_aggregatedCommand = null;
 			}
 		}
 
@@ -180,10 +180,10 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns descriptions of all available redo commands
 		/// </summary>
 		public IEnumerable<string> GetRedoCommandDescriptions(int count) {
-			int stopIdx = currentPosition + count;
-			if (stopIdx >= commands.Count) stopIdx = commands.Count - 1;
-			for (int i = currentPosition + 1; i <= stopIdx; ++i)
-				yield return commands[i].Description;
+			int stopIdx = _currentPosition + count;
+			if (stopIdx >= _commands.Count) stopIdx = _commands.Count - 1;
+			for (int i = _currentPosition + 1; i <= stopIdx; ++i)
+				yield return _commands[i].Description;
 		}
 
 
@@ -191,10 +191,10 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns descriptions of all available undo commands
 		/// </summary>
 		public IEnumerable<string> GetUndoCommandDescriptions(int count) {
-			int stopIdx = currentPosition - count + 1;
+			int stopIdx = _currentPosition - count + 1;
 			if (stopIdx < 0) stopIdx = 0;
-			for (int i = currentPosition; i >= stopIdx; --i)
-				yield return commands[i].Description;
+			for (int i = _currentPosition; i >= stopIdx; --i)
+				yield return _commands[i].Description;
 		}
 
 
@@ -239,8 +239,8 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public int RedoCommandCount {
 			get {
-				if (currentPosition < 0) return commands.Count;
-				else return (commands.Count - 1) - currentPosition;
+				if (_currentPosition < 0) return _commands.Count;
+				else return (_commands.Count - 1) - _currentPosition;
 			}
 		}
 
@@ -249,7 +249,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns the number of commands that can be undone.
 		/// </summary>
 		public int UndoCommandCount {
-			get { return currentPosition + 1; }
+			get { return _currentPosition + 1; }
 		}
 
 
@@ -280,15 +280,15 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="commandCount"></param>
 		public void Undo(int commandCount) {
-			commandsEventArgsBuffer.Clear();
-			commandsEventArgsBuffer.Reverted = true;
+			_commandsEventArgsBuffer.Clear();
+			_commandsEventArgsBuffer.Reverted = true;
 
 			for (int i = 0; i < commandCount; ++i) {
 				ICommand cmd = PerformUndo();
-				commandsEventArgsBuffer.Add(cmd);
+				_commandsEventArgsBuffer.Add(cmd);
 			}
 
-			if (CommandsExecuted!=null) CommandsExecuted(this, commandsEventArgsBuffer);
+			if (CommandsExecuted!=null) CommandsExecuted(this, _commandsEventArgsBuffer);
 		}
 
 
@@ -309,15 +309,15 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="commandCount"></param>
 		public void Redo(int commandCount) {
-			commandsEventArgsBuffer.Clear();
-			commandsEventArgsBuffer.Reverted = true;
+			_commandsEventArgsBuffer.Clear();
+			_commandsEventArgsBuffer.Reverted = true;
 
 			for (int i = 0; i < commandCount; ++i) {
 				ICommand cmd = PerformRedo();
-				commandsEventArgsBuffer.Add(cmd);
+				_commandsEventArgsBuffer.Add(cmd);
 			}
 
-			if (CommandsExecuted != null) CommandsExecuted(this, commandsEventArgsBuffer);
+			if (CommandsExecuted != null) CommandsExecuted(this, _commandsEventArgsBuffer);
 		}
 
 
@@ -342,15 +342,15 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="command"></param>
 		public void AddCommand(ICommand command) {
 			if (command == null) throw new ArgumentNullException("command");
-			if (aggregatingCommands) {
-				Debug.Assert(aggregatedCommand != null);
-				aggregatedCommand.Add(command);
+			if (_aggregatingCommands) {
+				Debug.Assert(_aggregatedCommand != null);
+				_aggregatedCommand.Add(command);
 			} else {
-				int redoPos = currentPosition + 1;
-				if (redoPos >= 0 && commands.Count > redoPos)
-					commands.RemoveRange(redoPos, commands.Count - redoPos);
-				commands.Add(command);
-				currentPosition = commands.Count - 1;
+				int redoPos = _currentPosition + 1;
+				if (redoPos >= 0 && _commands.Count > redoPos)
+					_commands.RemoveRange(redoPos, _commands.Count - redoPos);
+				_commands.Add(command);
+				_currentPosition = _commands.Count - 1;
 				
 				if (CommandAdded != null) 
 					CommandAdded(this, GetCommandEventArgs(command, false));
@@ -363,16 +363,16 @@ namespace Dataweb.NShape.Advanced {
 		/// Clears all commands in the history.
 		/// </summary>
 		public void Clear() {
-			commands.Clear();
-			currentPosition = -1;
+			_commands.Clear();
+			_currentPosition = -1;
 		}
 
 
 		// Returns the previous command to undo
 		private ICommand GetPreviousCommand() {
 			ICommand result = null;
-			if (currentPosition >= 0)
-				result = commands[currentPosition];
+			if (_currentPosition >= 0)
+				result = _commands[_currentPosition];
 			return result;
 		}
 
@@ -380,14 +380,14 @@ namespace Dataweb.NShape.Advanced {
 		// Returns the next command to redo
 		private ICommand GetNextCommand() {
 			ICommand result = null;
-			if (currentPosition < commands.Count - 1)
-				result = commands[currentPosition + 1];
+			if (_currentPosition < _commands.Count - 1)
+				result = _commands[_currentPosition + 1];
 			return result;
 		}
 
 
 		private ICommand PerformUndo() {
-			if (aggregatingCommands)
+			if (_aggregatingCommands)
 				EndAggregatingCommands();
 			ICommand cmd = GetPreviousCommand();
 			RevertCommand(cmd);
@@ -396,7 +396,7 @@ namespace Dataweb.NShape.Advanced {
 		
 		
 		private ICommand PerformRedo() {
-			if (aggregatingCommands)
+			if (_aggregatingCommands)
 				EndAggregatingCommands();
 			ICommand cmd = GetNextCommand();
 			ExecuteCommand(cmd);
@@ -406,45 +406,48 @@ namespace Dataweb.NShape.Advanced {
 		
 		private void ExecuteCommand(ICommand command) {
 			Debug.Assert(command != null);
-			Debug.Assert(commands.Contains(command));
+			Debug.Assert(_commands.Contains(command));
 			command.Execute();
-			++currentPosition;
+			++_currentPosition;
 		}
 
 
 		private void RevertCommand(ICommand command) {
 			Debug.Assert(command != null);
-			Debug.Assert(commands.Contains(command));
+			Debug.Assert(_commands.Contains(command));
 			command.Revert();
-			--currentPosition;
+			--_currentPosition;
 		}
 
 
 		private CommandEventArgs GetCommandEventArgs(ICommand command, bool reverted) {
-			commandEventArgsBuffer.Command = command;
-			commandEventArgsBuffer.Reverted = reverted;
-			return commandEventArgsBuffer;
+			_commandEventArgsBuffer.Command = command;
+			_commandEventArgsBuffer.Reverted = reverted;
+			return _commandEventArgsBuffer;
 		}
 
 
 		private CommandsEventArgs GetCommandsEventArgs(ICommand command, bool reverted) {
-			commandsEventArgsBuffer.Clear();
-			commandsEventArgsBuffer.Add(command);
-			commandsEventArgsBuffer.Reverted = reverted;
-			return commandsEventArgsBuffer;
+			_commandsEventArgsBuffer.Clear();
+			_commandsEventArgsBuffer.Add(command);
+			_commandsEventArgsBuffer.Reverted = reverted;
+			return _commandsEventArgsBuffer;
 		}
 
 
 		#region Fields
-		// Undo/redo list of commands
-		private List<ICommand> commands;		
-		private int currentPosition = -1;
-		private bool aggregatingCommands = false;
-		private AggregatedCommand aggregatedCommand;
 
-		private CommandEventArgs commandEventArgsBuffer = new CommandEventArgs();
-		private CommandsEventArgs commandsEventArgsBuffer = new CommandsEventArgs();
+		// Undo/redo list of commands
+		private List<ICommand> _commands;		
+		private int _currentPosition = -1;
+		private bool _aggregatingCommands = false;
+		private AggregatedCommand _aggregatedCommand;
+
+		private CommandEventArgs _commandEventArgsBuffer = new CommandEventArgs();
+		private CommandsEventArgs _commandsEventArgsBuffer = new CommandsEventArgs();
+		
 		#endregion
+
 	}
 
 }

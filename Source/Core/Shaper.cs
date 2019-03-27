@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+ï»¿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -33,7 +33,7 @@ namespace Dataweb.NShape.Advanced {
 			int x, y; // Current pixel
 			// Startpunkt finden
 			FindStartingPixel(pixels, color, out x, out y);
-			// Pixels zurücksetzen
+			// Pixels zurÃ¼cksetzen
 			for (int i = 0; i < pixels.GetLength(0); ++i)
 				for (int j = 0; j < pixels.GetLength(1); ++j)
 					if (pixels[i, j] < 0) pixels[i, j] = (sbyte)-pixels[i, j];
@@ -41,8 +41,8 @@ namespace Dataweb.NShape.Advanced {
 			do {
 				result.Add(x, y);
 			} while (FindNextPixel(pixels, color, ref x, ref y));
-			// Die markierten Pixel wieder zurücknehmen
-			// Pixels zurücksetzen
+			// Die markierten Pixel wieder zurÃ¼cknehmen
+			// Pixels zurÃ¼cksetzen
 			for (int i = 0; i < pixels.GetLength(0); ++i)
 				for (int j = 0; j < pixels.GetLength(1); ++j)
 					if (pixels[i, j] < 0) pixels[i, j] = (sbyte)-pixels[i, j];
@@ -61,8 +61,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <summary>
-		/// Fügt einen Punkt zum Zug hinzu. Auch alle Punkte auf der Verbindungslinie 
-		/// zwischen dem letzten Punkt und dem neuen werden hinzugefügt.
+		/// FÃ¼gt einen Punkt zum Zug hinzu. Auch alle Punkte auf der Verbindungslinie 
+		/// zwischen dem letzten Punkt und dem neuen werden hinzugefÃ¼gt.
 		/// </summary>
 		public void Add(int x, int y) {
 			if (pixels.Count != 0) {
@@ -166,8 +166,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private static bool FindNextPixel(sbyte[,] pixels, sbyte color, ref int x, ref int y) {
-			// Voraussetzung: x, y ist ein gültiges Pixel
-			// Es gibt drei Arten von Anschlus: Gerade, schräg oder ums Eck
+			// Voraussetzung: x, y ist ein gÃ¼ltiges Pixel
+			// Es gibt drei Arten von Anschlus: Gerade, schrÃ¤g oder ums Eck
 			return FindNextDiagonalPixel(pixels, color, ref x, ref y, -1, -1)
 			|| FindNextDiagonalPixel(pixels, color, ref x, ref y, +1, -1)
 			|| FindNextDiagonalPixel(pixels, color, ref x, ref y, +1, +1)
@@ -482,7 +482,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public byte IsEquilateral {
 			get {
-				// Alle Seiten ungefähr gleich lang
+				// Alle Seiten ungefÃ¤hr gleich lang
 				return Fuzzy.And(AreEdgesAboutEqual(0, 1), AreEdgesAboutEqual(1, 2), AreEdgesAboutEqual(2, 0));
 			}
 		}
@@ -546,8 +546,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private byte IsRightAngle(int edge1, int edge2) {
-			// Berechnen, wie weit sich die tatsächliche Seitenlänge
-			// von der Hypothenusenlänge unterscheidet
+			// Berechnen, wie weit sich die tatsÃ¤chliche SeitenlÃ¤nge
+			// von der HypothenusenlÃ¤nge unterscheidet
 			int actualEdgeLength;
 			int requiredEdgeLength;
 			if (edge1 == 0 && edge2 == 1 || edge1 == 1 && edge2 == 0) {
@@ -629,7 +629,7 @@ namespace Dataweb.NShape.Advanced {
 				else {
 					bool isCircle = true;
 					Bowing bowing = Bowing.Straight;
-					// Wenn mehrere Ecken vorhanden sind aber alle Verbindungen in die selbe Richtung gekrümmt
+					// Wenn mehrere Ecken vorhanden sind aber alle Verbindungen in die selbe Richtung gekrÃ¼mmt
 					for (int i = 1; i < path.nodes.Count; ++i) {
 						switch (path.nodes[i].RightLine.bowing) {
 							case Bowing.Wave:
@@ -719,7 +719,7 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		// Die Linien sind parallel, wenn der Abstand der Endpunkte von other ungefähr gleich ist
+		// Die Linien sind parallel, wenn der Abstand der Endpunkte von other ungefÃ¤hr gleich ist
 		/// <ToBeCompleted></ToBeCompleted>
 		public byte IsParallelTo(LineFigureShape other) {
 			if (other == null) throw new ArgumentNullException("other");
@@ -914,14 +914,14 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="other"></param>
 		/// <returns></returns>
 		// Jeder Shape in der anderern Figur muss einem Shape in dieser Figur entsprechen
-		// und es darf kein Shape übrigbleiben. Jede Relation in der Referenzfigur muss in
+		// und es darf kein Shape Ã¼brigbleiben. Jede Relation in der Referenzfigur muss in
 		// der Testfigur enthalten sein oder auch mehr.
-		// Wenn es mehrere mögliche Shape-Mappings gibt, muss man alle testen und eines suchen,
-		// wo die Relationen erfüllt sind, falls möglich.
+		// Wenn es mehrere mÃ¶gliche Shape-Mappings gibt, muss man alle testen und eines suchen,
+		// wo die Relationen erfÃ¼llt sind, falls mÃ¶glich.
 		internal byte Matches(Figure other) {
 			byte result = 0;
 			if (other.shapes.Count != shapes.Count) return result;
-			// Enthält an Index i die Figur aus other, die auf die eigene Figur mit dem Index i passt.
+			// EnthÃ¤lt an Index i die Figur aus other, die auf die eigene Figur mit dem Index i passt.
 			List<FigureShape> shapeMapping = new List<FigureShape>();
 			return Matches(shapeMapping, other);
 		}
@@ -940,7 +940,7 @@ namespace Dataweb.NShape.Advanced {
 				}
 			}
 			else {
-				// Den nächsten eigenen Shape abbilden
+				// Den nÃ¤chsten eigenen Shape abbilden
 				result = 0;
 				int i = shapeMapping.Count;
 				shapeMapping.Add(null);
@@ -1064,7 +1064,7 @@ namespace Dataweb.NShape.Advanced {
 					polygone.LastNode.RightLine = CreateLine(stroke, ref index);
 				} while (index < stroke.Count - 1);
 				// Falls der Polygonzug geschlossen ist, machen wir eine Figur daraus
-				// Geschlossen heißt Endpunkt innerhalb von 10 Pixeln vom Ausgangspunkt
+				// Geschlossen heiÃŸt Endpunkt innerhalb von 10 Pixeln vom Ausgangspunkt
 				if (Geometry.DistancePointPoint(stroke[index], stroke[0]) < 10) {
 					// Geschlossene Figur
 				}
@@ -1107,14 +1107,14 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <summary>
-		/// Extrahiert die nächste Linie aus dem Pixeln
+		/// Extrahiert die nÃ¤chste Linie aus dem Pixeln
 		/// </summary>
 		/// <param name="stroke"></param>
-		/// <param name="index">Index der Startecke für die Linie</param>
+		/// <param name="index">Index der Startecke fÃ¼r die Linie</param>
 		/// <returns></returns>
 		private PathFigureShape.Line CreateLine(Stroke stroke, ref int index) {
 			const int backLength = 20; // Muss immer eine gerade Zahl sein
-			const double maxAngleDiff = 2 * Math.PI / 9; // 40°
+			const double maxAngleDiff = 2 * Math.PI / 9; // 40Â°
 			PathFigureShape.Line result = null;
 			int startIndex = index;
 			int firstEdgeIndex = -1;
@@ -1127,7 +1127,7 @@ namespace Dataweb.NShape.Advanced {
 					int currPixelX = stroke[index].X - stroke[index - backLength / 2].X;
 					int currPixelY = stroke[index].Y - stroke[index - backLength / 2].Y;
 					// Angle ist der Winkel zwischen dem vordern Teil und der geraden Fortsetzung
-					// D.h. wenns gerade geht 0°, rechtwinklig nach links 90° und rechtwinklig nach rechts -90°
+					// D.h. wenns gerade geht 0Â°, rechtwinklig nach links 90Â° und rechtwinklig nach rechts -90Â°
 					// Winkel in Laufrichtung, normalisiert
 					double firstAngle = Math.Atan2(firstPixelY, firstPixelX) - Math.PI;
 					if (firstAngle <= -Math.PI) firstAngle += 2 * Math.PI;
@@ -1154,14 +1154,14 @@ namespace Dataweb.NShape.Advanced {
 				// index == stroke.Count -1: Die letzte Linie
 				result = new PathFigureShape.Line(Bowing.Straight);
 			}
-			// *** Die Krümmung der Linie ermitteln ***
+			// *** Die KrÃ¼mmung der Linie ermitteln ***
 			float mdl = 0; // Maximaler Abstand nach links
 			float mdr = 0; // Maximaler Abstand nach rechts
 			for (int i = startIndex + 1; i < index; ++i) {
 				float d = Geometry.DistancePointLine(stroke[i], stroke[startIndex], stroke[index], false);
 				if (d < mdr) mdr = d; else if (d > mdl) mdl = d;
 			}
-			// Wenn beide Abstände klein sind, Gerade
+			// Wenn beide AbstÃ¤nde klein sind, Gerade
 			float length = Geometry.DistancePointPoint(stroke[index], stroke[startIndex]);
 			if (Math.Abs(mdr) / length < 0.1 && Math.Abs(mdl) / length < 0.1)
 				result.bowing = Bowing.Straight;

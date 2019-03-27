@@ -16,17 +16,17 @@
 					components.Dispose();
 					components = null;
 				}
-				if (imgAttribs != null) {
-					imgAttribs.Dispose();
-					imgAttribs = null;
+				if (_imgAttribs != null) {
+					_imgAttribs.Dispose();
+					_imgAttribs = null;
 				}
-				if (colorLabelBackBrush != null) {
-					colorLabelBackBrush.Dispose();
-					colorLabelBackBrush = null;
+				if (_colorLabelBackBrush != null) {
+					_colorLabelBackBrush.Dispose();
+					_colorLabelBackBrush = null;
 				}
-				if (colorLabelFrontBrush != null) {
-					colorLabelFrontBrush.Dispose();
-					colorLabelFrontBrush = null;
+				if (_colorLabelFrontBrush != null) {
+					_colorLabelFrontBrush.Dispose();
+					_colorLabelFrontBrush = null;
 				}
 			}
 			base.Dispose(disposing);
@@ -73,6 +73,7 @@
 			this.okButton = new System.Windows.Forms.Button();
 			this.exportButton = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.visibleLayersOnlyCheckBox = new System.Windows.Forms.CheckBox();
 			this.FileFormatOptionsGroupBox.SuspendLayout();
 			this.DestinationOptionsGroupBox.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.qualityTrackBar)).BeginInit();
@@ -92,7 +93,7 @@
 			this.previewPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.previewPanel.Location = new System.Drawing.Point(3, 19);
 			this.previewPanel.Name = "previewPanel";
-			this.previewPanel.Size = new System.Drawing.Size(278, 182);
+			this.previewPanel.Size = new System.Drawing.Size(278, 184);
 			this.previewPanel.TabIndex = 0;
 			this.previewPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.previewPanel_Paint);
 			// 
@@ -109,7 +110,7 @@
 			this.FileFormatOptionsGroupBox.Controls.Add(this.emfPlusRadioButton);
 			this.FileFormatOptionsGroupBox.Location = new System.Drawing.Point(0, 0);
 			this.FileFormatOptionsGroupBox.Name = "FileFormatOptionsGroupBox";
-			this.FileFormatOptionsGroupBox.Size = new System.Drawing.Size(272, 223);
+			this.FileFormatOptionsGroupBox.Size = new System.Drawing.Size(272, 250);
 			this.FileFormatOptionsGroupBox.TabIndex = 0;
 			this.FileFormatOptionsGroupBox.TabStop = false;
 			this.FileFormatOptionsGroupBox.Text = "Image Format Options";
@@ -123,7 +124,7 @@
 			this.descriptionLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.descriptionLabel.Location = new System.Drawing.Point(6, 143);
 			this.descriptionLabel.Name = "descriptionLabel";
-			this.descriptionLabel.Size = new System.Drawing.Size(260, 77);
+			this.descriptionLabel.Size = new System.Drawing.Size(260, 104);
 			this.descriptionLabel.TabIndex = 5;
 			// 
 			// bmpRadioButton
@@ -193,7 +194,7 @@
 			this.DestinationOptionsGroupBox.Controls.Add(this.filePathTextBox);
 			this.DestinationOptionsGroupBox.Controls.Add(this.toFileRadioButton);
 			this.DestinationOptionsGroupBox.Controls.Add(this.toClipboardRadioButton);
-			this.DestinationOptionsGroupBox.Location = new System.Drawing.Point(0, 229);
+			this.DestinationOptionsGroupBox.Location = new System.Drawing.Point(0, 256);
 			this.DestinationOptionsGroupBox.Name = "DestinationOptionsGroupBox";
 			this.DestinationOptionsGroupBox.Size = new System.Drawing.Size(272, 150);
 			this.DestinationOptionsGroupBox.TabIndex = 1;
@@ -297,6 +298,7 @@
 			// 
 			this.ContentOptionsGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.ContentOptionsGroupBox.Controls.Add(this.visibleLayersOnlyCheckBox);
 			this.ContentOptionsGroupBox.Controls.Add(this.backColorCheckBox);
 			this.ContentOptionsGroupBox.Controls.Add(this.label1);
 			this.ContentOptionsGroupBox.Controls.Add(this.marginUpDown);
@@ -306,9 +308,9 @@
 			this.ContentOptionsGroupBox.Controls.Add(this.button1);
 			this.ContentOptionsGroupBox.Controls.Add(this.colorLabel);
 			this.ContentOptionsGroupBox.Controls.Add(this.withBackgroundCheckBox);
-			this.ContentOptionsGroupBox.Location = new System.Drawing.Point(3, 207);
+			this.ContentOptionsGroupBox.Location = new System.Drawing.Point(3, 209);
 			this.ContentOptionsGroupBox.Name = "ContentOptionsGroupBox";
-			this.ContentOptionsGroupBox.Size = new System.Drawing.Size(278, 172);
+			this.ContentOptionsGroupBox.Size = new System.Drawing.Size(278, 197);
 			this.ContentOptionsGroupBox.TabIndex = 2;
 			this.ContentOptionsGroupBox.TabStop = false;
 			this.ContentOptionsGroupBox.Text = "Content Options";
@@ -317,7 +319,7 @@
 			// 
 			this.backColorCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.backColorCheckBox.AutoSize = true;
-			this.backColorCheckBox.Location = new System.Drawing.Point(6, 147);
+			this.backColorCheckBox.Location = new System.Drawing.Point(6, 172);
 			this.backColorCheckBox.Name = "backColorCheckBox";
 			this.backColorCheckBox.Size = new System.Drawing.Size(143, 17);
 			this.backColorCheckBox.TabIndex = 12;
@@ -329,7 +331,7 @@
 			// 
 			this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(6, 99);
+			this.label1.Location = new System.Drawing.Point(6, 124);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(39, 13);
 			this.label1.TabIndex = 11;
@@ -338,7 +340,7 @@
 			// marginUpDown
 			// 
 			this.marginUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.marginUpDown.Location = new System.Drawing.Point(51, 97);
+			this.marginUpDown.Location = new System.Drawing.Point(51, 122);
 			this.marginUpDown.Maximum = new decimal(new int[] {
             999,
             0,
@@ -394,7 +396,7 @@
 			// button1
 			// 
 			this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.button1.Location = new System.Drawing.Point(184, 143);
+			this.button1.Location = new System.Drawing.Point(184, 168);
 			this.button1.Name = "button1";
 			this.button1.Size = new System.Drawing.Size(26, 23);
 			this.button1.TabIndex = 6;
@@ -407,7 +409,7 @@
 			this.colorLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.colorLabel.BackColor = System.Drawing.Color.White;
 			this.colorLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.colorLabel.Location = new System.Drawing.Point(155, 143);
+			this.colorLabel.Location = new System.Drawing.Point(155, 168);
 			this.colorLabel.Name = "colorLabel";
 			this.colorLabel.Size = new System.Drawing.Size(23, 23);
 			this.colorLabel.TabIndex = 4;
@@ -417,7 +419,7 @@
 			// 
 			this.withBackgroundCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.withBackgroundCheckBox.AutoSize = true;
-			this.withBackgroundCheckBox.Location = new System.Drawing.Point(6, 123);
+			this.withBackgroundCheckBox.Location = new System.Drawing.Point(6, 148);
 			this.withBackgroundCheckBox.Name = "withBackgroundCheckBox";
 			this.withBackgroundCheckBox.Size = new System.Drawing.Size(181, 17);
 			this.withBackgroundCheckBox.TabIndex = 3;
@@ -444,7 +446,7 @@
 			// 
 			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelButton.Location = new System.Drawing.Point(497, 407);
+			this.cancelButton.Location = new System.Drawing.Point(497, 434);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
 			this.cancelButton.TabIndex = 6;
@@ -455,7 +457,7 @@
 			// okButton
 			// 
 			this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.okButton.Location = new System.Drawing.Point(416, 407);
+			this.okButton.Location = new System.Drawing.Point(416, 434);
 			this.okButton.Name = "okButton";
 			this.okButton.Size = new System.Drawing.Size(75, 23);
 			this.okButton.TabIndex = 5;
@@ -466,7 +468,7 @@
 			// exportButton
 			// 
 			this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.exportButton.Location = new System.Drawing.Point(335, 407);
+			this.exportButton.Location = new System.Drawing.Point(335, 434);
 			this.exportButton.Name = "exportButton";
 			this.exportButton.Size = new System.Drawing.Size(75, 23);
 			this.exportButton.TabIndex = 7;
@@ -493,9 +495,20 @@
 			this.splitContainer1.Panel2.Controls.Add(this.previewCheckBox);
 			this.splitContainer1.Panel2.Controls.Add(this.previewPanel);
 			this.splitContainer1.Panel2.Controls.Add(this.ContentOptionsGroupBox);
-			this.splitContainer1.Size = new System.Drawing.Size(560, 379);
+			this.splitContainer1.Size = new System.Drawing.Size(560, 406);
 			this.splitContainer1.SplitterDistance = 275;
 			this.splitContainer1.TabIndex = 8;
+			// 
+			// visibleLayersOnlyCheckBox
+			// 
+			this.visibleLayersOnlyCheckBox.AutoSize = true;
+			this.visibleLayersOnlyCheckBox.Location = new System.Drawing.Point(6, 92);
+			this.visibleLayersOnlyCheckBox.Name = "visibleLayersOnlyCheckBox";
+			this.visibleLayersOnlyCheckBox.Size = new System.Drawing.Size(196, 17);
+			this.visibleLayersOnlyCheckBox.TabIndex = 13;
+			this.visibleLayersOnlyCheckBox.Text = "Export only Shapes of Visible Layers";
+			this.visibleLayersOnlyCheckBox.UseVisualStyleBackColor = true;
+			this.visibleLayersOnlyCheckBox.CheckedChanged += new System.EventHandler(this.visibleLayersOnlyCheckBox_CheckedChanged);
 			// 
 			// ExportDiagramDialog
 			// 
@@ -503,7 +516,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelButton;
-			this.ClientSize = new System.Drawing.Size(584, 442);
+			this.ClientSize = new System.Drawing.Size(584, 469);
 			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.exportButton);
 			this.Controls.Add(this.cancelButton);
@@ -565,5 +578,6 @@
 		private System.Windows.Forms.Button exportButton;
 		private System.Windows.Forms.CheckBox backColorCheckBox;
 		private System.Windows.Forms.SplitContainer splitContainer1;
+		private System.Windows.Forms.CheckBox visibleLayersOnlyCheckBox;
 	}
 }

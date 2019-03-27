@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -47,10 +47,10 @@ namespace Dataweb.NShape {
 		/// <summary>Arrow shaped line cap.</summary>
 		ICapStyle OpenArrow { get; }
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Special line cap #1.</summary>
 		ICapStyle Special1 { get; }
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Special line cap #2.</summary>
 		ICapStyle Special2 { get; }
 
 	}
@@ -66,22 +66,22 @@ namespace Dataweb.NShape {
 		/// </summary>
 		ICharacterStyle this[string name] { get; }
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Character style for captions.</summary>
 		ICharacterStyle Caption { get; }
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Character style for level 1 (top level) headings.</summary>
 		ICharacterStyle Heading1 { get; }
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Character style for level 2 headings.</summary>
 		ICharacterStyle Heading2 { get; }
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Character style for level 3 headings.</summary>
 		ICharacterStyle Heading3 { get; }
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Character style for normal text.</summary>
 		ICharacterStyle Normal { get; }
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Character style for subtitles.</summary>
 		ICharacterStyle Subtitle { get; }
 
 	}
@@ -320,7 +320,7 @@ namespace Dataweb.NShape {
 		/// Creates an empty <see cref="T:Dataweb.NShape.Design" /> for subsequent loading from the <see cref="T:Dataweb.NShape.Advanced.IRepository" />.
 		/// </summary>
 		internal Design() {
-			name = string.Empty;
+			_name = string.Empty;
 		}
 
 
@@ -330,7 +330,7 @@ namespace Dataweb.NShape {
 		public Design(string name)
 			: this() {
 			if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
-			this.name = name;
+			this._name = name;
 			CreateStandardStyles();
 		}
 
@@ -356,30 +356,30 @@ namespace Dataweb.NShape {
 
 
 		object IEntity.Id {
-			get { return id; }
+			get { return _id; }
 		}
 
 
 		void IEntity.AssignId(object id) {
 			if (id == null)
 				throw new ArgumentNullException("id");
-			if (this.id != null)
+			if (this._id != null)
 				throw new InvalidOperationException("Design has already an id.");
-			this.id = id;
+			this._id = id;
 		}
 
 
 		void IEntity.LoadFields(IRepositoryReader reader, int version) {
-			name = reader.ReadString();
-			if (version >= 4) title = reader.ReadString();
-			description = reader.ReadString();
+			_name = reader.ReadString();
+			if (version >= 4) _title = reader.ReadString();
+			_description = reader.ReadString();
 		}
 
 
 		void IEntity.SaveFields(IRepositoryWriter writer, int version) {
-			writer.WriteString(name);
-			if (version >= 4) writer.WriteString(title);
-			writer.WriteString(description);
+			writer.WriteString(_name);
+			if (version >= 4) writer.WriteString(_title);
+			writer.WriteString(_description);
 		}
 
 
@@ -408,72 +408,72 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public ICapStyle GetPreviewStyle(ICapStyle capStyle) {
 			if (capStyle == null) throw new ArgumentNullException("capStyle");
-			return capStyles.GetPreviewStyle(capStyle.Name);
+			return _capStyles.GetPreviewStyle(capStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ICharacterStyle GetPreviewStyle(ICharacterStyle characterStyle) {
 			if (characterStyle == null) throw new ArgumentNullException("characterStyle");
-			return characterStyles.GetPreviewStyle(characterStyle.Name);
+			return _characterStyles.GetPreviewStyle(characterStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IColorStyle GetPreviewStyle(IColorStyle colorStyle) {
 			if (colorStyle == null) throw new ArgumentNullException("colorStyle");
-			return colorStyles.GetPreviewStyle(colorStyle.Name);
+			return _colorStyles.GetPreviewStyle(colorStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IFillStyle GetPreviewStyle(IFillStyle fillStyle) {
 			if (fillStyle == null) throw new ArgumentNullException("fillStyle");
-			return fillStyles.GetPreviewStyle(fillStyle.Name);
+			return _fillStyles.GetPreviewStyle(fillStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ILineStyle GetPreviewStyle(ILineStyle lineStyle) {
 			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
-			return lineStyles.GetPreviewStyle(lineStyle.Name);
+			return _lineStyles.GetPreviewStyle(lineStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IParagraphStyle GetPreviewStyle(IParagraphStyle paragraphStyle) {
 			if (paragraphStyle == null) throw new ArgumentNullException("paragraphStyle");
-			return paragraphStyles.GetPreviewStyle(paragraphStyle.Name);
+			return _paragraphStyles.GetPreviewStyle(paragraphStyle.Name);
 		}
 
 
 		ICapStyles IStyleSet.CapStyles {
-			get { return capStyles; }
+			get { return _capStyles; }
 		}
 
 
 		ICharacterStyles IStyleSet.CharacterStyles {
-			get { return characterStyles; }
+			get { return _characterStyles; }
 		}
 
 
 		IColorStyles IStyleSet.ColorStyles {
-			get { return colorStyles; }
+			get { return _colorStyles; }
 		}
 
 
 		IFillStyles IStyleSet.FillStyles {
-			get { return fillStyles; }
+			get { return _fillStyles; }
 		}
 
 
 		ILineStyles IStyleSet.LineStyles {
-			get { return lineStyles; }
+			get { return _lineStyles; }
 		}
 
 
 		IParagraphStyles IStyleSet.ParagraphStyles {
-			get { return paragraphStyles; }
+			get { return _paragraphStyles; }
 		}
 
 		#endregion
@@ -485,8 +485,8 @@ namespace Dataweb.NShape {
 		/// The name of the <see cref="T:Dataweb.NShape.Design" />.
 		/// </summary>
 		public string Name {
-			get { return name; }
-			set { name = value; }
+			get { return _name; }
+			set { _name = value; }
 		}
 
 
@@ -494,11 +494,11 @@ namespace Dataweb.NShape {
 		/// The title of the <see cref="T:Dataweb.NShape.Design" />.
 		/// </summary>
 		public string Title {
-			get { return string.IsNullOrEmpty(title) ? name : title; }
+			get { return string.IsNullOrEmpty(_title) ? _name : _title; }
 			set {
-				if (value == name || string.IsNullOrEmpty(value))
-					title = null;
-				else title = value;
+				if (value == _name || string.IsNullOrEmpty(value))
+					_title = null;
+				else _title = value;
 			}
 		}
 
@@ -508,49 +508,49 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public IEnumerable<IStyle> Styles {
 			get {
-				foreach (IStyle s in colorStyles) yield return s;
-				foreach (IStyle s in capStyles) yield return s;
-				foreach (IStyle s in lineStyles) yield return s;
-				foreach (IStyle s in fillStyles) yield return s;
-				foreach (IStyle s in characterStyles) yield return s;
-				foreach (IStyle s in paragraphStyles) yield return s;
+				foreach (IStyle s in _colorStyles) yield return s;
+				foreach (IStyle s in _capStyles) yield return s;
+				foreach (IStyle s in _lineStyles) yield return s;
+				foreach (IStyle s in _fillStyles) yield return s;
+				foreach (IStyle s in _characterStyles) yield return s;
+				foreach (IStyle s in _paragraphStyles) yield return s;
 			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public CapStyleCollection CapStyles {
-			get { return capStyles; }
+			get { return _capStyles; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public CharacterStyleCollection CharacterStyles {
-			get { return characterStyles; }
+			get { return _characterStyles; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ColorStyleCollection ColorStyles {
-			get { return colorStyles; }
+			get { return _colorStyles; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public FillStyleCollection FillStyles {
-			get { return fillStyles; }
+			get { return _fillStyles; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public LineStyleCollection LineStyles {
-			get { return lineStyles; }
+			get { return _lineStyles; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ParagraphStyleCollection ParagraphStyles {
-			get { return paragraphStyles; }
+			get { return _paragraphStyles; }
 		}
 
 		#endregion
@@ -569,12 +569,12 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public void Clear() {
 			// Clear user defined styles
-			paragraphStyles.Clear();
-			lineStyles.Clear();
-			characterStyles.Clear();
-			fillStyles.Clear();
-			capStyles.Clear();
-			colorStyles.Clear();
+			_paragraphStyles.Clear();
+			_lineStyles.Clear();
+			_characterStyles.Clear();
+			_fillStyles.Clear();
+			_capStyles.Clear();
+			_colorStyles.Clear();
 		}
 
 
@@ -582,17 +582,17 @@ namespace Dataweb.NShape {
 		public bool ContainsStyle(IStyle style) {
 			if (style == null) throw new ArgumentNullException("style");
 			if (style is CapStyle)
-				return capStyles.Contains((CapStyle)style);
+				return _capStyles.Contains((CapStyle)style);
 			else if (style is CharacterStyle)
-				return characterStyles.Contains((CharacterStyle)style);
+				return _characterStyles.Contains((CharacterStyle)style);
 			else if (style is ColorStyle)
-				return colorStyles.Contains((ColorStyle)style);
+				return _colorStyles.Contains((ColorStyle)style);
 			else if (style is FillStyle)
-				return fillStyles.Contains((FillStyle)style);
+				return _fillStyles.Contains((FillStyle)style);
 			else if (style is LineStyle)
-				return lineStyles.Contains((LineStyle)style);
+				return _lineStyles.Contains((LineStyle)style);
 			else if (style is ParagraphStyle)
-				return paragraphStyles.Contains((ParagraphStyle)style);
+				return _paragraphStyles.Contains((ParagraphStyle)style);
 			else throw new NShapeUnsupportedValueException(style);
 		}
 
@@ -601,17 +601,17 @@ namespace Dataweb.NShape {
 		public bool IsStandardStyle(IStyle style) {
 			if (style == null) throw new ArgumentNullException("style");
 			if (style is CapStyle)
-				return capStyles.IsStandardStyle((CapStyle)style);
+				return _capStyles.IsStandardStyle((CapStyle)style);
 			else if (style is CharacterStyle)
-				return characterStyles.IsStandardStyle((CharacterStyle)style);
+				return _characterStyles.IsStandardStyle((CharacterStyle)style);
 			else if (style is ColorStyle)
-				return colorStyles.IsStandardStyle((ColorStyle)style);
+				return _colorStyles.IsStandardStyle((ColorStyle)style);
 			else if (style is FillStyle)
-				return fillStyles.IsStandardStyle((FillStyle)style);
+				return _fillStyles.IsStandardStyle((FillStyle)style);
 			else if (style is LineStyle)
-				return lineStyles.IsStandardStyle((LineStyle)style);
+				return _lineStyles.IsStandardStyle((LineStyle)style);
 			else if (style is ParagraphStyle)
-				return paragraphStyles.IsStandardStyle((ParagraphStyle)style);
+				return _paragraphStyles.IsStandardStyle((ParagraphStyle)style);
 			else throw new NShapeUnsupportedValueException(style);
 		}
 
@@ -622,28 +622,28 @@ namespace Dataweb.NShape {
 		public IStyle FindMatchingStyle(IStyle style) {
 			if (style == null) throw new ArgumentNullException("style");
 			if (style is ColorStyle) {
-				if (colorStyles.Contains(style.Name))
-					return colorStyles[style.Name];
+				if (_colorStyles.Contains(style.Name))
+					return _colorStyles[style.Name];
 				else return null;
 			} else if (style is CapStyle) {
-				if (capStyles.Contains(style.Name))
-					return capStyles[style.Name];
+				if (_capStyles.Contains(style.Name))
+					return _capStyles[style.Name];
 				else return null;
 			} else if (style is FillStyle) {
-				if (fillStyles.Contains(style.Name))
-					return fillStyles[style.Name];
+				if (_fillStyles.Contains(style.Name))
+					return _fillStyles[style.Name];
 				else return null;
 			} else if (style is CharacterStyle) {
-				if (characterStyles.Contains(style.Name))
-					return characterStyles[style.Name];
+				if (_characterStyles.Contains(style.Name))
+					return _characterStyles[style.Name];
 				else return null;
 			} else if (style is LineStyle) {
-				if (lineStyles.Contains(style.Name))
-					return lineStyles[style.Name];
+				if (_lineStyles.Contains(style.Name))
+					return _lineStyles[style.Name];
 				else return null;
 			} else if (style is ParagraphStyle) {
-				if (paragraphStyles.Contains(style.Name))
-					return paragraphStyles[style.Name];
+				if (_paragraphStyles.Contains(style.Name))
+					return _paragraphStyles[style.Name];
 				else return null;
 			} else throw new NShapeUnsupportedValueException(style);
 		}
@@ -662,17 +662,17 @@ namespace Dataweb.NShape {
 			if (style == null) throw new ArgumentNullException("style");
 			AssertValidStyle(style);
 			if (style is CapStyle) {
-				capStyles.Add((CapStyle)style, CreatePreviewStyle((ICapStyle)style));
+				_capStyles.Add((CapStyle)style, CreatePreviewStyle((ICapStyle)style));
 			} else if (style is CharacterStyle) {
-				characterStyles.Add((CharacterStyle)style, CreatePreviewStyle((ICharacterStyle)style));
+				_characterStyles.Add((CharacterStyle)style, CreatePreviewStyle((ICharacterStyle)style));
 			} else if (style is ColorStyle) {
-				colorStyles.Add((ColorStyle)style, CreatePreviewStyle((IColorStyle)style));
+				_colorStyles.Add((ColorStyle)style, CreatePreviewStyle((IColorStyle)style));
 			} else if (style is FillStyle) {
-				fillStyles.Add((FillStyle)style, CreatePreviewStyle((IFillStyle)style));
+				_fillStyles.Add((FillStyle)style, CreatePreviewStyle((IFillStyle)style));
 			} else if (style is LineStyle) {
-				lineStyles.Add((LineStyle)style, CreatePreviewStyle((ILineStyle)style));
+				_lineStyles.Add((LineStyle)style, CreatePreviewStyle((ILineStyle)style));
 			} else if (style is ParagraphStyle) {
-				paragraphStyles.Add((ParagraphStyle)style, CreatePreviewStyle((IParagraphStyle)style));
+				_paragraphStyles.Add((ParagraphStyle)style, CreatePreviewStyle((IParagraphStyle)style));
 			} else throw new NShapeUnsupportedValueException(style);
 		}
 
@@ -681,17 +681,17 @@ namespace Dataweb.NShape {
 		public void RemoveStyle(IStyle style) {
 			if (style == null) throw new ArgumentNullException("style");
 			if (style is CapStyle)
-				capStyles.Remove((CapStyle)style);
+				_capStyles.Remove((CapStyle)style);
 			else if (style is CharacterStyle)
-				characterStyles.Remove((CharacterStyle)style);
+				_characterStyles.Remove((CharacterStyle)style);
 			else if (style is ColorStyle)
-				colorStyles.Remove((ColorStyle)style);
+				_colorStyles.Remove((ColorStyle)style);
 			else if (style is FillStyle)
-				fillStyles.Remove((FillStyle)style);
+				_fillStyles.Remove((FillStyle)style);
 			else if (style is LineStyle)
-				lineStyles.Remove((LineStyle)style);
+				_lineStyles.Remove((LineStyle)style);
 			else if (style is ParagraphStyle)
-				paragraphStyles.Remove((ParagraphStyle)style);
+				_paragraphStyles.Remove((ParagraphStyle)style);
 			else throw new NShapeUnsupportedValueException(style);
 		}
 
@@ -701,17 +701,17 @@ namespace Dataweb.NShape {
 			if (name == null) throw new ArgumentNullException("name");
 			if (styleType == null) throw new ArgumentNullException("styleType");
 			if (styleType == typeof(CapStyle))
-				capStyles.Remove(name);
+				_capStyles.Remove(name);
 			else if (styleType == typeof(CharacterStyle))
-				characterStyles.Remove(name);
+				_characterStyles.Remove(name);
 			else if (styleType == typeof(ColorStyle))
-				colorStyles.Remove(name);
+				_colorStyles.Remove(name);
 			else if (styleType == typeof(FillStyle))
-				fillStyles.Remove(name);
+				_fillStyles.Remove(name);
 			else if (styleType == typeof(LineStyle))
-				lineStyles.Remove(name);
+				_lineStyles.Remove(name);
 			else if (styleType == typeof(ParagraphStyle))
-				paragraphStyles.Remove(name);
+				_paragraphStyles.Remove(name);
 			else throw new NShapeUnsupportedValueException(styleType);
 		}
 
@@ -729,7 +729,7 @@ namespace Dataweb.NShape {
 			bool styleFound = ContainsStyle(style);
 			if (styleFound) {
 				Type styleType = style.GetType();
-				Style existingStyle = DoFindStyleByName(name, styleType);
+				Style existingStyle = DoFindStyleByName(_name, styleType);
 				existingStyle.Assign(style, this.FindMatchingStyle);
 				CreateAndSetPreviewStyle(existingStyle);
 			} else {
@@ -745,7 +745,7 @@ namespace Dataweb.NShape {
 		public CapStyle CreatePreviewStyle(ICapStyle baseStyle) {
 			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
 			CapStyle result = new CapStyle(baseStyle.Name);
-			result.Title = baseStyle.Name + previewNameSuffix;
+			result.Title = baseStyle.Name + _previewNameSuffix;
 			result.CapShape = baseStyle.CapShape;
 			result.CapSize = baseStyle.CapSize;
 			if (baseStyle.ColorStyle != null)
@@ -758,10 +758,10 @@ namespace Dataweb.NShape {
 		public ColorStyle CreatePreviewStyle(IColorStyle baseStyle) {
 			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
 			ColorStyle result = new ColorStyle(baseStyle.Name);
-			result.Title = baseStyle.Name + previewNameSuffix;
+			result.Title = baseStyle.Name + _previewNameSuffix;
 			result.Color = baseStyle.Color;
 			result.Transparency = GetPreviewTransparency(baseStyle.Transparency);
-			result.ConvertToGray = previewAsGrayScale;
+			result.ConvertToGray = _previewAsGrayScale;
 			return result;
 		}
 
@@ -770,12 +770,12 @@ namespace Dataweb.NShape {
 		public FillStyle CreatePreviewStyle(IFillStyle baseStyle) {
 			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
 			FillStyle result = new FillStyle(baseStyle.Name, ColorStyle.Empty, ColorStyle.Empty);
-			result.Title = baseStyle.Name + previewNameSuffix;
+			result.Title = baseStyle.Name + _previewNameSuffix;
 			if (baseStyle.AdditionalColorStyle != null)
 				result.AdditionalColorStyle = CreatePreviewStyle(baseStyle.AdditionalColorStyle);
 			if (baseStyle.BaseColorStyle != null)
 				result.BaseColorStyle = CreatePreviewStyle(baseStyle.BaseColorStyle);
-			result.ConvertToGrayScale = previewAsGrayScale;
+			result.ConvertToGrayScale = _previewAsGrayScale;
 			result.FillMode = baseStyle.FillMode;
 			result.FillPattern = baseStyle.FillPattern;
 
@@ -805,7 +805,7 @@ namespace Dataweb.NShape {
 		public CharacterStyle CreatePreviewStyle(ICharacterStyle baseStyle) {
 			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
 			CharacterStyle result = new CharacterStyle(baseStyle.Name);
-			result.Title = baseStyle.Name + previewNameSuffix;
+			result.Title = baseStyle.Name + _previewNameSuffix;
 			if (baseStyle.ColorStyle != null)
 				result.ColorStyle = CreatePreviewStyle(baseStyle.ColorStyle);
 			result.FontName = baseStyle.FontName;
@@ -819,7 +819,7 @@ namespace Dataweb.NShape {
 		public LineStyle CreatePreviewStyle(ILineStyle baseStyle) {
 			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
 			LineStyle result = new LineStyle(baseStyle.Name);
-			result.Title = baseStyle.Name + previewNameSuffix;
+			result.Title = baseStyle.Name + _previewNameSuffix;
 			if (baseStyle.ColorStyle != null)
 				result.ColorStyle = CreatePreviewStyle(baseStyle.ColorStyle);
 			result.DashCap = baseStyle.DashCap;
@@ -834,7 +834,7 @@ namespace Dataweb.NShape {
 		public ParagraphStyle CreatePreviewStyle(IParagraphStyle baseStyle) {
 			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
 			ParagraphStyle result = new ParagraphStyle(baseStyle.Name);
-			result.Title = baseStyle.Name + previewNameSuffix;
+			result.Title = baseStyle.Name + _previewNameSuffix;
 			result.Alignment = baseStyle.Alignment;
 			result.Padding = baseStyle.Padding;
 			result.Trimming = baseStyle.Trimming;
@@ -845,12 +845,12 @@ namespace Dataweb.NShape {
 
 
 		internal static bool PreviewsAsGrayScale {
-			get { return previewAsGrayScale; }
+			get { return _previewAsGrayScale; }
 		}
 
 
 		internal static Byte GetPreviewTransparency(byte baseTransparency) {
-			int result = baseTransparency + (int)Math.Round((100 - baseTransparency) * previewTransparencyFactor);
+			int result = baseTransparency + (int)Math.Round((100 - baseTransparency) * _previewTransparencyFactor);
 			if (result < 0) result = 0;
 			else if (result > 100) result = 100;
 			return Convert.ToByte(result);
@@ -866,21 +866,21 @@ namespace Dataweb.NShape {
 			CreateStandardLineStyles();
 			CreateStandardParagraphStyles();
 		}
-		
-		
+
+
 		private Style DoFindStyleByName(string name, Type styleType) {
 			if (IsOfType(styleType, typeof(ICapStyle)))
-				return capStyles.Contains(name) ? capStyles[name] : null;
+				return _capStyles.Contains(name) ? _capStyles[name] : null;
 			else if (IsOfType(styleType, typeof(ICharacterStyle)))
-				return characterStyles.Contains(name) ? characterStyles[name] : null;
+				return _characterStyles.Contains(name) ? _characterStyles[name] : null;
 			else if (IsOfType(styleType, typeof(IColorStyle)))
-				return colorStyles.Contains(name) ? colorStyles[name] : null;
+				return _colorStyles.Contains(name) ? _colorStyles[name] : null;
 			else if (IsOfType(styleType, typeof(IFillStyle)))
-				return fillStyles.Contains(name) ? fillStyles[name] : null;
+				return _fillStyles.Contains(name) ? _fillStyles[name] : null;
 			else if (IsOfType(styleType, typeof(ILineStyle)))
-				return lineStyles.Contains(name) ? lineStyles[name] : null;
+				return _lineStyles.Contains(name) ? _lineStyles[name] : null;
 			else if (styleType == typeof(ParagraphStyle))
-				return paragraphStyles.Contains(name) ? paragraphStyles[name] : null;
+				return _paragraphStyles.Contains(name) ? _paragraphStyles[name] : null;
 			else throw new NShapeException("Unexpected style type '{0}'.", styleType.Name);
 		}
 
@@ -896,27 +896,27 @@ namespace Dataweb.NShape {
 			if (baseStyle is CapStyle) {
 				CapStyle style = (CapStyle)baseStyle;
 				CapStyle previewStyle = CreatePreviewStyle(style);
-				capStyles.SetPreviewStyle(style, previewStyle);
+				_capStyles.SetPreviewStyle(style, previewStyle);
 			} else if (baseStyle is CharacterStyle) {
 				CharacterStyle style = (CharacterStyle)baseStyle;
 				CharacterStyle previewStyle = CreatePreviewStyle(style);
-				characterStyles.SetPreviewStyle(style, previewStyle);
+				_characterStyles.SetPreviewStyle(style, previewStyle);
 			} else if (baseStyle is ColorStyle) {
 				ColorStyle style = (ColorStyle)baseStyle;
 				ColorStyle previewStyle = CreatePreviewStyle(style);
-				colorStyles.SetPreviewStyle(style, previewStyle);
+				_colorStyles.SetPreviewStyle(style, previewStyle);
 			} else if (baseStyle is FillStyle) {
 				FillStyle style = (FillStyle)baseStyle;
 				FillStyle previewStyle = CreatePreviewStyle(style);
-				fillStyles.SetPreviewStyle(style, previewStyle);
+				_fillStyles.SetPreviewStyle(style, previewStyle);
 			} else if (baseStyle is LineStyle) {
 				LineStyle style = (LineStyle)baseStyle;
 				LineStyle previewStyle = CreatePreviewStyle(style);
-				lineStyles.SetPreviewStyle(style, previewStyle);
+				_lineStyles.SetPreviewStyle(style, previewStyle);
 			} else if (baseStyle is ParagraphStyle) {
 				ParagraphStyle style = (ParagraphStyle)baseStyle;
 				ParagraphStyle previewStyle = CreatePreviewStyle(style);
-				paragraphStyles.SetPreviewStyle(style, previewStyle);
+				_paragraphStyles.SetPreviewStyle(style, previewStyle);
 			} else throw new NShapeUnsupportedValueException(baseStyle);
 		}
 
@@ -988,20 +988,26 @@ namespace Dataweb.NShape {
 
 
 		private string GetErrorMessageCannotAddStyle(IStyle styleToAdd) {
-			const string msgFormatStr = "Cannot add {0} '{1}' to design '{2}'";
-			return string.Format(msgFormatStr, styleToAdd.GetType().Name, styleToAdd.Title, this.Name);
+			return string.Format(
+				Dataweb.NShape.Properties.Resources.MessageFmt_CannotAdd01ToDesign2, 
+				styleToAdd.GetType().Name, styleToAdd.Title, this.Name
+			);
 		}
 
 
 		private string GetErrorMessageStyleIsEmpty(IStyle styleToAdd, IStyle requiredStyle) {
-			const string msgFormatStr = "{0}: Used {1} is empty (not defined).";
-			return string.Format(msgFormatStr, GetErrorMessageCannotAddStyle(styleToAdd), requiredStyle.GetType().Name, requiredStyle.Title);
+			return string.Format(
+				Dataweb.NShape.Properties.Resources.MessageFmt_0Used1IsEmptyNotDefined,
+				GetErrorMessageCannotAddStyle(styleToAdd), requiredStyle.GetType().Name, requiredStyle.Title
+			);
 		}
 
 
 		private string GetErrorMessageStyleDoesNotExist(IStyle styleToAdd, IStyle requiredStyle) {
-			const string msgFormatStr = "{0}: Used {1} '{2}' does not exist in design '{3}'.";
-			return string.Format(msgFormatStr, GetErrorMessageCannotAddStyle(styleToAdd), requiredStyle.GetType().Name, requiredStyle.Title, this.Name);
+			return string.Format(
+				Dataweb.NShape.Properties.Resources.MessageFmt_0Used12DoesNotExistInDesign3, 
+				GetErrorMessageCannotAddStyle(styleToAdd), requiredStyle.GetType().Name, requiredStyle.Title, this.Name
+			);
 		}
 
 		#endregion
@@ -1013,55 +1019,55 @@ namespace Dataweb.NShape {
 			ColorStyle colorStyle;
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Background, Color.Silver);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Black, Color.Black);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Blue, Color.SteelBlue);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Gray, Color.Gray);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Green, Color.SeaGreen);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Highlight, Color.DarkOrange);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.HighlightText, Color.Navy);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.LightBlue, Color.LightSteelBlue);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.LightGray, Color.LightGray);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.LightGreen, Color.DarkSeaGreen);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.LightRed, Color.LightSalmon);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.LightYellow, Color.LightGoldenrodYellow);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Red, Color.Firebrick);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Text, Color.Black);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Transparent, Color.Transparent);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.White, Color.White);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 
 			colorStyle = new ColorStyle(ColorStyle.StandardNames.Yellow, Color.Gold);
-			colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
+			_colorStyles.Add(colorStyle, CreatePreviewStyle(colorStyle));
 		}
 
 
@@ -1071,32 +1077,32 @@ namespace Dataweb.NShape {
 			capStyle = new CapStyle(CapStyle.StandardNames.None);
 			capStyle.CapShape = CapShape.None;
 			capStyle.CapSize = 12;
-			capStyle.ColorStyle = colorStyles.White;
-			capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
+			capStyle.ColorStyle = _colorStyles.White;
+			_capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
 
 			capStyle = new CapStyle(CapStyle.StandardNames.ArrowClosed);
 			capStyle.CapShape = CapShape.ClosedArrow;
 			capStyle.CapSize = 12;
-			capStyle.ColorStyle = colorStyles.Black;
-			capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
+			capStyle.ColorStyle = _colorStyles.Black;
+			_capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
 
 			capStyle = new CapStyle(CapStyle.StandardNames.ArrowOpen);
 			capStyle.CapShape = CapShape.OpenArrow;
 			capStyle.CapSize = 12;
-			capStyle.ColorStyle = colorStyles.Black;
-			capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
+			capStyle.ColorStyle = _colorStyles.Black;
+			_capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
 
 			capStyle = new CapStyle(CapStyle.StandardNames.Special1);
 			capStyle.CapShape = CapShape.Circle;
 			capStyle.CapSize = 6;
-			capStyle.ColorStyle = colorStyles.White;
-			capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
+			capStyle.ColorStyle = _colorStyles.White;
+			_capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
 
 			capStyle = new CapStyle(CapStyle.StandardNames.Special2);
 			capStyle.CapShape = CapShape.Diamond;
 			capStyle.CapSize = 6;
-			capStyle.ColorStyle = colorStyles.White;
-			capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
+			capStyle.ColorStyle = _colorStyles.White;
+			_capStyles.Add(capStyle, CreatePreviewStyle(capStyle));
 		}
 
 
@@ -1104,93 +1110,93 @@ namespace Dataweb.NShape {
 			CharacterStyle charStyle;
 
 			charStyle = new CharacterStyle(CharacterStyle.StandardNames.Caption);
-			charStyle.ColorStyle = colorStyles.Text;
+			charStyle.ColorStyle = _colorStyles.Text;
 			charStyle.FontName = "Tahoma";
 			charStyle.SizeInPoints = 10;
 			charStyle.Style = FontStyle.Regular;
-			characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
+			_characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
 
 			charStyle = new CharacterStyle(CharacterStyle.StandardNames.Heading1);
-			charStyle.ColorStyle = colorStyles.Text;
+			charStyle.ColorStyle = _colorStyles.Text;
 			charStyle.FontName = "Tahoma";
 			charStyle.SizeInPoints = 36;
 			charStyle.Style = FontStyle.Bold;
-			characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
+			_characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
 
 			charStyle = new CharacterStyle(CharacterStyle.StandardNames.Heading2);
-			charStyle.ColorStyle = colorStyles.Text;
+			charStyle.ColorStyle = _colorStyles.Text;
 			charStyle.FontName = "Tahoma";
 			charStyle.SizeInPoints = 24;
 			charStyle.Style = FontStyle.Bold;
-			characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
+			_characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
 
 			charStyle = new CharacterStyle(CharacterStyle.StandardNames.Heading3);
-			charStyle.ColorStyle = colorStyles.Text;
+			charStyle.ColorStyle = _colorStyles.Text;
 			charStyle.FontName = "Tahoma";
 			charStyle.SizeInPoints = 16;
 			charStyle.Style = FontStyle.Bold;
-			characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
+			_characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
 
 			charStyle = new CharacterStyle(CharacterStyle.StandardNames.Normal);
-			charStyle.ColorStyle = colorStyles.Text;
+			charStyle.ColorStyle = _colorStyles.Text;
 			charStyle.FontName = "Tahoma";
 			charStyle.SizeInPoints = 12;
 			charStyle.Style = FontStyle.Regular;
-			characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
+			_characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
 
 			charStyle = new CharacterStyle(CharacterStyle.StandardNames.Subtitle);
-			charStyle.ColorStyle = colorStyles.Text;
+			charStyle.ColorStyle = _colorStyles.Text;
 			charStyle.FontName = "Tahoma";
 			charStyle.SizeInPoints = 12;
 			charStyle.Style = FontStyle.Bold;
-			characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
+			_characterStyles.Add(charStyle, CreatePreviewStyle(charStyle));
 		}
 
 
 		private void CreateStandardFillStyles() {
 			FillStyle fillStyle;
 
-			fillStyle = new FillStyle(FillStyle.StandardNames.Black, colorStyles.Black, colorStyles.White);
+			fillStyle = new FillStyle(FillStyle.StandardNames.Black, _colorStyles.Black, _colorStyles.White);
 			fillStyle.ConvertToGrayScale = false;
 			fillStyle.FillMode = FillMode.Gradient;
 			fillStyle.FillPattern = HatchStyle.BackwardDiagonal;
-			fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
+			_fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
 
-			fillStyle = new FillStyle(FillStyle.StandardNames.Blue, colorStyles.Blue, colorStyles.White);
+			fillStyle = new FillStyle(FillStyle.StandardNames.Blue, _colorStyles.Blue, _colorStyles.White);
 			fillStyle.ConvertToGrayScale = false;
 			fillStyle.FillMode = FillMode.Gradient;
 			fillStyle.FillPattern = HatchStyle.BackwardDiagonal;
-			fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
+			_fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
 
-			fillStyle = new FillStyle(FillStyle.StandardNames.Green, colorStyles.Green, colorStyles.White);
+			fillStyle = new FillStyle(FillStyle.StandardNames.Green, _colorStyles.Green, _colorStyles.White);
 			fillStyle.ConvertToGrayScale = false;
 			fillStyle.FillMode = FillMode.Gradient;
 			fillStyle.FillPattern = HatchStyle.BackwardDiagonal;
-			fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
+			_fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
 
-			fillStyle = new FillStyle(FillStyle.StandardNames.Red, colorStyles.Red, colorStyles.White);
+			fillStyle = new FillStyle(FillStyle.StandardNames.Red, _colorStyles.Red, _colorStyles.White);
 			fillStyle.ConvertToGrayScale = false;
 			fillStyle.FillMode = FillMode.Gradient;
 			fillStyle.FillPattern = HatchStyle.BackwardDiagonal;
-			fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
+			_fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
 
-			fillStyle = new FillStyle(FillStyle.StandardNames.Transparent, colorStyles.Transparent, colorStyles.Transparent);
+			fillStyle = new FillStyle(FillStyle.StandardNames.Transparent, _colorStyles.Transparent, _colorStyles.Transparent);
 			fillStyle.ConvertToGrayScale = false;
 			fillStyle.FillMode = FillMode.Gradient;
 			fillStyle.FillPattern = HatchStyle.BackwardDiagonal;
-			fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
+			_fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
 
-			fillStyle = new FillStyle(FillStyle.StandardNames.White, colorStyles.White, colorStyles.White);
+			fillStyle = new FillStyle(FillStyle.StandardNames.White, _colorStyles.White, _colorStyles.White);
 			fillStyle.ConvertToGrayScale = false;
 			fillStyle.FillMode = FillMode.Gradient;
 			fillStyle.FillPattern = HatchStyle.BackwardDiagonal;
-			fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
+			_fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
 
-			fillStyle = new FillStyle(FillStyle.StandardNames.Yellow, colorStyles.Yellow, colorStyles.White);
+			fillStyle = new FillStyle(FillStyle.StandardNames.Yellow, _colorStyles.Yellow, _colorStyles.White);
 			fillStyle.ConvertToGrayScale = false;
 			fillStyle.FillMode = FillMode.Gradient;
 			fillStyle.FillPattern = HatchStyle.BackwardDiagonal;
-			fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
+			_fillStyles.Add(fillStyle, CreatePreviewStyle(fillStyle));
 		}
 
 
@@ -1198,124 +1204,124 @@ namespace Dataweb.NShape {
 			LineStyle lineStyle;
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Blue);
-			lineStyle.ColorStyle = colorStyles.Blue;
+			lineStyle.ColorStyle = _colorStyles.Blue;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Solid;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Dashed);
-			lineStyle.ColorStyle = colorStyles.Black;
+			lineStyle.ColorStyle = _colorStyles.Black;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Dash;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Dotted);
-			lineStyle.ColorStyle = colorStyles.Black;
+			lineStyle.ColorStyle = _colorStyles.Black;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Dot;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Green);
-			lineStyle.ColorStyle = colorStyles.Green;
+			lineStyle.ColorStyle = _colorStyles.Green;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Solid;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Highlight);
-			lineStyle.ColorStyle = colorStyles.Highlight;
+			lineStyle.ColorStyle = _colorStyles.Highlight;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Solid;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.HighlightDashed);
-			lineStyle.ColorStyle = colorStyles.Highlight;
+			lineStyle.ColorStyle = _colorStyles.Highlight;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Dash;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.HighlightDotted);
-			lineStyle.ColorStyle = colorStyles.Highlight;
+			lineStyle.ColorStyle = _colorStyles.Highlight;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Dot;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.HighlightThick);
-			lineStyle.ColorStyle = colorStyles.Highlight;
+			lineStyle.ColorStyle = _colorStyles.Highlight;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Solid;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 3;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.None);
-			lineStyle.ColorStyle = colorStyles.Transparent;
+			lineStyle.ColorStyle = _colorStyles.Transparent;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Solid;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Normal);
-			lineStyle.ColorStyle = colorStyles.Black;
+			lineStyle.ColorStyle = _colorStyles.Black;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Solid;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Red);
-			lineStyle.ColorStyle = colorStyles.Red;
+			lineStyle.ColorStyle = _colorStyles.Red;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Solid;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Special1);
-			lineStyle.ColorStyle = colorStyles.Black;
+			lineStyle.ColorStyle = _colorStyles.Black;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.DashDot;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Special2);
-			lineStyle.ColorStyle = colorStyles.Black;
+			lineStyle.ColorStyle = _colorStyles.Black;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.DashDotDot;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Thick);
-			lineStyle.ColorStyle = colorStyles.Black;
+			lineStyle.ColorStyle = _colorStyles.Black;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Solid;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 3;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 
 			lineStyle = new LineStyle(LineStyle.StandardNames.Yellow);
-			lineStyle.ColorStyle = colorStyles.Yellow;
+			lineStyle.ColorStyle = _colorStyles.Yellow;
 			lineStyle.DashCap = DashCap.Round;
 			lineStyle.DashType = DashType.Solid;
 			lineStyle.LineJoin = LineJoin.Round;
 			lineStyle.LineWidth = 1;
-			lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
+			_lineStyles.Add(lineStyle, CreatePreviewStyle(lineStyle));
 		}
 
 
@@ -1327,21 +1333,21 @@ namespace Dataweb.NShape {
 			paragraphStyle.Padding = new TextPadding(3);
 			paragraphStyle.Trimming = StringTrimming.EllipsisCharacter;
 			paragraphStyle.WordWrap = false;
-			paragraphStyles.Add(paragraphStyle, CreatePreviewStyle(paragraphStyle));
+			_paragraphStyles.Add(paragraphStyle, CreatePreviewStyle(paragraphStyle));
 
 			paragraphStyle = new ParagraphStyle(ParagraphStyle.StandardNames.Text);
 			paragraphStyle.Alignment = ContentAlignment.TopLeft;
 			paragraphStyle.Padding = new TextPadding(3);
 			paragraphStyle.Trimming = StringTrimming.EllipsisCharacter;
 			paragraphStyle.WordWrap = true;
-			paragraphStyles.Add(paragraphStyle, CreatePreviewStyle(paragraphStyle));
+			_paragraphStyles.Add(paragraphStyle, CreatePreviewStyle(paragraphStyle));
 
 			paragraphStyle = new ParagraphStyle(ParagraphStyle.StandardNames.Title);
 			paragraphStyle.Alignment = ContentAlignment.MiddleCenter;
 			paragraphStyle.Padding = new TextPadding(3);
 			paragraphStyle.Trimming = StringTrimming.EllipsisCharacter;
 			paragraphStyle.WordWrap = true;
-			paragraphStyles.Add(paragraphStyle, CreatePreviewStyle(paragraphStyle));
+			_paragraphStyles.Add(paragraphStyle, CreatePreviewStyle(paragraphStyle));
 
 		}
 
@@ -1351,22 +1357,22 @@ namespace Dataweb.NShape {
 		#region Fields
 
 		// parameters for preview style creation
-		private static bool previewAsGrayScale = true;
-		private static float previewTransparencyFactor = 0.66f;
+		private static bool _previewAsGrayScale = true;
+		private static float _previewTransparencyFactor = 0.66f;
 
-		private object id = null;
-		private string name = string.Empty;
-		private string title = null;
-		private string description = string.Empty;
+		private object _id = null;
+		private string _name = string.Empty;
+		private string _title = null;
+		private string _description = string.Empty;
 
 		// Style collections
-		private CapStyleCollection capStyles = new CapStyleCollection();
-		private CharacterStyleCollection characterStyles = new CharacterStyleCollection();
-		private ColorStyleCollection colorStyles = new ColorStyleCollection();
-		private FillStyleCollection fillStyles = new FillStyleCollection();
-		private LineStyleCollection lineStyles = new LineStyleCollection();
-		private ParagraphStyleCollection paragraphStyles = new ParagraphStyleCollection();
-		private const string previewNameSuffix = " (Preview)";
+		private CapStyleCollection _capStyles = new CapStyleCollection();
+		private CharacterStyleCollection _characterStyles = new CharacterStyleCollection();
+		private ColorStyleCollection _colorStyles = new ColorStyleCollection();
+		private FillStyleCollection _fillStyles = new FillStyleCollection();
+		private LineStyleCollection _lineStyles = new LineStyleCollection();
+		private ParagraphStyleCollection _paragraphStyles = new ParagraphStyleCollection();
+		private const string _previewNameSuffix = " (Preview)";
 
 		#endregion
 	}

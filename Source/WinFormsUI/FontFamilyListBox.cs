@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -67,8 +67,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[CategoryBehavior()]
 		public bool HighlightItems {
-			get { return highlightItems; }
-			set { highlightItems = value; }
+			get { return _highlightItems; }
+			set { _highlightItems = value; }
 		}
 
 
@@ -76,13 +76,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the background color for normal items.
 		/// </summary>
 		public Color ItemBackgroundColor {
-			get { return itemBackgroundColor; }
+			get { return _itemBackgroundColor; }
 			set {
-				if (itemBackgroundBrush != null) {
-					itemBackgroundBrush.Dispose();
-					itemBackgroundBrush = null;
+				if (_itemBackgroundBrush != null) {
+					_itemBackgroundBrush.Dispose();
+					_itemBackgroundBrush = null;
 				}
-				itemBackgroundColor = value;
+				_itemBackgroundColor = value;
 			}
 		}
 
@@ -91,13 +91,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the background color for highlighted items.
 		/// </summary>
 		public Color ItemHighlightedColor {
-			get { return itemHighlightedColor; }
+			get { return _itemHighlightedColor; }
 			set {
-				if (itemHighlightedBrush != null) {
-					itemHighlightedBrush.Dispose();
-					itemHighlightedBrush = null;
+				if (_itemHighlightedBrush != null) {
+					_itemHighlightedBrush.Dispose();
+					_itemHighlightedBrush = null;
 				}
-				itemHighlightedColor = value;
+				_itemHighlightedColor = value;
 			}
 		}
 
@@ -106,13 +106,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the background color for selected items.
 		/// </summary>
 		public Color ItemSelectedColor {
-			get { return itemSelectedColor; }
+			get { return _itemSelectedColor; }
 			set {
-				if (itemSelectedBrush != null) {
-					itemSelectedBrush.Dispose();
-					itemSelectedBrush = null;
+				if (_itemSelectedBrush != null) {
+					_itemSelectedBrush.Dispose();
+					_itemSelectedBrush = null;
 				}
-				itemSelectedColor = value;
+				_itemSelectedColor = value;
 			}
 		}
 
@@ -121,13 +121,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the background color of focused items.
 		/// </summary>
 		public Color ItemFocusedColor {
-			get { return itemFocusedColor; }
+			get { return _itemFocusedColor; }
 			set {
-				if (itemFocusedBrush != null) {
-					itemFocusedBrush.Dispose();
-					itemFocusedBrush = null;
+				if (_itemFocusedBrush != null) {
+					_itemFocusedBrush.Dispose();
+					_itemFocusedBrush = null;
 				}
-				itemFocusedColor = value;
+				_itemFocusedColor = value;
 			}
 		}
 
@@ -136,13 +136,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the border color for focused items.
 		/// </summary>
 		public Color FocusBorderColor {
-			get { return focusBorderColor; }
+			get { return _focusBorderColor; }
 			set {
-				if (focusBorderPen != null) {
-					focusBorderPen.Dispose();
-					focusBorderPen = null;
+				if (_focusBorderPen != null) {
+					_focusBorderPen.Dispose();
+					_focusBorderPen = null;
 				}
-				focusBorderColor = value;
+				_focusBorderColor = value;
 			}
 		}
 
@@ -151,13 +151,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Spacifies the border color for normal items.
 		/// </summary>
 		public Color ItemBorderColor {
-			get { return itemBorderColor; }
+			get { return _itemBorderColor; }
 			set {
-				if (itemBorderPen != null) {
-					itemBorderPen.Dispose();
-					itemBorderPen = null;
+				if (_itemBorderPen != null) {
+					_itemBorderPen.Dispose();
+					_itemBorderPen = null;
 				}
-				itemBorderColor = value;
+				_itemBorderColor = value;
 			}
 		}
 
@@ -166,13 +166,13 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the text color of all items.
 		/// </summary>
 		public Color TextColor {
-			get { return textColor; }
+			get { return _textColor; }
 			set {
-				if (textBrush != null) {
-					textBrush.Dispose();
-					textBrush = null;
+				if (_textBrush != null) {
+					_textBrush.Dispose();
+					_textBrush = null;
 				}
-				textColor = value;
+				_textColor = value;
 			}
 		}
 
@@ -188,10 +188,10 @@ namespace Dataweb.NShape.WinFormsUI {
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				// dispose drawing stuff
-				formatter.Dispose();
-				foreach (Font font in fonts)
+				_formatter.Dispose();
+				foreach (Font font in _fonts)
 					font.Dispose();
-				fonts.Clear();
+				_fonts.Clear();
 
 				if (components != null)
 					components.Dispose();
@@ -226,7 +226,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <override></override>
 		protected override void OnMeasureItem(MeasureItemEventArgs e) {
 			if (e.Index >= 0) {
-				e.ItemHeight = (int)Math.Ceiling(fonts[e.Index].GetHeight(e.Graphics));
+				e.ItemHeight = (int)Math.Ceiling(_fonts[e.Index].GetHeight(e.Graphics));
 				e.ItemWidth = Width;
 			}
 			else base.OnMeasureItem(e);
@@ -235,32 +235,32 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		protected override void OnDrawItem(DrawItemEventArgs e) {
-			itemBounds = e.Bounds;
-			itemBounds.Inflate(-3, -1);
+			_itemBounds = e.Bounds;
+			_itemBounds.Inflate(-3, -1);
 
 			// Draw Item Background and Border
-			e.Graphics.FillRectangle(ItemBackgroundBrush, itemBounds);
-			if (itemBorderColor != Color.Transparent)
-				e.Graphics.DrawRectangle(ItemBorderPen, itemBounds);
+			e.Graphics.FillRectangle(ItemBackgroundBrush, _itemBounds);
+			if (_itemBorderColor != Color.Transparent)
+				e.Graphics.DrawRectangle(ItemBorderPen, _itemBounds);
 
 			// Draw Selection and/or Focus markers
 			if ((e.State & DrawItemState.Selected) != 0)
-				e.Graphics.FillRectangle(ItemSelectedBrush, itemBounds);
+				e.Graphics.FillRectangle(ItemSelectedBrush, _itemBounds);
 			if ((e.State & DrawItemState.Focus) != 0) {
-				if (itemFocusedColor != Color.Transparent)
-					e.Graphics.FillRectangle(ItemFocusedBrush, itemBounds);
+				if (_itemFocusedColor != Color.Transparent)
+					e.Graphics.FillRectangle(ItemFocusedBrush, _itemBounds);
 				if (FocusBorderColor != Color.Transparent)
-					e.Graphics.DrawRectangle(FocusBorderPen, itemBounds);
+					e.Graphics.DrawRectangle(FocusBorderPen, _itemBounds);
 			}
 			else if (HighlightItems && (e.State & DrawItemState.HotLight) != 0)
 				if (ItemHighlightedColor != Color.Transparent)
-					e.Graphics.FillRectangle(ItemHighlightedBrush, itemBounds);
+					e.Graphics.FillRectangle(ItemHighlightedBrush, _itemBounds);
 
 			e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
 			e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 			if (e.Index >= 0) {
-				Font font = fonts[e.Index];
-				e.Graphics.DrawString(font.FontFamily.Name, font, Brushes.Black, itemBounds, formatter);
+				Font font = _fonts[e.Index];
+				e.Graphics.DrawString(font.FontFamily.Name, font, Brushes.Black, _itemBounds, _formatter);
 			}
 			else base.OnDrawItem(e);
 		}
@@ -272,67 +272,67 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private Brush ItemBackgroundBrush {
 			get {
-				if (itemBackgroundBrush == null)
-					itemBackgroundBrush = new SolidBrush(ItemBackgroundColor);
-				return itemBackgroundBrush;
+				if (_itemBackgroundBrush == null)
+					_itemBackgroundBrush = new SolidBrush(ItemBackgroundColor);
+				return _itemBackgroundBrush;
 			}
 		}
 
 
 		private Brush ItemHighlightedBrush {
 			get {
-				if (itemHighlightedBrush == null)
-					itemHighlightedBrush = new SolidBrush(itemHighlightedColor);
-				return itemHighlightedBrush;
+				if (_itemHighlightedBrush == null)
+					_itemHighlightedBrush = new SolidBrush(_itemHighlightedColor);
+				return _itemHighlightedBrush;
 			}
 		}
 
 
 		private Brush ItemSelectedBrush {
 			get {
-				if (itemSelectedBrush == null)
-					itemSelectedBrush = new SolidBrush(itemSelectedColor);
-				return itemSelectedBrush;
+				if (_itemSelectedBrush == null)
+					_itemSelectedBrush = new SolidBrush(_itemSelectedColor);
+				return _itemSelectedBrush;
 			}
 		}
 
 
 		private Brush TextBrush {
 			get {
-				if (textBrush == null)
-					textBrush = new SolidBrush(textColor);
-				return textBrush;
+				if (_textBrush == null)
+					_textBrush = new SolidBrush(_textColor);
+				return _textBrush;
 			}
 		}
 
 
 		private Brush ItemFocusedBrush {
 			get {
-				if (itemFocusedBrush == null)
-					itemFocusedBrush = new SolidBrush(ItemFocusedColor);
-				return itemFocusedBrush;
+				if (_itemFocusedBrush == null)
+					_itemFocusedBrush = new SolidBrush(ItemFocusedColor);
+				return _itemFocusedBrush;
 			}
 		}
 
 
 		private Pen FocusBorderPen {
 			get {
-				if (focusBorderPen == null) {
-					focusBorderPen = new Pen(focusBorderColor);
-					focusBorderPen.Alignment = PenAlignment.Inset;
+				if (_focusBorderPen == null) {
+					_focusBorderPen = new Pen(_focusBorderColor);
+					_focusBorderPen.Alignment = PenAlignment.Inset;
 				}
-				return focusBorderPen;
+				return _focusBorderPen;
 			}
 		}
 
 
 		private Pen ItemBorderPen {
 			get {
-				if (itemBorderPen == null) {
-					itemBorderPen = new Pen(itemBorderColor);
-					itemBorderPen.Alignment = PenAlignment.Inset;
+				if (_itemBorderPen == null) {
+					_itemBorderPen = new Pen(_itemBorderColor);
+					_itemBorderPen.Alignment = PenAlignment.Inset;
 				}
-				return itemBorderPen;
+				return _itemBorderPen;
 			}
 		}
 
@@ -343,15 +343,15 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void Construct(IWindowsFormsEditorService editorService) {
 			if (editorService == null) throw new ArgumentNullException("editorService");
-			this.editorService = editorService;
+			this._editorService = editorService;
 
 			this.IntegralHeight = false;
 			this.DrawMode = DrawMode.OwnerDrawVariable;
 			this.SelectionMode = SelectionMode.One;
 			this.DoubleBuffered = true;
 
-			formatter.Alignment = StringAlignment.Near;
-			formatter.LineAlignment = StringAlignment.Near;
+			_formatter.Alignment = StringAlignment.Near;
+			_formatter.LineAlignment = StringAlignment.Near;
 			int fontSize = 10;
 			foreach (FontFamily fontFamily in FontFamily.Families) {
 				Font font = null;
@@ -367,44 +367,44 @@ namespace Dataweb.NShape.WinFormsUI {
 					font = new Font(fontFamily.Name, fontSize, FontStyle.Underline);
 				else
 					font = Font;
-				fonts.Add(font);
+				_fonts.Add(font);
 			}
 		}
 
 
 		private void ExecuteSelection() {
-			if (editorService != null) editorService.CloseDropDown();
+			if (_editorService != null) _editorService.CloseDropDown();
 		}
 
 		#endregion
 
 
 		#region Fields
-		private IWindowsFormsEditorService editorService;
-		private bool highlightItems = true;
+		private IWindowsFormsEditorService _editorService;
+		private bool _highlightItems = true;
 		
 		// drawing stuff
-		List<Font> fonts = new List<Font>(FontFamily.Families.Length);
-		StringFormat formatter = new StringFormat();
+		List<Font> _fonts = new List<Font>(FontFamily.Families.Length);
+		StringFormat _formatter = new StringFormat();
 		
 		const int margin = 2;
-		Rectangle itemBounds = Rectangle.Empty;
+		Rectangle _itemBounds = Rectangle.Empty;
 
-		private Color itemBackgroundColor = Color.FromKnownColor(KnownColor.Window);
-		private Color itemHighlightedColor = Color.FromKnownColor(KnownColor.HighlightText);
-		private Color itemSelectedColor = Color.FromKnownColor(KnownColor.MenuHighlight);
-		private Color textColor = Color.FromKnownColor(KnownColor.WindowText);
-		private Color itemFocusedColor = Color.Transparent;
-		private Color focusBorderColor = Color.Transparent;
-		private Color itemBorderColor = Color.Transparent;
+		private Color _itemBackgroundColor = Color.FromKnownColor(KnownColor.Window);
+		private Color _itemHighlightedColor = Color.FromKnownColor(KnownColor.HighlightText);
+		private Color _itemSelectedColor = Color.FromKnownColor(KnownColor.MenuHighlight);
+		private Color _textColor = Color.FromKnownColor(KnownColor.WindowText);
+		private Color _itemFocusedColor = Color.Transparent;
+		private Color _focusBorderColor = Color.Transparent;
+		private Color _itemBorderColor = Color.Transparent;
 
-		private Brush itemBackgroundBrush;
-		private Brush itemHighlightedBrush;
-		private Brush itemSelectedBrush;
-		private Brush itemFocusedBrush;
-		private Brush textBrush;
-		private Pen itemBorderPen;
-		private Pen focusBorderPen;
+		private Brush _itemBackgroundBrush;
+		private Brush _itemHighlightedBrush;
+		private Brush _itemSelectedBrush;
+		private Brush _itemFocusedBrush;
+		private Brush _textBrush;
+		private Pen _itemBorderPen;
+		private Pen _focusBorderPen;
 		#endregion
 	}
 }

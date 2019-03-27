@@ -1,5 +1,5 @@
-/**************************************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+ï»¿/**************************************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -389,7 +389,7 @@ namespace Dataweb.NShape.Layouters {
 
 		/// <override></override>
 		public override string Description {
-			get { return "Moves connected shapes nearer to each other while thrusting unconnected ones apart."; }
+			get { return Dataweb.NShape.Properties.Resources.CaptionTxt_RepulsionLayouterDescription; }
 		}
 
 
@@ -443,12 +443,12 @@ namespace Dataweb.NShape.Layouters {
 			foreach (ShapeConnectionInfo sci1 in shape.GetConnectionInfos(ControlPointId.Any, null)) {
 				foreach (ShapeConnectionInfo sci2 in sci1.OtherShape.GetConnectionInfos(ControlPointId.Any, null)) {
 					if (sci2.OtherShape == shape) continue;
-					// Wenn man hier nicht prüft ob das OtherShape ebenfalls verknüpft ist, dann zieht bspw. ein 
-					// mit einer verknüpften Linie verknüpftes Shape unendlich lang einseitig an der Linie und 
+					// Wenn man hier nicht prÃ¼ft ob das OtherShape ebenfalls verknÃ¼pft ist, dann zieht bspw. ein 
+					// mit einer verknÃ¼pften Linie verknÃ¼pftes Shape unendlich lang einseitig an der Linie und 
 					// es kommt letztendlich zu einem "Integer Overflow".
 					if (ExcludeFromFitting(sci2.OtherShape)) continue;
 
-					// Shape shape ist über s mit sci2.Shape verknüpft
+					// Shape shape ist Ã¼ber s mit sci2.Shape verknÃ¼pft
 					int distance = (int)Geometry.DistancePointPoint(sci2.OtherShape.X, sci2.OtherShape.Y, shape.X, shape.Y);
 					int force = distance * springRate - friction;
 					if (force > 0) {
@@ -539,7 +539,7 @@ namespace Dataweb.NShape.Layouters {
 
 		/// <override></override>
 		public override string Description {
-			get { return "Compresses or expands a set of shapes without destoying their relative position."; }
+			get { return Dataweb.NShape.Properties.Resources.CaptionTxt_ExpansionLayouterDescription; }
 		}
 
 

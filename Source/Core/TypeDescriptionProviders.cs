@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -30,14 +30,14 @@ namespace Dataweb.NShape.Advanced {
 			if (!IsType(uiTypeEditorType, typeof(UITypeEditor)))
 				throw new ArgumentException(string.Format("{0} is not a {1}.", type.Name, typeof(UITypeEditor).Name));
 
-			if (registeredEditors.ContainsKey(type))
-				registeredEditors[type] = uiTypeEditorType;
-			else registeredEditors.Add(type, uiTypeEditorType);
+			if (_registeredEditors.ContainsKey(type))
+				_registeredEditors[type] = uiTypeEditorType;
+			else _registeredEditors.Add(type, uiTypeEditorType);
 		}
 
 
 		public static void UnregisterUITypeEditor(Type type, Type uiTypeEditorType) {
-			registeredEditors.Remove(type);
+			_registeredEditors.Remove(type);
 		}
 
 
@@ -47,21 +47,21 @@ namespace Dataweb.NShape.Advanced {
 			if (!IsType(typeConverterType, typeof(TypeConverter)))
 				throw new ArgumentException(string.Format("{0} is not a {1}.", type.Name, typeof(TypeConverter).Name));
 
-			if (registeredConverters.ContainsKey(type))
-				registeredConverters[type] = typeConverterType;
-			else registeredConverters.Add(type, typeConverterType);
+			if (_registeredConverters.ContainsKey(type))
+				_registeredConverters[type] = typeConverterType;
+			else _registeredConverters.Add(type, typeConverterType);
 		}
 
 
 		public static void UnregisterTypeConverter(Type type, Type typeConverterType) {
-			registeredConverters.Remove(type);
+			_registeredConverters.Remove(type);
 		}
 
 
 		public static UITypeEditor GetRegisteredUITypeEditor(Type type) {
 			UITypeEditor result = null;
 			Type editorType = null;
-			if (registeredEditors.TryGetValue(type, out editorType))
+			if (_registeredEditors.TryGetValue(type, out editorType))
 				result = Activator.CreateInstance(editorType) as UITypeEditor;
 			return result;
 		}
@@ -70,7 +70,7 @@ namespace Dataweb.NShape.Advanced {
 		public static TypeConverter GetRegisteredTypeConverter(Type type) {
 			TypeConverter result = null;
 			Type converterType = null;
-			if (registeredConverters.TryGetValue(type, out converterType))
+			if (_registeredConverters.TryGetValue(type, out converterType))
 				result = Activator.CreateInstance(converterType) as TypeConverter;
 			return result;
 		}
@@ -84,8 +84,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		#region Fields
-		private static Dictionary<Type, Type> registeredEditors = new Dictionary<Type, Type>();
-		private static Dictionary<Type, Type> registeredConverters = new Dictionary<Type, Type>();
+		private static Dictionary<Type, Type> _registeredEditors = new Dictionary<Type, Type>();
+		private static Dictionary<Type, Type> _registeredConverters = new Dictionary<Type, Type>();
 		#endregion
 	}
 
@@ -119,22 +119,22 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static IPropertyController PropertyController {
-			set { propertyController = value; }
+			set { _propertyController = value; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public override ICustomTypeDescriptor GetTypeDescriptor(Type objectType, object instance) {
 			ICustomTypeDescriptor baseTypeDescriptor = base.GetTypeDescriptor(objectType, instance);
-			if (propertyController != null) {
+			if (_propertyController != null) {
 				if (instance is Layer)
-					return new LayerTypeDescriptor(baseTypeDescriptor, propertyController);
-				else return new TypeDescriptorDg(baseTypeDescriptor, propertyController);
+					return new LayerTypeDescriptor(baseTypeDescriptor, _propertyController);
+				else return new TypeDescriptorDg(baseTypeDescriptor, _propertyController);
 			} else return baseTypeDescriptor;
 		}
 
 
-		private static IPropertyController propertyController;
+		private static IPropertyController _propertyController;
 	}
 
 
@@ -319,7 +319,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected DescriptionAttribute GetNotGrantedDescription(DescriptionAttribute descAttr, Permission permission) {
 			return new DescriptionAttribute(
-				string.Format("{0}{1}{1}Property is read only because you don't have the permission for '{2}'.",
+				string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_011PropertyIsReadOnlyBecauseYouDonTHaveThePermissionFor2,
 					(descAttr != null) ? descAttr.Description : string.Empty,
 					(descAttr != null) ? Environment.NewLine : string.Empty,
 					permission
@@ -365,7 +365,7 @@ namespace Dataweb.NShape.Advanced {
 			Layer layer = (Layer)base.GetPropertyOwner(pd);
 			foreach (Diagram diagram in propertyController.Project.Repository.GetDiagrams()) {
 				if (diagram.Layers.Count <= 0) continue;
-				if (diagram.Layers.GetLayer(layer.Id) == layer) {
+				if (diagram.Layers.FindLayer(layer.LayerId) == layer) {
 					result = diagram;
 					break;
 				}
@@ -575,96 +575,96 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public PropertyDescriptorDg(IPropertyController controller, PropertyDescriptor descriptor, Attribute[] attributes) :
 			base(descriptor.Name, attributes) {
-			this.descriptor = descriptor;
-			this.controller = controller;
+			this._descriptor = descriptor;
+			this._controller = controller;
 			
 			// We have to store the attributes and return their values in the appropriate 
 			// methods because if we don't, modifying the readonly attribute will not work
-			browsableAttr = Attributes[typeof(BrowsableAttribute)] as BrowsableAttribute;
-			readOnlyAttr = Attributes[typeof(ReadOnlyAttribute)] as ReadOnlyAttribute;
-			descriptionAttr = Attributes[typeof(DescriptionAttribute)] as DescriptionAttribute;
-			permissionAttr = descriptor.Attributes[typeof(RequiredPermissionAttribute)] as RequiredPermissionAttribute;
+			_browsableAttr = Attributes[typeof(BrowsableAttribute)] as BrowsableAttribute;
+			_readOnlyAttr = Attributes[typeof(ReadOnlyAttribute)] as ReadOnlyAttribute;
+			_descriptionAttr = Attributes[typeof(DescriptionAttribute)] as DescriptionAttribute;
+			_permissionAttr = descriptor.Attributes[typeof(RequiredPermissionAttribute)] as RequiredPermissionAttribute;
 		}
 
 
 		/// <override></override>
 		public override bool CanResetValue(object component) {
-			return descriptor.CanResetValue(component);
+			return _descriptor.CanResetValue(component);
 		}
 
 
 		/// <override></override>
 		public override Type ComponentType {
-			get { return descriptor.ComponentType; }
+			get { return _descriptor.ComponentType; }
 		}
 
 
 		/// <override></override>
 		public override object GetValue(object component) {
-			return descriptor.GetValue(component);
+			return _descriptor.GetValue(component);
 		}
 
 
 		/// <override></override>
 		public override string Description {
-			get { return (descriptionAttr != null) ? descriptionAttr.Description : base.Description; }
+			get { return (_descriptionAttr != null) ? _descriptionAttr.Description : base.Description; }
 		}
 
 
 		/// <override></override>
 		public override bool IsReadOnly {
-			get { return (readOnlyAttr != null) ? readOnlyAttr.IsReadOnly : false; }
+			get { return (_readOnlyAttr != null) ? _readOnlyAttr.IsReadOnly : false; }
 		}
 
 
 		/// <override></override>
 		public override bool IsBrowsable {
-			get { return (browsableAttr != null) ? browsableAttr.Browsable : base.IsBrowsable; }
+			get { return (_browsableAttr != null) ? _browsableAttr.Browsable : base.IsBrowsable; }
 		}
 
 
 		/// <override></override>
 		public override Type PropertyType {
-			get { return descriptor.PropertyType; }
+			get { return _descriptor.PropertyType; }
 		}
 
 
 		/// <override></override>
 		public override void ResetValue(object component) {
-			descriptor.ResetValue(component);
+			_descriptor.ResetValue(component);
 		}
 
 
 		/// <override></override>
 		public override void SetValue(object component, object value) {
-			if (permissionAttr != null) {
-				if (controller.Project == null) throw new InvalidOperationException("PropertyController.Project is not set.");
-				if (controller.Project.SecurityManager == null) throw new InvalidOperationException("PropertyController.Project.SecurityManager is not set.");
+			if (_permissionAttr != null) {
+				if (_controller.Project == null) throw new InvalidOperationException("PropertyController.Project is not set.");
+				if (_controller.Project.SecurityManager == null) throw new InvalidOperationException("PropertyController.Project.SecurityManager is not set.");
 				bool isGranted;
 				if (component is ISecurityDomainObject)
-					isGranted = controller.Project.SecurityManager.IsGranted(permissionAttr.Permission, SecurityAccess.Modify, (ISecurityDomainObject)component);
-				else isGranted = controller.Project.SecurityManager.IsGranted(permissionAttr.Permission, SecurityAccess.Modify);
+					isGranted = _controller.Project.SecurityManager.IsGranted(_permissionAttr.Permission, SecurityAccess.Modify, (ISecurityDomainObject)component);
+				else isGranted = _controller.Project.SecurityManager.IsGranted(_permissionAttr.Permission, SecurityAccess.Modify);
 				if (!isGranted) {
-					controller.CancelSetProperty();
-					throw new NShapeSecurityException(permissionAttr.Permission);
+					_controller.CancelSetProperty();
+					throw new NShapeSecurityException(_permissionAttr.Permission);
 				}
 			}
-			controller.SetPropertyValue(component, descriptor.Name, descriptor.GetValue(component), value);
+			_controller.SetPropertyValue(component, _descriptor.Name, _descriptor.GetValue(component), value);
 		}
 
 
 		/// <override></override>
 		public override bool ShouldSerializeValue(object component) {
-			return descriptor.ShouldSerializeValue(component);
+			return _descriptor.ShouldSerializeValue(component);
 		}
 
 
-		private IPropertyController controller = null;
-		private PropertyDescriptor descriptor = null;
-		private ReadOnlyAttribute readOnlyAttr = null;
-		private BrowsableAttribute browsableAttr = null;
-		private DescriptionAttribute descriptionAttr = null;
-		private RequiredPermissionAttribute permissionAttr = null;
+		private IPropertyController _controller = null;
+		private PropertyDescriptor _descriptor = null;
+		private ReadOnlyAttribute _readOnlyAttr = null;
+		private BrowsableAttribute _browsableAttr = null;
+		private DescriptionAttribute _descriptionAttr = null;
+		private RequiredPermissionAttribute _permissionAttr = null;
 	}
 	
 	

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -40,12 +40,13 @@ namespace Dataweb.NShape.GeneralShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's beginning.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_StartCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_StartCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdStartCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle StartCapStyle {
 			get {
-				if (StartCapStyleInternal == null && Template == null) throw new NShapeException("Property StartCapStyle is not set.");
+				if (StartCapStyleInternal == null && Template == null) throw new NShapeException(Properties.Resources.MessageTxt_PropertyStartCapStyleIsNotSet);
 				return StartCapStyleInternal == null ? ((Polyline)Template.Shape).StartCapStyle : StartCapStyleInternal;
 			}
 			set {
@@ -55,12 +56,13 @@ namespace Dataweb.NShape.GeneralShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's ending.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_EndCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_EndCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdEndCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle EndCapStyle {
 			get {
-				if (EndCapStyleInternal == null && Template == null) throw new NShapeException("Property EndCapStyle is not set.");
+				if (EndCapStyleInternal == null && Template == null) throw new NShapeException(Properties.Resources.MessageTxt_PropertyEndCapStyleIsNotSet);
 				return EndCapStyleInternal == null ? ((Polyline)Template.Shape).EndCapStyle : EndCapStyleInternal;
 			}
 			set {
@@ -105,12 +107,13 @@ namespace Dataweb.NShape.GeneralShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's beginning.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_StartCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_StartCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdStartCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle StartCapStyle {
 			get {
-				if (StartCapStyleInternal == null && Template == null) throw new NShapeException("Property StartCapStyle is not set.");
+				if (StartCapStyleInternal == null && Template == null) throw new NShapeException(Properties.Resources.MessageTxt_PropertyStartCapStyleIsNotSet);
 				return StartCapStyleInternal == null ? ((RectangularLine)Template.Shape).StartCapStyle : StartCapStyleInternal;
 			}
 			set {
@@ -120,12 +123,13 @@ namespace Dataweb.NShape.GeneralShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's ending.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_EndCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_EndCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdEndCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle EndCapStyle {
 			get {
-				if (EndCapStyleInternal == null && Template == null) throw new NShapeException("Property EndCapStyle is not set.");
+				if (EndCapStyleInternal == null && Template == null) throw new NShapeException(Properties.Resources.MessageTxt_PropertyEndCapStyleIsNotSet);
 				return EndCapStyleInternal == null ? ((RectangularLine)Template.Shape).EndCapStyle : EndCapStyleInternal;
 			}
 			set {
@@ -171,7 +175,8 @@ namespace Dataweb.NShape.GeneralShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's beginning.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_StartCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_StartCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdStartCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle StartCapStyle {
@@ -186,7 +191,8 @@ namespace Dataweb.NShape.GeneralShapes {
 
 
 		[CategoryAppearance()]
-		[Description("Defines the line cap appearance of the line's ending.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_Line_EndCapStyle", typeof(Properties.Resources))]
+		[LocalizedDescription("PropDesc_Line_EndCapStyle", typeof(Properties.Resources))]
 		[PropertyMappingId(PropertyIdEndCapStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICapStyle EndCapStyle {

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -107,8 +107,8 @@ namespace Dataweb.NShape.Designer {
 			Diagram diagram = new Diagram(diagramName);
 			//
 			// Create and add layers
-			LayerIds planarLayer = LayerIds.None, linearLayer = LayerIds.None, oddRowLayer = LayerIds.None,
-				evenRowLayer = LayerIds.None, oddColLayer = LayerIds.None, evenColLayer = LayerIds.None;
+			int planarLayerId = Layer.NoLayerId, linearLayerId = Layer.NoLayerId, oddRowLayerId = Layer.NoLayerId,
+				evenRowLayerId = Layer.NoLayerId, oddColLayerId = Layer.NoLayerId, evenColLayerId = Layer.NoLayerId;
 			if (withLayers) {
 				const string planarLayerName = "PlanarShapesLayer";
 				const string linearLayerName = "LinearShapesLayer";
@@ -148,18 +148,18 @@ namespace Dataweb.NShape.Designer {
 				evenColsLayer.UpperZoomThreshold = 1000;
 				diagram.Layers.Add(evenColsLayer);
 				// Assign LayerIds
-				planarLayer = diagram.Layers.FindLayer(planarLayerName).Id;
-				linearLayer = diagram.Layers.FindLayer(linearLayerName).Id;
-				oddRowLayer = diagram.Layers.FindLayer(oddRowsLayerName).Id;
-				evenRowLayer = diagram.Layers.FindLayer(evenRowsLayerName).Id;
-				oddColLayer = diagram.Layers.FindLayer(oddColsLayerName).Id;
-				evenColLayer = diagram.Layers.FindLayer(evenColsLayerName).Id;
+				planarLayerId = diagram.Layers.FindLayer(planarLayerName).LayerId;
+				linearLayerId = diagram.Layers.FindLayer(linearLayerName).LayerId;
+				oddRowLayerId = diagram.Layers.FindLayer(oddRowsLayerName).LayerId;
+				evenRowLayerId = diagram.Layers.FindLayer(evenRowsLayerName).LayerId;
+				oddColLayerId = diagram.Layers.FindLayer(oddColsLayerName).LayerId;
+				evenColLayerId = diagram.Layers.FindLayer(evenColsLayerName).LayerId;
 			}
 
 			for (int rowIdx = 0; rowIdx < shapesPerColumn; ++rowIdx) {
-				LayerIds rowLayer = ((rowIdx + 1) % 2 == 0) ? evenRowLayer : oddRowLayer;
+				int rowLayerId = ((rowIdx + 1) % 2 == 0) ? evenRowLayerId : oddRowLayerId;
 				for (int colIdx = 0; colIdx < shapesPerRow; ++colIdx) {
-					LayerIds colLayer = ((colIdx + 1) % 2 == 0) ? evenColLayer : oddColLayer;
+					int colLayerId = ((colIdx + 1) % 2 == 0) ? evenColLayerId : oddColLayerId;
 					int shapePosX = shapeSize + colIdx * (lineLength + shapeSize);
 					int shapePosY = shapeSize + rowIdx * (lineLength + shapeSize);
 
@@ -173,8 +173,8 @@ namespace Dataweb.NShape.Designer {
 						((GenericModelObject)planarShape.ModelObject).IntegerValue = rowIdx;
 					}
 
-					diagram.Shapes.Add(planarShape, project.Repository.ObtainNewTopZOrder(diagram));
-					if (withLayers) diagram.AddShapeToLayers(planarShape, planarLayer | rowLayer | colLayer);
+					diagram.Shapes.Add(planarShape, project.Repository.ObtainNewTopZOrder(diagram));					
+					if (withLayers) diagram.AddShapeToLayers(planarShape, planarLayerId, Layer.ConvertToLayerIds(EnumerationHelper.Enumerate(rowLayerId, colLayerId)));
 					if (connectShapes) {
 						if (rowIdx > 0) {
 							Shape lineShape = linearTemplate.CreateShape();
@@ -185,7 +185,7 @@ namespace Dataweb.NShape.Designer {
 							Debug.Assert(otherShape != null && otherShape != planarShape);
 							lineShape.Connect(ControlPointId.LastVertex, otherShape, bottomPoint);
 							diagram.Shapes.Add(lineShape, project.Repository.ObtainNewBottomZOrder(diagram));
-							if (withLayers) diagram.AddShapeToLayers(lineShape, linearLayer);
+							if (withLayers) diagram.AddShapeToLayers(lineShape, linearLayerId);
 							Debug.Assert(ControlPointId.None != lineShape.IsConnected(ControlPointId.LastVertex, otherShape));
 						}
 						if (colIdx > 0) {
@@ -198,7 +198,7 @@ namespace Dataweb.NShape.Designer {
 							lineShape.Connect(2, otherShape, rightPoint);
 
 							diagram.Shapes.Add(lineShape, project.Repository.ObtainNewBottomZOrder(diagram));
-							if (withLayers) diagram.AddShapeToLayers(lineShape, linearLayer);
+							if (withLayers) diagram.AddShapeToLayers(lineShape, linearLayerId);
 							Debug.Assert(ControlPointId.None != lineShape.IsConnected(ControlPointId.LastVertex, otherShape));
 						}
 					}

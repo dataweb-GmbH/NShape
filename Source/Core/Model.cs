@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -16,6 +16,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 
 
 namespace Dataweb.NShape.Advanced {
@@ -36,7 +37,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Specifies the entity type name of <see cref="T:Dataweb.NShape.Advanced.Model" />.
 		/// </summary>
 		public static string EntityTypeName {
-			get { return entityTypeName; }
+			get { return _entityTypeName; }
 		}
 
 
@@ -52,7 +53,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The <see cref="T:Dataweb.NShape.Advanced.IEntity" />.Id of this <see cref="T:Dataweb.NShape.Advanced.Model" />
 		/// </summary>
 		public object Id {
-			get { return id; }
+			get { return _id; }
 		}
 
 
@@ -61,9 +62,9 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		void IEntity.AssignId(object id) {
 			if (id == null) throw new ArgumentNullException("id");
-			if (this.id != null) 
+			if (this._id != null) 
 				throw new InvalidOperationException(string.Format("{0} has already an id.", GetType().Name));
-			this.id = id;
+			this._id = id;
 		}
 
 
@@ -94,8 +95,8 @@ namespace Dataweb.NShape.Advanced {
 		#endregion
 
 
-		private const string entityTypeName = "Core.Model";
-		private object id = null;
+		private const string _entityTypeName = "Core.Model";
+		private object _id = null;
 	}
 	
 	
@@ -114,27 +115,27 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <summary>Converts a <see cref="T:Dataweb.NShape.Advanced.TerminalId" /> to a <see cref="T:System.Int32" />.</summary>
 		public static implicit operator int(TerminalId tid) {
-			return tid.id;
+			return tid._id;
 		}
 
 
 		/// <summary>Converts a <see cref="T:System.Int32" /> to a <see cref="T:Dataweb.NShape.Advanced.TerminalId" />.</summary>
 		public static implicit operator TerminalId(int value) {
 			TerminalId result = Invalid;
-			result.id = value;
+			result._id = value;
 			return result;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static bool operator ==(TerminalId tid1, TerminalId tid2) {
-			return tid1.id == tid2.id;
+			return tid1._id == tid2._id;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static bool operator !=(TerminalId tid1, TerminalId tid2) {
-			return tid1.id != tid2.id;
+			return tid1._id != tid2._id;
 		}
 
 
@@ -152,23 +153,23 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override int GetHashCode() {
-			return id.GetHashCode();
+			return _id.GetHashCode();
 		}
 
 
 		/// <override></override>
 		public override string ToString() {
-			return id.ToString();
+			return _id.ToString();
 		}
 		
 
 		static TerminalId() {
-			Invalid.id = int.MinValue;
-			Generic.id = 0;
+			Invalid._id = int.MinValue;
+			Generic._id = 0;
 		}
 
 
-		private int id;
+		private int _id;
 	}
 
 
@@ -281,18 +282,18 @@ namespace Dataweb.NShape.Advanced {
 			GetPropertyDefinitionsDelegate getPropertyDefinitionsDelegate) {
 			if (name == null) throw new ArgumentNullException("name");
 			if (!Project.IsValidName(name)) 
-				throw new ArgumentException(string.Format("'{0}' is not a valid model object type name.", name));
+				throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidModelObjectTypeName, name));
 			if (libraryName == null) throw new ArgumentNullException("libraryName");
 			if (!Project.IsValidName(libraryName))
-				throw new ArgumentException(string.Format("'{0}' is not a valid library name.", libraryName));
+				throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidLibraryName, libraryName));
 			if (createModelObjectDelegate == null) throw new ArgumentNullException("createModelObjectDelegate");
 			if (getPropertyDefinitionsDelegate == null) throw new ArgumentNullException("getPropertyDefinitionsDelegate");
 			//
-			this.name = name;
-			this.libraryName = libraryName;
-			this.categoryTitle = categoryTitle;
-			this.createModelObjectDelegate = createModelObjectDelegate;
-			this.getPropertyDefinitionsDelegate = getPropertyDefinitionsDelegate;
+			this._name = name;
+			this._libraryName = libraryName;
+			this._categoryTitle = categoryTitle;
+			this._createModelObjectDelegate = createModelObjectDelegate;
+			this._getPropertyDefinitionsDelegate = getPropertyDefinitionsDelegate;
 		}
 
 
@@ -300,7 +301,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Specifies the language invariant name of the model object type.
 		/// </summary>
 		public string Name { 
-			get { return name; } 
+			get { return _name; } 
 		}
 
 
@@ -308,7 +309,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Indicates the name of the library where the model object type is implemented.
 		/// </summary>
 		public string LibraryName {
-			get { return libraryName; }
+			get { return _libraryName; }
 		}
 
 
@@ -316,7 +317,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Specifies the full language invariant name of the model object type.
 		/// </summary>
 		public string FullName { 
-			get { return string.Format("{0}.{1}", libraryName, name); } 
+			get { return string.Format("{0}.{1}", _libraryName, _name); } 
 		}
 
 
@@ -324,8 +325,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Specifies the culture depending description of the model type.
 		/// </summary>
 		public string Description {
-			get { return description; }
-			set { description = value; }
+			get { return _description; }
+			set { _description = value; }
 		}
 
 
@@ -333,7 +334,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Indicates the default for the culture depending category name.
 		/// </summary>
 		public string DefaultCategoryTitle {
-			get { return categoryTitle; }
+			get { return _categoryTitle; }
 		}
 
 
@@ -341,7 +342,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Creates a model object instance of this type.
 		/// </summary>
 		public IModelObject CreateInstance() {
-			return createModelObjectDelegate(this);
+			return _createModelObjectDelegate(this);
 		}
 
 
@@ -349,7 +350,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Retrieves the persistable properties of <see cref="T:Dataweb.NShape.Advanced.ModelObjectType" />.
 		/// </summary>
 		public IEnumerable<EntityPropertyDefinition> GetPropertyDefinitions(int version) { 
-			return getPropertyDefinitionsDelegate(version);
+			return _getPropertyDefinitionsDelegate(version);
 		}
 
 
@@ -371,20 +372,20 @@ namespace Dataweb.NShape.Advanced {
 
 
 		internal string GetDefaultName() {
-			return string.Format("{0} {1}", name, ++nameCounter);
+			return string.Format("{0} {1}", _name, ++_nameCounter);
 		}
 
 
 		#region Fields
 
-		private string name;
-		private string libraryName;
-		private string description;
-		private string categoryTitle = string.Empty;
-		private CreateModelObjectDelegate createModelObjectDelegate;
-		private GetPropertyDefinitionsDelegate getPropertyDefinitionsDelegate;
+		private string _name;
+		private string _libraryName;
+		private string _description;
+		private string _categoryTitle = string.Empty;
+		private CreateModelObjectDelegate _createModelObjectDelegate;
+		private GetPropertyDefinitionsDelegate _getPropertyDefinitionsDelegate;
 
-		private int nameCounter = 0;
+		private int _nameCounter = 0;
 
 		#endregion
 	}
@@ -398,32 +399,32 @@ namespace Dataweb.NShape.Advanced {
 		public GenericModelObjectType(string name, string namespaceName, string categoryTitle, CreateModelObjectDelegate createModelObjectDelegate,
 			GetPropertyDefinitionsDelegate getPropertyDefinitionsDelegate, TerminalId maxTerminalId)
 			: base(name, namespaceName, categoryTitle, createModelObjectDelegate, getPropertyDefinitionsDelegate) {
-			this.maxTerminalId = maxTerminalId;
-			terminals.Add(TerminalId.Generic, "Generic Terminal");
+			this._maxTerminalId = maxTerminalId;
+			_terminals.Add(TerminalId.Generic, "Generic Terminal");
 			for (int i = 1; i <= maxTerminalId; ++i)
-				terminals.Add(i, "Terminal " + Convert.ToString(i));
+				_terminals.Add(i, "Terminal " + Convert.ToString(i));
 		}
 
 
 		/// <override></override>
 		public override TerminalId MaxTerminalId {
-			get { return maxTerminalId; }
+			get { return _maxTerminalId; }
 		}
 
 
 		/// <override></override>
 		public override string GetTerminalName(TerminalId terminalId) {
-			if (terminalId < 0 || terminalId > maxTerminalId) throw new ArgumentOutOfRangeException("terminalId");
+			if (terminalId < 0 || terminalId > _maxTerminalId) throw new ArgumentOutOfRangeException("terminalId");
 			string result;
-			if (terminals.TryGetValue(terminalId, out result)) return result;
-			else throw new NShapeException("No terminal name found for terminal {0}", terminalId);
+			if (_terminals.TryGetValue(terminalId, out result)) return result;
+			else throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_NoTerminalNameFoundForTerminal0, terminalId);
 		}
 
 
 		/// <override></override>
 		public override TerminalId FindTerminalId(string terminalName) {
 			if (string.IsNullOrEmpty(terminalName)) return TerminalId.Invalid;
-			foreach (KeyValuePair<TerminalId, string> item in terminals) {
+			foreach (KeyValuePair<TerminalId, string> item in _terminals) {
 				if (item.Value.Equals(terminalName, StringComparison.InvariantCultureIgnoreCase))
 					return item.Key;
 			}
@@ -433,8 +434,8 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Fields
 
-		TerminalId maxTerminalId;
-		private Dictionary<TerminalId, string> terminals = new Dictionary<TerminalId, string>();
+		private TerminalId _maxTerminalId;
+		private Dictionary<TerminalId, string> _terminals = new Dictionary<TerminalId, string>();
 
 		#endregion
 	}
@@ -466,7 +467,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="modelObjectType"></param>
 		public void Add(ModelObjectType modelObjectType) {
 			if (modelObjectType == null) throw new ArgumentNullException("modelObjectType");
-			modelObjectTypes.Add(modelObjectType.FullName, modelObjectType);
+			_modelObjectTypes.Add(modelObjectType.FullName, modelObjectType);
 		}
 
 
@@ -476,7 +477,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="modelObjectType"></param>
 		public bool Remove(ModelObjectType modelObjectType) {
 			if (modelObjectType == null) throw new ArgumentNullException("modelObjectType");
-			return modelObjectTypes.Remove(modelObjectType.FullName);
+			return _modelObjectTypes.Remove(modelObjectType.FullName);
 		}
 
 
@@ -488,17 +489,17 @@ namespace Dataweb.NShape.Advanced {
 		public ModelObjectType GetModelObjectType(string typeName) {
 			if (typeName == null) throw new ArgumentNullException("typeName");
 			ModelObjectType result = null;
-			if (!modelObjectTypes.TryGetValue(typeName, out result)) {
-				foreach (KeyValuePair<string, ModelObjectType> item in modelObjectTypes) {
+			if (!_modelObjectTypes.TryGetValue(typeName, out result)) {
+				foreach (KeyValuePair<string, ModelObjectType> item in _modelObjectTypes) {
 					// If no matching type name was found, check if the given type projectName was a type projectName without namespace
 					if (string.Compare(item.Value.Name, typeName, StringComparison.InvariantCultureIgnoreCase) == 0) {
 						if (result == null) result = item.Value;
-						else throw new ArgumentException("The model object type '{0}' is ambiguous. Please specify the library name.", typeName);
+						else throw new ArgumentException(Properties.Resources.MessageFmt_TheModelObjectType0IsAmbiguous, typeName);
 					}
 				}
 			}
 			if (result == null)
-				throw new ArgumentException(string.Format("Model object type '{0}' was not registered.", typeName));
+				throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_ModelObjectType0WasNotRegistered, typeName));
 			return result;
 		}
 
@@ -511,17 +512,17 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public int Count {
-			get { return modelObjectTypes.Count; }
+			get { return _modelObjectTypes.Count; }
 		}
 
 
 		internal bool IsModelObjectTypeRegistered(ModelObjectType modelObjectType) {
-			return modelObjectTypes.ContainsKey(modelObjectType.FullName);
+			return _modelObjectTypes.ContainsKey(modelObjectType.FullName);
 		}
 
 
 		internal void Clear() {
-			modelObjectTypes.Clear();
+			_modelObjectTypes.Clear();
 		}
 
 
@@ -529,7 +530,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IEnumerator<ModelObjectType> GetEnumerator() {
-			return modelObjectTypes.Values.GetEnumerator();
+			return _modelObjectTypes.Values.GetEnumerator();
 		}
 
 		#endregion
@@ -539,7 +540,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		IEnumerator IEnumerable.GetEnumerator() {
-			return modelObjectTypes.Values.GetEnumerator();
+			return _modelObjectTypes.Values.GetEnumerator();
 		}
 
 		#endregion
@@ -550,7 +551,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public void CopyTo(Array array, int index) {
 			if (array == null) throw new ArgumentNullException("array");
-			modelObjectTypes.Values.CopyTo((ModelObjectType[])array, index);
+			_modelObjectTypes.Values.CopyTo((ModelObjectType[])array, index);
 		}
 
 
@@ -560,9 +561,13 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <override></override>
 		public object SyncRoot {
-			get { throw new NotSupportedException(); }
+			get {
+				if (_syncRoot == null)
+					Interlocked.CompareExchange(ref _syncRoot, new object(), null);
+				return _syncRoot;
+			}
 		}
 
 		#endregion
@@ -571,7 +576,8 @@ namespace Dataweb.NShape.Advanced {
 		#region Fields
 
 		// Key = ModelObjectType.FullName, Value = ModelObjectType
-		private Dictionary<string, ModelObjectType> modelObjectTypes = new Dictionary<string, ModelObjectType>();
+		private Dictionary<string, ModelObjectType> _modelObjectTypes = new Dictionary<string, ModelObjectType>();
+		private object _syncRoot = null;
 
 		#endregion
 
@@ -587,27 +593,29 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal ModelObjectBase(ModelObjectBase source) {
-			id = null;
-			modelObjectType = source.Type;
-			name = modelObjectType.GetDefaultName();
-			parent = source.Parent;
+			_id = null;
+			_modelObjectType = source.Type;
+			_name = _modelObjectType.GetDefaultName();
+			_parent = source.Parent;
 		}
 
 
 		#region IModelObject Members
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Description("Indicates the name used to identify the Device.")]
+		[LocalizedDisplayName("PropName_IModelObject_Name")]
+		[LocalizedDescription("PropDesc_IModelObject_Name")]
 		public string Name {
-			get { return name; }
-			set { name = value; }
+			get { return _name; }
+			set { _name = value; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Description("The type of the ModelObject.")]
+		[LocalizedDisplayName("PropName_IModelObject_Type")]
+		[LocalizedDescription("PropDesc_IModelObject_Type")]
 		public ModelObjectType Type {
-			get { return modelObjectType; }
+			get { return _modelObjectType; }
 		}
 
 
@@ -618,22 +626,22 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		[Browsable(false)]
 		public virtual IModelObject Parent {
-			get { return parent; }
-			set { parent = value; }
+			get { return _parent; }
+			set { _parent = value; }
 		}
 
 
 		/// <override></override>
 		[Browsable(false)]
 		public IEnumerable<Shape> Shapes {
-			get { return (IEnumerable<Shape>)shapes ?? EmptyEnumerator<Shape>.Empty; }
+			get { return (IEnumerable<Shape>)_shapes ?? EmptyEnumerator<Shape>.Empty; }
 		}
 
 
 		/// <override></override>
 		[Browsable(false)]
 		public int ShapeCount {
-			get { return (shapes != null) ? shapes.Count : 0; }
+			get { return (_shapes != null) ? _shapes.Count : 0; }
 		}
 
 
@@ -643,19 +651,19 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual int GetInteger(int propertyId) {
-			throw new NShapeException("No integer property with PropertyId {0} found.", propertyId);
+			throw new NShapeException(Properties.Resources.MessageFmt_NoIntegerPropertyWithPropertyId0Found, propertyId);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual float GetFloat(int propertyId) {
-			throw new NShapeException("No float property with PropertyId {0} found.", propertyId);
+			throw new NShapeException(Properties.Resources.MessageFmt_NoFloatPropertyWithPropertyId0Found, propertyId);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual string GetString(int propertyId) {
-			throw new NShapeException("No string property with PropertyId {0} found.", propertyId);
+			throw new NShapeException(Properties.Resources.MessageFmt_NoStringPropertyWithPropertyId0Found, propertyId);
 		}
 
 
@@ -676,21 +684,21 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public void AttachShape(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			if (shapes == null) shapes = new List<Shape>(1);
-			else if (shapes.Contains(shape)) throw new NShapeException("{0} '{1}' is already attached to this shape.", Type.Name, Name);
+			if (_shapes == null) _shapes = new List<Shape>(1);
+			else if (_shapes.Contains(shape)) throw new NShapeException(Properties.Resources.MessageFmt_01IsAlreadyAttachedToThisShape, Type.Name, Name);
 			if (shape.ModelObject != this) shape.ModelObject = this;
-			else shapes.Add(shape);
+			else _shapes.Add(shape);
 		}
 
 
 		/// <override></override>
 		public void DetachShape(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			if (shapes == null) throw new NShapeException("{0} '{1}' is not attached to any shape.", Type.Name, Name);
-			int idx = shapes.IndexOf(shape);
-			if (idx < 0) throw new NShapeException("{0} '{1}' is not attached to this shape.", Type.Name, Name);
+			if (_shapes == null) throw new NShapeException(Properties.Resources.MessageFmt_01IsNotAttachedToAnyShape, Type.Name, Name);
+			int idx = _shapes.IndexOf(shape);
+			if (idx < 0) throw new NShapeException(Properties.Resources.MessageFmt_01IsNotAttachedToThisShape, Type.Name, Name);
 			if (shape.ModelObject == this) shape.ModelObject = null;
-			else shapes.RemoveAt(idx);
+			else _shapes.RemoveAt(idx);
 		}
 
 
@@ -710,14 +718,14 @@ namespace Dataweb.NShape.Advanced {
 
 		// unique id of object, does never change
 		object IEntity.Id {
-			get { return id; } 
+			get { return _id; } 
 		}
 
 
 		void IEntity.AssignId(object id) {
 			if (id == null) throw new ArgumentNullException("id");
-			if (this.id != null) throw new InvalidOperationException("Model object has already an id.");
-			this.id = id;
+			if (this._id != null) throw new InvalidOperationException("Model object has already an id.");
+			this._id = id;
 		}
 
 
@@ -763,7 +771,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Indicates the name of the security domain this shape belongs to.
 		/// </summary>
 		[CategoryGeneral()]
-		[Description("Modify the security domain of the shape.")]
+		[LocalizedDisplayName("PropName_Diagram_SecurityDomainName")]
+		[LocalizedDescription("PropDesc_ModelObject_SecurityDomainName")]
 		[RequiredPermission(Permission.Security)]
 		public abstract char SecurityDomainName { get; set; }
 
@@ -771,8 +780,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal ModelObjectBase(ModelObjectType modelObjectType) {
 			if (modelObjectType == null) throw new ArgumentNullException("ModelObjectType");
-			this.modelObjectType = modelObjectType;
-			this.name = modelObjectType.GetDefaultName();
+			this._modelObjectType = modelObjectType;
+			this._name = modelObjectType.GetDefaultName();
 		}
 
 
@@ -787,7 +796,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void LoadFieldsCore(IRepositoryReader reader, int version) {
-			name = reader.ReadString();
+			_name = reader.ReadString();
 			if (version >= 4) SecurityDomainName = reader.ReadChar();
 		}
 
@@ -800,7 +809,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void SaveFieldsCore(IRepositoryWriter writer, int version) {
-			writer.WriteString(name);
+			writer.WriteString(_name);
 			if (version >= 4) writer.WriteChar(SecurityDomainName);
 		}
 
@@ -813,18 +822,25 @@ namespace Dataweb.NShape.Advanced {
 		#endregion
 
 
+		/// <ToBeCompleted></ToBeCompleted>
+		protected int TerminalCount {
+			get { return _terminalCount; }
+			set { _terminalCount = value; }
+		}
+
+
 		#region Fields
 
-		/// <ToBeCompleted></ToBeCompleted>
-		protected int terminalCount;
+		
+		private const string _persistentTypeName = "ModelObject";
 
-		private const string persistentTypeName = "ModelObject";
+		private int _terminalCount;
 
-		private object id = null;
-		private ModelObjectType modelObjectType = null;
-		private string name = string.Empty;
-		private IModelObject parent = null;
-		private List<Shape> shapes = null;
+		private object _id = null;
+		private ModelObjectType _modelObjectType = null;
+		private string _name = string.Empty;
+		private IModelObject _parent = null;
+		private List<Shape> _shapes = null;
 
 		#endregion
 
@@ -872,7 +888,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[PropertyMappingId(PropertyIdIntegerValue)]
-		[Description("The value of the device. This value is represented by the assigned Shape.")]
+		[Description("An integer value. This value is represented by the assigned Shape.")]
 		public int IntegerValue {
 			get { return integerValue; }
 			set {
@@ -884,7 +900,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[PropertyMappingId(PropertyIdFloatValue)]
-		[Description("The value of the device. This value is represented by the assigned Shape.")]
+		[Description("A floating point number value. This value is represented by the assigned Shape.")]
 		public float FloatValue {
 			get { return floatValue; }
 			set {
@@ -896,7 +912,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[PropertyMappingId(PropertyIdStringValue)]
-		[Description("The value of the device. This value is represented by the assigned Shape.")]
+		[Description("A string value. This value is represented by the assigned Shape.")]
 		public string StringValue {
 			get { return stringValue; }
 			set {
@@ -911,7 +927,7 @@ namespace Dataweb.NShape.Advanced {
 			get { return securityDomainName; }
 			set {
 				if (value < 'A' || value > 'Z')
-					throw new ArgumentOutOfRangeException("SecurityDomainName", "The domain qualifier has to be an upper case  ANSI letter (A-Z).");
+					throw new ArgumentOutOfRangeException("SecurityDomainName", Dataweb.NShape.Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
 				securityDomainName = value;
 			}
 		}
@@ -926,13 +942,13 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Connect(TerminalId ownTerminalId, IModelObject targetConnector, TerminalId targetTerminalId) {
-			throw new NotImplementedException("Not yet implemented");
+			throw new NotImplementedException();
 		}
 
 
 		/// <override></override>
 		public override void Disconnect(TerminalId ownTerminalId, IModelObject targetConnector, TerminalId targetTerminalId) {
-			throw new NotImplementedException("Not yet implemented");
+			throw new NotImplementedException();
 		}
 
 

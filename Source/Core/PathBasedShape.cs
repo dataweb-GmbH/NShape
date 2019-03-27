@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -25,12 +25,22 @@ namespace Dataweb.NShape.Advanced {
 	/// <ToBeCompleted></ToBeCompleted>
 	public abstract class PathBasedPlanarShape : ShapeBase, IPlanarShape {
 
+		/// <ToBeCompleted></ToBeCompleted>
+		protected override void Dispose(bool disposing) {
+			base.Dispose(disposing);
+			if (disposing) {
+				GdiHelpers.DisposeObject(ref _path);
+				_controlPoints = null;
+			}
+		}
+
+
 		#region Shape Members
 
 		/// <override></override>
 		protected internal override void InitializeToDefault(IStyleSet styleSet) {
-			base.InitializeToDefault(styleSet);
-			controlPoints = new Point[ControlPointCount];
+			base.InitializeToDefault(styleSet);			
+			_controlPoints = new Point[ControlPointCount];
 			FillStyle = styleSet.FillStyles.Blue;
 		}
 
@@ -41,9 +51,9 @@ namespace Dataweb.NShape.Advanced {
 			if (source is IPlanarShape) {
 				IPlanarShape src = (IPlanarShape)source;
 				// Copy regular properties
-				this.angle = src.Angle;
+				this._angle = src.Angle;
 				// Copy templated properties
-				this.privateFillStyle = (Template != null && src.FillStyle == ((IPlanarShape)Template.Shape).FillStyle) ? null : src.FillStyle;
+				this._privateFillStyle = (Template != null && src.FillStyle == ((IPlanarShape)Template.Shape).FillStyle) ? null : src.FillStyle;
 			}
 		}
 
@@ -51,7 +61,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override void MakePreview(IStyleSet styleSet) {
 			base.MakePreview(styleSet);
-			privateFillStyle = styleSet.GetPreviewStyle(FillStyle);
+			_privateFillStyle = styleSet.GetPreviewStyle(FillStyle);
 		}
 
 
@@ -64,12 +74,14 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override int X {
-			get { return location.X; }
+			get { return _location.X; }
 			set {
-				int origValue = location.X;
-				if (!MoveBy(value - location.X, 0)) {
-					MoveTo(origValue, Y);
-					throw new InvalidOperationException(string.Format("Shape cannot move to {0}", new Point(value, location.Y)));
+				if (_location.X != value) {
+					int origValue = _location.X;
+					if (!MoveBy(value - _location.X, 0)) {
+						MoveTo(origValue, Y);
+						throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ShapeCannotMoveTo0, new Point(value, _location.Y)));
+					}
 				}
 			}
 		}
@@ -77,12 +89,14 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override int Y {
-			get { return location.Y; }
+			get { return _location.Y; }
 			set {
-				int origValue = location.Y;
-				if (!MoveBy(0, value - location.Y)) {
-					MoveTo(origValue, Y);
-					throw new InvalidOperationException(string.Format("Shape cannot move to {0}", new Point(location.X, value)));
+				if (_location.Y != value) {
+					int origValue = _location.Y;
+					if (!MoveBy(0, value - _location.Y)) {
+						MoveTo(origValue, Y);
+						throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ShapeCannotMoveTo0, new Point(_location.X, value)));
+					}
 				}
 			}
 		}
@@ -114,7 +128,7 @@ namespace Dataweb.NShape.Advanced {
 				center.Y = Y;
 				return center;
 			} else if (controlPointId == ControlPointId.None)
-				throw new NShapeException("NotSupported PointId.");
+				throw new NShapeException("Unsupported PointId.");
 			if (drawCacheIsInvalid) UpdateDrawCache(); 
 
 			int index = GetControlPointIndex(controlPointId);
@@ -132,8 +146,10 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Invalidate() {
-			base.Invalidate();
-			if (DisplayService != null) DisplayService.Invalidate(GetBoundingRectangle(false));
+			if (!SuspendingInvalidation) {
+				base.Invalidate();
+				if (DisplayService != null) DisplayService.Invalidate(GetBoundingRectangle(false));
+			}
 		}
 
 		#endregion
@@ -144,8 +160,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void LoadFieldsCore(IRepositoryReader reader, int version) {
 			base.LoadFieldsCore(reader, version);
-			angle = reader.ReadInt32();
-			privateFillStyle = reader.ReadFillStyle();
+			_angle = reader.ReadInt32();
+			_privateFillStyle = reader.ReadFillStyle();
 		}
 
 
@@ -153,7 +169,7 @@ namespace Dataweb.NShape.Advanced {
 		protected override void SaveFieldsCore(IRepositoryWriter writer, int version) {
 			base.SaveFieldsCore(writer, version);
 			writer.WriteInt32(Angle);
-			writer.WriteStyle(privateFillStyle);
+			writer.WriteStyle(_privateFillStyle);
 		}
 
 
@@ -174,24 +190,29 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryLayout()]
-		[Description("Rotation angle of the Shape in tenths of degree.")]
+		[LocalizedDisplayName("PropName_IPlanarShape_Angle")]
+		[LocalizedDescription("PropDesc_IPlanarShape_Angle")]
 		[PropertyMappingId(PropertyIdAngle)]
 		[RequiredPermission(Permission.Layout)]
 		public virtual int Angle {
-			get { return angle; }
-			set { Rotate(value - angle, X, Y); }
+			get { return _angle; }
+			set {
+				if (value != _angle)
+					Rotate(value - _angle, X, Y);
+			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryAppearance()]
-		[Description("Defines the appearence of the shape's interior.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.")]
+		[LocalizedDisplayName("PropName_IPlanarShape_FillStyle")]
+		[LocalizedDescription("PropDesc_IPlanarShape_FillStyle")]
 		[PropertyMappingId(PropertyIdFillStyle)]
 		[RequiredPermission(Permission.Present)]
 		public virtual IFillStyle FillStyle {
-			get { return privateFillStyle ?? ((IPlanarShape)Template.Shape).FillStyle; }
+			get { return _privateFillStyle ?? ((IPlanarShape)Template.Shape).FillStyle; }
 			set {
-				privateFillStyle = (Template != null && value == ((IPlanarShape)Template.Shape).FillStyle) ? null : value;
+				_privateFillStyle = (Template != null && value == ((IPlanarShape)Template.Shape).FillStyle) ? null : value;
 				Invalidate();
 			}
 		}
@@ -214,7 +235,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void Construct() {
-			controlPoints = new Point[ControlPointCount];
+			_path = new GraphicsPath();
+			_controlPoints = new Point[ControlPointCount];
 		}
 
 
@@ -226,7 +248,7 @@ namespace Dataweb.NShape.Advanced {
 					break;
 				case PropertyIdFillStyle:
 					// assign private stylebecause if the style matches the template's style, it would not be assigned.
-					privateFillStyle = (IFillStyle)propertyMapping.GetStyle();
+					_privateFillStyle = (IFillStyle)propertyMapping.GetStyle();
 					Invalidate();
 					break;
 				default: 
@@ -239,12 +261,12 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		[Browsable(false)]
 		protected virtual Point Center {
-			get { return location; }
+			get { return _location; }
 			set {
-				Point origValue = location;
-				if (MoveTo(value.X, value.Y)) {
+				Point origValue = _location;
+				if (!MoveTo(value.X, value.Y)) {
 					MoveTo(origValue.X, origValue.Y);
-					throw new InvalidOperationException(string.Format("Shape cannot move to {0}", value));
+					throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ShapeCannotMoveTo0, value));
 				}
 			}
 		}
@@ -254,7 +276,7 @@ namespace Dataweb.NShape.Advanced {
 		protected override bool RotateCore(int deltaAngle, int x, int y) {
 			bool result = true;
 			// first, perform rotation around the center point...
-			angle = (3600 + angle + deltaAngle) % 3600;
+			_angle = (3600 + _angle + deltaAngle) % 3600;
 			// ...then, rotate the shape's center around the given rotation center and 
 			// move the shape (including its children) to this point
 			if (x != X || y != Y) {
@@ -281,15 +303,17 @@ namespace Dataweb.NShape.Advanced {
 				Rectangle result = Rectangle.Empty;
 				if (drawCacheIsInvalid) {
 					CalculatePath();
-					result = Rectangle.Ceiling(path.GetBounds());
+					result = Rectangle.Ceiling(Path.GetBounds());
 					if (Angle != 0) {
 						Point tl, tr, bl, br;
 						Geometry.RotateRectangle(result, Point.Empty, Geometry.TenthsOfDegreeToDegrees(Angle), out tl, out tr, out bl, out br);
 						Geometry.CalcBoundingRectangle(tl, tr, bl, br, out result);
 					}
 					result.Offset(X, Y);
-					return result;
-				} else return Rectangle.Ceiling(path.GetBounds());
+				} else 
+					result = Rectangle.Ceiling(Path.GetBounds());
+				ShapeUtils.InflateBoundingRectangle(ref result, LineStyle);
+				return result;
 			} else {
 				Rectangle result = Rectangle.Empty;
 				if (drawCacheIsInvalid) {
@@ -324,7 +348,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </remarks>
 		protected override bool ContainsPointCore(int x, int y) {
 			UpdateDrawCache();
-			return path.IsVisible(x, y);
+			return Path.IsVisible(x, y);
 		}
 
 
@@ -337,7 +361,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override bool MoveByCore(int deltaX, int deltaY) {
-			location.Offset(deltaX, deltaY);
+			_location.Offset(deltaX, deltaY);
 			return true;
 		}
 
@@ -375,14 +399,20 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected GraphicsPath Path {
-			get { return path; }
-			set { path = value; }
+			get {
+				if (_path == null) throw new ObjectDisposedException(GetType().Name);
+				return _path;
+			}
+			private set { _path = value; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected Point[] ControlPoints {
-			get { return controlPoints; }
+			get {
+				if (_controlPoints == null) throw new ObjectDisposedException(GetType().Name);
+				return _controlPoints; 
+			}
 		}
 
 
@@ -390,17 +420,19 @@ namespace Dataweb.NShape.Advanced {
 		/// Resizes (creates if it does not exist) the underlying control point array for ControlPoints property.
 		/// </summary>
 		protected void ResizeControlPoints(int length) {
-			if (controlPoints == null)
-				controlPoints = new Point[length];
-			else if (controlPoints.Length != length)
-				Array.Resize(ref controlPoints, length);
+			if (_controlPoints == null)
+				_controlPoints = new Point[length];
+			else if (_controlPoints.Length != length)
+				Array.Resize(ref _controlPoints, length);
 		}
 
 
 		/// <override></override>
 		protected override void InvalidateDrawCache() {
 			base.InvalidateDrawCache();
-			Path.Reset();
+			if (ObjectState == ObjectState.Normal) {
+				if (_path != null) _path.Reset();
+			}
 			boundingRectangleUnrotated = Geometry.InvalidRectangle;
 		}
 
@@ -408,8 +440,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void UpdateDrawCache() {
 			if (drawCacheIsInvalid) {
-				Debug.Assert(path != null);
-				Debug.Assert(ControlPoints != null);
+				Debug.Assert(_path != null); 
+				Debug.Assert(_controlPoints != null);
 				RecalcDrawCache();
 				TransformDrawCache(X, Y, Angle, X, Y);
 			}
@@ -457,7 +489,8 @@ namespace Dataweb.NShape.Advanced {
 					// transform controlPoints
 					if (ControlPoints != null) Matrix.TransformPoints(ControlPoints);
 					// transform GraphicsPath
-					if (path != null) path.Transform(Matrix);
+					Debug.Assert(Path != null);
+					Path.Transform(Matrix);
 				}
 				// transform unrotated boundingRectangle
 				boundingRectangleUnrotated.Offset(deltaX, deltaY);
@@ -501,6 +534,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		#region Fields
+
 		/// <ToBeCompleted></ToBeCompleted>
 		protected const int PropertyIdAngle = 2;
 		/// <ToBeCompleted></ToBeCompleted>
@@ -510,15 +544,15 @@ namespace Dataweb.NShape.Advanced {
 		protected Rectangle boundingRectangleUnrotated = Geometry.InvalidRectangle;
 
 		// Location of the Shape (usually the BalancePoint of the shape)
-		private Point location = Point.Empty;
-		private int angle = 0;
-		// Transformation Matrix for transformation of Vertices, GraphicsPath and Brushes		
-		private Matrix matrix = new Matrix();				
+		private Point _location = Point.Empty;
+		private int _angle = 0;
 		// GraphicsPath that will define the appearance of the shape
-		private GraphicsPath path = new GraphicsPath();	
-		private IFillStyle privateFillStyle = null;
-		private Point[] controlPoints;
+		private GraphicsPath _path;
+		private IFillStyle _privateFillStyle = null;
+		private Point[] _controlPoints;
+		
 		#endregion
+
 	}
 
 }

@@ -1,4 +1,4 @@
-namespace Dataweb.NShape.Designer {
+﻿namespace Dataweb.NShape.Designer {
 
 	partial class DisplaySettingsForm {
 		/// <summary>
@@ -159,8 +159,8 @@ namespace Dataweb.NShape.Designer {
 			// 
 			// groupBox1
 			// 
-			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox1.Controls.Add(this.chooseGridColorButton);
 			this.groupBox1.Controls.Add(this.gridColorLabel);
 			this.groupBox1.Controls.Add(this.label6);
@@ -207,8 +207,8 @@ namespace Dataweb.NShape.Designer {
 			// 
 			// groupBox2
 			// 
-			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox2.Controls.Add(this.pointSizeUpDown);
 			this.groupBox2.Controls.Add(this.connectionPointCombo);
 			this.groupBox2.Controls.Add(this.resizePointCombo);
@@ -275,8 +275,8 @@ namespace Dataweb.NShape.Designer {
 			// 
 			// groupBox3
 			// 
-			this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox3.Controls.Add(this.showDynamicContextMenu);
 			this.groupBox3.Controls.Add(this.hideDeniedMenuItemsCheckBox);
 			this.groupBox3.Location = new System.Drawing.Point(12, 222);
@@ -298,8 +298,8 @@ namespace Dataweb.NShape.Designer {
 			// 
 			// hideDeniedMenuItemsCheckBox
 			// 
-			this.hideDeniedMenuItemsCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.hideDeniedMenuItemsCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.hideDeniedMenuItemsCheckBox.Location = new System.Drawing.Point(6, 19);
 			this.hideDeniedMenuItemsCheckBox.Name = "hideDeniedMenuItemsCheckBox";
 			this.hideDeniedMenuItemsCheckBox.Size = new System.Drawing.Size(277, 30);

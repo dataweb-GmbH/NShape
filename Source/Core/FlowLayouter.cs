@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -73,7 +73,7 @@ namespace Dataweb.NShape.Layouters {
 		public int LayerDistance {
 			get { return layerDistance; }
 			set {
-				if (value <= 0) throw new ArgumentException("Layer distance must be greater than zero");
+				if (value <= 0) throw new ArgumentException(Properties.Resources.MessageTxt_LayerDistanceMustBeGreaterThanZero);
 				layerDistance = value;
 			}
 		}
@@ -83,7 +83,7 @@ namespace Dataweb.NShape.Layouters {
 		public int RowDistance {
 			get { return rowDistance; }
 			set {
-				if (value <= 0) throw new ArgumentException("Row distance must be greater than zero");
+				if (value <= 0) throw new ArgumentException(Properties.Resources.MessageTxt_RowDistanceMustBeGreaterThanZero);
 				rowDistance = value;
 			}
 		}
@@ -97,7 +97,7 @@ namespace Dataweb.NShape.Layouters {
 
 		/// <override></override>
 		public override string Description {
-			get { return "Orders the shapes such that the majority of the arrows points in a given direction."; }
+			get { return Properties.Resources.CaptionTxt_FlowLayouterDescription; }
 		}
 
 

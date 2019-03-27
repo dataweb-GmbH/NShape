@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -31,10 +31,10 @@ namespace Dataweb.NShape.Controllers {
 		public DiagramController(DiagramSetController owner, Diagram diagram) {
 			if (owner == null) throw new ArgumentNullException("owner");
 			if (owner.Project == null) throw new InvalidOperationException("DiagramSetController's Project property is not set.");
-			this.owner = owner;
-			this.diagram = diagram;
+			this._owner = owner;
+			this._diagram = diagram;
 			if (((IEntity)diagram).Id != null)
-				owner.Project.Repository.GetDiagramShapes(this.diagram);
+				owner.Project.Repository.GetDiagramShapes(this._diagram);
 		}
 
 
@@ -53,7 +53,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public DiagramSetController Owner {
-			get { return owner; }
+			get { return _owner; }
 		}
 
 
@@ -61,18 +61,18 @@ namespace Dataweb.NShape.Controllers {
 		/// Provides access to a <see cref="T:Dataweb.NShape.Project" />.
 		/// </summary>
 		public Project Project {
-			get { return (owner == null) ? null : owner.Project; }
+			get { return (_owner == null) ? null : _owner.Project; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Diagram Diagram { 
-			get { return diagram; }
+			get { return _diagram; }
 			set {
 				if (DiagramChanging != null) DiagramChanging(this, EventArgs.Empty);
-				diagram = value;
-				if (diagram != null) 
-					owner.Project.Repository.GetDiagramShapes(diagram);
+				_diagram = value;
+				if (_diagram != null) 
+					_owner.Project.Repository.GetDiagramShapes(_diagram);
 				if (DiagramChanged != null) DiagramChanged(this, EventArgs.Empty);
 			}
 		}
@@ -80,8 +80,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Tool Tool {
-			get { return owner.ActiveTool; }
-			set { owner.ActiveTool = value; }
+			get { return _owner.ActiveTool; }
+			set { _owner.ActiveTool = value; }
 		}
 
 		#endregion
@@ -91,15 +91,15 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void CreateDiagram(string name) {
-			diagram = new Diagram(name);
-			owner.Project.Repository.Insert(diagram);
-			Diagram = diagram;
+			_diagram = new Diagram(name);
+			_owner.Project.Repository.Insert(_diagram);
+			Diagram = _diagram;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void OpenDiagram(string name) {
-			Diagram = owner.Project.Repository.GetDiagram(name);
+			Diagram = _owner.Project.Repository.GetDiagram(name);
 		}
 
 
@@ -116,8 +116,8 @@ namespace Dataweb.NShape.Controllers {
 
 		#region Fields
 
-		private Diagram diagram = null;
-		private DiagramSetController owner = null;
+		private Diagram _diagram = null;
+		private DiagramSetController _owner = null;
 
 		#endregion
 	}

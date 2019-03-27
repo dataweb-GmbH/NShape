@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -53,7 +53,7 @@ namespace Dataweb.NShape.Advanced {
 			base.CopyFrom(source);
 			// Copy size if the source is a DiameterShape
 			if (source is DiameterShapeBase)
-				internalDiameter = ((DiameterShapeBase)source).DiameterInternal;
+				_internalDiameter = ((DiameterShapeBase)source).DiameterInternal;
 			else {
 				// If not, try to calculate the size a good as possible
 				Rectangle srcBounds = Geometry.InvalidRectangle;
@@ -97,29 +97,20 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void LoadFieldsCore(IRepositoryReader reader, int version) {
 			base.LoadFieldsCore(reader, version);
-			internalDiameter = reader.ReadInt32();
+			_internalDiameter = reader.ReadInt32();
 		}
 
 
 		/// <override></override>
 		protected override void SaveFieldsCore(IRepositoryWriter writer, int version) {
 			base.SaveFieldsCore(writer, version);
-			writer.WriteInt32(internalDiameter);
+			writer.WriteInt32(_internalDiameter);
 		}
 
 		#endregion
 
 
-		#region [Public] Properties
-
-		/// <override></override>
-		[Browsable(false)]
-		protected internal override int ControlPointCount {
-			get { return 9; }
-		}
-
-		#endregion
-
+		#region [Public] Methods
 
 		/// <override></override>
 		public override bool HasControlPointCapability(ControlPointId controlPointId, ControlPointCapabilities controlPointCapability) {
@@ -172,8 +163,13 @@ namespace Dataweb.NShape.Advanced {
 				float ptY = y;
 				Geometry.RotatePoint(X, Y, Geometry.TenthsOfDegreeToDegrees(-Angle), ref x, ref y);
 			}
-			result.A = (int)Math.Round((x - (X - DiameterInternal / 2f)) / (this.DiameterInternal / 1000f));
-			result.B = (int)Math.Round((y - (Y - DiameterInternal / 2f)) / (this.DiameterInternal / 1000f));
+			if (DiameterInternal != 0) {
+				result.A = (int)Math.Round((x - (X - DiameterInternal / 2f)) / (this.DiameterInternal / 1000f));
+				result.B = (int)Math.Round((y - (Y - DiameterInternal / 2f)) / (this.DiameterInternal / 1000f));
+			} else {
+				result.A = x - X;
+				result.B = y - Y;
+			}
 			return result;
 		}
 
@@ -204,11 +200,54 @@ namespace Dataweb.NShape.Advanced {
 			base.Draw(graphics);
 		}
 
+		#endregion
+
+
+		#region [Protected] Properties
+
+		/// <override></override>
+		[Browsable(false)]
+		protected internal override int ControlPointCount {
+			get { return 9; }
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected int DiameterInternal {
+			get { return _internalDiameter; }
+			set {
+				if (value < 0)  throw new ArgumentOutOfRangeException("value");
+				Invalidate();
+				if (Owner != null) Owner.NotifyChildResizing(this);
+				int delta = value - _internalDiameter;
+
+				_internalDiameter = value;
+				InvalidateDrawCache();
+
+				if (ChildrenCollection != null) ChildrenCollection.NotifyParentSized(delta, delta);
+				if (Owner != null) Owner.NotifyChildResized(this);
+				ControlPointsHaveMoved();
+				Invalidate();
+			}
+		}
+
+
+		/// <override></override>
+		protected override int DivFactorX { get { return 2; } }
+
+
+		/// <override></override>
+		protected override int DivFactorY { get { return 2; } }
+
+		#endregion
+
+
+		#region [Protected] Methods
 
 		/// <override></override>
 		protected internal override void InitializeToDefault(IStyleSet styleSet) {
 			base.InitializeToDefault(styleSet);
-			internalDiameter = 40;
+			_internalDiameter = 40;
 		}
 
 
@@ -222,14 +261,6 @@ namespace Dataweb.NShape.Advanced {
 		protected internal DiameterShapeBase(ShapeType shapeType, IStyleSet styleSet)
 			: base(shapeType, styleSet) {
 		}
-
-
-		/// <override></override>
-		protected override int DivFactorX { get { return 2; } }
-
-
-		/// <override></override>
-		protected override int DivFactorY { get { return 2; } }
 
 
 		/// <override></override>
@@ -298,10 +329,12 @@ namespace Dataweb.NShape.Advanced {
 					size = Math.Min(hSize, vSize);
 					break;
 			}
-			// Set field in order to avoid the shape being inserted into the owner's shape map
-			internalDiameter = size;
-			MoveByCore(dx, dy);
-			ControlPointsHaveMoved();
+			if (_internalDiameter != size || dx != 0 || dy != 0) {
+				// Set field in order to avoid the shape being inserted into the owner's shape map
+				_internalDiameter = size;
+				MoveByCore(dx, dy);
+				ControlPointsHaveMoved();
+			}
 
 			return result;
 		}
@@ -313,26 +346,6 @@ namespace Dataweb.NShape.Advanced {
 			captionBounds = Rectangle.Empty;
 			captionBounds.X = captionBounds.Y = (int)Math.Round(-DiameterInternal / 2f);
 			captionBounds.Width = captionBounds.Height = DiameterInternal;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		protected int DiameterInternal {
-			get { return internalDiameter; }
-			set {
-				if (value < 0)  throw new ArgumentOutOfRangeException("value");
-				Invalidate();
-				if (Owner != null) Owner.NotifyChildResizing(this);
-				int delta = value - internalDiameter;
-
-				internalDiameter = value;
-				InvalidateDrawCache();
-
-				if (ChildrenCollection != null) ChildrenCollection.NotifyParentSized(delta, delta);
-				if (Owner != null) Owner.NotifyChildResized(this);
-				ControlPointsHaveMoved();
-				Invalidate();
-			}
 		}
 
 
@@ -348,8 +361,11 @@ namespace Dataweb.NShape.Advanced {
 			}
 		}
 
+		#endregion
+
 
 		#region Fields
+
 		// PropertyId constant
 		/// <ToBeCompleted></ToBeCompleted>
 		protected const int PropertyIdDiameter = 7;
@@ -373,7 +389,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>ControlPointId of the center control point.</summary>
 		internal const int pointIdMiddleCenter = 9;
 
-		private int internalDiameter = 0;
+		private int _internalDiameter = 0;
+
 		#endregion
 	}
 
@@ -383,7 +400,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryLayout()]
-		[Description("Size of the sqare.")]
+		[LocalizedDisplayName("PropName_SquareBase_Size")]
+		[LocalizedDescription("PropDesc_SquareBase_Size")]
 		[PropertyMappingId(PropertyIdDiameter)]
 		[RequiredPermission(Permission.Layout)]
 		public int Size {
@@ -478,36 +496,36 @@ namespace Dataweb.NShape.Advanced {
 				bounds.Width = bounds.Height = Size;
 				return Geometry.RectangleIntersectsWithRectangle(rectangle, bounds);
 			} else {
-				if (rotatedBounds.Length != 4)
-					Array.Resize<PointF>(ref rotatedBounds, 4);
+				if (_rotatedBounds.Length != 4)
+					Array.Resize<PointF>(ref _rotatedBounds, 4);
 				float angle = Geometry.TenthsOfDegreeToDegrees(Angle);
 				float ptX, ptY;
 				float halfSize = Size / 2f;
 				ptX = X - halfSize;		// left
 				ptY = Y - halfSize;	// top
 				Geometry.RotatePoint(X, Y, angle, ref ptX, ref ptY);
-				rotatedBounds[0].X = ptX;
-				rotatedBounds[0].Y = ptY;
+				_rotatedBounds[0].X = ptX;
+				_rotatedBounds[0].Y = ptY;
 
 				ptX = X + halfSize;		// right
 				ptY = Y - halfSize;		// top
 				Geometry.RotatePoint(X, Y, angle, ref ptX, ref ptY);
-				rotatedBounds[1].X = ptX;
-				rotatedBounds[1].Y = ptY;
+				_rotatedBounds[1].X = ptX;
+				_rotatedBounds[1].Y = ptY;
 
 				ptX = X + halfSize;		// right
 				ptY = Y + halfSize;	// bottom
 				Geometry.RotatePoint(X, Y, angle, ref ptX, ref ptY);
-				rotatedBounds[2].X = ptX;
-				rotatedBounds[2].Y = ptY;
+				_rotatedBounds[2].X = ptX;
+				_rotatedBounds[2].Y = ptY;
 
 				ptX = X - halfSize;		// left
 				ptY = Y + halfSize;	// bottom
 				Geometry.RotatePoint(X, Y, angle, ref ptX, ref ptY);
-				rotatedBounds[3].X = ptX;
-				rotatedBounds[3].Y = ptY;
+				_rotatedBounds[3].X = ptX;
+				_rotatedBounds[3].Y = ptY;
 
-				return Geometry.PolygonIntersectsWithRectangle(rotatedBounds, rectangle);
+				return Geometry.PolygonIntersectsWithRectangle(_rotatedBounds, rectangle);
 			}
 		}
 
@@ -519,7 +537,9 @@ namespace Dataweb.NShape.Advanced {
 
 
 		#region Fields
-		private PointF[] rotatedBounds = new PointF[4];
+
+		private PointF[] _rotatedBounds = new PointF[4];
+		
 		#endregion
 	}
 
@@ -562,7 +582,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryLayout()]
-		[Description("Diameter of the circle.")]
+		[LocalizedDisplayName("PropName_CircleBase_Diameter")]
+		[LocalizedDescription("PropDesc_CircleBase_Diameter")]
 		[PropertyMappingId(PropertyIdDiameter)]
 		[RequiredPermission(Permission.Layout)]
 		public int Diameter {

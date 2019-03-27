@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -282,7 +282,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				// ToDo: Optimize this later. 
 				// No need to optimize this right now as runtime is fast enough at the moment.
 				// CAUTION! Avoid the 'Quicksort' algorithm here because the list is pre-sorted
-				// which means that Quicksort's run time will be nearly O(N�) instead of O(N log N).
+				// which means that Quicksort's run time will be nearly O(N²) instead of O(N log N).
 				if (Items.Count > 1) {
 					bool swapped;
 					do {

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -25,14 +25,16 @@ namespace Dataweb.NShape.Advanced {
 	/// <ToBeCompleted></ToBeCompleted>
 	public class TriangleBase : CaptionedShapeBase {
 
+		#region [Public] Methods
+
 		/// <override></override>
 		public override void CopyFrom(Shape source) {
 			base.CopyFrom(source);
 			if (source is TriangleBase) {
 				TriangleBase src = (TriangleBase)source;
-				this.shapePoints[0] = src.shapePoints[0];
-				this.shapePoints[1] = src.shapePoints[1];
-				this.shapePoints[2] = src.shapePoints[2];
+				this._shapePoints[0] = src._shapePoints[0];
+				this._shapePoints[1] = src._shapePoints[1];
+				this._shapePoints[2] = src._shapePoints[2];
 			}
 		}
 
@@ -75,13 +77,13 @@ namespace Dataweb.NShape.Advanced {
 			if (X == startX && Y == startY)
 				return Center;
 			else {
-				Array.Copy(shapePoints, pointBuffer, pointBuffer.Length);
+				Array.Copy(_shapePoints, _pointBuffer, _pointBuffer.Length);
 				Matrix.Reset();
 				Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Point.Empty, MatrixOrder.Prepend);
 				Matrix.Translate(X, Y, MatrixOrder.Append);
-				Matrix.TransformPoints(pointBuffer);
+				Matrix.TransformPoints(_pointBuffer);
 
-				Point result = Geometry.GetNearestPoint(startX, startY, Geometry.IntersectPolygonLine(pointBuffer, X, Y, startX, startY, false));
+				Point result = Geometry.GetNearestPoint(startX, startY, Geometry.IntersectPolygonLine(_pointBuffer, X, Y, startX, startY, false));
 				return result;
 			}
 		}
@@ -101,9 +103,9 @@ namespace Dataweb.NShape.Advanced {
 			// RelativePosition.B = Tenths of percentage of AC
 			int sX = X, sY = Y;
 			float angleDeg = Geometry.TenthsOfDegreeToDegrees(Angle);
-			Point p1 = Geometry.RotatePoint(sX, sY, angleDeg, shapePoints[0].X + sX, shapePoints[0].Y + sY);
-			Point p2 = Geometry.RotatePoint(sX, sY, angleDeg, shapePoints[1].X + sX, shapePoints[1].Y + sY);
-			Point p3 = Geometry.RotatePoint(sX, sY, angleDeg, shapePoints[2].X + sX, shapePoints[2].Y + sY);
+			Point p1 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[0].X + sX, _shapePoints[0].Y + sY);
+			Point p2 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[1].X + sX, _shapePoints[1].Y + sY);
+			Point p3 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[2].X + sX, _shapePoints[2].Y + sY);
 			Point posA, posB;
 			if (p1.X == x && p1.Y == y)
 				posA = Geometry.VectorLinearInterpolation(p2, p3, 0.5f);
@@ -133,9 +135,9 @@ namespace Dataweb.NShape.Advanced {
 			// RelativePosition.B = Tenths of percentage of AC
 			int sX = X, sY = Y;
 			float angleDeg = Geometry.TenthsOfDegreeToDegrees(Angle);
-			Point p1 = Geometry.RotatePoint(sX, sY, angleDeg, shapePoints[0].X + sX, shapePoints[0].Y + sY);
-			Point p2 = Geometry.RotatePoint(sX, sY, angleDeg, shapePoints[1].X + sX, shapePoints[1].Y + sY);
-			Point p3 = Geometry.RotatePoint(sX, sY, angleDeg, shapePoints[2].X + sX, shapePoints[2].Y + sY);
+			Point p1 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[0].X + sX, _shapePoints[0].Y + sY);
+			Point p2 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[1].X + sX, _shapePoints[1].Y + sY);
+			Point p3 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[2].X + sX, _shapePoints[2].Y + sY);
 			float distA = relativePosition.A / 1000f;
 			float distB = relativePosition.B / 1000f;
 			
@@ -183,9 +185,9 @@ namespace Dataweb.NShape.Advanced {
 
 			// Get current positions of control points
 			Rectangle srcBounds = CalculateBoundingRectangle(true);
-			Point p1 = GetControlPointPosition(1);
-			Point p2 = GetControlPointPosition(2);
-			Point p3 = GetControlPointPosition(3);
+			Point p1 = GetControlPointPosition(ControlPoint1);
+			Point p2 = GetControlPointPosition(ControlPoint2);
+			Point p3 = GetControlPointPosition(ControlPoint3);
 			Point pos = GetControlPointPosition(ControlPointId.Reference);
 			
 			float scaleX = dstBounds.Width / (float)srcBounds.Width;
@@ -195,17 +197,19 @@ namespace Dataweb.NShape.Advanced {
 			int dx, dy;
 			dx = (int)Math.Round(scaleX * (p1.X - srcBounds.X));
 			dy = (int)Math.Round(scaleY * (p1.Y - srcBounds.Y));
-			MoveControlPointTo(1, dstBounds.X + dx, dstBounds.Y + dy, ResizeModifiers.None);
+			MoveControlPointTo(ControlPoint1, dstBounds.X + dx, dstBounds.Y + dy, ResizeModifiers.None);
 			dx = (int)Math.Round(scaleX * (p2.X - srcBounds.X));
 			dy = (int)Math.Round(scaleY * (p2.Y - srcBounds.Y));
-			MoveControlPointTo(2, dstBounds.X + dx, dstBounds.Y + dy, ResizeModifiers.None);
+			MoveControlPointTo(ControlPoint2, dstBounds.X + dx, dstBounds.Y + dy, ResizeModifiers.None);
 			dx = (int)Math.Round(scaleX * (p3.X - srcBounds.X));
 			dy = (int)Math.Round(scaleY * (p3.Y - srcBounds.Y));
-			MoveControlPointTo(3, dstBounds.X + dx, dstBounds.Y + dy, ResizeModifiers.None);
+			MoveControlPointTo(ControlPoint3, dstBounds.X + dx, dstBounds.Y + dy, ResizeModifiers.None);
 			dx = (int)Math.Round(scaleX * (pos.X - srcBounds.Left));
 			dy = (int)Math.Round(scaleY * (pos.Y - srcBounds.Top));
 			MoveTo(dstBounds.X + dx, dstBounds.Y + dy);
 		}
+
+		#endregion
 
 
 		#region IEntity Members
@@ -213,24 +217,24 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void LoadFieldsCore(IRepositoryReader reader, int version) {
 			base.LoadFieldsCore(reader, version);
-			shapePoints[0].X = reader.ReadInt32();
-			shapePoints[0].Y = reader.ReadInt32();
-			shapePoints[1].X = reader.ReadInt32();
-			shapePoints[1].Y = reader.ReadInt32();
-			shapePoints[2].X = reader.ReadInt32();
-			shapePoints[2].Y = reader.ReadInt32();
+			_shapePoints[0].X = reader.ReadInt32();
+			_shapePoints[0].Y = reader.ReadInt32();
+			_shapePoints[1].X = reader.ReadInt32();
+			_shapePoints[1].Y = reader.ReadInt32();
+			_shapePoints[2].X = reader.ReadInt32();
+			_shapePoints[2].Y = reader.ReadInt32();
 		}
 
 
 		/// <override></override>
 		protected override void SaveFieldsCore(IRepositoryWriter writer, int version) {
 			base.SaveFieldsCore(writer, version);
-			writer.WriteInt32(shapePoints[0].X);
-			writer.WriteInt32(shapePoints[0].Y);
-			writer.WriteInt32(shapePoints[1].X);
-			writer.WriteInt32(shapePoints[1].Y);
-			writer.WriteInt32(shapePoints[2].X);
-			writer.WriteInt32(shapePoints[2].Y);
+			writer.WriteInt32(_shapePoints[0].X);
+			writer.WriteInt32(_shapePoints[0].Y);
+			writer.WriteInt32(_shapePoints[1].X);
+			writer.WriteInt32(_shapePoints[1].Y);
+			writer.WriteInt32(_shapePoints[2].X);
+			writer.WriteInt32(_shapePoints[2].Y);
 		}
 
 
@@ -250,6 +254,8 @@ namespace Dataweb.NShape.Advanced {
 
 		#endregion
 
+
+		#region [Protected] Methods
 
 		/// <override></override>
 		protected internal override int ControlPointCount {
@@ -274,18 +280,18 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected internal override void InitializeToDefault(IStyleSet styleSet) {
 			base.InitializeToDefault(styleSet);
-			pointBuffer[0].X = 0;
-			pointBuffer[0].Y = -20;
-			pointBuffer[1].X = -20;
-			pointBuffer[1].Y = 20;
-			pointBuffer[2].X = 20;
-			pointBuffer[2].Y = 20;
+			_pointBuffer[0].X = 0;
+			_pointBuffer[0].Y = -20;
+			_pointBuffer[1].X = -20;
+			_pointBuffer[1].Y = 20;
+			_pointBuffer[2].X = 20;
+			_pointBuffer[2].Y = 20;
 			int x, y;
-			Geometry.CalcPolygonBalancePoint(pointBuffer, out x, out y);
+			Geometry.CalcPolygonBalancePoint(_pointBuffer, out x, out y);
 
-			for (int i = shapePoints.Length - 1; i >= 0; --i) {
-				shapePoints[i].X = pointBuffer[i].X - x;
-				shapePoints[i].Y = pointBuffer[i].Y - y;
+			for (int i = _shapePoints.Length - 1; i >= 0; --i) {
+				_shapePoints[i].X = _pointBuffer[i].X - x;
+				_shapePoints[i].Y = _pointBuffer[i].Y - y;
 			}
 		}
 
@@ -305,12 +311,12 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override Rectangle CalculateBoundingRectangle(bool tight) {
 			Rectangle result;
-			Array.Copy(shapePoints, pointBuffer, pointBuffer.Length);
+			Array.Copy(_shapePoints, _pointBuffer, _pointBuffer.Length);
 			Matrix.Reset();
 			Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Point.Empty);
-			Matrix.TransformPoints(pointBuffer);
+			Matrix.TransformPoints(_pointBuffer);
 
-			Geometry.CalcBoundingRectangle(pointBuffer, out result);
+			Geometry.CalcBoundingRectangle(_pointBuffer, out result);
 			result.Offset(X, Y);
 			ShapeUtils.InflateBoundingRectangle(ref result, LineStyle);
 
@@ -326,7 +332,7 @@ namespace Dataweb.NShape.Advanced {
 				Point p = Point.Empty;
 				p.Offset(x - X, y - Y);
 				p = Geometry.RotatePoint(Point.Empty, Geometry.TenthsOfDegreeToDegrees(-Angle), p);
-				return Geometry.TriangleContainsPoint(shapePoints[0], shapePoints[1], shapePoints[2], p.X, p.Y);
+				return Geometry.TriangleContainsPoint(_shapePoints[0], _shapePoints[1], _shapePoints[2], p.X, p.Y);
 			} else return false;
 		}
 
@@ -336,10 +342,10 @@ namespace Dataweb.NShape.Advanced {
 			// Transform the rectangle 0|0 before comparing it with the (untransformed) shapePoints
 			int rX = x - X; int rY = y - Y;
 			float angleDeg = Geometry.TenthsOfDegreeToDegrees(Angle);
-			pointBuffer[0] = Geometry.RotatePoint(Center, angleDeg, shapePoints[0]);
-			pointBuffer[1] = Geometry.RotatePoint(Center, angleDeg, shapePoints[1]);
-			pointBuffer[2] = Geometry.RotatePoint(Center, angleDeg, shapePoints[2]);
-			return Geometry.PolygonIntersectsWithRectangle(pointBuffer, rX, rY, rX + width, rY + height);
+			_pointBuffer[0] = Geometry.RotatePoint(Center, angleDeg, _shapePoints[0]);
+			_pointBuffer[1] = Geometry.RotatePoint(Center, angleDeg, _shapePoints[1]);
+			_pointBuffer[2] = Geometry.RotatePoint(Center, angleDeg, _shapePoints[2]);
+			return Geometry.PolygonIntersectsWithRectangle(_pointBuffer, rX, rY, rX + width, rY + height);
 		}
 
 
@@ -349,20 +355,20 @@ namespace Dataweb.NShape.Advanced {
 			Debug.Assert(idx >= 0);
 
 			int oldPosX, oldPosY;
-			Geometry.CalcPolygonBalancePoint(shapePoints, out oldPosX, out oldPosY);
+			Geometry.CalcPolygonBalancePoint(_shapePoints, out oldPosX, out oldPosY);
 
-			shapePoints[idx].X += (int)Math.Round(transformedDeltaX);
-			shapePoints[idx].Y += (int)Math.Round(transformedDeltaY);
+			_shapePoints[idx].X += (int)Math.Round(transformedDeltaX);
+			_shapePoints[idx].Y += (int)Math.Round(transformedDeltaY);
 
 			int newPosX, newPosY;
-			Geometry.CalcPolygonBalancePoint(shapePoints, out newPosX, out newPosY);
+			Geometry.CalcPolygonBalancePoint(_shapePoints, out newPosX, out newPosY);
 
 			// Update (relative) vertex positions before moving the shape to the new balance point
 			int dX = newPosX - oldPosX;
 			int dY = newPosY - oldPosY;
-			for (int i = shapePoints.Length - 1; i >= 0; --i) {
-				shapePoints[i].X -= dX;
-				shapePoints[i].Y -= dY;
+			for (int i = _shapePoints.Length - 1; i >= 0; --i) {
+				_shapePoints[i].X -= dX;
+				_shapePoints[i].Y -= dY;
 			}
 			MoveByCore((int)Math.Round((dX * cos) - (dY * sin)), (int)Math.Round((dX * sin) + (dY * cos)));
 			
@@ -377,10 +383,10 @@ namespace Dataweb.NShape.Advanced {
 			// Calculate the inner circle
 			int circleRadius = int.MinValue;
 			int j;
-			for (int i = shapePoints.Length - 1; i >= 0; --i) {
-				j = (i == 0) ? shapePoints.Length - 1 : i - 1;
-				Point a = shapePoints[i];
-				Point b = shapePoints[j];
+			for (int i = _shapePoints.Length - 1; i >= 0; --i) {
+				j = (i == 0) ? _shapePoints.Length - 1 : i - 1;
+				Point a = _shapePoints[i];
+				Point b = _shapePoints[j];
 				Point p = Geometry.CalcPointOnLine(a.X, a.Y, b.X, b.Y, Geometry.DistancePointPoint(a.X, a.Y, b.X, b.Y) / 2f);
 				float dist = Geometry.DistancePointPoint(Point.Empty, p);
 				if (dist > circleRadius) circleRadius = (int)Math.Round(dist);
@@ -399,7 +405,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void CalcControlPoints() {
-			shapePoints.CopyTo(ControlPoints, 0);
+			_shapePoints.CopyTo(ControlPoints, 0);
 			ControlPoints[ControlPointCount - 1] = Point.Empty;
 		}
 
@@ -409,7 +415,7 @@ namespace Dataweb.NShape.Advanced {
 			if (base.CalculatePath()) {
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddPolygon(shapePoints);
+				Path.AddPolygon(_shapePoints);
 				Path.CloseFigure();
 				return true;
 			} else return false;
@@ -419,6 +425,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void Construct() {
 		}
+
+		#endregion
 
 
 		#region Fields
@@ -433,8 +441,8 @@ namespace Dataweb.NShape.Advanced {
 		protected const int RotateControlPoint = 4;
 
 		// The vertices contain the (unrotated) points of the triangle relative to 0|0.
-		private Point[] shapePoints = new Point[3];
-		private Point[] pointBuffer = new Point[3];
+		private Point[] _shapePoints = new Point[3];
+		private Point[] _pointBuffer = new Point[3];
 		
 		#endregion
 	}

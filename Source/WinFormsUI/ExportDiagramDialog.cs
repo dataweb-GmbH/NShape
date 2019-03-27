@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2014 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -41,7 +41,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 
 			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
-			this.diagramPresenter = diagramPresenter;
+			this._diagramPresenter = diagramPresenter;
 			InitializeDialog();
 		}
 
@@ -55,7 +55,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			dpiComboBox.Items.Add(300);
 			dpiComboBox.Items.Add(600);
 
-			Graphics infoGfx = diagramPresenter.Diagram.DisplayService.InfoGraphics;
+			Graphics infoGfx = _diagramPresenter.Diagram.DisplayService.InfoGraphics;
 			for (int i = dpiComboBox.Items.Count - 1; i >= 0; --i) {
 				System.Diagnostics.Debug.Assert(dpiComboBox.Items[i] is int);
 				if ((int)dpiComboBox.Items[i] < infoGfx.DpiY) {
@@ -74,13 +74,14 @@ namespace Dataweb.NShape.WinFormsUI {
 			marginUpDown.Value = 0;
 			emfPlusRadioButton.Checked = true;
 			toFileRadioButton.Checked = true;
-			if (diagramPresenter.SelectedShapes.Count > 0) {
+			if (_diagramPresenter.SelectedShapes.Count > 0) {
 				exportSelectedRadioButton.Enabled =
 				exportSelectedRadioButton.Checked = true;
 			} else {
 				exportSelectedRadioButton.Enabled = false;
 				exportAllRadioButton.Checked = true;
 			}
+			visibleLayersOnlyCheckBox.Checked = (!EnumerationHelper.IsEmpty(_diagramPresenter.HiddenLayerIds));
 
 			EnableOkButton();
 		}
@@ -93,27 +94,33 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void CreateImage() {
-			if (image != null) image.Dispose();
+			if (_image != null) _image.Dispose();
 			try {
 				// Check if image dimensions are valid
-				Graphics infoGfx = diagramPresenter.Diagram.DisplayService.InfoGraphics;
-				int imgWidth = (int)Math.Round((dpi / infoGfx.DpiX) * diagramPresenter.Diagram.Width);
-				int imgHeight = (int)Math.Round((dpi / infoGfx.DpiY) * diagramPresenter.Diagram.Height);
+				Graphics infoGfx = _diagramPresenter.Diagram.DisplayService.InfoGraphics;
+				int imgWidth = (int)Math.Round((_dpi / infoGfx.DpiX) * _diagramPresenter.Diagram.Width);
+				int imgHeight = (int)Math.Round((_dpi / infoGfx.DpiY) * _diagramPresenter.Diagram.Height);
+				bool createImage = true;
 				if (Math.Min(imgWidth, imgHeight) <= 0 || (imgWidth * imgHeight) > Diagram.MaxBitmapPixelCount) {
-					string msgTxt = string.Format("The selected resolution would result in a {0}x{1} pixels bitmap which is not supported.", imgWidth, imgHeight);
-					MessageBox.Show(this, msgTxt, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				} else {
+					string msgTxt = string.Format(
+						"The selected resolution would result in a {0}x{1} pixels bitmap which may be too big when running in 32 bit mode. {2}Do you want to continue?", 
+						imgWidth, imgHeight, Environment.NewLine);
+					DialogResult res = MessageBox.Show(this, msgTxt, "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+					createImage = (res == DialogResult.Yes);
+				} 
+				if (createImage) {
 					Cursor = Cursors.WaitCursor;
 					try {
-						image = diagramPresenter.Diagram.CreateImage(imageFormat,
-							shapes,
-							margin,
+						_image = _diagramPresenter.Diagram.CreateImage(_imageFormat,
+							_shapes,
+							visibleLayersOnlyCheckBox.Checked ? _diagramPresenter.GetVisibleLayerIds() : null,
+							_margin,
 							withBackgroundCheckBox.Checked,
-							backgroundColor,
-							dpi);
-						if (image != null) {
+							_backgroundColor,
+							_dpi);
+						if (_image != null) {
 							GraphicsUnit unit = GraphicsUnit.Display;
-							imageBounds = Rectangle.Round(image.GetBounds(ref unit));
+							_imageBounds = Rectangle.Round(_image.GetBounds(ref unit));
 						}
 					} catch (Exception exc) {
 						MessageBox.Show(this, exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -123,17 +130,17 @@ namespace Dataweb.NShape.WinFormsUI {
 				}
 			} catch (Exception exc) {
 				MessageBox.Show(this, string.Format("Error while creating image: {0}", exc.Message), "Error while creating image", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				image = new Bitmap(1, 1);
+				_image = new Bitmap(1, 1);
 			}
 		}
 
 
 		private void UpdateFileExtension() {
-			if (!string.IsNullOrEmpty(filePath)) {
-				string currExt = Path.GetExtension(filePath);
-				string newExt = GetFileExtension(imageFormat);
+			if (!string.IsNullOrEmpty(_filePath)) {
+				string currExt = Path.GetExtension(_filePath);
+				string newExt = GetFileExtension(_imageFormat);
 				if (string.IsNullOrEmpty(currExt))
-					filePathTextBox.Text = filePath + newExt;
+					filePathTextBox.Text = _filePath + newExt;
 				else {
 					bool updateExtension = true;
 					if (!IsStandardExtension(currExt)) {
@@ -142,7 +149,7 @@ namespace Dataweb.NShape.WinFormsUI {
 					}
 					if (updateExtension) {
 						if (string.Compare(currExt, newExt, StringComparison.InvariantCultureIgnoreCase) != 0)
-							SetFilePath(filePath.Replace(currExt, newExt));
+							SetFilePath(_filePath.Replace(currExt, newExt));
 					}
 				}
 			}
@@ -177,10 +184,10 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void SetFilePath(string path) {
-			filePath = path;
-			if (filePathTextBox.Text != filePath) {
-				filePathTextBox.Text = filePath;
-				filePathChanged = true;
+			_filePath = path;
+			if (filePathTextBox.Text != _filePath) {
+				filePathTextBox.Text = _filePath;
+				_filePathChanged = true;
 			}
 			EnableOkButton();
 		}
@@ -197,49 +204,56 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void ExportImage() {
 			// Update file extension
-			if (string.IsNullOrEmpty(Path.GetExtension(filePath)))
-				SetFilePath(filePath + GetFileExtension(imageFormat));
+			if (string.IsNullOrEmpty(Path.GetExtension(_filePath)))
+				SetFilePath(_filePath + GetFileExtension(_imageFormat));
 			// Check if the file path changed since last export
-			if (filePathChanged && !CanOverwriteFile(filePath))
+			if (_filePathChanged && !CanOverwriteFile(_filePath))
 				return;
 
-			if (image == null) CreateImage();
-			if (image != null) {
-				switch (imageFormat) {
+			if (_image == null) CreateImage();
+			if (_image != null) {
+				switch (_imageFormat) {
 					case ImageFileFormat.Emf:
 					case ImageFileFormat.EmfPlus:
-						if (exportToClipboard)
-							EmfHelper.PutEnhMetafileOnClipboard(this.Handle, (Metafile)image.Clone());
-						else GdiHelpers.SaveImage(image, filePath, imageFormat, compressionQuality);
+						if (_exportToClipboard) {
+							try {
+								ClipboardHelper.OpenClipboard(this.Handle);
+								ClipboardHelper.EmptyClipboard();
+								ClipboardHelper.AddEnhMetafileToClipboard((Metafile)_image.Clone());
+							} finally {
+								ClipboardHelper.CloseClipboard();
+							}
+						} else 
+							GdiHelpers.SaveImage(_image, _filePath, _imageFormat, _compressionQuality);
 						break;
 					case ImageFileFormat.Bmp:
 					case ImageFileFormat.Gif:
 					case ImageFileFormat.Jpeg:
 					case ImageFileFormat.Png:
 					case ImageFileFormat.Tiff:
-						if (exportToClipboard)
-							Clipboard.SetImage((Image)image.Clone());
-						else GdiHelpers.SaveImage(image, filePath, imageFormat, compressionQuality);
+						if (_exportToClipboard)
+							Clipboard.SetImage((Image)_image.Clone());
+						else GdiHelpers.SaveImage(_image, _filePath, _imageFormat, _compressionQuality);
 						break;
 					case ImageFileFormat.Svg:
 						throw new NotImplementedException();
-					default: throw new NShapeUnsupportedValueException(imageFormat);
+					default: throw new NShapeUnsupportedValueException(_imageFormat);
 				}
 			}
-			filePathChanged = false;
+			_filePathChanged = false;
 		}
 
 
 		private void DeleteImage() {
-			if (image != null) image.Dispose();
-			image = null;
+			if (_image != null) _image.Dispose();
+			_image = null;
 		}
 
 
 		private void SetBackgroundColor(Color color) {
-			backgroundColor = color;
-			if (colorLabelFrontBrush != null) colorLabelFrontBrush.Dispose();
-			colorLabelFrontBrush = null;
+			_backgroundColor = color;
+			if (_colorLabelFrontBrush != null) _colorLabelFrontBrush.Dispose();
+			_colorLabelFrontBrush = null;
 			colorLabel.Invalidate();
 			RefreshPreview();
 		}
@@ -247,20 +261,20 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void EnableOkButton() {
 			exportButton.Enabled =
-			okButton.Enabled = (exportToClipboard || !string.IsNullOrEmpty(filePath));
+			okButton.Enabled = (_exportToClipboard || !string.IsNullOrEmpty(_filePath));
 		}
 
 
 		private void EnableFileSelection() {
 			filePathTextBox.Enabled =
-			browseButton.Enabled = !exportToClipboard;
+			browseButton.Enabled = !_exportToClipboard;
 			EnableResolutionAndQualitySelection();
 		}
 
 
 		private void EnableResolutionAndQualitySelection() {
 			bool enable;
-			switch (imageFormat) {
+			switch (_imageFormat) {
 				case ImageFileFormat.EmfPlus:
 				case ImageFileFormat.Emf:
 				case ImageFileFormat.Svg:
@@ -278,7 +292,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			dpiComboBox.Enabled = enable;
 			// Quality has only an effect on JPG images
 			qualityLabel.Enabled =
-			qualityTrackBar.Enabled = (imageFormat == ImageFileFormat.Jpeg);
+			qualityTrackBar.Enabled = (_imageFormat == ImageFileFormat.Jpeg);
 		}
 
 		#endregion
@@ -288,7 +302,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void emfPlusRadioButton_CheckedChanged(object sender, EventArgs e) {
 			if (emfPlusRadioButton.Checked) {
-				imageFormat = ImageFileFormat.EmfPlus;
+				_imageFormat = ImageFileFormat.EmfPlus;
 				descriptionLabel.Text = emfPlusDescription;
 				UpdateFileExtension();
 				EnableResolutionAndQualitySelection();
@@ -299,7 +313,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void emfRadioButton_CheckedChanged(object sender, EventArgs e) {
 			if (emfRadioButton.Checked) {
-				imageFormat = ImageFileFormat.Emf;
+				_imageFormat = ImageFileFormat.Emf;
 				descriptionLabel.Text = emfDescription;
 				UpdateFileExtension();
 				EnableResolutionAndQualitySelection();
@@ -310,7 +324,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void pngRadioButton_CheckedChanged(object sender, EventArgs e) {
 			if (pngRadioButton.Checked) {
-				imageFormat = ImageFileFormat.Png;
+				_imageFormat = ImageFileFormat.Png;
 				descriptionLabel.Text = pngDescription;
 				UpdateFileExtension();
 				EnableResolutionAndQualitySelection();
@@ -321,7 +335,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void jpgRadioButton_CheckedChanged(object sender, EventArgs e) {
 			if (jpgRadioButton.Checked) {
-				imageFormat = ImageFileFormat.Jpeg;
+				_imageFormat = ImageFileFormat.Jpeg;
 				descriptionLabel.Text = jpgDescription;
 				UpdateFileExtension();
 				EnableResolutionAndQualitySelection();
@@ -333,7 +347,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void bmpRadioButton_CheckedChanged(object sender, EventArgs e) {
 			if (bmpRadioButton.Checked) {
-				imageFormat = ImageFileFormat.Bmp;
+				_imageFormat = ImageFileFormat.Bmp;
 				descriptionLabel.Text = bmpDescription;
 				UpdateFileExtension();
 				EnableResolutionAndQualitySelection();
@@ -348,28 +362,28 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] "Export Options" event handler implementations
 		
 		private void toClipboardRadioButton_CheckedChanged(object sender, EventArgs e) {
-			exportToClipboard = true;
+			_exportToClipboard = true;
 			EnableFileSelection();
 			EnableOkButton();
 		}
 
 
 		private void toFileRadioButton_CheckedChanged(object sender, EventArgs e) {
-			exportToClipboard = false;
+			_exportToClipboard = false;
 			EnableFileSelection();
 			EnableOkButton();
 		}
 
 
 		private void filePathTextBox_TextChanged(object sender, EventArgs e) {
-			if (filePathTextBox.Text != filePath)
+			if (filePathTextBox.Text != _filePath)
 				SetFilePath(filePathTextBox.Text);
 		}
 
 	
 		private void browseButton_Click(object sender, EventArgs e) {
 			string fileFilter = null;
-			switch (imageFormat) {
+			switch (_imageFormat) {
 				case ImageFileFormat.Bmp: fileFilter = "Bitmap Picture Files|*.bmp|All Files|*.*"; break;
 				case ImageFileFormat.EmfPlus: 
 				case ImageFileFormat.Emf: fileFilter = "Enhanced Meta Files|*.emf|All Files|*.*"; break;
@@ -377,13 +391,13 @@ namespace Dataweb.NShape.WinFormsUI {
 				case ImageFileFormat.Jpeg: fileFilter = "Joint Photographic Experts Group (JPEG) Files|*.jpeg;*.jpg|All Files|*.*"; break;
 				case ImageFileFormat.Png: fileFilter = "Portable Network Graphics Files|*.png|All Files|*.*"; break;
 				case ImageFileFormat.Tiff: fileFilter = "Tagged Image File Format Files|*.tiff;*.tif|All Files|*.*"; break;
-				default: throw new NShapeUnsupportedValueException(imageFormat);
+				default: throw new NShapeUnsupportedValueException(_imageFormat);
 			}
 			string fileName = string.Empty;
-			saveFileDialog.FileName = filePath;
+			saveFileDialog.FileName = _filePath;
 			saveFileDialog.Filter = fileFilter;
 			saveFileDialog.AddExtension = true;
-			saveFileDialog.DefaultExt = GetFileExtension(imageFormat);
+			saveFileDialog.DefaultExt = GetFileExtension(_imageFormat);
 			saveFileDialog.SupportMultiDottedExtensions = true;
 			saveFileDialog.OverwritePrompt = false;
 			if (saveFileDialog.ShowDialog() == DialogResult.OK) {
@@ -391,10 +405,10 @@ namespace Dataweb.NShape.WinFormsUI {
 					if (CanOverwriteFile(saveFileDialog.FileName)) {
 						fileName = saveFileDialog.FileName;
 						if (string.IsNullOrEmpty(Path.GetExtension(fileName)))
-							fileName += GetFileExtension(imageFormat);
+							fileName += GetFileExtension(_imageFormat);
 						// Update file path
 						SetFilePath(fileName);
-						filePathChanged = false;
+						_filePathChanged = false;
 					}
 				}
 			}
@@ -419,24 +433,24 @@ namespace Dataweb.NShape.WinFormsUI {
 				if (previewCheckBox.Checked) {
 					// Deactivate preview if image would be very large
 					// ToDo: Create image with a worker thread
-					Graphics infoGfx = diagramPresenter.Diagram.DisplayService.InfoGraphics;
-					int imgWidth = (int)Math.Round((value / infoGfx.DpiX) * diagramPresenter.Diagram.Width);
-					int imgHeight = (int)Math.Round((value / infoGfx.DpiY) * diagramPresenter.Diagram.Height);
-					if (Math.Max(imgWidth, imgHeight) > deactivatePreviewDimension) {
+					Graphics infoGfx = _diagramPresenter.Diagram.DisplayService.InfoGraphics;
+					int imgWidth = (int)Math.Round((value / infoGfx.DpiX) * _diagramPresenter.Diagram.Width);
+					int imgHeight = (int)Math.Round((value / infoGfx.DpiY) * _diagramPresenter.Diagram.Height);
+					if (Math.Max(imgWidth, imgHeight) > _deactivatePreviewDimension) {
 						string msg = string.Format("The resulting image will have {0}x{1} pixels and drawing a preview of this image might be slow on some machines.\nDo you wand to deactivate the preview option?", 
 															imgWidth, imgHeight);
 						DialogResult result = MessageBox.Show(this, msg, "Deactivate preview?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 						switch (result) {
 							case DialogResult.Cancel:
-								dpiComboBox.Text = dpi.ToString();
-								value = dpi;
+								dpiComboBox.Text = _dpi.ToString();
+								value = _dpi;
 								break;
 							case DialogResult.Yes:
 								previewCheckBox.Checked = false;
 								break;
 							case DialogResult.No:
 								// Update dimensions that are ok for the user
-								deactivatePreviewDimension = Math.Max(imgWidth, imgHeight);
+								_deactivatePreviewDimension = Math.Max(imgWidth, imgHeight);
 								break;
 							default: Debug.Fail("Unhandled switch case!"); break;
 						}
@@ -444,15 +458,15 @@ namespace Dataweb.NShape.WinFormsUI {
 				}
 			}
 			// Set value and refresh preview image
-			if (value > 0 && value != dpi) {
-				dpi = value;
+			if (value > 0 && value != _dpi) {
+				_dpi = value;
 				RefreshPreview();
 			}
 		}
 
 
 		private void qualityTrackBar_ValueChanged(object sender, EventArgs e) {
-			compressionQuality = (byte)qualityTrackBar.Value;
+			_compressionQuality = (byte)qualityTrackBar.Value;
 		}
 		
 		#endregion
@@ -461,19 +475,24 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] "Content Options" event handler implementations
 
 		private void exportSelectedRadioButton_CheckedChanged(object sender, EventArgs e) {
-			shapes = diagramPresenter.SelectedShapes;
+			_shapes = _diagramPresenter.SelectedShapes;
 			RefreshPreview();
 		}
 
 
 		private void exportAllRadioButton_CheckedChanged(object sender, EventArgs e) {
-			shapes = diagramPresenter.Diagram.Shapes;
+			_shapes = _diagramPresenter.Diagram.Shapes;
 			RefreshPreview();
 		}
 
 
 		private void exportDiagramRadioButton_CheckedChanged(object sender, EventArgs e) {
-			shapes = null;
+			_shapes = null;
+			RefreshPreview();
+		}
+
+
+		private void visibleLayersOnlyCheckBox_CheckedChanged(object sender, EventArgs e) {
 			RefreshPreview();
 		}
 
@@ -484,7 +503,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void marginUpDown_ValueChanged(object sender, EventArgs e) {
-			margin = (int)marginUpDown.Value;
+			_margin = (int)marginUpDown.Value;
 			RefreshPreview();
 		}
 
@@ -502,7 +521,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void selectBackColor_Click(object sender, EventArgs e) {
-			colorDialog.Color = backgroundColor;
+			colorDialog.Color = _backgroundColor;
 			colorDialog.SolidColorOnly = false;
 			colorDialog.AllowFullOpen = true;
 			colorDialog.AnyColor = true;
@@ -529,12 +548,12 @@ namespace Dataweb.NShape.WinFormsUI {
 					// Apply graphics settings
 					GdiHelpers.ApplyGraphicsSettings(e.Graphics, RenderingQuality.MaximumQuality);
 					// Create image
-					if (image == null) CreateImage();
-					if (image != null) {
-						if (imgAttribs == null) imgAttribs = GdiHelpers.GetImageAttributes(imageLayout);
+					if (_image == null) CreateImage();
+					if (_image != null) {
+						if (_imgAttribs == null) _imgAttribs = GdiHelpers.GetImageAttributes(_imageLayout);
 						// Draw image
 						Rectangle bounds = previewPanel.ClientRectangle;
-						GdiHelpers.DrawImage(e.Graphics, image, imgAttribs, imageLayout, bounds, bounds);
+						GdiHelpers.DrawImage(e.Graphics, _image, _imgAttribs, _imageLayout, bounds);
 					}
 				} catch (Exception exc) {
 					string errMsg = string.Format("Error while drawing preview image: {0}{1}Preview option checkbox will be disabled.", 
@@ -548,11 +567,11 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void backColorLabel_Paint(object sender, PaintEventArgs e) {
 			// Draw a pattern in order to make transparency of colors visible
-			if (colorLabelBackBrush == null)
-				colorLabelBackBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.White, Color.Black);
-			if (colorLabelFrontBrush == null) colorLabelFrontBrush = new SolidBrush(backgroundColor);
-			e.Graphics.FillRectangle(colorLabelBackBrush, e.ClipRectangle);
-			e.Graphics.FillRectangle(colorLabelFrontBrush, e.ClipRectangle);
+			if (_colorLabelBackBrush == null)
+				_colorLabelBackBrush = new HatchBrush(HatchStyle.LargeCheckerBoard, Color.White, Color.Black);
+			if (_colorLabelFrontBrush == null) _colorLabelFrontBrush = new SolidBrush(_backgroundColor);
+			e.Graphics.FillRectangle(_colorLabelBackBrush, e.ClipRectangle);
+			e.Graphics.FillRectangle(_colorLabelFrontBrush, e.ClipRectangle);
 		}
 
 	
@@ -589,7 +608,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				+ "Creates a compressed bitmap image file. The Jpg file format does not support transparency. It provides an adjustable (lossy) compression.";
 			bmpDescription = "Bitmap (*" + fileExtBMP + ")" + Environment.NewLine
 				+ "Creates an uncompressed bitmap image file. The Bmp file format does not support transparency.";
-			deactivatePreviewDimension = 3000;
+			_deactivatePreviewDimension = 3000;
 		}
 
 
@@ -611,33 +630,33 @@ namespace Dataweb.NShape.WinFormsUI {
 		private static readonly string bmpDescription;
 		
 		// Store in static field in order to preserve the decision as long as the application is running
-		private static int deactivatePreviewDimension;
+		private static int _deactivatePreviewDimension;
 
 		// Rendering stuff
-		private const ImageLayoutMode imageLayout = ImageLayoutMode.Fit;
-		private Image image = null;
-		private Rectangle imageBounds = Rectangle.Empty;
+		private const ImageLayoutMode _imageLayout = ImageLayoutMode.Fit;
+		private Image _image = null;
+		private Rectangle _imageBounds = Rectangle.Empty;
 
 		// Image content stuff
-		private int margin;
-		private int dpi;
-		private Color backgroundColor = Color.Transparent;
-		private IEnumerable<Shape> shapes;
-		//private int deactivatePreviewDimension = 3000;
+		private int _margin;
+		private int _dpi;
+		private Color _backgroundColor = Color.Transparent;
+		private IEnumerable<Shape> _shapes;
 
 		// Export stuff
-		private ImageFileFormat imageFormat;
-		private bool exportToClipboard;
-		private byte compressionQuality = 75;
-		private string filePath = null;
-		private bool filePathChanged = false;
+		private ImageFileFormat _imageFormat;
+		private bool _exportToClipboard;
+		private byte _compressionQuality = 75;
+		private string _filePath = null;
+		private bool _filePathChanged = false;
 
 		// Fields
-		private IDiagramPresenter diagramPresenter = null;
-		private ImageAttributes imgAttribs = null;
-		private Brush colorLabelBackBrush = null;
-		private Brush colorLabelFrontBrush = null;
+		private IDiagramPresenter _diagramPresenter = null;
+		private ImageAttributes _imgAttribs = null;
+		private Brush _colorLabelBackBrush = null;
+		private Brush _colorLabelFrontBrush = null;
 
 		#endregion
+
 	}
 }

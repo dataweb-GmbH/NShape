@@ -1,4 +1,4 @@
-namespace Dataweb.NShape.Designer {
+﻿namespace Dataweb.NShape.Designer {
 
 	partial class OpenAdoNetRepositoryDialog {
 		/// <summary>

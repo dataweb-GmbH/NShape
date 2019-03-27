@@ -1,5 +1,5 @@
-/**************************************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/**************************************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -46,7 +46,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		public LayoutDialog(ILayouter layouter)
 			: this() {
 			if (layouter == null) throw new ArgumentNullException("layouter");
-			
+
 			int panelIdx = -1;
 			if (layouter is ExpansionLayouter) {
 				panelIdx = algorithmListBox.Items.IndexOf("Expansion");
@@ -59,7 +59,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			} else if (layouter is RepulsionLayouter) {
 				panelIdx = algorithmListBox.Items.IndexOf("Clusters");
 				repulsionStrengthTrackBar.Value = ((RepulsionLayouter)layouter).Repulsion;
-				repulsionRangeTrackBar.Value=((RepulsionLayouter)layouter).RepulsionRange;
+				repulsionRangeTrackBar.Value = ((RepulsionLayouter)layouter).RepulsionRange;
 				attractionStrengthTrackBar.Value = ((RepulsionLayouter)layouter).SpringRate;
 			} else if (layouter is FlowLayouter) {
 				panelIdx = algorithmListBox.Items.IndexOf("Flow");
@@ -176,13 +176,13 @@ namespace Dataweb.NShape.WinFormsUI {
 				layouter.AllShapes = diagram.Shapes;
 				if (selectedShapes.Count == 0) layouter.Shapes = diagram.Shapes;
 				else layouter.Shapes = selectedShapes;
-			} 
+			}
 		}
 
 
 		private void DoPreview(int operation, bool fit) {
 			try {
-				if ((operation == 1 || operation == 4) && lastOperation == operation 
+				if ((operation == 1 || operation == 4) && lastOperation == operation
 				&& project.History.IsNextUndoCommand(lastCommand))
 					project.History.Undo();
 				SetShapes();
@@ -250,8 +250,8 @@ namespace Dataweb.NShape.WinFormsUI {
 			layoutTimer.Interval = animationInterval;
 			layoutTimer.Start();
 		}
-		
-		
+
+
 		private void FinishAnimatedPreview() {
 			layoutTimer.Stop();
 			previewButton.Text = "Execute";
@@ -283,7 +283,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Form Event Handlers
 
 		private void LayoutControlForm_Load(object sender, EventArgs e) {
-			if (algorithmListBox.SelectedIndex < 0) 
+			if (algorithmListBox.SelectedIndex < 0)
 				algorithmListBox.SelectedIndex = 0;
 
 			// Update labels
@@ -371,7 +371,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			flowRowDistanceLabel.Text = flowRowDistanceTrackBar.Value.ToString();
 			PreviewIfImmediate();
 		}
-		
+
 
 		private void horizontalCompressionTrackBar_ValueChanged(object sender, EventArgs e) {
 			horizontalCompressionLabel.Text = horizontalCompressionTrackBar.Value.ToString();
@@ -463,7 +463,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		private void History_CommandAdded(object sender, CommandEventArgs e) {
 			UpdateUndoRedoButtons();
 		}
-		
+
 		#endregion
 
 

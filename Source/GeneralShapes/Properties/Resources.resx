@@ -136,4 +136,34 @@
   <data name="ShaperReferenceTriangle" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ShaperReferenceTriangle.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="PropName_Line_StartCapStyle" xml:space="preserve">
+    <value>Start Cap Style</value>
+  </data>
+  <data name="PropDesc_Line_StartCapStyle" xml:space="preserve">
+    <value>Defines the line cap appearance of the line's beginning.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.</value>
+  </data>
+  <data name="PropName_Line_EndCapStyle" xml:space="preserve">
+    <value>End Cap Style</value>
+  </data>
+  <data name="PropDesc_Line_EndCapStyle" xml:space="preserve">
+    <value>Defines the line cap appearance of the line's ending.\nUse the template editor to modify all shapes of a template.\nUse the design editor to modify and create styles.</value>
+  </data>
+  <data name="MessageTxt_PropertyStartCapStyleIsNotSet" xml:space="preserve">
+    <value>Property StartCapStyle is not set.</value>
+  </data>
+  <data name="MessageTxt_PropertyEndCapStyleIsNotSet" xml:space="preserve">
+    <value>Property EndCapStyle is not set.</value>
+  </data>
+  <data name="PropName_ThickArrow_BodyHeight" xml:space="preserve">
+    <value>Body Height</value>
+  </data>
+  <data name="PropDesc_ThickArrow_BodyHeight" xml:space="preserve">
+    <value>The height of the arrow's body.</value>
+  </data>
+  <data name="PropName_ThickArrow_HeadWidth" xml:space="preserve">
+    <value>Head Width</value>
+  </data>
+  <data name="PropDesc_ThickArrow_HeadWidth" xml:space="preserve">
+    <value>The width of the arrow's tip.</value>
+  </data>
 </root>

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -37,48 +37,87 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
 		/// </summary>
+		[Obsolete("Use MenuItemDef(string name, string title) instead.")]
 		protected MenuItemDef(string title)
+			: this(null, title, null, Color.Empty, null, false, true) {
+		}
+
+
+		/// <summary>
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
+		/// </summary>
+		protected MenuItemDef(string name, string title)
+			: this(name, title, null, Color.Empty, null, false, false) {
+		}
+
+
+		/// <summary>
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
+		/// </summary>
+		[Obsolete("Use MenuItemDef(string name, string title, ...) instead.")]
+		protected MenuItemDef(string title, Bitmap image, Color imageTransparentColor)  
+			: this(null, title, image, imageTransparentColor, null, false, true) {
+		}
+
+		/// <summary>
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
+		/// </summary>
+		protected MenuItemDef(string name, string title, Bitmap image, Color imageTransparentColor)
+			: this(name, title, image, imageTransparentColor, null, false, true) {
+		}
+
+
+		/// <summary>
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
+		/// </summary>
+		[Obsolete("Use MenuItemDef(string name, string title, ... ) instead.")]
+		protected MenuItemDef(string title, Bitmap image, string description, bool isFeasible) 
+			: this(null, title, image, Color.Empty, description, false, isFeasible) {
+		}
+
+
+		/// <summary>
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
+		/// </summary>
+		protected MenuItemDef(string name, string title, Bitmap image, string description, bool isFeasible)
+			: this(name, title, image, Color.Empty, description, false, isFeasible) {
+		}
+
+
+		/// <summary>
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
+		/// </summary>
+		[Obsolete("Use MenuItemDef(string name, string title, ... ) instead.")]
+		protected MenuItemDef(string title, Bitmap image, Color transparentColor, string name, string description, bool isChecked, bool isFeasible) 
+			:this(name, title, image, transparentColor, description, isChecked, isFeasible) {
+		}
+
+
+		/// <summary>
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
+		/// </summary>
+		protected MenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isFeasible)
+			: this(name, title, image, transparentColor, description, false, isFeasible) {
+		}
+
+
+		/// <summary>
+		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
+		/// </summary>
+		protected MenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible)
 			: this() {
-			this.title = title;
-		}
-
-
-		/// <summary>
-		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
-		/// </summary>
-		protected MenuItemDef(string title, Bitmap image, Color imageTransparentColor)
-			: this(title) {
-			this.image = image;
-			this.transparentColor = imageTransparentColor;
-			if (this.image != null) {
-				if (this.transparentColor.IsEmpty)
-					this.image.MakeTransparent();
-				else  this.image.MakeTransparent(this.transparentColor);
+			this._name = name;
+			this._title = title;
+			this._image = image;
+			this._transparentColor = transparentColor;
+			if (this._image != null) {
+				if (this._transparentColor.IsEmpty)
+					this._image.MakeTransparent();
+				else this._image.MakeTransparent(this._transparentColor);
 			}
-		}
-
-
-		/// <summary>
-		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
-		/// </summary>
-		protected MenuItemDef(string title, Bitmap image, string description, bool isFeasible)
-			: this(title) {
-			this.image = image;
-			this.description = description;
-			this.isFeasible = isFeasible;
-		}
-
-
-		/// <summary>
-		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
-		/// </summary>
-		protected MenuItemDef(string title, Bitmap image, Color transparentColor,
-			string name, string description, bool isChecked, bool isFeasible)
-			: this(title, image, transparentColor) {
-			this.name = name;
-			this.description = description;
-			this.isChecked = isChecked;
-			this.isFeasible = isFeasible;
+			this._description = description;
+			this._isChecked = isChecked;
+			this._isFeasible = isFeasible;
 		}
 
 
@@ -86,8 +125,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Gets or sets an object that provides additional data.
 		/// </summary>
 		public object Tag {
-			get { return tag; }
-			set { tag = value; }
+			get { return _tag; }
+			set { _tag = value; }
 		}
 
 
@@ -95,8 +134,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Culture invariant name that can be used as key for the presenting widget.
 		/// </summary>
 		public virtual string Title {
-			get { return title; }
-			set { title = value; }
+			get { return _title; }
+			set { _title = value; }
 		}
 
 
@@ -105,11 +144,11 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public virtual string Name {
 			get {
-				if (string.IsNullOrEmpty(name))
+				if (string.IsNullOrEmpty(_name))
 					return this.GetType().Name;
-				else return name;
+				else return _name;
 			}
-			set { name = value; }
+			set { _name = value; }
 		}
 
 
@@ -119,8 +158,8 @@ namespace Dataweb.NShape.Advanced {
 		/// is not met (e.g. Unselecting shapes requires selected shapes) or the reason why the action is not allowed.
 		/// </summary>
 		public virtual string Description {
-			get { return description; }
-			set { description = value; }
+			get { return _description; }
+			set { _description = value; }
 		}
 
 
@@ -128,7 +167,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Subitems of the action.
 		/// </summary>
 		public virtual MenuItemDef[] SubItems {
-			get { return subItems; }
+			get { return _subItems; }
+			protected set { _subItems = value; }
 		}
 
 
@@ -136,8 +176,8 @@ namespace Dataweb.NShape.Advanced {
 		/// True if all requirements for performing the action are met. If false, the presenting widget should appear disabled.
 		/// </summary>
 		public virtual bool IsFeasible {
-			get { return isFeasible; }
-			set { isFeasible = value; }
+			get { return _isFeasible; }
+			set { _isFeasible = value; }
 		}
 
 
@@ -151,8 +191,8 @@ namespace Dataweb.NShape.Advanced {
 		/// True if the presenting item should appear as checked item.
 		/// </summary>
 		public virtual bool Checked {
-			get { return isChecked; }
-			set { isChecked = value; }
+			get { return _isChecked; }
+			set { _isChecked = value; }
 		}
 
 
@@ -160,22 +200,22 @@ namespace Dataweb.NShape.Advanced {
 		/// An image for the presenting widget's icon.
 		/// </summary>
 		public virtual Bitmap Image {
-			get { return image; }
+			get { return _image; }
 			set {
-				image = value;
-				if (image != null && transparentColor != Color.Empty)
-					image.MakeTransparent(transparentColor);
+				_image = value;
+				if (_image != null && _transparentColor != Color.Empty)
+					_image.MakeTransparent(_transparentColor);
 			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual Color ImageTransparentColor {
-			get { return transparentColor; }
+			get { return _transparentColor; }
 			set {
-				transparentColor = value;
-				if (image != null && transparentColor != Color.Empty)
-					image.MakeTransparent(transparentColor);
+				_transparentColor = value;
+				if (_image != null && _transparentColor != Color.Empty)
+					_image.MakeTransparent(_transparentColor);
 			}
 		}
 
@@ -187,16 +227,16 @@ namespace Dataweb.NShape.Advanced {
 		#region Fields
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected MenuItemDef[] subItems = null;
+		private MenuItemDef[] _subItems = null;
 
-		private object tag = null;
-		private string title = string.Empty;
-		private string name = null;
-		private string description = null;
-		private bool isFeasible = true;
-		private bool isChecked = false;
-		private Bitmap image = null;
-		private Color transparentColor = Color.Empty;
+		private object _tag = null;
+		private string _title = string.Empty;
+		private string _name = null;
+		private string _description = null;
+		private bool _isFeasible = true;
+		private bool _isChecked = false;
+		private Bitmap _image = null;
+		private Color _transparentColor = Color.Empty;
 
 		#endregion
 	}
@@ -221,14 +261,14 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override string Name {
-			get { return name; }
+			get { return _name; }
 			set { /* nothing to do */ }
 		}
 
 
 		/// <override></override>
 		public override string Title {
-			get { return title; }
+			get { return _title; }
 			set { /* nothing to do */ }
 		}
 
@@ -275,8 +315,8 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		private const string name = "SeparatorAction";
-		private const string title = "----------";
+		private const string _name = "SeparatorAction";
+		private const string _title = "----------";
 	}
 
 
@@ -286,9 +326,11 @@ namespace Dataweb.NShape.Advanced {
 	/// </summary>
 	public class NotImplementedMenuItemDef : MenuItemDef {
 
+		const string NotImplementedMenuItemName = "NotImplementedAction";
+
 		/// <ToBeCompleted></ToBeCompleted>
 		public NotImplementedMenuItemDef(string title)
-			: base(title) {
+			: base(NotImplementedMenuItemName, title) {
 		}
 
 		/// <override></override>
@@ -350,42 +392,82 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use MenuItemDef(string name, string title) instead.")]
 		public GroupMenuItemDef(string title)
 			: base(title) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public GroupMenuItemDef(string name, string title)
+			: base(name, title) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use MenuItemDef(string name, string title, ...) instead.")]
 		public GroupMenuItemDef(string title, Bitmap image, Color imageTransparentColor)
 			: base(title, image, imageTransparentColor) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public GroupMenuItemDef(string name, string title, Bitmap image, Color imageTransparentColor)
+			: base(name, title, image, imageTransparentColor) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use MenuItemDef(string name, string title, ...) instead.")]
 		public GroupMenuItemDef(string title, Bitmap image, string description, bool isFeasible)
 			: base(title, image, description, isFeasible) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public GroupMenuItemDef(string name, string title, Bitmap image, string description, bool isFeasible)
+			: base(name, title, image, description, isFeasible) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use MenuItemDef(string name, string title, ...) instead.")]
 		public GroupMenuItemDef(string title, Bitmap image, Color transparentColor, string name, string description, bool isChecked, bool isFeasible)
-			: base(title, image, transparentColor, name, description, isChecked, isFeasible) {
+			: base(name, title, image, transparentColor, description, isChecked, isFeasible) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public GroupMenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible)
+			: base(name, title, image, transparentColor, description, isChecked, isFeasible) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use MenuItemDef(string name, string title, ...) instead.")]
 		public GroupMenuItemDef(string title, Bitmap image, string description, bool isFeasible, MenuItemDef[] actions, int defaultActionIndex)
-			: base(title, image, description, isFeasible) {
-			this.subItems = actions;
-			this.defaultActionIdx = defaultActionIndex;
+			: this(null, title, image, Color.Empty, description, false, isFeasible, actions, defaultActionIndex) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public GroupMenuItemDef(string name, string title, Bitmap image, string description, bool isFeasible, MenuItemDef[] actions, int defaultActionIndex)
+			: this(name, title, image, Color.Empty, description, false, isFeasible, actions, defaultActionIndex) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use MenuItemDef(string name, string title, ...) instead.")]
 		public GroupMenuItemDef(string title, Bitmap image, Color transparentColor, string name, string description, bool isChecked, bool isFeasible, MenuItemDef[] actions, int defaultActionIndex)
-			: base(title, image, transparentColor, name, description, isChecked, isFeasible) {
-			this.subItems = actions;
-			this.defaultActionIdx = defaultActionIndex;
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, actions, defaultActionIndex) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public GroupMenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible, MenuItemDef[] actions, int defaultActionIndex)
+			: base(name, title, image, transparentColor, description, isChecked, isFeasible) {
+			this.SubItems = actions;
+			this._defaultActionIdx = defaultActionIndex;
 		}
 
 
@@ -406,11 +488,11 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public MenuItemDef DefaultAction {
-			get { return (subItems == null || defaultActionIdx < 0 || defaultActionIdx >= subItems.Length) ? null : subItems[defaultActionIdx]; }
+			get { return (SubItems == null || _defaultActionIdx < 0 || _defaultActionIdx >= SubItems.Length) ? null : SubItems[_defaultActionIdx]; }
 		}
 
 
-		private int defaultActionIdx = -1;
+		private int _defaultActionIdx = -1;
 	}
 
 
@@ -420,78 +502,159 @@ namespace Dataweb.NShape.Advanced {
 	public class DelegateMenuItemDef : MenuItemDef {
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public const char NoSecurityDomain = '\0';
+
+
+		/// <ToBeCompleted></ToBeCompleted>
 		public delegate void ActionExecuteDelegate(MenuItemDef action, Project project);
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public DelegateMenuItemDef(string text)
-			: base(text, null, Color.Empty) {
+		[Obsolete("Use DelegateMenuItemDef(string name, string title) instead.")]
+		public DelegateMenuItemDef(string title)
+			: base(title, null, Color.Empty) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public DelegateMenuItemDef(string text, Bitmap image, Color imageTransparentColor)
-			: base(text, image, imageTransparentColor) {
+		public DelegateMenuItemDef(string name, string title)
+			: base(name, title) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]
+		public DelegateMenuItemDef(string title, Bitmap image, Color imageTransparentColor)
+			: base(title, image, imageTransparentColor) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public DelegateMenuItemDef(string name, string title, Bitmap image, Color imageTransparentColor)
+			: base(name, title, image, imageTransparentColor) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]
 		public DelegateMenuItemDef(string title, Bitmap image, string description, bool isFeasible, Permission requiredPermission, ActionExecuteDelegate executeDelegate)
-			: this(title, image, Color.Empty, string.Format("{0} Action", title), description, false, isFeasible, requiredPermission, null, NoSecurityDomain, executeDelegate) {
+			: this(string.Format("{0} Action", title), title, image, Color.Empty, description, false, isFeasible, requiredPermission, null, NoSecurityDomain, executeDelegate) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public DelegateMenuItemDef(string name, string title, Bitmap image, string description, bool isFeasible, Permission requiredPermission, ActionExecuteDelegate executeDelegate)
+			: this(name, title, image, Color.Empty, description, false, isFeasible, requiredPermission, null, NoSecurityDomain, executeDelegate) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]		
 		public DelegateMenuItemDef(string title, Bitmap image, string description, bool isFeasible, Permission requiredPermission, IEnumerable<ISecurityDomainObject> objects, ActionExecuteDelegate executeDelegate)
-			: this(title, image, Color.Empty, string.Format("{0} Action", title), description, false, isFeasible, requiredPermission, objects, NoSecurityDomain, executeDelegate) {
+			: this(string.Format("{0} Action", title), title, image, Color.Empty, description, false, isFeasible, requiredPermission, objects, NoSecurityDomain, executeDelegate) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public DelegateMenuItemDef(string name, string title, Bitmap image, string description, bool isFeasible, Permission requiredPermission, IEnumerable<ISecurityDomainObject> objects, ActionExecuteDelegate executeDelegate)
+			: this(name, title, image, Color.Empty, description, false, isFeasible, requiredPermission, objects, NoSecurityDomain, executeDelegate) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]
 		public DelegateMenuItemDef(string title, Bitmap image, string description, bool isFeasible, Permission requiredPermission, IEnumerable<Shape> shapes, ActionExecuteDelegate executeDelegate)
-			: this(title, image, Color.Empty, string.Format("{0} Action", title), description, false, isFeasible, requiredPermission, ConvertEnumerator<ISecurityDomainObject>.Create(shapes), NoSecurityDomain, executeDelegate) {
+			: this(string.Format("{0} Action", title), title, image, Color.Empty, description, false, isFeasible, requiredPermission, ConvertEnumerator<ISecurityDomainObject>.Create(shapes), NoSecurityDomain, executeDelegate) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public DelegateMenuItemDef(string name, string title, Bitmap image, string description, bool isFeasible, Permission requiredPermission, IEnumerable<Shape> shapes, ActionExecuteDelegate executeDelegate)
+			: this(name, title, image, Color.Empty, description, false, isFeasible, requiredPermission, ConvertEnumerator<ISecurityDomainObject>.Create(shapes), NoSecurityDomain, executeDelegate) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]
 		public DelegateMenuItemDef(string title, Bitmap image, string description, bool isFeasible, Permission requiredPermission, char securityDomainName,  ActionExecuteDelegate executeDelegate)
-			: this(title, image, Color.Empty, string.Format("{0} Action", title), description, false, isFeasible, requiredPermission, null, securityDomainName, executeDelegate) {
+			: this(string.Format("{0} Action", title), title, image, Color.Empty, description, false, isFeasible, requiredPermission, null, securityDomainName, executeDelegate) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public DelegateMenuItemDef(string name, string title, Bitmap image, string description, bool isFeasible, Permission requiredPermission, char securityDomainName, ActionExecuteDelegate executeDelegate)
+			: this(name, title, image, Color.Empty, description, false, isFeasible, requiredPermission, null, securityDomainName, executeDelegate) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]
 		public DelegateMenuItemDef(string title, Bitmap image, string name, string description, bool isChecked, bool isFeasible, Permission requiredPermission, ActionExecuteDelegate executeDelegate)
-			: this(title, image, Color.Empty, name, description, isChecked, isFeasible, requiredPermission, null, NoSecurityDomain, executeDelegate) {
+			: this(name, title, image, Color.Empty, description, isChecked, isFeasible, requiredPermission, null, NoSecurityDomain, executeDelegate) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public DelegateMenuItemDef(string name, string title, Bitmap image, string description, bool isChecked, bool isFeasible, Permission requiredPermission, ActionExecuteDelegate executeDelegate)
+			: this(name, title, image, Color.Empty, description, isChecked, isFeasible, requiredPermission, null, NoSecurityDomain, executeDelegate) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]
 		public DelegateMenuItemDef(string title, Bitmap image, Color transparentColor, string name, string description, bool isChecked, bool isFeasible, Permission requiredPermission, ActionExecuteDelegate executeDelegate)
-			: this(title, image, transparentColor, name, description, isChecked, isFeasible, requiredPermission, null, NoSecurityDomain, executeDelegate) {
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, requiredPermission, null, NoSecurityDomain, executeDelegate) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public DelegateMenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible, Permission requiredPermission, ActionExecuteDelegate executeDelegate)
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, requiredPermission, null, NoSecurityDomain, executeDelegate) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]
 		public DelegateMenuItemDef(string title, Bitmap image, Color transparentColor, string name, string description, bool isChecked, bool isFeasible, Permission requiredPermission, IEnumerable<ISecurityDomainObject> objects, ActionExecuteDelegate executeDelegate)
-		    : this(title, image, transparentColor, name, description, isChecked, isFeasible, requiredPermission, objects, NoSecurityDomain, executeDelegate) {
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, requiredPermission, objects, NoSecurityDomain, executeDelegate) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public DelegateMenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible, Permission requiredPermission, IEnumerable<ISecurityDomainObject> objects, ActionExecuteDelegate executeDelegate)
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, requiredPermission, objects, NoSecurityDomain, executeDelegate) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]
 		public DelegateMenuItemDef(string title, Bitmap image, Color transparentColor, string name, string description, bool isChecked, bool isFeasible, Permission requiredPermission, IEnumerable<Shape> shapes, ActionExecuteDelegate executeDelegate)
-			: this(title, image, transparentColor, name, description, isChecked, isFeasible, requiredPermission, ConvertEnumerator<ISecurityDomainObject>.Create(shapes), NoSecurityDomain, executeDelegate) {
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, requiredPermission, ConvertEnumerator<ISecurityDomainObject>.Create(shapes), NoSecurityDomain, executeDelegate) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public DelegateMenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible, Permission requiredPermission, IEnumerable<Shape> shapes, ActionExecuteDelegate executeDelegate)
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, requiredPermission, ConvertEnumerator<ISecurityDomainObject>.Create(shapes), NoSecurityDomain, executeDelegate) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string text, ...) instead.")]
 		public DelegateMenuItemDef(string title, Bitmap image, Color transparentColor, string name, string description, bool isChecked, bool isFeasible, Permission requiredPermission, char securityDomainName, ActionExecuteDelegate executeDelegate)
-			: this(title, image, transparentColor, name, description, isChecked, isFeasible, requiredPermission, null, securityDomainName, executeDelegate) {
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, requiredPermission, null, securityDomainName, executeDelegate) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected DelegateMenuItemDef(string title, Bitmap image, Color transparentColor, string name, string description, bool isChecked, bool isFeasible, Permission requiredPermission, IEnumerable<ISecurityDomainObject> objects, char securityDomainName, ActionExecuteDelegate executeDelegate)
-			: base(title, image, transparentColor, name, description, isChecked, isFeasible) {
+		public DelegateMenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible, Permission requiredPermission, char securityDomainName, ActionExecuteDelegate executeDelegate)
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, requiredPermission, null, securityDomainName, executeDelegate) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected DelegateMenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible, Permission requiredPermission, IEnumerable<ISecurityDomainObject> objects, char securityDomainName, ActionExecuteDelegate executeDelegate)
+			: base(name, title, image, transparentColor, description, isChecked, isFeasible) {
 			this.executeDelegate = executeDelegate;
 			this.requiredPermission = requiredPermission;
 			this.securityDomainObjects = objects;
@@ -554,7 +717,6 @@ namespace Dataweb.NShape.Advanced {
 
 
 		// Fields
-		const char NoSecurityDomain = '\0';
 		private Permission requiredPermission = Permission.None;
 		private char securityDomainName = NoSecurityDomain;
 		private IEnumerable<ISecurityDomainObject> securityDomainObjects = null;
@@ -573,33 +735,65 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string title) instead.")]
 		public CommandMenuItemDef(string title)
 			: base(title) { }
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public CommandMenuItemDef(string name, string title)
+			: base(name, title) { }
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string title) instead.")]
 		public CommandMenuItemDef(string title, Bitmap image, Color transparentColor)
 			: base(title, image, transparentColor) { }
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public CommandMenuItemDef(string title, Bitmap image, string notFeasibleDescription, bool isFeasible, ICommand command)
-			: base(title, image, notFeasibleDescription, isFeasible) {
-			this.command = command;
+		public CommandMenuItemDef(string name, string title, Bitmap image, Color transparentColor)
+			: base(name, title, image, transparentColor) { }
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string title) instead.")]
+		public CommandMenuItemDef(string title, Bitmap image, string description, bool isFeasible, ICommand command)
+			: this((command != null) ? command.GetType().Name : null, title, image, Color.Empty, description, false, isFeasible, command) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public CommandMenuItemDef(string title, Bitmap image, Color transparentColor, string name, string notFeasibleDescription, bool isChecked, bool isFeasible, ICommand command)
-			: base(title, image, transparentColor, name, notFeasibleDescription, isChecked, isFeasible) {
-			this.command = command;
+		[Obsolete("Use DelegateMenuItemDef(string name, string title, ...) instead.")]
+		public CommandMenuItemDef(string title, Bitmap image, string name, string description, bool isFeasible, ICommand command)
+			: this(name, title, image, Color.Empty, description, false, isFeasible, command) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public CommandMenuItemDef(string name, string title, Bitmap image, string description, bool isFeasible, ICommand command)
+			: this(name, title, image, Color.Empty, description, false, isFeasible, command) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use DelegateMenuItemDef(string name, string title, ...) instead.")]
+		public CommandMenuItemDef(string title, Bitmap image, Color transparentColor, string name, string description, bool isChecked, bool isFeasible, ICommand command)
+			: this(name, title, image, transparentColor, description, isChecked, isFeasible, command) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public CommandMenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible, ICommand command)
+			: base(name, title, image, transparentColor, description, isChecked, isFeasible) {
+			this._command = command;
 		}
 
 
 		/// <override></override>
 		public override string Description {
 			get {
-				if (IsFeasible) return command.Description;
+				if (IsFeasible) return _command.Description;
 				else return base.Description;
 			}
 			set { base.Description = value; }
@@ -609,8 +803,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override bool IsGranted(ISecurityManager securityManager) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			if (command != null) {
-				Exception exc = command.CheckAllowed(securityManager);
+			if (_command != null) {
+				Exception exc = _command.CheckAllowed(securityManager);
 				if (exc != null) {
 					Description = exc.Message;
 					return false;
@@ -623,7 +817,7 @@ namespace Dataweb.NShape.Advanced {
 		public override void Execute(MenuItemDef action, Project project) {
 			if (action == null) throw new ArgumentNullException("action");
 			if (project == null) throw new ArgumentNullException("project");
-			if (command != null) project.ExecuteCommand(command);
+			if (_command != null) project.ExecuteCommand(_command);
 		}
 
 
@@ -631,12 +825,12 @@ namespace Dataweb.NShape.Advanced {
 		/// Specifies the command executed by the <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" />.
 		/// </summary>
 		public ICommand Command {
-			get { return command; }
+			get { return _command; }
 		}
 
 
 		#region Fields
-		private ICommand command = null;
+		private ICommand _command = null;
 		#endregion
 	}
 

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2018 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -270,12 +270,24 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Gets all active layers.
 		/// </summary>
+		[Obsolete("Use ActiveLayerIds instead.")]
 		LayerIds ActiveLayers { get; }
+
+		/// <summary>
+		/// Gets ids of all active layers.
+		/// </summary>
+		ICollection<int> ActiveLayerIds { get; }
 
 		/// <summary>
 		/// Gets all hidden layers.
 		/// </summary>
+		[Obsolete("Use HiddenLayerIds instead.")]
 		LayerIds HiddenLayers { get; }
+
+		/// <summary>
+		/// Gets ids of all hidden layers.
+		/// </summary>
+		ICollection<int> HiddenLayerIds { get; }
 
 		#endregion
 
@@ -714,24 +726,89 @@ namespace Dataweb.NShape.Controllers {
 		void SetCursor(int cursorId);
 
 		/// <summary>
-		/// Sets the visibility of the given layers.
+		/// Returns all layer ids that are currently visible.
+		/// In contrast to the HiddenLayers property, this method respects the zoom threshold settings of the layers.
 		/// </summary>
-		void SetLayerVisibility(LayerIds layerIds, bool visible);
+		IEnumerable<int> GetVisibleLayerIds();
 
 		/// <summary>
 		/// Sets the given layers as the active layers.
 		/// </summary>
-		void SetLayerActive(LayerIds layerIds, bool active);
+		void SetLayerActive(int layerId, bool active);
+
+		/// <summary>
+		/// Sets the given layers as the active layers.
+		/// </summary>
+		void SetLayerActive(IEnumerable<int> layerIds, bool active);
+
+		/// <summary>
+		/// Sets the given layers as the active layers.
+		/// </summary>
+		void SetLayerActive(IEnumerable<Layer> layers, bool active);
+
+		/// <summary>
+		/// Sets the given layers as the active layers.
+		/// </summary>
+		[Obsolete("Use SetLayerActive(int layerId, bool visible) instead.")]
+		void SetLayerActive(LayerIds layers, bool active);
+
+		/// <summary>
+		/// Sets the visibility of the given layers.
+		/// </summary>
+		void SetLayerVisibility(int layerId, bool visible);
+
+		/// <summary>
+		/// Sets the visibility of the given layers.
+		/// </summary>
+		void SetLayerVisibility(IEnumerable<int> layerIds, bool visible);
+
+		/// <summary>
+		/// Sets the visibility of the given layers.
+		/// </summary>
+		void SetLayerVisibility(IEnumerable<Layer> layers, bool visible);
+
+		/// <summary>
+		/// Sets the visibility of the given layers.
+		/// </summary>
+		[Obsolete("Use an overload that takes á collection of layers or layer ids instead.")]
+		void SetLayerVisibility(LayerIds layers, bool visible);
+
+
+		/// <summary>
+		/// Checks whether any of the given layers is visible.
+		/// </summary>		
+		bool IsLayerVisible(LayerIds layerId);
 
 		/// <summary>
 		/// Checks whether any of the given layers is visible.
 		/// </summary>
-		bool IsLayerVisible(LayerIds layerId);
+		bool IsLayerVisible(int layerId);
+
+		/// <summary>
+		/// Checks whether any of the given layers is visible.
+		/// </summary>
+		bool IsLayerVisible(IEnumerable<int> layerIds);
+
+		/// <summary>
+		/// Checks whether any of the given layers is visible.
+		/// </summary>
+		bool IsLayerVisible(int homeLayer, LayerIds supplementalLayers);
 
 		/// <summary>
 		/// Checks whether all of the given layers are active.
 		/// </summary>
+		[Obsolete("Use IsLayerActive(int layerId) instead.")]
 		bool IsLayerActive(LayerIds layerId);
+
+		/// <summary>
+		/// Checks whether all of the given layers are active.
+		/// </summary>
+		bool IsLayerActive(int layerId);
+
+		/// <summary>
+		/// Checks whether all of the given layers are active.
+		/// </summary>
+		bool IsLayerActive(IEnumerable<int> layerIds);
 
 		#endregion
 

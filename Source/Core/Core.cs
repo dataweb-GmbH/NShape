@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2018 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -16,41 +16,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Resources;
 
-
-namespace Dataweb.NShape.Advanced {
-
-	/// <summary>
-	/// Simulates a string coming from a resource.
-	/// </summary>
-	/// <remarks>
-	/// Later versions will hold a reference to a ResourceManager and read the string from there.
-	/// </remarks>
-	public class ResourceString {
-
-		/// <ToBeCompleted></ToBeCompleted>
-		static public implicit operator ResourceString(string s) {
-			return new ResourceString(s);
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public ResourceString(string s) {
-			value = s;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public string Value {
-			get { return value; }
-		}
-
-
-		private string value;
-
-	}
-
+namespace Dataweb.NShape.Advanced
+{
 
 	#region Category Attributes
 
@@ -58,17 +29,18 @@ namespace Dataweb.NShape.Advanced {
 	/// Specifies the name of the category in which to group the property or event when displayed 
 	/// in a System.Windows.Forms.PropertyGrid control set to Categorized mode.
 	/// </summary>
-	public class CategoryNShape : CategoryAttribute {
+	public class CategoryNShape : CategoryAttribute
+	{
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="System.ComponentModel.CategoryAttribute" /> class using the category name 'NShape'.
+		/// Initializes a new instance of the <see cref="T:System.ComponentModel.CategoryAttribute" /> class using the category name 'NShape'.
 		/// </summary>
 		public CategoryNShape()
 			: base(categoryName) {
 		}
 
 
-		private const string categoryName = "NShape";
+		private static readonly string categoryName = Dataweb.NShape.Properties.Resources.Text_CategoryNShape;
 
 	}
 
@@ -77,10 +49,11 @@ namespace Dataweb.NShape.Advanced {
 	/// Specifies the name of the category in which to group the property or event when displayed 
 	/// in a System.Windows.Forms.PropertyGrid control set to Categorized mode.
 	/// </summary>
-	public class CategoryGeneral : CategoryAttribute {
+	public class CategoryGeneral : CategoryAttribute
+	{
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="System.ComponentModel.CategoryAttribute" /> class using the category name 'General'.
+		/// Initializes a new instance of the <see cref="T:System.ComponentModel.CategoryAttribute" /> class using the category name 'General'.
 		/// </summary>
 		public CategoryGeneral()
 			: base(categoryName) {
@@ -92,8 +65,8 @@ namespace Dataweb.NShape.Advanced {
 			return Properties.Resources.Text_CategoryGeneral;
 		}
 
-		
-		private const string categoryName = "General";
+
+		private static readonly string categoryName = Dataweb.NShape.Properties.Resources.Text_CategoryGeneral;
 
 	}
 
@@ -105,12 +78,12 @@ namespace Dataweb.NShape.Advanced {
 	public class CategoryAppearance : CategoryAttribute {
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="System.ComponentModel.CategoryAttribute" /> class using the category name 'Appearance'.
+		/// Initializes a new instance of the <see cref="T:System.ComponentModel.CategoryAttribute" /> class using the category name 'Appearance'.
 		/// </summary>
 		public CategoryAppearance()
 			: base(CategoryAttribute.Appearance.Category) {
 		}
-	
+
 	}
 
 
@@ -118,10 +91,11 @@ namespace Dataweb.NShape.Advanced {
 	/// Specifies the name of the category in which to group the property or event when displayed 
 	/// in a System.Windows.Forms.PropertyGrid control set to Categorized mode.
 	/// </summary>
-	public class CategoryBehavior : CategoryAttribute {
+	public class CategoryBehavior : CategoryAttribute
+	{
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="System.ComponentModel.CategoryAttribute" /> class using the category name 'Behavior'.
+		/// Initializes a new instance of the <see cref="T:System.ComponentModel.CategoryAttribute" /> class using the category name 'Behavior'.
 		/// </summary>
 		public CategoryBehavior()
 			: base(CategoryAttribute.Behavior.Category) {
@@ -137,7 +111,7 @@ namespace Dataweb.NShape.Advanced {
 	public class CategoryLayout : CategoryAttribute {
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="System.ComponentModel.CategoryAttribute" /> class using the category name 'Layout'.
+		/// Initializes a new instance of the <see cref="T:System.ComponentModel.CategoryAttribute" /> class using the category name 'Layout'.
 		/// </summary>
 		public CategoryLayout()
 			: base(CategoryAttribute.Layout.Category) {
@@ -150,10 +124,11 @@ namespace Dataweb.NShape.Advanced {
 	/// Specifies the name of the category in which to group the property or event when displayed 
 	/// in a System.Windows.Forms.PropertyGrid control set to Categorized mode.
 	/// </summary>
-	public class CategoryData : CategoryAttribute {
+	public class CategoryData : CategoryAttribute
+	{
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="System.ComponentModel.CategoryAttribute" /> class using the category name 'Data'.
+		/// Initializes a new instance of the <see cref="T:System.ComponentModel.CategoryAttribute" /> class using the category name 'Data'.
 		/// </summary>
 		public CategoryData()
 			: base(CategoryAttribute.Data.Category) {
@@ -237,6 +212,19 @@ namespace Dataweb.NShape.Advanced {
 
 
 	/// <summary>
+	/// Represents the state of a disposable NShape object.
+	/// </summary>
+	public enum ObjectState : byte {
+		/// <summary>The object is initialized and usable.</summary>
+		Normal = 0,
+		/// <summary>The object has started (but not yet finished) disposing and is not usable any more.</summary>
+		Disposing = 1,
+		/// <summary>The object has already been disposed and is not usable any more.</summary>
+		Disposed = 2
+	}
+
+
+	/// <summary>
 	/// Encapsulates the configuration on project level.
 	/// </summary>
 	public class ProjectSettings : IEntity {
@@ -276,7 +264,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Defines the date of the last saving of the project.
 		/// </summary>
-		public DateTime LastSaved {
+		public DateTime LastSaved
+		{
 			get { return lastSaved; }
 			set { lastSaved = value; }
 		}
@@ -285,7 +274,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Stores a desciptive text.
 		/// </summary>
-		public string Description {
+		public string Description
+		{
 			get { return description; }
 			set { description = value; }
 		}
@@ -326,8 +316,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Indicates the library assemblies required for the project.
 		/// </summary>
-		public IEnumerable<string> AssemblyNames {
-			get {
+		public IEnumerable<string> AssemblyNames
+		{
+			get
+			{
 				foreach (LibraryData ld in libraries)
 					yield return ld.AssemblyName;
 			}
@@ -339,7 +331,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Receives the entity type name.
 		/// </summary>
-		public static string EntityTypeName {
+		public static string EntityTypeName
+		{
 			get { return entityTypeName; }
 		}
 
@@ -354,7 +347,8 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		object IEntity.Id {
+		object IEntity.Id
+		{
 			get { return id; }
 		}
 
@@ -422,8 +416,8 @@ namespace Dataweb.NShape.Advanced {
 		private class LibraryData {
 
 			public LibraryData(string name, string assemblyName, int repositoryVersion) {
-				Name = name; 
-				AssemblyName = assemblyName; 
+				Name = name;
+				AssemblyName = assemblyName;
 				RepositoryVersion = repositoryVersion;
 			}
 
@@ -443,7 +437,7 @@ namespace Dataweb.NShape.Advanced {
 					result = ld;
 					break;
 				}
-			if (result == null && throwIfNotFound) throw new ArgumentException(string.Format("Library '{0}' not found.", libraryName));
+			if (result == null && throwIfNotFound) throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Library0NotFound, libraryName));
 			return result;
 		}
 
@@ -460,295 +454,6 @@ namespace Dataweb.NShape.Advanced {
 		private List<LibraryData> libraries = new List<LibraryData>();
 
 		#endregion
-	}
-
-
-	/// <summary>
-	/// Helper class used for converting a single instance into an IEnumerable&lt;T&gt;.
-	/// </summary>
-	public struct SingleInstanceEnumerator<T> : IEnumerable, IEnumerable<T>, IEnumerator<T>, IDisposable {
-
-		/// <summary>
-		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.SingleInstanceEnumerator`1" />.
-		/// </summary>
-		/// <returns></returns>
-		public static SingleInstanceEnumerator<T> Create(T instance) {
-			SingleInstanceEnumerator<T> result = SingleInstanceEnumerator<T>.Empty;
-			result.instanceReturned = false;
-			result.instance = instance;
-			return result;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static readonly SingleInstanceEnumerator<T> Empty;
-
-
-		#region IEnumerable<T> Members
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public IEnumerator<T> GetEnumerator() {
-			return this;
-		}
-
-		#endregion
-
-
-		#region IEnumerable Members
-
-		IEnumerator IEnumerable.GetEnumerator() {
-			return this;
-		}
-
-		#endregion
-
-
-		#region IEnumerator<T> Members
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public T Current {
-			get {
-				if (instanceReturned) throw new InvalidOperationException();
-				instanceReturned = true;
-				return instance;
-			}
-		}
-
-		#endregion
-
-
-		#region IEnumerator Members
-
-		object IEnumerator.Current {
-			get { return Current; }
-		}
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public bool MoveNext() {
-			return !instanceReturned;
-		}
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public void Reset() {
-			instanceReturned = false;
-		}
-
-		#endregion
-
-
-		#region IDisposable Members
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public void Dispose() {
-			// nothing to do
-		}
-
-		#endregion
-
-
-		private bool instanceReturned;
-		private T instance;
-	}
-
-
-	/// <summary>
-	/// Helper class used for creating or comparing empty collections
-	/// </summary>
-	public struct EmptyEnumerator<T> : IEnumerable, IEnumerable<T>, IEnumerator<T>, IDisposable {
-
-		/// <summary>
-		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.EmptyEnumerator`1" />.
-		/// </summary>
-		/// <returns></returns>
-		public static EmptyEnumerator<T> Create() {
-			EmptyEnumerator<T> result = EmptyEnumerator<T>.Empty;
-			return result;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static readonly EmptyEnumerator<T> Empty;
-
-
-		#region IEnumerable<T> Members
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public IEnumerator<T> GetEnumerator() {
-			return this;
-		}
-
-		#endregion
-
-
-		#region IEnumerable Members
-
-		IEnumerator IEnumerable.GetEnumerator() {
-			return this;
-		}
-
-		#endregion
-
-
-		#region IEnumerator<T> Members
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public T Current {
-			get { return default(T); }
-		}
-
-		#endregion
-
-
-		#region IEnumerator Members
-
-		object IEnumerator.Current {
-			get { return default(T); }
-		}
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public bool MoveNext() {
-			return false; ;
-		}
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public void Reset() {
-			// nothing to do
-		}
-
-		#endregion
-
-
-		#region IDisposable Members
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public void Dispose() {
-			// nothing to do
-		}
-
-		#endregion
-
-	}
-
-
-	/// <summary>
-	/// Helper class used for converting collections of <see cref="T:System.Object" /> to collections of &lt;T&gt;.
-	/// </summary>
-	public struct ConvertEnumerator<T> : IEnumerable, IEnumerable<T>, IEnumerator<T>, IDisposable {
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static ConvertEnumerator<T> Create(IEnumerable enumeration) {
-			return Create(enumeration.GetEnumerator());
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static ConvertEnumerator<T> Create(IEnumerator enumerator) {
-			ConvertEnumerator<T> result = ConvertEnumerator<T>.Empty;
-			result.enumerator = enumerator;
-			return result;
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static readonly ConvertEnumerator<T> Empty;
-
-
-		#region IEnumerable<T> Members
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public IEnumerator<T> GetEnumerator() {
-			return this;
-		}
-
-		#endregion
-
-
-		#region IEnumerable Members
-
-		IEnumerator IEnumerable.GetEnumerator() {
-			return this;
-		}
-
-		#endregion
-
-
-		#region IEnumerator<T> Members
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public T Current {
-			get {
-				if (enumerator.Current is T)
-					return (T)enumerator.Current;
-				else return default(T); 
-			}
-		}
-
-		#endregion
-
-
-		#region IEnumerator Members
-
-		object IEnumerator.Current {
-			get {
-				if (enumerator.Current is T)
-					return (T)enumerator.Current;
-				else return default(T);
-			}
-		}
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public bool MoveNext() {
-			bool result;
-			do {
-				result = enumerator.MoveNext();
-				if (!result) break;
-			} while (!(enumerator.Current is T));
-			return result;
-		}
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public void Reset() {
-			enumerator.Reset();
-		}
-
-		#endregion
-
-
-		#region IDisposable Members
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public void Dispose() {
-			// nothing to do
-		}
-
-		#endregion
-
-
-		private IEnumerator enumerator;
-	}
-
-
-	/// <summary>
-	/// Helper class used for counting the number of instances in an enumeration.
-	/// </summary>
-	public static class Counter {
-
-		/// <summary>
-		/// Counts the number of instances in an enumeration.
-		/// </summary>
-		public static int GetCount<T>(IEnumerable<T> instances) {
-			if (instances is ICollection)
-				return ((ICollection)instances).Count;
-			else if (instances is ICollection<T>)
-				return ((ICollection<T>)instances).Count;
-			else {
-				int result = 0;
-				IEnumerator<T> enumerator = instances.GetEnumerator();
-				while (enumerator.MoveNext()) ++result;
-				return result;
-			}
-		}
-
 	}
 
 }

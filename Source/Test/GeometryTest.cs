@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -44,16 +44,16 @@ namespace NShapeTest {
 			int pX, pY;
 			//
 			Geometry.CalcNormalVectorOfLine(-2, -4, 2, -4, 0, -4, 100, out pX, out pY);
-			Assert.AreEqual(pX, 0);
-			Assert.AreEqual(pY, -104);
+			Assert.AreEqual(0, pX);
+			Assert.AreEqual(-104, pY);
 			//
 			Geometry.CalcNormalVectorOfLine(-5, -12, -5, -14, -5, 100, 100, out pX, out pY);
-			Assert.AreEqual(pX, -105);
-			Assert.AreEqual(pY, 100);
+			Assert.AreEqual(-105, pX);
+			Assert.AreEqual(100, pY);
 			//
 			Geometry.CalcNormalVectorOfLine(0, 8, 6, 0, 3, 4, 100, out pX, out pY);
-			Assert.AreEqual(pX, 83);
-			Assert.AreEqual(pY, 64);
+			Assert.AreEqual(-77, pX);
+			Assert.AreEqual(-56, pY);
 		}
 
 

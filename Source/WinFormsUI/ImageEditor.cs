@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -42,7 +42,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		public ImageEditor(string fileName)
 			: this() {
 			if (fileName == null) throw new ArgumentNullException("fileName");
-			resultImage.Load(fileName);
+			_resultImage.Load(fileName);
 		}
 
 
@@ -53,8 +53,8 @@ namespace Dataweb.NShape.WinFormsUI {
 			: this() {
 			if (image == null) throw new ArgumentNullException("image");
 			if (path == null) throw new ArgumentNullException("name");
-			resultImage.Image = (Image)image.Clone();
-			resultImage.Name = path;
+			_resultImage.Image = (Image)image.Clone();
+			_resultImage.Name = path;
 		}
 
 
@@ -73,8 +73,9 @@ namespace Dataweb.NShape.WinFormsUI {
 			InitializeComponent();
 			if (namedImage == null) throw new ArgumentNullException("namedImage");
 			if (namedImage.Image != null)
-				resultImage.Image = (Image)namedImage.Image.Clone();
-			resultImage.Name = namedImage.Name;
+				_resultImage.Image = (Image)namedImage.Image.Clone();
+			_resultImage.FilePath = namedImage.FilePath;
+			_resultImage.Name = namedImage.Name;
 		}
 
 
@@ -82,7 +83,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the image selected by the user.
 		/// </summary>
 		public NamedImage Result {
-			get { return resultImage; }
+			get { return _resultImage; }
 		}
 		
 		
@@ -101,11 +102,50 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private Image Image {
-			get { return resultImage.Image; }
+			get { return _resultImage.Image; }
 			set {
-				resultImage.Image = value;
+				_resultImage.Image = value;
 				DisplayResult();
 			}
+		}
+
+
+		private bool ReplaceImageName {
+			get { return (nameTextBox.Text == Path.GetFileNameWithoutExtension(_resultImage.FilePath)); }
+		}
+
+
+		private void ClearAll() {
+			this.SuspendLayout();
+			_resultImage.Name = null;
+			_resultImage.FilePath = null;
+			if (_resultImage.Image != null)
+				_resultImage.Image.Dispose();
+			_resultImage.Image = null;
+			DisplayResult();
+			this.ResumeLayout();
+		}
+
+
+		private void DisplayResult() {
+			this.SuspendLayout();
+			pictureBox.Image = _resultImage.Image;
+			pathTextBox.Text = _resultImage.FilePath;
+			nameTextBox.Text = _resultImage.Name;
+			this.ResumeLayout();
+		}
+
+
+		private void UpdateImage(String imageFilePath) {
+			this.SuspendLayout();
+
+			if (ReplaceImageName)
+				_resultImage.Name = Path.GetFileNameWithoutExtension(imageFilePath);
+			_resultImage.Image = null;
+			_resultImage.Load(imageFilePath);
+
+			DisplayResult();
+			this.ResumeLayout();
 		}
 
 
@@ -122,11 +162,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		
 		private void clearButton_Click(object sender, EventArgs e) {
-			this.SuspendLayout();
-			resultImage.Image = null;
-			resultImage.Name = string.Empty;
-			DisplayResult();
-			this.ResumeLayout();
+			ClearAll();
 		}
 
 		
@@ -135,33 +171,34 @@ namespace Dataweb.NShape.WinFormsUI {
 			if (nameTextBox.Text != string.Empty)
 				openFileDialog.InitialDirectory = Path.GetDirectoryName(nameTextBox.Text);
 			
-			if (openFileDialog.ShowDialog(this) == DialogResult.OK) {
-				if (resultImage.Image != null) 
-					resultImage.Image.Dispose();
-				resultImage.Load(openFileDialog.FileName);
-				if (string.IsNullOrEmpty(nameTextBox.Text))
-					nameTextBox.Text = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-				resultImage.Name = nameTextBox.Text;
-				DisplayResult();
-				this.ResumeLayout();
-			}
+			if (openFileDialog.ShowDialog(this) == DialogResult.OK)
+				UpdateImage(openFileDialog.FileName);
 		}
 
 
 		private void nameTextBox_TextChanged(object sender, EventArgs e) {
-			resultImage.Name = nameTextBox.Text;
+			_resultImage.Name = nameTextBox.Text;
 		}
 
 
-		private void DisplayResult() {
-			this.SuspendLayout();
-			pictureBox.Image = resultImage.Image;
-			nameTextBox.Text = resultImage.Name;
-			this.ResumeLayout();
+		private void pathTextBox_TextChanged(object sender, EventArgs e) {
+			bool updateImage = (string.Compare(pathTextBox.Text, _resultImage.FilePath, StringComparison.InvariantCultureIgnoreCase) != 0);
+			_resultImage.FilePath = pathTextBox.Text;
+
+			if (updateImage) {
+				if (_resultImage.Image != null)
+					_resultImage.Dispose();
+				pictureBox.Image = null;
+
+				_resultImage.Image = null;
+				if (!string.IsNullOrEmpty(pathTextBox.Text) && File.Exists(pathTextBox.Text))
+					UpdateImage(pathTextBox.Text);
+			}
 		}
 
 
-		private NamedImage resultImage = new NamedImage();
+		private NamedImage _resultImage = new NamedImage();
+
 	}
 
 }

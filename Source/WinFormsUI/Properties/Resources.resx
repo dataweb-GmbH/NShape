@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="ActivateDesign" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ActivateDesign.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -459,5 +459,26 @@
   </data>
   <data name="TooltipTxt_NoGroupSelected" xml:space="preserve">
     <value>No group selected.</value>
+  </data>
+  <data name="MessageFmt_AllStylesInThisDesignWillBeLost0" xml:space="preserve">
+    <value>All styles in this design will be lost. {0}Do you really want do to delete this design?</value>
+  </data>
+  <data name="MessageTxt_DoYouReallyWantDoToDeleteThisStyle" xml:space="preserve">
+    <value>Do you really want do to delete this style?</value>
+  </data>
+  <data name="MessageTxt_XMLStoresDoNotSupportMultipleDesigns" xml:space="preserve">
+    <value>XML Stores do not support multiple designs.</value>
+  </data>
+  <data name="CaptionTxt_DeleteStyle" xml:space="preserve">
+    <value>Delete Style</value>
+  </data>
+  <data name="CaptionTxt_DeleteDesign" xml:space="preserve">
+    <value>Delete Design</value>
+  </data>
+  <data name="MessageFmt_Style0IsStillInUse" xml:space="preserve">
+    <value>Style '{0}' is still in use.</value>
+  </data>
+  <data name="MessageFmt_CurrentGraphicsIsNotNull0" xml:space="preserve">
+    <value>Current graphics is not null. {0}If this happens in the WinForms Designer, make sure your application's target framework is NOT a 'Client Profile' framework version.</value>
   </data>
 </root>

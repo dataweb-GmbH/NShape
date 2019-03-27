@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -80,16 +80,14 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.NShapeSecurityException" />.
 		/// </summary>
 		public NShapeSecurityException(Permission permission)
-			: base("Required permission '{0}' is not granted.", permission) {
+			: base(Properties.Resources.MessageFmt_RequiredPermission0IsNotGranted, permission) {
 		}
 
 		/// <summary>
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.NShapeSecurityException" />.
 		/// </summary>
 		public NShapeSecurityException(ICommand command)
-			: base((command is Command) ?
-			string.Format("'{0}' denied: Required permission '{1}' is not granted.", command.Description, ((Command)command).RequiredPermission)
-			: string.Format("'{0}' denied: Required permission is not granted.", (command != null) ? command.Description : string.Empty)) {
+			: base(GetMessageText(command)) {
 		}
 
 
@@ -98,6 +96,20 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected NShapeSecurityException(SerializationInfo info, StreamingContext context)
 			: base(info, context) {
+		}
+
+
+		/// <summary>
+		/// Extracts a message text for the exception from the given ICommand.
+		/// </summary>
+		protected static string GetMessageText(ICommand command) {
+			if (command != null) {
+				string commandText = command.Description ?? command.GetType().Name;
+				if (command is Command)
+					return string.Format(Properties.Resources.MessageFmt_0DeniedRequiredPermission1IsNotGranted, commandText, ((Command)command).RequiredPermission);
+				else 
+					return string.Format(Properties.Resources.MessageFmt_0DeniedRequiredPermissionIsNotGranted, commandText);
+			} else return Properties.Resources.MessageFmt_RequiredPermissionIsNotGranted;
 		}
 
 	}
@@ -113,7 +125,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public LoadLibraryException(string assemblyNameOrPath)
 			: base(NoAutoLoadDescriptionFmt, assemblyNameOrPath, Environment.NewLine) {
-			this.assemblyNameOrPath = assemblyNameOrPath;
+			this._assemblyNameOrPath = assemblyNameOrPath;
 		}
 
 
@@ -122,7 +134,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public LoadLibraryException(string assemblyNameOrPath, Exception exc)
 			: base(LoadExcDescriptionFmt, exc, assemblyNameOrPath, Environment.NewLine) {
-			this.assemblyNameOrPath = assemblyNameOrPath;
+			this._assemblyNameOrPath = assemblyNameOrPath;
 		}
 
 
@@ -130,7 +142,7 @@ namespace Dataweb.NShape {
 		/// Specifies the assembly name or path of the assembly that could not be loaded.
 		/// </summary>
 		public string AssemblyName {
-			get { return assemblyNameOrPath; }
+			get { return _assemblyNameOrPath; }
 		}
 
 
@@ -139,33 +151,28 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected LoadLibraryException(SerializationInfo info, StreamingContext context)
 			: base(info, context) {
-				assemblyNameOrPath = info.GetString(MemberNameAssemblyName);
+				_assemblyNameOrPath = info.GetString(MemberNameAssemblyName);
 		}
 
 
 		/// <override></override>
 		public override void GetObjectData(SerializationInfo info, StreamingContext context) {
 			base.GetObjectData(info, context);
-			info.AddValue(MemberNameAssemblyName, assemblyNameOrPath);
+			info.AddValue(MemberNameAssemblyName, _assemblyNameOrPath);
 		}
 
 
 		static LoadLibraryException(){
-			NoAutoLoadDescriptionFmt = "Required library '{0}' was not found in the currently loaded libraries. "
-							+ Environment.NewLine
-							+ "If you want your application to load needed libraries when opening a project, set the project's 'AutoLoadLibraries' property to true. "
-							+ Environment.NewLine
-							+ "Otherwise, add the required libraries with one of the project's 'AddLibrary' methods.";
-			LoadExcDescriptionFmt = "Required library '{0}' could not be loaded. Check the InnerException for details."
-							+ Environment.NewLine
-							+ "If you want your application to search for matching or newer library versions, add library search paths to your project.";
+			NoAutoLoadDescriptionFmt = Properties.Resources.MessageFmt_RequiredLibrary0WasNotFoundInLoadedLibraries1;
+			LoadExcDescriptionFmt = Properties.Resources.MessageFmt_RequiredLibrary0CouldNotBeLoaded1;
 		}
 
 
-		const string MemberNameAssemblyName = "AssemblyName";
+		private const string MemberNameAssemblyName = "AssemblyName";
 		private static readonly string NoAutoLoadDescriptionFmt;
 		private static readonly string LoadExcDescriptionFmt;
-		private string assemblyNameOrPath;
+
+		private string _assemblyNameOrPath;
 	}
 	
 	

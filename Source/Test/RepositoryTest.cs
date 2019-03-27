@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2014 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -365,7 +366,7 @@ namespace NShapeTest {
 				string diagramName = "Diagram";
 				DiagramHelper.CreateDiagram(project1, diagramName, shapesPerRow, shapesPerRow, true, true, true, true, true);
 				Diagram diagram = project1.Repository.GetDiagram(diagramName);
-				diagram.BackgroundImage = new NamedImage(new Bitmap(100, 100), "TestImage");
+				diagram.BackgroundImage = new NamedImage(new Bitmap(100, 100, PixelFormat.Format32bppPArgb), "TestImage");
 				diagram.BackgroundImageLayout = ImageLayoutMode.Center;
 				project1.Repository.SaveChanges();
 
@@ -778,7 +779,7 @@ namespace NShapeTest {
 				else if (style is IParagraphStyle) styleBuffer.Add((TStyle)CreateStyle((IParagraphStyle)style, design));
 				else throw new NotSupportedException("Unsupported stye type");
 			}
-			Assert.AreEqual(Counter.GetCount(styles), styleBuffer.Count);
+			Assert.AreEqual(EnumerationHelper.Count(styles), styleBuffer.Count);
 			foreach (IStyle style in styleBuffer) {
 				design.AddStyle(style);
 				repository.Insert(design, style);
@@ -948,7 +949,7 @@ namespace NShapeTest {
 			foreach (Shape sourceShape in sourceDiagram.Shapes.BottomUp) {
 				Shape newShape = sourceShape.Clone();
 				newDiagram.Shapes.Add(newShape, sourceShape.ZOrder);
-				newDiagram.AddShapeToLayers(newShape, sourceShape.Layers);
+				newDiagram.AddShapeToLayers(newShape, sourceShape.HomeLayer, sourceShape.SupplementalLayers);
 			}
 
 			if (withContent)

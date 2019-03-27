@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -15,335 +15,17 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Globalization;
+using System.IO;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
-
 using Dataweb.NShape.Advanced;
-using System.IO;
 
 
 namespace Dataweb.NShape.WinFormsUI {
-
-	#region TypeConverters
-
-	/// <summary>
-	/// Converts all types of System.String and collections of System.String to System.String and collections of System.String.
-	/// </summary>
-	public class TextTypeConverter : TypeConverter {
-
-		/// <override></override>
-		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-			if (destinationType == typeof(string))
-				return true;
-			if (destinationType == typeof(string[]))
-				return true;
-			if (destinationType == typeof(IEnumerable<string>))
-				return true;
-			if (destinationType == typeof(IList<string>))
-				return true;
-			if (destinationType == typeof(IReadOnlyCollection<string>))
-				return true;
-			if (destinationType == typeof(ICollection<string>))
-				return true;
-			return base.CanConvertTo(context, destinationType);
-		}
-
-
-		/// <override></override>
-		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-			if (destinationType == typeof(string)) {
-				if (value != null) {
-					if (culture == null) culture = CultureInfo.CurrentCulture;
-					string separator = culture.TextInfo.ListSeparator + " ";
-
-					string result = string.Empty;
-					foreach (string line in ((IEnumerable<string>)value)) {
-						if (result.Length > 0) result += separator;
-						result += line;
-					}
-					return result;
-				}
-			} else if (destinationType == typeof(string[]))
-				return value as IEnumerable<string>;
-			else if (destinationType == typeof(IEnumerable<string>))
-				return value as IEnumerable<string>;
-			else if (destinationType == typeof(IList<string>))
-				return value as IEnumerable<string>;
-			else if (destinationType == typeof(ICollection<string>))
-				return value as IEnumerable<string>;
-			return base.ConvertTo(context, culture, value, destinationType);
-		}
-
-
-		/// <override></override>
-		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-			if (sourceType == typeof(string))
-				return true;
-			if (sourceType == typeof(string[]))
-				return true;
-			if (sourceType == typeof(IEnumerable<string>))
-				return true;
-			if (sourceType == typeof(IList<string>))
-				return true;
-			if (sourceType == typeof(IReadOnlyCollection<string>))
-				return true;
-			if (sourceType == typeof(ICollection<string>))
-				return true;
-			return base.CanConvertFrom(context, sourceType);
-		}
-
-
-		/// <override></override>
-		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-			if (value == null) return null;
-			List<string> lines = new List<string>();
-			if (value is string) {
-				if (culture == null) culture = CultureInfo.CurrentCulture;
-				string separator = culture.TextInfo.ListSeparator + " ";
-				lines.AddRange(((string)value).Split(new string[] { separator }, StringSplitOptions.None));
-			} else if (value is string[]
-				|| value is IEnumerable<string>)
-				lines.AddRange((IEnumerable<string>)value);
-
-			if (context.Instance is string)
-				return ConvertTo(context, culture, lines, typeof(string));
-			else if (context.Instance is string[])
-				return lines.ToArray();
-			else return lines;
-		}
-
-	}
-
-
-	/// <summary>
-	/// Converts a Dataweb.NShape.Advanced.NamedImage to a System.Drawing.Image type or a System.String.
-	/// </summary>
-	public class NamedImageTypeConverter : TypeConverter {
-
-		/// <override></override>
-		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-			if (destinationType == typeof(string)) return true;
-			if (destinationType == typeof(Image)) return true;
-			if (destinationType == typeof(Bitmap)) return true;
-			if (destinationType == typeof(Metafile)) return true;
-			return base.CanConvertTo(context, destinationType);
-		}
-
-
-		/// <override></override>
-		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-			if (value != null && value is NamedImage) {
-				NamedImage val = (NamedImage)value;
-				if (destinationType == typeof(string))
-					return val.Name;
-				else if (destinationType == typeof(Bitmap))
-					return (Bitmap)val.Image;
-				else if (destinationType == typeof(Metafile))
-					return (Metafile)val.Image;
-				else if (destinationType == typeof(Image))
-					return val.Image;
-			}
-			return base.ConvertTo(context, culture, value, destinationType);
-		}
-
-	}
-
-
-	/// <summary>
-	/// Converts a Dataweb.NShape.IStyle type to a System.String type.
-	/// </summary>
-	public class StyleTypeConverter : TypeConverter {
-
-		/// <override></override>
-		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-			if (destinationType == typeof(string)) return true;
-			return base.CanConvertTo(context, destinationType);
-		}
-
-
-		/// <override></override>
-		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-			if (destinationType == typeof(string) && value is IStyle) return ((IStyle)value).Title;
-			return base.ConvertTo(context, culture, value, destinationType);
-		}
-
-	}
-
-
-	/// <summary>
-	/// Converts a System.Drawing.FontFamily type to a System.String type.
-	/// </summary>
-	public class FontFamilyTypeConverter : TypeConverter {
-
-		/// <override></override>
-		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-			if (destinationType == typeof(string)) return true;
-			return base.CanConvertTo(context, destinationType);
-		}
-
-
-		/// <override></override>
-		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-			if (destinationType == typeof(string) && value != null)
-				return ((FontFamily)value).Name;
-			return base.ConvertTo(context, culture, value, destinationType);
-		}
-
-	}
-
-
-	/// <summary>
-	/// Converts a Dataweb.NShape.TextPadding type to a System.Windows.Forms.Padding or a System.String type and vice versa.
-	/// </summary>
-	public class TextPaddingTypeConverter : TypeConverter {
-
-		/// <override></override>
-		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-			return ((sourceType == typeof(string))
-					|| (sourceType == typeof(Padding))
-					|| base.CanConvertFrom(context, sourceType));
-		}
-
-
-		/// <override></override>
-		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-			if (destinationType == typeof(string)
-				|| destinationType == typeof(Padding)
-				|| destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor))
-				return true;
-			else return base.CanConvertTo(context, destinationType);
-		}
-
-
-		/// <override></override>
-		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-			TextPadding result = TextPadding.Empty;
-			if (value is string) {
-				string valueStr = value as string;
-				if (valueStr == null) return base.ConvertFrom(context, culture, value);
-
-				valueStr = valueStr.Trim();
-				if (valueStr.Length == 0) return null;
-
-				if (culture == null) culture = CultureInfo.CurrentCulture;
-				char ch = culture.TextInfo.ListSeparator[0];
-				string[] strArray = valueStr.Split(new char[] { ch });
-				int[] numArray = new int[strArray.Length];
-				TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
-				for (int i = 0; i < numArray.Length; i++)
-					numArray[i] = (int)converter.ConvertFromString(context, culture, strArray[i]);
-
-				if (numArray.Length == 1)
-					result.All = numArray[0];
-				else if (numArray.Length == 4) {
-					result.Left = numArray[0];
-					result.Top = numArray[1];
-					result.Right = numArray[2];
-					result.Bottom = numArray[3];
-				} else throw new ArgumentException();
-			} else if (value is Padding) {
-				Padding padding = (Padding)value;
-				result.Left = padding.Left;
-				result.Top = padding.Top;
-				result.Right = padding.Right;
-				result.Bottom = padding.Bottom;
-			} else return base.ConvertFrom(context, culture, value);
-			return result;
-		}
-
-
-		/// <override></override>
-		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-			if (destinationType == null) throw new ArgumentNullException("destinationType");
-			if (value is TextPadding) {
-				if (destinationType == typeof(string)) {
-					TextPadding txtPadding = (TextPadding)value;
-					if (destinationType == typeof(string)) {
-						if (culture == null) culture = CultureInfo.CurrentCulture;
-
-						string separator = culture.TextInfo.ListSeparator + " ";
-						TypeConverter converter = TypeDescriptor.GetConverter(typeof(int));
-						string[] strArray = new string[4];
-						strArray[0] = converter.ConvertToString(context, culture, txtPadding.Left);
-						strArray[1] = converter.ConvertToString(context, culture, txtPadding.Top);
-						strArray[2] = converter.ConvertToString(context, culture, txtPadding.Right);
-						strArray[3] = converter.ConvertToString(context, culture, txtPadding.Bottom);
-						return string.Join(separator, strArray);
-					}
-					if (destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor)) {
-						if (txtPadding.All < 0) {
-							return new System.ComponentModel.Design.Serialization.InstanceDescriptor(
-								typeof(TextPadding).GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }),
-									new object[] { txtPadding.Left, txtPadding.Top, txtPadding.Right, txtPadding.Bottom });
-						} else {
-							return new System.ComponentModel.Design.Serialization.InstanceDescriptor(
-								typeof(TextPadding).GetConstructor(new Type[] { typeof(int) }), new object[] { txtPadding.All }
-							);
-						}
-					}
-				} else if (destinationType == typeof(Padding)) {
-					Padding paddingResult = Padding.Empty;
-					if (value != null) {
-						TextPadding val = (TextPadding)value;
-						paddingResult.Left = val.Left;
-						paddingResult.Top = val.Top;
-						paddingResult.Right = val.Right;
-						paddingResult.Bottom = val.Bottom;
-					}
-					return paddingResult;
-				}
-			}
-			return base.ConvertTo(context, culture, value, destinationType);
-		}
-
-
-		/// <override></override>
-		public override object CreateInstance(ITypeDescriptorContext context, System.Collections.IDictionary propertyValues) {
-			if (context == null) throw new ArgumentNullException("context");
-			if (propertyValues == null) throw new ArgumentNullException("propertyValues");
-
-			TextPadding txtPadding = (TextPadding)context.PropertyDescriptor.GetValue(context.Instance);
-			TextPadding result = TextPadding.Empty;
-			int all = (int)propertyValues["All"];
-			if (txtPadding.All != all) result.All = all;
-			else {
-				result.Left = (int)propertyValues["Left"];
-				result.Top = (int)propertyValues["Top"];
-				result.Right = (int)propertyValues["Right"];
-				result.Bottom = (int)propertyValues["Bottom"];
-			}
-			return result;
-		}
-
-
-		/// <override></override>
-		public override bool GetCreateInstanceSupported(ITypeDescriptorContext context) {
-			return true;
-		}
-
-
-		/// <override></override>
-		public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes) {
-			return TypeDescriptor.GetProperties(typeof(TextPadding), attributes).Sort(
-				new string[] { "All", "Left", "Top", "Right", "Bottom" }
-			);
-		}
-
-
-		/// <override></override>
-		public override bool GetPropertiesSupported(ITypeDescriptorContext context) {
-			return true;
-		}
-
-	}
-
-	#endregion
-
 
 	#region UITypeEditors
 
@@ -430,34 +112,56 @@ namespace Dataweb.NShape.WinFormsUI {
 				if (edSvc != null && context.Instance is Shape) {
 					Shape shape = (Shape)context.Instance;
 					using (CheckedListBox listBox = new CheckedListBox()) {
+						bool isHomeLayerProperty = (context.PropertyDescriptor.Name == "HomeLayer");
+
 						listBox.BorderStyle = BorderStyle.None;
 						listBox.IntegralHeight = false;
-						listBox.Items.Clear();
+						listBox.CheckOnClick = true;
+						listBox.SelectionMode = SelectionMode.One;
+						if (isHomeLayerProperty) {
+							listBox.SelectedIndexChanged += (sender, e) => {
+								int idx = listBox.SelectedIndex;
+								for (int i = listBox.Items.Count - 1; i >= 0; --i)
+									if (i != idx && listBox.GetItemChecked(i))
+										listBox.SetItemChecked(i, false);
+							};
+						}
 
 						// Add existing layers and check shape's layers
+						listBox.Items.Clear();
 						foreach (Layer l in shape.Diagram.Layers) {
 							int idx = listBox.Items.Count;
-							listBox.Items.Insert(idx, l);
-							listBox.SetItemChecked(idx, ((shape.Layers & l.Id) != 0));
+							// Add layer item
+							if (Layer.IsCombinable(l.LayerId) || isHomeLayerProperty) {
+								listBox.Items.Insert(idx, LayerDisplayItem.Create(l.LayerId, l.Name));
+								// Set check state
+								if (isHomeLayerProperty)
+									listBox.SetItemChecked(idx, shape.HomeLayer == l.LayerId);
+								else
+									listBox.SetItemChecked(idx, (shape.SupplementalLayers & Layer.ConvertToLayerIds(l.LayerId)) != 0);
+							}
 						}
 
 						edSvc.DropDownControl(listBox);
-						LayerIds shapeLayers = LayerIds.None;
-						for (int i = listBox.Items.Count - 1; i >= 0; --i) {
-							if (listBox.GetItemChecked(i))
-								shapeLayers |= ((Layer)listBox.Items[i]).Id;
-						}
-						shape.Diagram.RemoveShapeFromLayers(shape, LayerIds.All);
-						shape.Diagram.AddShapeToLayers(shape, shapeLayers);
+						// Get selected layer ids
+						List<int> shapeLayerIds = new List<int>();
+						foreach (LayerDisplayItem layerItem in listBox.CheckedItems)
+							shapeLayerIds.Add(layerItem.LayerId);
 
-						value = shapeLayers;
+						// Set property value
+						if (isHomeLayerProperty) {
+							System.Diagnostics.Debug.Assert(shapeLayerIds.Count <= 1);
+							value = (shapeLayerIds.Count > 0) ? shapeLayerIds[0] : Layer.NoLayerId;
+						} else {
+							value = Layer.ConvertToLayerIds(shapeLayerIds);
+						}
 					}
 				}
 			}
 			return value;
 		}
 
-
+		
 		/// <override></override>
 		public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) {
 			if (context != null && context.Instance != null)
@@ -474,44 +178,47 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		///// <override></override>
 		//public override void PaintValue(PaintValueEventArgs e) {
-		//    if (e != null && e.Value != null) {
-		//        // store original values;
-		//        SmoothingMode origSmoothingMode = e.Graphics.SmoothingMode;
-		//        CompositingQuality origCompositingQuality = e.Graphics.CompositingQuality;
-		//        InterpolationMode origInterpolationmode = e.Graphics.InterpolationMode;
-		//        System.Drawing.Text.TextRenderingHint origTextRenderingHint = e.Graphics.TextRenderingHint;
-		//        Matrix origTransform = e.Graphics.Transform;
+		//    if (e != null && e.Value is int) {
+		//        ITypeDescriptorContext context = e.Context;
+		//        if (context != null && context.Instance is Shape) {
+		//            Shape shape = (Shape)context.Instance;
 
-		//        // set new GraphicsModes
-		//        e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
-		//        e.Graphics.CompositingQuality = CompositingQuality.HighQuality;	// CAUTION: Slows down older machines!!
-		//        e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-
-		//        StringFormat formatter = new StringFormat();
-		//        formatter.Alignment = StringAlignment.Center;
-		//        formatter.LineAlignment = StringAlignment.Near;
-
-		//        Font font = new Font(e.Value.ToString(), e.Bounds.Height, FontStyle.Regular, GraphicsUnit.Pixel);
-		//        e.Graphics.DrawString(e.Value.ToString(), font, Brushes.Black, (RectangleF)e.Bounds, formatter);
-
-		//        font.Dispose();
-		//        formatter.Dispose();
-
-		//        // restore original values
-		//        e.Graphics.Transform = origTransform;
-		//        e.Graphics.SmoothingMode = origSmoothingMode;
-		//        e.Graphics.CompositingQuality = origCompositingQuality;
-		//        e.Graphics.InterpolationMode = origInterpolationmode;
-		//        e.Graphics.TextRenderingHint = origTextRenderingHint;
-
+		//            int homeLayer = (int)e.Value;
+		//            e.Value = shape.Diagram.Layers[homeLayer].Title;
+		//        }
+		//    } else
 		//        base.PaintValue(e);
-		//    }
 		//}
 
 
 		/// <override></override>
 		public override bool IsDropDownResizable {
 			get { return true; }
+		}
+
+
+		private struct LayerDisplayItem {
+			
+			public static readonly LayerDisplayItem Empty;
+
+			public static LayerDisplayItem Create(int layerId, string layerTitle) {
+				LayerDisplayItem result = LayerDisplayItem.Empty;
+				result.LayerId = layerId;
+				result.LayerTitle = layerTitle;
+				return result;
+			}
+
+			public override string ToString() {
+				return string.Format("{0:D2}: {1}", LayerId, LayerTitle);
+			}
+
+			public int LayerId;
+			public string LayerTitle;
+
+			static LayerDisplayItem() {
+				Empty.LayerId = Layer.NoLayerId;
+				Empty.LayerTitle = String.Empty;
+			}
 		}
 
 	}
@@ -578,8 +285,9 @@ namespace Dataweb.NShape.WinFormsUI {
 							imageEditor = new ImageEditor((NamedImage)value);
 						else imageEditor = new ImageEditor();
 
-						if (imageEditor.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+						if (imageEditor.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
 							value = imageEditor.Result;
+						}
 					} finally {
 						if (imageEditor != null) imageEditor.Dispose();
 						imageEditor = null;
@@ -608,29 +316,57 @@ namespace Dataweb.NShape.WinFormsUI {
 		public override void PaintValue(PaintValueEventArgs e) {
 			base.PaintValue(e);
 			if (e != null && e.Value is NamedImage) {
-				NamedImage img = (NamedImage)e.Value;
-				if (img.Image != null) {
-					Rectangle srcRect = Rectangle.Empty;
-					srcRect.X = 0;
-					srcRect.Y = 0;
-					srcRect.Width = img.Width;
-					srcRect.Height = img.Height;
+				try {
+					NamedImage imageValue = (NamedImage)e.Value;
+					if (imageValue.Image != null) {
+						// Create a thumbnail image
+						GraphicsUnit gfxUnit = GraphicsUnit.Pixel;
+						Rectangle imgBounds = Rectangle.Round(imageValue.Image.GetBounds(ref gfxUnit));
+						Rectangle bounds = CalcDestinationBounds(imageValue.Image, imgBounds, Rectangle.FromLTRB(0, 0, 100, 100));
+						using (Image img = imageValue.Image.GetThumbnailImage(bounds.Width, bounds.Height, null, IntPtr.Zero)) {
+							Rectangle srcRect = Rectangle.Empty;
+							srcRect.X = 0;
+							srcRect.Y = 0;
+							srcRect.Width = img.Width;
+							srcRect.Height = img.Height;
 
-					float lowestRatio = (float)Math.Round(Math.Min((double)(e.Bounds.Width - (e.Bounds.X + e.Bounds.X)) / (double)img.Width, (double)(e.Bounds.Height - (e.Bounds.Y + e.Bounds.Y)) / (double)img.Height), 6);
-					Rectangle dstRect = Rectangle.Empty;
-					dstRect.Width = (int)Math.Round(srcRect.Width * lowestRatio);
-					dstRect.Height = (int)Math.Round(srcRect.Height * lowestRatio);
-					dstRect.X = e.Bounds.X + (int)Math.Round((float)(e.Bounds.Width - dstRect.Width) / 2);
-					dstRect.Y = e.Bounds.Y + (int)Math.Round((float)(e.Bounds.Height - dstRect.Height) / 2);
+							float highestRatio = (float)Math.Round(
+								Math.Max((double)(e.Bounds.Width - (e.Bounds.X + e.Bounds.X)) / (double)img.Width,
+								(double)(e.Bounds.Height - (e.Bounds.Y + e.Bounds.Y)) / (double)img.Height)
+								, 6);
+							Rectangle dstRect = Rectangle.Empty;
+							dstRect.Width = (int)Math.Round(srcRect.Width * highestRatio);
+							dstRect.Height = (int)Math.Round(srcRect.Height * highestRatio);
+							dstRect.X = e.Bounds.X + (int)Math.Round((float)(e.Bounds.Width - dstRect.Width) / 2);
+							dstRect.Y = e.Bounds.Y + (int)Math.Round((float)(e.Bounds.Height - dstRect.Height) / 2);
 
-					// Apply HighQuality rendering settings to avoid false-color images when using
-					// certain image formats (e.g. JPG with 24 bits color depth) on x64 OSes
-					// Revert to default settings afterwards in order to avoid other graphical glitches
-					GdiHelpers.ApplyGraphicsSettings(e.Graphics, RenderingQuality.HighQuality);
-					e.Graphics.DrawImage(img.Image, dstRect, srcRect, GraphicsUnit.Pixel);
-					GdiHelpers.ApplyGraphicsSettings(e.Graphics, RenderingQuality.DefaultQuality);
+							// Apply HighQuality rendering settings to avoid false-color images when using
+							// certain image formats (e.g. JPG with 24 bits color depth) on x64 OSes
+							// Revert to default settings afterwards in order to avoid other graphical glitches
+							GdiHelpers.ApplyGraphicsSettings(e.Graphics, RenderingQuality.HighQuality);
+							e.Graphics.DrawImage(img, dstRect, srcRect, GraphicsUnit.Pixel);
+							GdiHelpers.ApplyGraphicsSettings(e.Graphics, RenderingQuality.DefaultQuality);
+						}
+					}
+				} catch (Exception exc) {
+					// Ignore errors while drawing
+					Debug.Print(string.Format("Error in {0}.PaintValue: {1}", GetType().Name, exc.Message));
 				}
 			}
+		}
+
+
+		private Rectangle CalcDestinationBounds(Image image, Rectangle sourceBounds, Rectangle destinationBounds) {
+			float highestRatio = (float)Math.Round(
+					Math.Max((double)(destinationBounds.Width - (destinationBounds.X + destinationBounds.X)) / (double)image.Width,
+					(double)(destinationBounds.Height - (destinationBounds.Y + destinationBounds.Y)) / (double)image.Height)
+					, 6);
+			Rectangle result = Rectangle.Empty;
+			result.Width = (int)Math.Round(sourceBounds.Width * highestRatio);
+			result.Height = (int)Math.Round(sourceBounds.Height * highestRatio);
+			result.X = destinationBounds.X + (int)Math.Round((float)(destinationBounds.Width - result.Width) / 2);
+			result.Y = destinationBounds.Y + (int)Math.Round((float)(destinationBounds.Height - result.Height) / 2);
+			return result;
 		}
 
 	}

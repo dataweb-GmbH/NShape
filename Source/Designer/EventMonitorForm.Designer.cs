@@ -25,6 +25,7 @@
 		/// </summary>
 		private void InitializeComponent() {
 			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EventMonitorForm));
 			this.eventSourcesListBox = new System.Windows.Forms.CheckedListBox();
 			this.componentsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.checkAllMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -35,6 +36,7 @@
 			this.componentsPanel = new System.Windows.Forms.Panel();
 			this.eventPanel = new System.Windows.Forms.Panel();
 			this.eventListBox = new System.Windows.Forms.ListBox();
+			this.alwaysOnTopCheckBox = new System.Windows.Forms.CheckBox();
 			this.componentsContextMenuStrip.SuspendLayout();
 			this.componentsPanel.SuspendLayout();
 			this.eventPanel.SuspendLayout();
@@ -42,14 +44,16 @@
 			// 
 			// eventSourcesListBox
 			// 
+			this.eventSourcesListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.eventSourcesListBox.CheckOnClick = true;
 			this.eventSourcesListBox.ContextMenuStrip = this.componentsContextMenuStrip;
-			this.eventSourcesListBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.eventSourcesListBox.FormattingEnabled = true;
 			this.eventSourcesListBox.IntegralHeight = false;
-			this.eventSourcesListBox.Location = new System.Drawing.Point(0, 13);
+			this.eventSourcesListBox.Location = new System.Drawing.Point(0, 26);
 			this.eventSourcesListBox.Name = "eventSourcesListBox";
-			this.eventSourcesListBox.Size = new System.Drawing.Size(200, 352);
+			this.eventSourcesListBox.Size = new System.Drawing.Size(200, 394);
 			this.eventSourcesListBox.TabIndex = 2;
 			this.eventSourcesListBox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.componentsListBox_ItemCheck);
 			// 
@@ -59,27 +63,27 @@
             this.checkAllMenuItem,
             this.uncheckAllMenuItem});
 			this.componentsContextMenuStrip.Name = "componentsContextMenuStrip";
-			this.componentsContextMenuStrip.Size = new System.Drawing.Size(133, 48);
+			this.componentsContextMenuStrip.Size = new System.Drawing.Size(128, 48);
 			// 
 			// checkAllMenuItem
 			// 
 			this.checkAllMenuItem.Name = "checkAllMenuItem";
-			this.checkAllMenuItem.Size = new System.Drawing.Size(132, 22);
+			this.checkAllMenuItem.Size = new System.Drawing.Size(127, 22);
 			this.checkAllMenuItem.Text = "Enable all";
 			this.checkAllMenuItem.Click += new System.EventHandler(this.checkAllMenuItem_Click);
 			// 
 			// uncheckAllMenuItem
 			// 
 			this.uncheckAllMenuItem.Name = "uncheckAllMenuItem";
-			this.uncheckAllMenuItem.Size = new System.Drawing.Size(132, 22);
+			this.uncheckAllMenuItem.Size = new System.Drawing.Size(127, 22);
 			this.uncheckAllMenuItem.Text = "Disable all";
 			this.uncheckAllMenuItem.Click += new System.EventHandler(this.uncheckAllMenuItem_Click);
 			// 
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.label1.Location = new System.Drawing.Point(0, 0);
+			this.label1.Location = new System.Drawing.Point(6, 4);
+			this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(66, 13);
 			this.label1.TabIndex = 2;
@@ -88,8 +92,8 @@
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Dock = System.Windows.Forms.DockStyle.Top;
-			this.label2.Location = new System.Drawing.Point(0, 0);
+			this.label2.Location = new System.Drawing.Point(9, 4);
+			this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(40, 13);
 			this.label2.TabIndex = 1;
@@ -99,7 +103,7 @@
 			// 
 			this.splitter1.Location = new System.Drawing.Point(200, 0);
 			this.splitter1.Name = "splitter1";
-			this.splitter1.Size = new System.Drawing.Size(3, 365);
+			this.splitter1.Size = new System.Drawing.Size(3, 420);
 			this.splitter1.TabIndex = 3;
 			this.splitter1.TabStop = false;
 			// 
@@ -110,39 +114,57 @@
 			this.componentsPanel.Dock = System.Windows.Forms.DockStyle.Left;
 			this.componentsPanel.Location = new System.Drawing.Point(0, 0);
 			this.componentsPanel.Name = "componentsPanel";
-			this.componentsPanel.Size = new System.Drawing.Size(200, 365);
+			this.componentsPanel.Size = new System.Drawing.Size(200, 420);
 			this.componentsPanel.TabIndex = 4;
 			// 
 			// eventPanel
 			// 
 			this.eventPanel.Controls.Add(this.eventListBox);
+			this.eventPanel.Controls.Add(this.alwaysOnTopCheckBox);
 			this.eventPanel.Controls.Add(this.label2);
 			this.eventPanel.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.eventPanel.Location = new System.Drawing.Point(203, 0);
 			this.eventPanel.Name = "eventPanel";
-			this.eventPanel.Size = new System.Drawing.Size(284, 365);
+			this.eventPanel.Size = new System.Drawing.Size(351, 420);
 			this.eventPanel.TabIndex = 5;
 			// 
 			// eventListBox
 			// 
-			this.eventListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.eventListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.eventListBox.FormattingEnabled = true;
 			this.eventListBox.IntegralHeight = false;
-			this.eventListBox.Location = new System.Drawing.Point(0, 13);
+			this.eventListBox.Location = new System.Drawing.Point(0, 26);
 			this.eventListBox.Name = "eventListBox";
-			this.eventListBox.Size = new System.Drawing.Size(284, 352);
+			this.eventListBox.Size = new System.Drawing.Size(351, 394);
 			this.eventListBox.TabIndex = 2;
+			// 
+			// alwaysOnTopCheckBox
+			// 
+			this.alwaysOnTopCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.alwaysOnTopCheckBox.AutoSize = true;
+			this.alwaysOnTopCheckBox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.alwaysOnTopCheckBox.Location = new System.Drawing.Point(252, 3);
+			this.alwaysOnTopCheckBox.Name = "alwaysOnTopCheckBox";
+			this.alwaysOnTopCheckBox.Size = new System.Drawing.Size(96, 17);
+			this.alwaysOnTopCheckBox.TabIndex = 3;
+			this.alwaysOnTopCheckBox.Text = "Always on Top";
+			this.alwaysOnTopCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.alwaysOnTopCheckBox.UseVisualStyleBackColor = true;
+			this.alwaysOnTopCheckBox.CheckedChanged += new System.EventHandler(this.alwaysOnTopCheckBox_CheckedChanged);
 			// 
 			// EventMonitorForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(487, 365);
+			this.ClientSize = new System.Drawing.Size(554, 420);
 			this.Controls.Add(this.eventPanel);
 			this.Controls.Add(this.splitter1);
 			this.Controls.Add(this.componentsPanel);
 			this.DoubleBuffered = true;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "EventMonitorForm";
 			this.Text = "NShape Event Monitor";
 			this.componentsContextMenuStrip.ResumeLayout(false);
@@ -166,5 +188,6 @@
 		private System.Windows.Forms.ToolStripMenuItem checkAllMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem uncheckAllMenuItem;
 		private System.Windows.Forms.ListBox eventListBox;
+		private System.Windows.Forms.CheckBox alwaysOnTopCheckBox;
 	}
 }

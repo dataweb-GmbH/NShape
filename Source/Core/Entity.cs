@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -86,7 +86,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.EntityPropertyDefinition" />.
 		/// </summary>
 		protected EntityPropertyDefinition(string name) {
-			this.name = name;
+			this._name = name;
 		}
 
 
@@ -94,7 +94,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Indicates the name of the property.
 		/// </summary>
 		public string Name {
-			get { return name; }
+			get { return _name; }
 		}
 
 
@@ -106,16 +106,16 @@ namespace Dataweb.NShape.Advanced {
 		/// Applications should never access it.
 		/// </remarks>
 		public string ElementName {
-			get { return elementName; }
-			internal set { elementName = value; }
+			get { return _elementName; }
+			internal set { _elementName = value; }
 		}
 		
 
 		#region Fields
 
-		private string name;
+		private string _name;
 
-		private string elementName;
+		private string _elementName;
 
 		#endregion
 	}
@@ -133,7 +133,7 @@ namespace Dataweb.NShape.Advanced {
 		public EntityFieldDefinition(string name, Type type)
 			: base(name) {
 			if (type == null) throw new ArgumentNullException("type");
-			this.type = type;
+			this._type = type;
 		}
 
 
@@ -141,12 +141,14 @@ namespace Dataweb.NShape.Advanced {
 		/// Specifies the property type.
 		/// </summary>
 		public Type Type {
-			get { return type; }
+			get { return _type; }
 		}
 
 
 		#region Fields
-		private Type type;
+
+		private Type _type;
+		
 		#endregion
 	}
 
@@ -164,10 +166,10 @@ namespace Dataweb.NShape.Advanced {
 			: base(name) {
 			if (innerFieldNames.Length != innerFieldTypes.Length)
 				throw new NShapeException("Number of field names does not match number of field types.");
-			this.entityTypeName = entityTypeName;
-			this.fieldInfos = new EntityFieldDefinition[innerFieldNames.Length];
+			this._entityTypeName = entityTypeName;
+			this._fieldInfos = new EntityFieldDefinition[innerFieldNames.Length];
 			for (int i = 0; i < innerFieldNames.Length; ++i)
-				fieldInfos[i] = new EntityFieldDefinition(innerFieldNames[i], innerFieldTypes[i]);
+				_fieldInfos[i] = new EntityFieldDefinition(innerFieldNames[i], innerFieldTypes[i]);
 		}
 
 
@@ -175,7 +177,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Retrieves the entity type name of the inner objects.
 		/// </summary>
 		public string EntityTypeName {
-			get { return entityTypeName; }
+			get { return _entityTypeName; }
 		}
 
 
@@ -183,14 +185,14 @@ namespace Dataweb.NShape.Advanced {
 		/// Retrieves the property definitions of the inner objects.
 		/// </summary>
 		public IEnumerable<EntityPropertyDefinition> PropertyDefinitions {
-			get { return fieldInfos; }
+			get { return _fieldInfos; }
 		}
 
 
 		#region Fields
 
-		private string entityTypeName;
-		private EntityFieldDefinition[] fieldInfos;
+		private string _entityTypeName;
+		private EntityFieldDefinition[] _fieldInfos;
 
 		#endregion
 	}
@@ -299,55 +301,55 @@ namespace Dataweb.NShape.Advanced {
 			if (createInstanceDelegate == null) throw new ArgumentNullException("createInstanceDelegate");
 			if (propertyDefinitions == null) throw new ArgumentNullException("propertyDefinitions");
 			//
-			this.name = entityTypeName;
-			this.category = category;
-			this.repositoryVersion = version;
-			this.createInstanceDelegate = createInstanceDelegate;
-			this.propertyDefinitions = new List<EntityPropertyDefinition>();
+			this._name = entityTypeName;
+			this._category = category;
+			this._repositoryVersion = version;
+			this._createInstanceDelegate = createInstanceDelegate;
+			this._propertyDefinitions = new List<EntityPropertyDefinition>();
 			// Sort property definitions: 
 			// EntityFieldDefinitions first, EntityInnerObjectsDefinition afterwards
 			foreach (EntityPropertyDefinition propertyDef in propertyDefinitions)
-				if (propertyDef is EntityFieldDefinition) this.propertyDefinitions.Add(propertyDef);
+				if (propertyDef is EntityFieldDefinition) this._propertyDefinitions.Add(propertyDef);
 			foreach (EntityPropertyDefinition propertyDef in propertyDefinitions)
-				if (propertyDef is EntityInnerObjectsDefinition) this.propertyDefinitions.Add(propertyDef);
+				if (propertyDef is EntityInnerObjectsDefinition) this._propertyDefinitions.Add(propertyDef);
 		}
 
 		#region IEntityType Members
 
 		/// <override></override>
 		public string FullName {
-			get { return name; }
+			get { return _name; }
 		}
 
 
 		/// <override></override>
 		public string ElementName {
-			get { return elementName; }
-			set { elementName = value; }
+			get { return _elementName; }
+			set { _elementName = value; }
 		}
 
 
 		/// <override></override>
 		public EntityCategory Category {
-			get { return category; }
+			get { return _category; }
 		}
 
 
 		/// <override></override>
 		public int RepositoryVersion { 
-			get { return repositoryVersion; } 
+			get { return _repositoryVersion; } 
 		}
 
 
 		/// <override></override>
 		public IEntity CreateInstanceForLoading() {
-			return createInstanceDelegate();
+			return _createInstanceDelegate();
 		}
 
 
 		/// <override></override>
 		public IEnumerable<EntityPropertyDefinition> PropertyDefinitions {
-			get { return propertyDefinitions; }
+			get { return _propertyDefinitions; }
 		}
 
 
@@ -355,7 +357,7 @@ namespace Dataweb.NShape.Advanced {
 		public bool HasInnerObjects {
 			get {
 				bool result = false;
-				foreach (EntityPropertyDefinition pi in propertyDefinitions)
+				foreach (EntityPropertyDefinition pi in _propertyDefinitions)
 					if (pi is EntityInnerObjectsDefinition) {
 						result = true;
 						break;
@@ -369,12 +371,12 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Fields
 
-		private string name;
-		private string elementName;
-		private EntityCategory category;
-		private int repositoryVersion;
-		private CreateInstanceDelegate createInstanceDelegate;
-		private List<EntityPropertyDefinition> propertyDefinitions;
+		private string _name;
+		private string _elementName;
+		private EntityCategory _category;
+		private int _repositoryVersion;
+		private CreateInstanceDelegate _createInstanceDelegate;
+		private List<EntityPropertyDefinition> _propertyDefinitions;
 
 		#endregion
 	}

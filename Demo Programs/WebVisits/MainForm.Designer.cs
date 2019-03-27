@@ -1,4 +1,4 @@
-namespace WebVisists {
+﻿namespace WebVisists {
 	partial class MainForm {
 		/// <summary>
 		/// Required designer variable.

@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+﻿/******************************************************************************
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -25,13 +25,13 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public Connector(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
 		public Connector(Connector source)
 			: base(source) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
@@ -47,13 +47,13 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		internal Feeder(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 1;
+			TerminalCount = 1;
 		}
 
 
 		public Feeder(Feeder source)
 			: base(source) {
-			this.terminalCount = 1;
+			TerminalCount = 1;
 		}
 
 
@@ -70,12 +70,12 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public Earth(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 1;
+			TerminalCount = 1;
 		}
 
 		public Earth(Earth source)
 			: base(source) {
-			this.terminalCount = 1;
+			TerminalCount = 1;
 		}
 
 		/// <override></override>
@@ -90,14 +90,14 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public Line(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 
 		}
 
 
 		public Line(Line source)
 			: base(source) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
@@ -113,13 +113,13 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public Disconnector(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
 		public Disconnector(Disconnector source)
 			: base(source) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
@@ -135,13 +135,13 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public Transformer(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
 		public Transformer(Transformer source)
 			: base(source) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
@@ -157,13 +157,13 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public Switch(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 4;
+			TerminalCount = 4;
 		}
 
 
 		public Switch(Switch source)
 			: base(source) {
-			this.terminalCount = 4;
+			TerminalCount = 4;
 		}
 
 
@@ -179,13 +179,13 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public AutoSwitch(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
 		public AutoSwitch(AutoSwitch source)
 			: base(source) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
@@ -201,13 +201,13 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public AutoDisconnector(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
 		public AutoDisconnector(AutoDisconnector source)
 			: base(source) {
-			this.terminalCount = 2;
+			TerminalCount = 2;
 		}
 
 
@@ -223,13 +223,13 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public Measurement(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 4;
+			TerminalCount = 4;
 		}
 
 
 		public Measurement(Measurement source)
 			: base(source) {
-			this.terminalCount = 4;
+			TerminalCount = 4;
 		}
 
 
@@ -245,7 +245,7 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		public Label(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 0;
+			TerminalCount = 0;
 		}
 
 
@@ -265,7 +265,7 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 	public class Picture : GenericModelObject {
 		public Picture(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 0;
+			TerminalCount = 0;
 		}
 
 
@@ -284,7 +284,7 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 	public class BusBar : GenericModelObject {
 		public BusBar(ModelObjectType modelObjectType)
 			: base(modelObjectType) {
-			this.terminalCount = 1;
+			TerminalCount = 1;
 		}
 
 
@@ -346,6 +346,6 @@ namespace Dataweb.NShape.ElectricalModelObjects {
 
 		private const string namespaceName = "ElectricalModelObjects";
 		private const string categoryTitle = "Electrical";
-		private const int preferredRepositoryVersion = 5;
+		private const int preferredRepositoryVersion = 6;
 	}
 }

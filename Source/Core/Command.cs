@@ -1,5 +1,5 @@
-/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+ï»¿/******************************************************************************
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -121,10 +121,16 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public virtual string Description {
 			get { return description; }
+			protected set { description = value; }
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Checks whether execution of this command is permitted.
+		/// </summary>
+		/// <param name="securityManager">The project's security manager.</param>
+		/// <param name="createException">Specifies whether an exception instance should be created if the execution is denied.</param>
+		/// <param name="exception">The created exception (is wanted).</param>
 		protected abstract bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception);
 
 
@@ -156,13 +162,9 @@ namespace Dataweb.NShape.Commands {
 		}
 
 
-		#region Fields
-
-		/// <ToBeCompleted></ToBeCompleted>
-		protected string description;
+		private string description;
 		private IRepository repository;
 
-		#endregion
 	}
 
 
@@ -181,20 +183,22 @@ namespace Dataweb.NShape.Commands {
 		protected ShapeCommand(IRepository repository, Shape shape)
 			: base(repository) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			this.shape = shape;
+			this.Shape = shape;
 		}
 
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, SecurityAccess.Modify, shape);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, SecurityAccess.Modify, Shape);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
+
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Shape shape;
+		protected Shape Shape { get; set; }
+
 	}
 
 
@@ -213,21 +217,22 @@ namespace Dataweb.NShape.Commands {
 		protected ShapesCommand(IRepository repository, IEnumerable<Shape> shapes)
 			: base(repository) {
 			if (shapes == null) throw new ArgumentNullException("shapes");
-			this.shapes = new List<Shape>(shapes);
+			this.Shapes = new List<Shape>(shapes);
 		}
 
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, shapes);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, Shapes);
 			exception = (!isGranted && createException) ? exception = new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected List<Shape> shapes;
+		protected List<Shape> Shapes { get; set; }
+
 	}
 
 
@@ -252,7 +257,7 @@ namespace Dataweb.NShape.Commands {
 		protected TemplateCommand(IRepository repository, Template template)
 			: base(repository) {
 			if (template == null) throw new ArgumentNullException("template");
-			this.template = template;
+			this.Template = template;
 		}
 
 
@@ -272,7 +277,8 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Template template = null;
+		protected Template Template { get; set; }
+
 	}
 
 
@@ -290,22 +296,23 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected DiagramCommand(IRepository repository, Diagram diagram)
 			: base(repository) {
-			if (diagram == null) throw new ArgumentNullException("Diagram");
-			this.diagram = diagram;
+			if (diagram == null) throw new ArgumentNullException("diagram");
+			this.Diagram = diagram;
 		}
 
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, diagram.SecurityDomainName);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, Diagram.SecurityDomainName);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Diagram diagram;
+		protected Diagram Diagram { get; set; }
+
 	}
 
 
@@ -324,7 +331,7 @@ namespace Dataweb.NShape.Commands {
 		protected DesignCommand(IRepository repository, Design design)
 			: base(repository) {
 			if (design == null) throw new ArgumentNullException("design");
-			this.design = design;
+			this.Design = design;
 		}
 
 
@@ -344,7 +351,8 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Design design;
+		protected Design Design { get; set; }
+
 	}
 
 
@@ -424,6 +432,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		private Dictionary<Shape, List<ShapeConnectionInfo>> connections = new Dictionary<Shape, List<ShapeConnectionInfo>>();
+
 	}
 
 
@@ -551,11 +560,10 @@ namespace Dataweb.NShape.Commands {
 		protected InsertOrRemoveLayerCommand(IRepository repository, Diagram diagram, string layerName)
 			: base(repository, diagram) {
 			if (layerName == null) throw new ArgumentNullException("layerName");
-			//this.layerName = layerName;
-			layers = new List<Layer>(1);
-			Layer l = this.diagram.Layers.FindLayer(layerName);
+			Layers = new List<Layer>(1);
+			Layer l = this.Diagram.Layers.FindLayer(layerName);
 			if (l == null) l = new Layer(layerName);
-			layers.Add(l);
+			Layers.Add(l);
 		}
 
 
@@ -580,7 +588,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected InsertOrRemoveLayerCommand(IRepository repository, Diagram diagram, IEnumerable<Layer> layers)
 			: base(repository, diagram) {
-			this.layers = new List<Layer>(layers);
+			this.Layers = new List<Layer>(layers);
 		}
 
 
@@ -592,22 +600,23 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void AddLayers() {
-			for (int i = 0; i < layers.Count; ++i)
-				diagram.Layers.Add(layers[i]);
-			if (Repository != null) Repository.Update(diagram);
+			for (int i = 0; i < Layers.Count; ++i)
+				Diagram.Layers.Add(Layers[i]);
+			if (Repository != null) Repository.Update(Diagram);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void RemoveLayers() {
-			for (int i = 0; i < layers.Count; ++i)
-				diagram.Layers.Remove(layers[i]);
-			if (Repository != null) Repository.Update(diagram);
+			for (int i = 0; i < Layers.Count; ++i)
+				Diagram.Layers.Remove(Layers[i]);
+			if (Repository != null) Repository.Update(Diagram);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected List<Layer> layers = null;
+		protected List<Layer> Layers { get; set; }
+
 	}
 
 
@@ -828,28 +837,35 @@ namespace Dataweb.NShape.Commands {
 		protected InsertOrRemoveShapeCommand(IRepository repository, Diagram diagram)
 			: base(repository) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
+			this._diagram = diagram;
 		}
 
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, shapes);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, _shapes);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use InsertShapesAndModels(int homeLayer, LayerIds supplementalLayers) instead.")]
 		protected void InsertShapesAndModels(LayerIds activeLayers) {
-			DoInsertShapesAndModels(false, activeLayers);
+			InsertShapesAndModels(Layer.NoLayerId, activeLayers);
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected void InsertShapesAndModels(int homeLayer, LayerIds supplementalLayers) {
+			DoInsertShapesAndModels(false, homeLayer, supplementalLayers);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void InsertShapesAndModels() {
-			DoInsertShapesAndModels(true, LayerIds.None);
+			DoInsertShapesAndModels(true, Layer.NoLayerId, LayerIds.None);
 		}
 
 
@@ -857,16 +873,16 @@ namespace Dataweb.NShape.Commands {
 		protected void DeleteShapesAndModels() {
 			if (Shapes.Count == 0) throw new NShapeInternalException("No shapes set. Call SetShapes() before.");
 			if (Repository != null && ModelObjects != null && ModelObjects.Count > 0) {
-				if (modelsAndObjects == null) {
-					modelsAndObjects = new Dictionary<IModelObject, AttachedObjects>();
+				if (_modelsAndObjects == null) {
+					_modelsAndObjects = new Dictionary<IModelObject, AttachedObjects>();
 					foreach (IModelObject modelObject in ModelObjects)
-						modelsAndObjects.Add(modelObject, new AttachedObjects(modelObject, Repository));
+						_modelsAndObjects.Add(modelObject, new AttachedObjects(modelObject, Repository));
 				}
-				foreach (KeyValuePair<IModelObject, AttachedObjects> item in modelsAndObjects)
+				foreach (KeyValuePair<IModelObject, AttachedObjects> item in _modelsAndObjects)
 					DetachAndDeleteObjects(item.Value, Repository);
-				Repository.Delete(modelsAndObjects.Keys);
+				Repository.Delete(_modelsAndObjects.Keys);
 			}
-			diagram.Shapes.RemoveRange(Shapes);
+			_diagram.Shapes.RemoveRange(Shapes);
 			if (Repository != null) Repository.DeleteAll(Shapes);
 		}
 
@@ -874,13 +890,13 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetShape(Shape shape, bool withModelObject) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			if (shapeLayers == null) shapeLayers = new List<LayerIds>(1);
-			else this.shapeLayers.Clear();
+			if (_shapeLayers == null) _shapeLayers = new List<LayerInfo>(1);
+			else this._shapeLayers.Clear();
 			this.Shapes.Clear();
 
 			if (!this.Shapes.Contains(shape)) {
 				this.Shapes.Add(shape);
-				this.shapeLayers.Add(shape.Layers);
+				this._shapeLayers.Add(LayerInfo.Create(shape.HomeLayer, shape.SupplementalLayers));
 
 				if (shape.ModelObject != null && withModelObject)
 					SetModelObject(shape.ModelObject);
@@ -898,18 +914,19 @@ namespace Dataweb.NShape.Commands {
 		protected void SetShapes(IEnumerable<Shape> shapes, bool withModelObjects, SortOrder currentSortOrder, bool invertSortOrder) {
 			if (shapes == null) throw new ArgumentNullException("shapes");
 			this.Shapes.Clear();
-			if (shapeLayers == null) shapeLayers = new List<LayerIds>();
-			else this.shapeLayers.Clear();
+			if (this._shapeLayers == null) _shapeLayers = new List<LayerInfo>();
+			else this._shapeLayers.Clear();
 
 			foreach (Shape shape in shapes) {
 				if (!this.Shapes.Contains(shape)) {
+					LayerInfo layerInfo = LayerInfo.Create(shape.HomeLayer, shape.SupplementalLayers);
 					if (currentSortOrder == SortOrder.BottomUp || (currentSortOrder == SortOrder.TopDown && invertSortOrder)) {
 						this.Shapes.Insert(0, shape);
-						this.shapeLayers.Insert(0, shape.Layers);
+						this._shapeLayers.Insert(0, layerInfo);
 					} else {
 						Debug.Assert(currentSortOrder == SortOrder.TopDown || (currentSortOrder == SortOrder.BottomUp && invertSortOrder));
 						this.Shapes.Add(shape);
-						this.shapeLayers.Add(shape.Layers);
+						this._shapeLayers.Add(layerInfo);
 					}
 					if (shape.ModelObject != null && withModelObjects)
 						SetModelObject(shape.ModelObject);
@@ -921,18 +938,18 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetModelObject(IModelObject modelObject) {
 			if (modelObject == null) throw new ArgumentNullException("modelObject");
-			if (this.modelObjects == null) this.modelObjects = new List<IModelObject>();
-			if (!this.modelObjects.Contains(modelObject)) this.modelObjects.Add(modelObject);
+			if (this._modelObjects == null) this._modelObjects = new List<IModelObject>();
+			if (!this._modelObjects.Contains(modelObject)) this._modelObjects.Add(modelObject);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetModelObjects(IEnumerable<IModelObject> modelObjects) {
 			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
-			if (this.modelObjects == null) this.modelObjects = new List<IModelObject>();
+			if (this._modelObjects == null) this._modelObjects = new List<IModelObject>();
 			foreach (IModelObject modelObject in modelObjects) {
-				if (!this.modelObjects.Contains(modelObject))
-					this.modelObjects.Add(modelObject);
+				if (!this._modelObjects.Contains(modelObject))
+					this._modelObjects.Add(modelObject);
 			}
 		}
 
@@ -947,13 +964,13 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected List<Shape> Shapes {
-			get { return shapes; }
+			get { return _shapes; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected List<IModelObject> ModelObjects {
-			get { return modelObjects; }
+			get { return _modelObjects; }
 		}
 
 
@@ -983,11 +1000,11 @@ namespace Dataweb.NShape.Commands {
 
 			string modelString = string.Empty;
 			if (withModelObjects && modelCnt > 0)
-				modelString = string.Format(WithModelsFormatStr, modelCnt.ToString() + " ", modelCnt > 1 ? "s" : string.Empty);
+				modelString = string.Format(WithModelsFormatStr, modelCnt.ToString() + " ", modelCnt > 1 ? Dataweb.NShape.Properties.Resources.Text_PluralEndingModel : string.Empty);
 			return string.Format(DescriptionFormatStr,
 				GetDescTypeText(descType),
 				shapeCnt,
-				"s",
+				Dataweb.NShape.Properties.Resources.Text_PluralEndingShape,
 				modelString);
 		}
 
@@ -1006,17 +1023,20 @@ namespace Dataweb.NShape.Commands {
 
 
 		// Insert shapes only
-		private void DoInsertShapes(bool useOriginalLayers, LayerIds activeLayers) {
+		private void DoInsertShapes(bool useOriginalLayers, int homeLayer, LayerIds supplementalLayers) {
 			if (Shapes.Count == 0) throw new NShapeInternalException("No shapes set. Call SetShapes() before.");
 			for (int i = Shapes.Count - 1; i >= 0; --i) {
 				//Shapes[i].ZOrder = Repository.ObtainNewTopZOrder(diagram);
-				diagram.Shapes.Add(Shapes[i]);
-				diagram.AddShapeToLayers(Shapes[i], useOriginalLayers ? shapeLayers[i] : activeLayers);
+				_diagram.Shapes.Add(Shapes[i]);
+				_diagram.AddShapeToLayers(Shapes[i], 
+					useOriginalLayers ? _shapeLayers[i].HomeLayer : homeLayer, 
+					useOriginalLayers ? _shapeLayers[i].SupplementalLayers : supplementalLayers
+				);
 			}
 			if (Repository != null) {
 				// Insert shapes
-				Repository.UndeleteAll(GetEntities<Shape>(Shapes, CanUndeleteEntity), diagram);
-				Repository.InsertAll(GetEntities<Shape>(Shapes, CanInsertEntity), diagram);
+				Repository.UndeleteAll(GetEntities<Shape>(Shapes, CanUndeleteEntity), _diagram);
+				Repository.InsertAll(GetEntities<Shape>(Shapes, CanInsertEntity), _diagram);
 			}
 		}
 
@@ -1027,26 +1047,26 @@ namespace Dataweb.NShape.Commands {
 		}
 
 
-		private void DoInsertShapesAndModels(bool useOriginalLayers, LayerIds activeLayers) {
+		private void DoInsertShapesAndModels(bool useOriginalLayers, int homeLayer, LayerIds supplementalLayers) {
 			// Insert model objects first
 			if (Repository != null && ModelObjects != null && ModelObjects.Count > 0) {
-				if (modelsAndObjects == null) {
-					modelsAndObjects = new Dictionary<IModelObject, AttachedObjects>();
+				if (_modelsAndObjects == null) {
+					_modelsAndObjects = new Dictionary<IModelObject, AttachedObjects>();
 					foreach (IModelObject modelObject in ModelObjects)
-						modelsAndObjects.Add(modelObject, new AttachedObjects(modelObject, Repository));
+						_modelsAndObjects.Add(modelObject, new AttachedObjects(modelObject, Repository));
 				}
-				if (CanUndeleteEntities(modelsAndObjects.Keys))
-					Repository.Undelete(modelsAndObjects.Keys);
-				else Repository.Insert(modelsAndObjects.Keys);
+				if (CanUndeleteEntities(_modelsAndObjects.Keys))
+					Repository.Undelete(_modelsAndObjects.Keys);
+				else Repository.Insert(_modelsAndObjects.Keys);
 			}
 			// Insert shapes afterwards
 			if (useOriginalLayers) 
-				DoInsertShapes(true, LayerIds.None);
+				DoInsertShapes(true, Layer.NoLayerId, LayerIds.None);
 			else 
-				DoInsertShapes(false, activeLayers);
+				DoInsertShapes(false, homeLayer, supplementalLayers);
 			// Attach model objects to shapes finally
-			if (Repository != null && modelsAndObjects != null) {
-				foreach (KeyValuePair<IModelObject, AttachedObjects> item in modelsAndObjects)
+			if (Repository != null && _modelsAndObjects != null) {
+				foreach (KeyValuePair<IModelObject, AttachedObjects> item in _modelsAndObjects)
 					InsertAndAttachObjects(item.Key, item.Value, Repository);
 			}
 		}
@@ -1091,14 +1111,14 @@ namespace Dataweb.NShape.Commands {
 		};
 
 
-		private const string DescriptionFormatStr = "{0} {1} shape{2}{3}";
-		private const string WithModelsFormatStr = " with {0}model{1}";
+		private static readonly string DescriptionFormatStr = Dataweb.NShape.Properties.Resources.MessageFmt_DescTxt0ShapeType1Shape23;
+		private static readonly string WithModelsFormatStr = Dataweb.NShape.Properties.Resources.MessageFmt_With0Model1;
 
-		private Diagram diagram = null;
-		private List<Shape> shapes = new List<Shape>();
-		private List<LayerIds> shapeLayers;
-		private List<IModelObject> modelObjects = null;
-		private Dictionary<IModelObject, AttachedObjects> modelsAndObjects = null;
+		private Diagram _diagram = null;
+		private List<Shape> _shapes = new List<Shape>();
+		private List<LayerInfo> _shapeLayers;
+		private List<IModelObject> _modelObjects = null;
+		private Dictionary<IModelObject, AttachedObjects> _modelsAndObjects = null;
 	}
 
 
@@ -1118,10 +1138,10 @@ namespace Dataweb.NShape.Commands {
 			: base(repository) {
 			if (connectorShape == null) throw new ArgumentNullException("connectorShape");
 			if (targetShape == null) throw new ArgumentNullException("targetShape");
-			this.connectorShape = connectorShape;
-			this.gluePointId = gluePointId;
-			this.targetShape = targetShape;
-			this.targetPointId = targetPointId;
+			this.ConnectorShape = connectorShape;
+			this.GluePointId = gluePointId;
+			this.TargetShape = targetShape;
+			this.TargetPointId = targetPointId;
 		}
 
 
@@ -1135,32 +1155,32 @@ namespace Dataweb.NShape.Commands {
 		protected ConnectionCommand(IRepository repository, Shape connectorShape, ControlPointId gluePointId)
 			: base(repository) {
 			if (connectorShape == null) throw new ArgumentNullException("connectorShape");
-			this.connectorShape = connectorShape;
-			this.gluePointId = gluePointId;
-			this.targetShape = null;
-			this.targetPointId = ControlPointId.None;
+			this.ConnectorShape = connectorShape;
+			this.GluePointId = gluePointId;
+			this.TargetShape = null;
+			this.TargetPointId = ControlPointId.None;
 
 			ShapeConnectionInfo sci = connectorShape.GetConnectionInfo(gluePointId, null);
-			if (sci.IsEmpty) throw new NShapeException("GluePoint {0} is not connected.", gluePointId);
-			this.targetShape = sci.OtherShape;
-			this.targetPointId = sci.OtherPointId;
+			if (sci.IsEmpty) throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_GluePoint0IsNotConnected, gluePointId);
+			this.TargetShape = sci.OtherShape;
+			this.TargetPointId = sci.OtherPointId;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void Connect() {
-			connectorShape.Connect(gluePointId, targetShape, targetPointId);
+			ConnectorShape.Connect(GluePointId, TargetShape, TargetPointId);
 			if (Repository != null)
-				Repository.InsertConnection(connectorShape, gluePointId, targetShape, targetPointId);
-			connectorShape.Invalidate();
+				Repository.InsertConnection(ConnectorShape, GluePointId, TargetShape, TargetPointId);
+			ConnectorShape.Invalidate();
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void Disconnect() {
-			connectorShape.Disconnect(gluePointId);
+			ConnectorShape.Disconnect(GluePointId);
 			if (Repository != null)
-				Repository.DeleteConnection(connectorShape, gluePointId, targetShape, targetPointId);
+				Repository.DeleteConnection(ConnectorShape, GluePointId, TargetShape, TargetPointId);
 		}
 
 
@@ -1173,20 +1193,24 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, connectorShape);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, ConnectorShape);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Shape connectorShape;
+		protected Shape ConnectorShape { get; set; }
+
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Shape targetShape;
+		protected Shape TargetShape { get; set; }
+
 		/// <ToBeCompleted></ToBeCompleted>
-		protected ControlPointId gluePointId;
+		protected ControlPointId GluePointId { get; set; }
+
 		/// <ToBeCompleted></ToBeCompleted>
-		protected ControlPointId targetPointId;
+		protected ControlPointId TargetPointId { get; set; }
+
 	}
 
 
@@ -1203,51 +1227,78 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected ShapeAggregationCommand(IRepository repository, Diagram diagram, Shape aggregationShape, IEnumerable<Shape> shapes)
+			: this(repository, diagram, aggregationShape, shapes, Layer.NoLayerId, LayerIds.None) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected ShapeAggregationCommand(IRepository repository, Diagram diagram, Shape aggregationShape, IEnumerable<Shape> shapes, LayerIds aggregationLayerIds)
 			: base(repository) {
+			Construct(diagram, aggregationShape, shapes, Layer.NoLayerId, aggregationLayerIds);
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected ShapeAggregationCommand(IRepository repository, Diagram diagram, Shape aggregationShape, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers)
+			: base(repository) {
+			Construct(diagram, aggregationShape, shapes, homeLayer, supplementalLayers);
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected void Construct(Diagram diagram, Shape aggregationShape, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (aggregationShape == null) throw new ArgumentNullException("aggregationShape");
 			if (shapes == null) throw new ArgumentNullException("shapes");
-			this.diagram = diagram;
-			this.aggregationShape = aggregationShape;
-			this.aggregationShapeOwnedByDiagram = diagram.Shapes.Contains(aggregationShape);
-			this.shapes = new List<Shape>(shapes);
-			aggregationLayerIds = LayerIds.None;
-			foreach (Shape shape in this.shapes)
-				aggregationLayerIds |= shape.Layers;
+			this.Diagram = diagram;
+			this.AggregationShape = aggregationShape;
+			this.AggregationShapeOwnedByDiagram = diagram.Shapes.Contains(aggregationShape);
+			this.Shapes = new List<Shape>(shapes);
+			this.AggregationLayerInfo = LayerInfo.Create(homeLayer, supplementalLayers);
+			//
+			// Store original layer ids of shapes
+			if (homeLayer != Layer.NoLayerId || supplementalLayers != LayerIds.None) {
+				ShapeLayerInfos = new List<LayerInfo>(Shapes.Count);
+				for (int i = 0; i < Shapes.Count; ++i) {
+					Shape shape = Shapes[i];
+					ShapeLayerInfos.Add(LayerInfo.Create(shape.HomeLayer, shape.SupplementalLayers));
+				}
+			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void CreateShapeAggregation(bool maintainZOrders) {
 			// Add aggregation shape to diagram
-			if (!aggregationShapeOwnedByDiagram) {
-				diagram.Shapes.Add(aggregationShape);
-				diagram.AddShapeToLayers(aggregationShape, aggregationLayerIds);
+			if (!AggregationShapeOwnedByDiagram) {
+				Diagram.Shapes.Add(AggregationShape);
+				Diagram.AddShapeToLayers(AggregationShape, AggregationLayerInfo.HomeLayer, AggregationLayerInfo.SupplementalLayers);
 			}
 			// Insert aggregation shape to repository (if necessary)
 			if (Repository != null) {
-				if (!aggregationShapeOwnedByDiagram) {
-					if (CanUndeleteEntity(aggregationShape))
-						Repository.UndeleteAll(aggregationShape, diagram);
-					else Repository.InsertAll(aggregationShape, diagram);
+				if (!AggregationShapeOwnedByDiagram) {
+					if (CanUndeleteEntity(AggregationShape))
+						Repository.UndeleteAll(AggregationShape, Diagram);
+					else Repository.InsertAll(AggregationShape, Diagram);
 				}
 			}
 
 			// Remove shapes from diagram
-			diagram.Shapes.RemoveRange(shapes);
+			Diagram.Shapes.RemoveRange(Shapes);
 			// Add Shapes to aggregation shape
 			if (maintainZOrders) {
-				int cnt = shapes.Count;
+				int cnt = Shapes.Count;
 				for (int i = 0; i < cnt; ++i)
-					aggregationShape.Children.Add(shapes[i], shapes[i].ZOrder);
-			} else aggregationShape.Children.AddRange(shapes);
+					AggregationShape.Children.Add(Shapes[i], Shapes[i].ZOrder);
+			} else AggregationShape.Children.AddRange(Shapes);
+			Diagram.AddShapeToLayers(AggregationShape, AggregationLayerInfo.HomeLayer, AggregationLayerInfo.SupplementalLayers);
 
 			// Finally, update the child shape's owner
 			if (Repository != null) {
-				foreach (Shape childShape in aggregationShape.Children)
-					Repository.UpdateOwner(childShape, aggregationShape);
-				if (aggregationShapeOwnedByDiagram)
-					Repository.Update(aggregationShape);
+				foreach (Shape childShape in AggregationShape.Children)
+					Repository.UpdateOwner(childShape, AggregationShape);
+				if (AggregationShapeOwnedByDiagram)
+					Repository.Update(AggregationShape);
 			}
 		}
 
@@ -1256,31 +1307,37 @@ namespace Dataweb.NShape.Commands {
 		protected void DeleteShapeAggregation() {
 			// Update the child shape's owner
 			if (Repository != null) {
-				foreach (Shape childShape in aggregationShape.Children)
-					Repository.UpdateOwner(childShape, diagram);
+				foreach (Shape childShape in AggregationShape.Children)
+					Repository.UpdateOwner(childShape, Diagram);
 			}
 
 			// Move the shapes to their initial owner
-			aggregationShape.Children.RemoveRange(shapes);
-			foreach (Shape childShape in aggregationShape.Children)
-				aggregationShape.Children.Remove(childShape);
-
-			if (!aggregationShapeOwnedByDiagram)
-				// If the aggregation shape was not initialy part of the diagram, remove it.
-				diagram.Shapes.Remove(aggregationShape);
-			if (zOrders != null) {
-				int cnt = shapes.Count;
+			AggregationShape.Children.RemoveRange(Shapes);
+			foreach (Shape childShape in AggregationShape.Children)
+				AggregationShape.Children.Remove(childShape);
+			// If the aggregation shape was not initialy part of the diagram, remove it.
+			if (!AggregationShapeOwnedByDiagram)
+				Diagram.Shapes.Remove(AggregationShape);
+			int cnt = Shapes.Count;
+			if (ZOrders != null) {
 				for (int i = 0; i < cnt; ++i)
-					diagram.Shapes.Add(shapes[i], zOrders[i]);
-			} else diagram.Shapes.AddRange(shapes);
+					Diagram.Shapes.Add(Shapes[i], ZOrders[i]);
+			} else
+				Diagram.Shapes.AddRange(Shapes);
+			// Restore original layer assignment
+			for (int i = 0; i < cnt; ++i) {
+				Diagram.RemoveShapeFromLayers(Shapes[i]);
+				if (ShapeLayerInfos != null)
+					Diagram.AddShapeToLayers(Shapes[i], ShapeLayerInfos[i].HomeLayer, ShapeLayerInfos[i].SupplementalLayers);
+			}
 
 			// Delete shapes from repository
 			if (Repository != null) {
 				// If the aggregation shape was not initialy part of the diagram, remove it.
-				if (!aggregationShapeOwnedByDiagram)
+				if (!AggregationShapeOwnedByDiagram)
 					// Shape aggregations are deleted with all their children
-					Repository.DeleteAll(aggregationShape);
-				else Repository.Update(aggregationShape);
+					Repository.DeleteAll(AggregationShape);
+				else Repository.Update(AggregationShape);
 			}
 		}
 
@@ -1288,26 +1345,29 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = (securityManager.IsGranted(Permission.Insert | Permission.Delete, shapes)
-							&& securityManager.IsGranted(RequiredPermission, aggregationShape));
+			bool isGranted = (securityManager.IsGranted(Permission.Insert | Permission.Delete, Shapes)
+							&& securityManager.IsGranted(RequiredPermission, AggregationShape));
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Diagram diagram;
+		protected Diagram Diagram { get; set; }
 		/// <ToBeCompleted></ToBeCompleted>
-		protected List<Shape> shapes;
+		protected List<Shape> Shapes { get; set; }
 		/// <ToBeCompleted></ToBeCompleted>
-		protected List<int> zOrders;
+		protected List<LayerInfo> ShapeLayerInfos { get; set; }
 		/// <ToBeCompleted></ToBeCompleted>
-		protected LayerIds aggregationLayerIds;
+		protected List<int> ZOrders { get; set; }
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Shape aggregationShape;
+		protected Shape AggregationShape { get; set; }
+		/// <ToBeCompleted></ToBeCompleted>
+		protected LayerInfo AggregationLayerInfo { get; set; }
 		// Specifies if the aggreagtion shape initialy was owned by the diagram
 		/// <ToBeCompleted></ToBeCompleted>
-		protected bool aggregationShapeOwnedByDiagram;
+		protected bool AggregationShapeOwnedByDiagram { get; set; }
+
 	}
 
 
@@ -1361,19 +1421,19 @@ namespace Dataweb.NShape.Commands {
 			: base() {
 			if (modifiedObjects == null) throw new ArgumentNullException("modifiedObjects");
 			Construct(propertyInfo);
-			this.modifiedObjects = new List<T>(modifiedObjects);
-			this.oldValues = new List<object>(oldValues);
-			this.newValues = new List<object>(newValues);
+			this.ModifiedObjects = new List<T>(modifiedObjects);
+			this.OldValues = new List<object>(oldValues);
+			this.NewValues = new List<object>(newValues);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			int valCnt = newValues.Count;
-			int objCnt = modifiedObjects.Count;
+			int valCnt = NewValues.Count;
+			int objCnt = ModifiedObjects.Count;
 			for (int i = 0; i < objCnt; ++i) {
-				object newValue = newValues[(valCnt == objCnt) ? i : 0];
-				object currValue = propertyInfo.GetValue(modifiedObjects[i], null);
+				object newValue = NewValues[(valCnt == objCnt) ? i : 0];
+				object currValue = PropertyInfo.GetValue(ModifiedObjects[i], null);
 				// Check if the new value has been set already (e.g. by the PropertyGrid). If the new value is 
 				// already set, skip setting the new value (again).
 				// This check is necessary because if the value is a value that is exclusive-or'ed when set 
@@ -1381,7 +1441,7 @@ namespace Dataweb.NShape.Commands {
 				if (currValue == null && newValue != null
 					|| currValue != null && newValue == null
 					|| (currValue != null && !currValue.Equals(newValue))) {
-					propertyInfo.SetValue(modifiedObjects[i], newValue, null);
+					PropertyInfo.SetValue(ModifiedObjects[i], newValue, null);
 				}
 			}
 		}
@@ -1389,14 +1449,14 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Revert() {
-			int valCnt = oldValues.Count;
-			int objCnt = modifiedObjects.Count;
+			int valCnt = OldValues.Count;
+			int objCnt = ModifiedObjects.Count;
 			for (int i = 0; i < objCnt; ++i) {
-				object oldValue = oldValues[(valCnt == objCnt) ? i : 0];
-				object currValue = propertyInfo.GetValue(modifiedObjects[i], null);
+				object oldValue = OldValues[(valCnt == objCnt) ? i : 0];
+				object currValue = PropertyInfo.GetValue(ModifiedObjects[i], null);
 				if (currValue == null && oldValue != null
 					|| (currValue != null && !currValue.Equals(oldValue)))
-					propertyInfo.SetValue(modifiedObjects[i], oldValue, null);
+					PropertyInfo.SetValue(ModifiedObjects[i], oldValue, null);
 			}
 		}
 
@@ -1404,30 +1464,30 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override string Description {
 			get {
-				if (string.IsNullOrEmpty(description)) {
-					if (modifiedObjects.Count == 1)
-						description = string.Format("Change property '{0}' of {1} from '{2}' to '{3}'",
-							propertyInfo.Name, modifiedObjects[0].GetType().Name, oldValues[0], newValues[0]);
+				if (string.IsNullOrEmpty(base.Description)) {
+					if (ModifiedObjects.Count == 1)
+						base.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeProperty0Of1From2To3,
+							PropertyInfo.Name, ModifiedObjects[0].GetType().Name, OldValues[0], NewValues[0]);
 					else {
-						if (oldValues.Count == 1 && newValues.Count == 1) {
-							description = string.Format("Change property '{0}' of {1} {2}{3} from '{4}' to '{5}'",
-								propertyInfo.Name,
-								this.modifiedObjects.Count,
-								this.modifiedObjects[0].GetType().Name,
-								this.modifiedObjects.Count > 1 ? "s" : string.Empty,
-								oldValues[0],
-								newValues[0]);
-						} else if (oldValues.Count > 1 && newValues.Count == 1) {
-							this.description = string.Format("Change property '{0}' of {1} {2}{3} to '{4}'",
-								propertyInfo.Name,
-								this.modifiedObjects.Count,
-								this.modifiedObjects[0].GetType().Name,
-								this.modifiedObjects.Count > 1 ? "s" : string.Empty,
-								newValues[0]);
+						if (OldValues.Count == 1 && NewValues.Count == 1) {
+							base.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeProperty0Of123From4To5,
+								PropertyInfo.Name,
+								this.ModifiedObjects.Count,
+								this.ModifiedObjects[0].GetType().Name,
+								this.ModifiedObjects.Count > 1 ? Dataweb.NShape.Properties.Resources.Text_PluralEndingUnspecific : string.Empty,
+								OldValues[0],
+								NewValues[0]);
+						} else if (OldValues.Count > 1 && NewValues.Count == 1) {
+							base.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageTxt_ChangeProperty0Of123To4,
+								PropertyInfo.Name,
+								this.ModifiedObjects.Count,
+								this.ModifiedObjects[0].GetType().Name,
+								this.ModifiedObjects.Count > 1 ? Dataweb.NShape.Properties.Resources.Text_PluralEndingUnspecific : string.Empty,
+								NewValues[0]);
 						} else {
-							description = string.Format("Change property '{0}' of {1} {2}{3}",
-								propertyInfo.Name, this.modifiedObjects.Count, typeof(T).Name,
-								modifiedObjects.Count > 1 ? "s" : string.Empty);
+							base.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeProperty0Of123,
+								PropertyInfo.Name, this.ModifiedObjects.Count, typeof(T).Name,
+								ModifiedObjects.Count > 1 ? Dataweb.NShape.Properties.Resources.Text_PluralEndingUnspecific : string.Empty);
 						}
 					}
 				}
@@ -1438,7 +1498,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override Permission RequiredPermission {
-			get { return requiredPermissions; }
+			get { return RequiredPermissions; }
 		}
 
 
@@ -1446,9 +1506,9 @@ namespace Dataweb.NShape.Commands {
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
 			bool isGranted = true;
-			for (int i = modifiedObjects.Count - 1; i >= 0; --i) {
-				if (modifiedObjects[i] is ISecurityDomainObject) {
-					if (!securityManager.IsGranted(RequiredPermission, ((ISecurityDomainObject)modifiedObjects[i]).SecurityDomainName))
+			for (int i = ModifiedObjects.Count - 1; i >= 0; --i) {
+				if (ModifiedObjects[i] is ISecurityDomainObject) {
+					if (!securityManager.IsGranted(RequiredPermission, ((ISecurityDomainObject)ModifiedObjects[i]).SecurityDomainName))
 						isGranted = false;
 				} else if (!securityManager.IsGranted(RequiredPermission))
 					isGranted = false;
@@ -1461,24 +1521,25 @@ namespace Dataweb.NShape.Commands {
 
 		private void Construct(PropertyInfo propertyInfo) {
 			if (propertyInfo == null) throw new ArgumentNullException("propertyInfo");
-			this.propertyInfo = propertyInfo;
+			this.PropertyInfo = propertyInfo;
 			// Retrieve required permissions
-			requiredPermissions = Permission.None;
+			RequiredPermissions = Permission.None;
 			RequiredPermissionAttribute attr = Attribute.GetCustomAttribute(propertyInfo, typeof(RequiredPermissionAttribute)) as RequiredPermissionAttribute;
-			requiredPermissions = (attr != null) ? attr.Permission : Permission.None;
+			RequiredPermissions = (attr != null) ? attr.Permission : Permission.None;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected PropertyInfo propertyInfo;
+		protected PropertyInfo PropertyInfo { get; set; }
 		/// <ToBeCompleted></ToBeCompleted>
-		protected List<object> oldValues;
+		protected List<object> OldValues { get; set; }
 		/// <ToBeCompleted></ToBeCompleted>
-		protected List<object> newValues;
+		protected List<object> NewValues { get; set; }
 		/// <ToBeCompleted></ToBeCompleted>
-		protected List<T> modifiedObjects;
+		protected List<T> ModifiedObjects { get; set; }
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Permission requiredPermissions;
+		protected Permission RequiredPermissions { get; set; }
+
 	}
 
 	#endregion
@@ -1500,7 +1561,7 @@ namespace Dataweb.NShape.Commands {
 		public AggregatedCommand(IRepository repository)
 			: base(repository) {
 			this.commands = new List<ICommand>();
-			description = string.Empty;
+			Description = string.Empty;
 		}
 
 
@@ -1522,7 +1583,7 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override string Description {
 			get {
-				if (string.IsNullOrEmpty(description))
+				if (string.IsNullOrEmpty(base.Description))
 					CreateLabelString();
 				return base.Description;
 			}
@@ -1538,7 +1599,7 @@ namespace Dataweb.NShape.Commands {
 			if (command == null) throw new ArgumentNullException("command");
 			command.Repository = Repository;
 			commands.Add(command);
-			description = string.Empty;
+			Description = string.Empty;
 		}
 
 
@@ -1547,7 +1608,7 @@ namespace Dataweb.NShape.Commands {
 			if (command == null) throw new ArgumentNullException("command");
 			command.Repository = Repository;
 			commands.Add(command);
-			description = string.Empty;
+			Description = string.Empty;
 		}
 
 
@@ -1555,14 +1616,14 @@ namespace Dataweb.NShape.Commands {
 		public void Remove(ICommand command) {
 			if (command == null) throw new ArgumentNullException("command");
 			RemoveAt(commands.IndexOf(command));
-			description = string.Empty;
+			Description = string.Empty;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void RemoveAt(int index) {
 			commands.RemoveAt(index);
-			description = string.Empty;
+			Description = string.Empty;
 		}
 
 
@@ -1619,14 +1680,14 @@ namespace Dataweb.NShape.Commands {
 
 
 		private void CreateLabelString() {
-			description = string.Empty;
+			Description = string.Empty;
 			if (commands.Count > 0) {
 				string newLine = commands.Count > 3 ? Environment.NewLine : string.Empty;
-				description = commands[0].Description;
+				Description = commands[0].Description;
 				int lastIdx = commands.Count - 1;
 				for (int i = 1; i <= lastIdx; ++i) {
-					description += (i < lastIdx) ? ", " : " and ";
-					description += string.Format("{0}{1}{2}", newLine, commands[i].Description.Substring(0, 1).ToLowerInvariant(), commands[i].Description.Substring(1));
+					Description += (i < lastIdx) ? ", " : Dataweb.NShape.Properties.Resources.MessageTxt_And;
+					Description += string.Format("{0}{1}{2}", newLine, commands[i].Description.Substring(0, 1).ToLowerInvariant(), commands[i].Description.Substring(1));
 				}
 			}
 		}
@@ -1645,44 +1706,44 @@ namespace Dataweb.NShape.Commands {
 	public class InsertShapeCommand : CreateShapesCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public InsertShapeCommand(Diagram diagram, LayerIds layerIds, Shape shape, bool withModelObjects, bool keepZOrder)
-			: base(diagram, layerIds, shape, withModelObjects, keepZOrder) {
+		public InsertShapeCommand(Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder)
+			: base(diagram, layers, shape, withModelObjects, keepZOrder) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public InsertShapeCommand(IRepository repository, Diagram diagram, LayerIds layerIds, Shape shape, bool withModelObjects, bool keepZOrder)
-			: base(repository, diagram, layerIds, shape, withModelObjects, keepZOrder) {
+		public InsertShapeCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder)
+			: base(repository, diagram, layers, shape, withModelObjects, keepZOrder) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public InsertShapeCommand(Diagram diagram, LayerIds layerIds, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
-			: base(diagram, layerIds, shape, withModelObjects, keepZOrder, toX, toY) {
+		public InsertShapeCommand(Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
+			: base(diagram, layers, shape, withModelObjects, keepZOrder, toX, toY) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public InsertShapeCommand(IRepository repository, Diagram diagram, LayerIds layerIds, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
-			: base(repository, diagram, layerIds, shape, withModelObjects, keepZOrder, toX, toY) {
+		public InsertShapeCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
+			: base(repository, diagram, layers, shape, withModelObjects, keepZOrder, toX, toY) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public InsertShapeCommand(Diagram diagram, LayerIds layerIds, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
-			: base(diagram, layerIds, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
+		public InsertShapeCommand(Diagram diagram, LayerIds layers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
+			: base(diagram, layers, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public InsertShapeCommand(IRepository repository, Diagram diagram, LayerIds layerIds, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
-			: base(repository, diagram, layerIds, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
+		public InsertShapeCommand(IRepository repository, Diagram diagram, LayerIds layers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
+			: base(repository, diagram, layers, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public InsertShapeCommand(Diagram diagram, LayerIds layerIds, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder)
-			: base(diagram, layerIds, shapes, withModelObjects, keepZOrder) {
+		public InsertShapeCommand(Diagram diagram, LayerIds layers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder)
+			: base(diagram, layers, shapes, withModelObjects, keepZOrder) {
 		}
 	}
 
@@ -1724,68 +1785,109 @@ namespace Dataweb.NShape.Commands {
 	public class CreateShapesCommand : InsertOrRemoveShapeCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public CreateShapesCommand(Diagram diagram, LayerIds layerIds, Shape shape, bool withModelObjects, bool keepZOrder)
-			: this(null, diagram, layerIds, shape, withModelObjects, keepZOrder) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public CreateShapesCommand(Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder)
+			: this(null, diagram, layers, shape, withModelObjects, keepZOrder) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public CreateShapesCommand(IRepository repository, Diagram diagram, LayerIds layerIds, Shape shape, bool withModelObjects, bool keepZOrder)
+		public CreateShapesCommand(Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape shape, bool withModelObjects, bool keepZOrder)
+			: this(null, diagram, homeLayer, supplementalLayers, shape, withModelObjects, keepZOrder) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public CreateShapesCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder)
+			: this(repository, diagram, Layer.NoLayerId, layers, shape, withModelObjects, keepZOrder) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public CreateShapesCommand(Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
+			: this(null, diagram, layers, shape, withModelObjects, keepZOrder, toX, toY) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public CreateShapesCommand(IRepository repository, Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape shape, bool withModelObjects, bool keepZOrder)
 			: base(repository, diagram) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shape == null) throw new ArgumentNullException("shape");
-			Construct(layerIds, shape, 0, 0, keepZOrder, withModelObjects);
+			Construct(homeLayer, supplementalLayers, shape, 0, 0, keepZOrder, withModelObjects);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public CreateShapesCommand(Diagram diagram, LayerIds layerIds, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
-			: this(null, diagram, layerIds, shape, withModelObjects, keepZOrder, toX, toY) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public CreateShapesCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
+			: this(repository, diagram, Layer.NoLayerId, layers, shape, withModelObjects, keepZOrder, toX, toY) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public CreateShapesCommand(IRepository repository, Diagram diagram, LayerIds layerIds, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
+		public CreateShapesCommand(IRepository repository, Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
 			: base(repository, diagram) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shape == null) throw new ArgumentNullException("shape");
-			Construct(layerIds, shape, toX - shape.X, toY - shape.Y, keepZOrder, withModelObjects);
-			this.description += string.Format(" at {0}", new Point(toX, toY));
+			Construct(homeLayer, supplementalLayers, shape, toX - shape.X, toY - shape.Y, keepZOrder, withModelObjects);
+			this.Description += string.Format(Dataweb.NShape.Properties.Resources.MessageTxt_At0, new Point(toX, toY));
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public CreateShapesCommand(Diagram diagram, LayerIds layerIds, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
-			: this(null, diagram, layerIds, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public CreateShapesCommand(Diagram diagram, LayerIds layers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
+			: this(null, diagram, layers, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public CreateShapesCommand(IRepository repository, Diagram diagram, LayerIds layerIds, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
+		public CreateShapesCommand(Diagram diagram, int homeLayer, LayerIds supplementalLayers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
+			: this(null, diagram, homeLayer, supplementalLayers, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public CreateShapesCommand(IRepository repository, Diagram diagram, LayerIds layers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
+			:this(repository, diagram, Layer.NoLayerId, layers, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
+		}
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public CreateShapesCommand(IRepository repository, Diagram diagram, int homeLayer, LayerIds supplementalLayers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
 			: base(repository, diagram) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shapes == null) throw new ArgumentNullException("shapes");
 			SortOrder currentSortOrder = SortOrder.TopDown; //GetCurrentSortOrder(shapes); 
-			Construct(layerIds, shapes, deltaX, deltaY, currentSortOrder, keepZOrder, withModelObjects);
+			Construct(homeLayer, supplementalLayers, shapes, deltaX, deltaY, currentSortOrder, keepZOrder, withModelObjects);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public CreateShapesCommand(Diagram diagram, LayerIds layerIds, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder)
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public CreateShapesCommand(Diagram diagram, LayerIds layers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder)
+			: this(diagram, Layer.NoLayerId, layers, shapes, withModelObjects, keepZOrder) {
+		}
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public CreateShapesCommand(Diagram diagram, int homeLayer, LayerIds supplementalLayers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder)
 			: base(diagram) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shapes == null) throw new ArgumentNullException("shapes");
 			SortOrder currentSortOrder = SortOrder.TopDown; //GetCurrentSortOrder(shapes)
-			Construct(layerIds, shapes, 0, 0, currentSortOrder, keepZOrder, withModelObjects);
+			Construct(homeLayer, supplementalLayers, shapes, 0, 0, currentSortOrder, keepZOrder, withModelObjects);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			InsertShapesAndModels(layerIds);
+			InsertShapesAndModels(_layerInfo.HomeLayer, _layerInfo.SupplementalLayers);
 			Reconnect(Shapes);
-			if (connectionsToRestore != null) {
-				foreach (KeyValuePair<Shape, List<ShapeConnectionInfo>> item in connectionsToRestore) {
+			if (_connectionsToRestore != null) {
+				foreach (KeyValuePair<Shape, List<ShapeConnectionInfo>> item in _connectionsToRestore) {
 					for (int i = item.Value.Count - 1; i >= 0; --i)
 						item.Key.Connect(item.Value[i].OwnPointId, item.Value[i].OtherShape, item.Value[i].OtherPointId);
 				}
@@ -1795,8 +1897,8 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Revert() {
-			if (connectionsToRestore != null) {
-				foreach (KeyValuePair<Shape, List<ShapeConnectionInfo>> item in connectionsToRestore) {
+			if (_connectionsToRestore != null) {
+				foreach (KeyValuePair<Shape, List<ShapeConnectionInfo>> item in _connectionsToRestore) {
 					for (int i = item.Value.Count - 1; i >= 0; --i)
 						item.Key.Disconnect(item.Value[i].OwnPointId);
 				}
@@ -1822,19 +1924,19 @@ namespace Dataweb.NShape.Commands {
 		}
 
 
-		private void Construct(LayerIds layerIds, Shape shape, int offsetX, int offsetY, bool keepZOrder, bool withModelObjects) {
-			this.layerIds = layerIds;
+		private void Construct(int homeLayer, LayerIds supplementalLayers, Shape shape, int offsetX, int offsetY, bool keepZOrder, bool withModelObjects) {
+			this._layerInfo = LayerInfo.Create(homeLayer, supplementalLayers);
 			PrepareShape(shape, offsetX, offsetY, keepZOrder ? shape.ZOrder : 0);
 			SetShape(shape, withModelObjects);
-			description = GetDescription(DescriptionType.Insert, shape, withModelObjects);
+			Description = GetDescription(DescriptionType.Insert, shape, withModelObjects);
 		}
 
 
-		private void Construct(LayerIds layerIds, IEnumerable<Shape> shapes, int offsetX, int offsetY, SortOrder currentSortOrder, bool keepZOrder, bool withModelObjects) {
-			this.layerIds = layerIds;
+		private void Construct(int homeLayer, LayerIds supplementalLayers, IEnumerable<Shape> shapes, int offsetX, int offsetY, SortOrder currentSortOrder, bool keepZOrder, bool withModelObjects) {
+			this._layerInfo = LayerInfo.Create(homeLayer, supplementalLayers);
 			PrepareShapes(shapes, offsetX, offsetY, currentSortOrder, keepZOrder);
 			SetShapes(shapes, currentSortOrder, withModelObjects);
-			description = GetDescription(DescriptionType.Insert, shapes, withModelObjects);
+			Description = GetDescription(DescriptionType.Insert, shapes, withModelObjects);
 		}
 
 
@@ -1871,8 +1973,8 @@ namespace Dataweb.NShape.Commands {
 					shape.Disconnect(sci.OwnPointId);
 				}
 				if (connInfos != null) {
-					if (connectionsToRestore == null) connectionsToRestore = new Dictionary<Shape, List<ShapeConnectionInfo>>();
-					connectionsToRestore.Add(shape, connInfos);
+					if (_connectionsToRestore == null) _connectionsToRestore = new Dictionary<Shape, List<ShapeConnectionInfo>>();
+					_connectionsToRestore.Add(shape, connInfos);
 				}
 				shape.MoveBy(offsetX, offsetY);
 			}
@@ -1880,8 +1982,8 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private LayerIds layerIds = LayerIds.None;
-		private Dictionary<Shape, List<ShapeConnectionInfo>> connectionsToRestore;
+		private LayerInfo _layerInfo;
+		private Dictionary<Shape, List<ShapeConnectionInfo>> _connectionsToRestore;
 		#endregion
 	}
 
@@ -1914,7 +2016,7 @@ namespace Dataweb.NShape.Commands {
 			: base(repository, diagram) {
 			deleteWithModelObjects = withModelObjects;
 			SetShapes(shapes, SortOrder.TopDown, withModelObjects);
-			this.description = GetDescription(DescriptionType.Delete, shapes, withModelObjects);
+			this.Description = GetDescription(DescriptionType.Delete, shapes, withModelObjects);
 			// Store "shape to model object" assignments for undo
 			foreach (Shape s in shapes) {
 				if (s.ModelObject != null) {
@@ -1999,38 +2101,38 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override void Execute() {
 			// store current and new ZOrders
-			if (zOrderInfos == null || zOrderInfos.Count == 0)
+			if (_zOrderInfos == null || _zOrderInfos.Count == 0)
 				ObtainZOrders();
 
 			// process topDown/bottomUp to avoid ZOrder-sorting inside the diagram's ShapeCollection
-			switch (liftMode) {
+			switch (_liftMode) {
 				case ZOrderDestination.ToBottom:
-					foreach (Shape shape in shapes.TopDown) {
-						ZOrderInfo info = zOrderInfos[shape];
-						PerformZOrderChange(shape, info.newZOrder, info.layerIds);
+					foreach (Shape shape in _shapes.TopDown) {
+						ZOrderInfo info = _zOrderInfos[shape];
+						PerformZOrderChange(shape, info.newZOrder);
 					}
 					break;
 				case ZOrderDestination.ToTop:
-					foreach (Shape shape in shapes.BottomUp) {
-						ZOrderInfo info = zOrderInfos[shape];
-						PerformZOrderChange(shape, info.newZOrder, info.layerIds);
+					foreach (Shape shape in _shapes.BottomUp) {
+						ZOrderInfo info = _zOrderInfos[shape];
+						PerformZOrderChange(shape, info.newZOrder);
 					}
 					break;
 				default:
-					throw new NShapeUnsupportedValueException(liftMode);
+					throw new NShapeUnsupportedValueException(_liftMode);
 			}
-			if (Repository != null) Repository.Update(shapes);
+			if (Repository != null) Repository.Update(_shapes);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			Debug.Assert(zOrderInfos != null);
-			foreach (Shape shape in shapes.BottomUp) {
-				ZOrderInfo info = zOrderInfos[shape];
-				PerformZOrderChange(shape, info.origZOrder, info.layerIds);
+			Debug.Assert(_zOrderInfos != null);
+			foreach (Shape shape in _shapes.BottomUp) {
+				ZOrderInfo info = _zOrderInfos[shape];
+				PerformZOrderChange(shape, info.origZOrder);
 			}
-			if (Repository != null) Repository.Update(shapes);
+			if (Repository != null) Repository.Update(_shapes);
 		}
 
 
@@ -2043,7 +2145,7 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, shapes);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, _shapes);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
@@ -2052,51 +2154,51 @@ namespace Dataweb.NShape.Commands {
 		private void Construct(Diagram diagram, IEnumerable<Shape> shapes, ZOrderDestination liftMode) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (shapes == null) throw new ArgumentNullException("shapes");
-			this.shapes = new ShapeCollection();
-			this.shapes.AddRange(shapes);
-			this.diagram = diagram;
-			this.liftMode = liftMode;
+			this._shapes = new ShapeCollection();
+			this._shapes.AddRange(shapes);
+			this._diagram = diagram;
+			this._liftMode = liftMode;
 			string formatStr = string.Empty;
 			switch (liftMode) {
-				case ZOrderDestination.ToTop: formatStr = "Bring {0} shape{1} on top"; break;
-				case ZOrderDestination.ToBottom: formatStr = "Send {0} shape{1} to bottom"; break;
+				case ZOrderDestination.ToTop: formatStr = Dataweb.NShape.Properties.Resources.CaptionFmt_Bring0Shape1OnTop; break;
+				case ZOrderDestination.ToBottom: formatStr = Dataweb.NShape.Properties.Resources.CaptionFmt_Send0Shape1ToBottom; break;
 				default: throw new NShapeUnsupportedValueException(liftMode);
 			}
-			if (this.shapes.Count == 1)
-				this.description = string.Format(formatStr, this.shapes.TopMost.Type.Name, string.Empty);
-			else this.description = string.Format(formatStr, this.shapes.Count, "s");
+			if (this._shapes.Count == 1)
+				this.Description = string.Format(formatStr, this._shapes.TopMost.Type.Name, string.Empty);
+			else this.Description = string.Format(formatStr, this._shapes.Count, Dataweb.NShape.Properties.Resources.Text_PluralEndingShape);
 		}
 
 
 		private void ObtainZOrders() {
-			zOrderInfos = new Dictionary<Shape, ZOrderInfo>(shapes.Count);
-			switch (liftMode) {
+			_zOrderInfos = new Dictionary<Shape, ZOrderInfo>(_shapes.Count);
+			switch (_liftMode) {
 				case ZOrderDestination.ToBottom:
 					if (Repository != null) {
-						foreach (Shape shape in shapes.TopDown)
-							zOrderInfos.Add(shape, new ZOrderInfo(shape.ZOrder, Repository.ObtainNewBottomZOrder(diagram), shape.Layers));
+						foreach (Shape shape in _shapes.TopDown)
+							_zOrderInfos.Add(shape, new ZOrderInfo(shape.ZOrder, Repository.ObtainNewBottomZOrder(_diagram)));
 					} else {
-						foreach (Shape shape in shapes.TopDown)
-							zOrderInfos.Add(shape, new ZOrderInfo(shape.ZOrder, diagram.Shapes.MinZOrder, shape.Layers));
+						foreach (Shape shape in _shapes.TopDown)
+							_zOrderInfos.Add(shape, new ZOrderInfo(shape.ZOrder, _diagram.Shapes.MinZOrder));
 					}
 					break;
 				case ZOrderDestination.ToTop:
 					if (Repository != null) {
-						foreach (Shape shape in shapes.BottomUp)
-							zOrderInfos.Add(shape, new ZOrderInfo(shape.ZOrder, Repository.ObtainNewTopZOrder(diagram), shape.Layers));
+						foreach (Shape shape in _shapes.BottomUp)
+							_zOrderInfos.Add(shape, new ZOrderInfo(shape.ZOrder, Repository.ObtainNewTopZOrder(_diagram)));
 					} else {
-						foreach (Shape shape in shapes.BottomUp)
-							zOrderInfos.Add(shape, new ZOrderInfo(shape.ZOrder, diagram.Shapes.MaxZOrder, shape.Layers));
+						foreach (Shape shape in _shapes.BottomUp)
+							_zOrderInfos.Add(shape, new ZOrderInfo(shape.ZOrder, _diagram.Shapes.MaxZOrder));
 					}
 					break;
 				default:
-					throw new NShapeUnsupportedValueException(liftMode);
+					throw new NShapeUnsupportedValueException(_liftMode);
 			}
 		}
 
 
-		private void PerformZOrderChange(Shape shape, int zOrder, LayerIds layerIds) {
-			diagram.Shapes.SetZOrder(shape, zOrder);
+		private void PerformZOrderChange(Shape shape, int zOrder) {
+			_diagram.Shapes.SetZOrder(shape, zOrder);
 
 			//// remove shape from Diagram
 			//diagram.Shapes.Remove(shape);
@@ -2108,22 +2210,21 @@ namespace Dataweb.NShape.Commands {
 		}
 
 
-		private class ZOrderInfo {
-			public ZOrderInfo(int origZOrder, int newZOrder, LayerIds layerIds) {
+		private struct ZOrderInfo {
+			public ZOrderInfo(int origZOrder, int newZOrder) {
 				this.origZOrder = origZOrder;
 				this.newZOrder = newZOrder;
-				this.layerIds = layerIds;
 			}
 			public int origZOrder;
 			public int newZOrder;
-			public LayerIds layerIds;
 		}
 
+
 		#region Fields
-		private Diagram diagram;
-		private ShapeCollection shapes;
-		private ZOrderDestination liftMode;
-		private Dictionary<Shape, ZOrderInfo> zOrderInfos;
+		private Diagram _diagram;
+		private ShapeCollection _shapes;
+		private ZOrderDestination _liftMode;
+		private Dictionary<Shape, ZOrderInfo> _zOrderInfos;
 		#endregion
 	}
 
@@ -2144,7 +2245,7 @@ namespace Dataweb.NShape.Commands {
 		public MoveShapeByCommand(IRepository repository, Shape shape, int dX, int dY)
 			: base(repository, SingleInstanceEnumerator<Shape>.Create(shape)) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			this.description = string.Format("Move {0}", shape.Type.Name);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Move0, shape.Type.Name);
 			this.dX = dX;
 			this.dY = dY;
 		}
@@ -2171,17 +2272,17 @@ namespace Dataweb.NShape.Commands {
 					// Do not move labels connected to a selected shape (as they will move with their partner anyway)
 					if (!CanMoveShape((LabelBase)shape, shapes)) continue;
 				}
-				this.shapes.Add(shape);
+				this.Shapes.Add(shape);
 			}
 			// Collect connections to remove temporarily
-			for (int i = 0; i < this.shapes.Count; ++i) {
-				if (IsConnectedToNonSelectedShapes(this.shapes[i])) 
+			for (int i = 0; i < this.Shapes.Count; ++i) {
+				if (IsConnectedToNonSelectedShapes(this.Shapes[i])) 
 					continue;
-				foreach (ControlPointId gluePointId in this.shapes[i].GetControlPointIds(ControlPointCapabilities.Glue)) {
-					ShapeConnectionInfo gluePointConnectionInfo = this.shapes[i].GetConnectionInfo(gluePointId, null);
+				foreach (ControlPointId gluePointId in this.Shapes[i].GetControlPointIds(ControlPointCapabilities.Glue)) {
+					ShapeConnectionInfo gluePointConnectionInfo = this.Shapes[i].GetConnectionInfo(gluePointId, null);
 					if (!gluePointConnectionInfo.IsEmpty) {
 						ConnectionInfoBuffer connInfoBuffer;
-						connInfoBuffer.shape = this.shapes[i];
+						connInfoBuffer.shape = this.Shapes[i];
 						connInfoBuffer.connectionInfo = gluePointConnectionInfo;
 						if (connectionsBuffer == null)
 							connectionsBuffer = new List<ConnectionInfoBuffer>();
@@ -2191,8 +2292,8 @@ namespace Dataweb.NShape.Commands {
 			}
 			this.dX = dX;
 			this.dY = dY;
-			this.description = string.Format("Move {0} shape", this.shapes.Count);
-			if (this.shapes.Count > 1) this.description += "s";
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Move0Shape, this.Shapes.Count);
+			if (this.Shapes.Count > 1) this.Description += "s";
 		}
 
 
@@ -2204,16 +2305,16 @@ namespace Dataweb.NShape.Commands {
 					connectionsBuffer[i].shape.Disconnect(connectionsBuffer[i].connectionInfo.OwnPointId);
 			}
 			// move shapes
-			int cnt = shapes.Count;
+			int cnt = Shapes.Count;
 			for (int i = 0; i < cnt; ++i)
-				shapes[i].MoveBy(dX, dY);
+				Shapes[i].MoveBy(dX, dY);
 			// restore temporarily removed connections between selected shapes
 			if (connectionsBuffer != null) {
 				for (int i = 0; i < connectionsBuffer.Count; ++i)
 					connectionsBuffer[i].shape.Connect(connectionsBuffer[i].connectionInfo.OwnPointId, connectionsBuffer[i].connectionInfo.OtherShape, connectionsBuffer[i].connectionInfo.OtherPointId);
 			}
 			// update cache
-			if (Repository != null) Repository.Update(shapes);
+			if (Repository != null) Repository.Update(Shapes);
 		}
 
 
@@ -2226,8 +2327,8 @@ namespace Dataweb.NShape.Commands {
 			}
 
 			// move shapes
-			for (int i = 0; i < shapes.Count; ++i)
-				shapes[i].MoveBy(-dX, -dY);
+			for (int i = 0; i < Shapes.Count; ++i)
+				Shapes[i].MoveBy(-dX, -dY);
 
 			// restore temporarily removed connections between selected shapes
 			if (connectionsBuffer != null) {
@@ -2235,7 +2336,7 @@ namespace Dataweb.NShape.Commands {
 					connectionsBuffer[i].shape.Connect(connectionsBuffer[i].connectionInfo.OwnPointId, connectionsBuffer[i].connectionInfo.OtherShape, connectionsBuffer[i].connectionInfo.OtherPointId);
 			}
 
-			if (Repository != null) Repository.Update(shapes);
+			if (Repository != null) Repository.Update(Shapes);
 		}
 
 
@@ -2285,7 +2386,7 @@ namespace Dataweb.NShape.Commands {
 			if (shape == null) throw new ArgumentNullException("shape");
 			foreach (ControlPointId gluePointId in shape.GetControlPointIds(ControlPointCapabilities.Glue)) {
 				ShapeConnectionInfo sci = shape.GetConnectionInfo(gluePointId, null);
-				if (!sci.IsEmpty && shapes.IndexOf(sci.OtherShape) < 0)
+				if (!sci.IsEmpty && Shapes.IndexOf(sci.OtherShape) < 0)
 					return true;
 			}
 			return false;
@@ -2336,7 +2437,10 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override string Description {
-			get { return string.Format("Move {0} shape{1}", shapeMoves.Count, (shapeMoves.Count > 1) ? "s" : ""); }
+			get {
+                return string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Move0Shape1, shapeMoves.Count, 
+                    (shapeMoves.Count > 1) ? Dataweb.NShape.Properties.Resources.Text_PluralEndingShape : string.Empty);
+            }
 		}
 
 
@@ -2449,7 +2553,10 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override string Description {
-			get { return string.Format("Move {0} shape{1}", shapeMoves.Count, (shapeMoves.Count > 1) ? "s" : ""); }
+			get {
+                return string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Move0Shape1, shapeMoves.Count, 
+                    (shapeMoves.Count > 1) ? Dataweb.NShape.Properties.Resources.Text_PluralEndingShape : string.Empty);
+            }
 		}
 
 
@@ -2524,51 +2631,52 @@ namespace Dataweb.NShape.Commands {
 	public class MoveControlPointCommand : ShapesCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public MoveControlPointCommand(Shape shape, int controlPointId, int dX, int dY, ResizeModifiers modifiers)
+		public MoveControlPointCommand(Shape shape, ControlPointId controlPointId, int dX, int dY, ResizeModifiers modifiers)
 			: this(null, shape, controlPointId, dX, dY, modifiers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public MoveControlPointCommand(IRepository repository, Shape shape, int controlPointId, int dX, int dY, ResizeModifiers modifiers)
+		public MoveControlPointCommand(IRepository repository, Shape shape, ControlPointId controlPointId, int dX, int dY, ResizeModifiers modifiers)
 			: this(repository, SingleInstanceEnumerator<Shape>.Create(shape), controlPointId, dX, dY, modifiers) {
-			this.description = string.Format("Move control point of {0}", shape.Type.Name);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_MoveControlPointOf0, shape.Type.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public MoveControlPointCommand(IEnumerable<Shape> shapes, int controlPointId, int dX, int dY, ResizeModifiers modifiers)
+		public MoveControlPointCommand(IEnumerable<Shape> shapes, ControlPointId controlPointId, int dX, int dY, ResizeModifiers modifiers)
 			: this(null, shapes, controlPointId, dX, dY, modifiers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public MoveControlPointCommand(IRepository repository, IEnumerable<Shape> shapes, int controlPointId, int dX, int dY, ResizeModifiers modifiers)
+		public MoveControlPointCommand(IRepository repository, IEnumerable<Shape> shapes, ControlPointId controlPointId, int dX, int dY, ResizeModifiers modifiers)
 			: base(repository, shapes) {
-			this.description = string.Format("Move {0} control point{1}", this.shapes.Count, this.shapes.Count > 1 ? "s" : "");
-			int cnt = this.shapes.Count;
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Move0ControlPoint1, this.Shapes.Count, 
+                this.Shapes.Count > 1 ? Dataweb.NShape.Properties.Resources.Text_ControlPointPluralEnding : string.Empty);
+			int cnt = this.Shapes.Count;
 			moveInfos = new List<PointMoveInfo>(cnt);
 			for (int i = 0; i < cnt; ++i)
-				moveInfos.Add(new PointMoveInfo(this.shapes[i], controlPointId, dX, dY, modifiers));
+				moveInfos.Add(new PointMoveInfo(this.Shapes[i], controlPointId, dX, dY, modifiers));
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			for (int i = 0; i < shapes.Count; ++i)
-				shapes[i].MoveControlPointTo(moveInfos[i].PointId, moveInfos[i].To.X, moveInfos[i].To.Y, moveInfos[i].Modifiers);
+			for (int i = 0; i < Shapes.Count; ++i)
+				Shapes[i].MoveControlPointTo(moveInfos[i].PointId, moveInfos[i].To.X, moveInfos[i].To.Y, moveInfos[i].Modifiers);
 
-			if (Repository != null) Repository.Update(shapes);
+			if (Repository != null) Repository.Update(Shapes);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			for (int i = 0; i < shapes.Count; ++i)
+			for (int i = 0; i < Shapes.Count; ++i)
 				//shapes[i].MoveControlPointBy(controlPointId, -dX, -dY, modifiers);
-				shapes[i].MoveControlPointTo(moveInfos[i].PointId, moveInfos[i].From.X, moveInfos[i].From.Y, moveInfos[i].Modifiers);
+				Shapes[i].MoveControlPointTo(moveInfos[i].PointId, moveInfos[i].From.X, moveInfos[i].From.Y, moveInfos[i].Modifiers);
 
-			if (Repository != null) Repository.Update(shapes);
+			if (Repository != null) Repository.Update(Shapes);
 		}
 
 
@@ -2658,17 +2766,17 @@ namespace Dataweb.NShape.Commands {
 		public override void Execute() {
 			// DetachGluePointFromConnectionPoint existing connection
 			if (!existingConnection.IsEmpty) {
-				shape.Disconnect(gluePointId);
-				if (Repository != null) Repository.DeleteConnection(shape, gluePointId, existingConnection.OtherShape, existingConnection.OtherPointId);
+				Shape.Disconnect(gluePointId);
+				if (Repository != null) Repository.DeleteConnection(Shape, gluePointId, existingConnection.OtherShape, existingConnection.OtherPointId);
 			}
 			// Move point
-			shape.MoveControlPointBy(gluePointId, dX, dY, modifiers);
+			Shape.MoveControlPointBy(gluePointId, dX, dY, modifiers);
 			// Establish new connection
 			if (!newConnection.IsEmpty) {
-				shape.Connect(gluePointId, newConnection.OtherShape, newConnection.OtherPointId);
-				if (Repository != null) Repository.InsertConnection(shape, gluePointId, newConnection.OtherShape, newConnection.OtherPointId);
+				Shape.Connect(gluePointId, newConnection.OtherShape, newConnection.OtherPointId);
+				if (Repository != null) Repository.InsertConnection(Shape, gluePointId, newConnection.OtherShape, newConnection.OtherPointId);
 			}
-			if (Repository != null) Repository.Update(shape);
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
@@ -2676,17 +2784,17 @@ namespace Dataweb.NShape.Commands {
 		public override void Revert() {
 			// DetachGluePointFromConnectionPoint new connection
 			if (!newConnection.IsEmpty) {
-				shape.Disconnect(gluePointId);
-				if (Repository != null) Repository.DeleteConnection(shape, gluePointId, newConnection.OtherShape, newConnection.OtherPointId);
+				Shape.Disconnect(gluePointId);
+				if (Repository != null) Repository.DeleteConnection(Shape, gluePointId, newConnection.OtherShape, newConnection.OtherPointId);
 			}
 			// Move point
-			shape.MoveControlPointTo(gluePointId, gluePointPosition.X, gluePointPosition.Y, modifiers);
+			Shape.MoveControlPointTo(gluePointId, gluePointPosition.X, gluePointPosition.Y, modifiers);
 			// Restore previous connection
 			if (!existingConnection.IsEmpty) {
-				shape.Connect(gluePointId, existingConnection.OtherShape, existingConnection.OtherPointId);
-				if (Repository != null) Repository.InsertConnection(shape, gluePointId, existingConnection.OtherShape, existingConnection.OtherPointId);
+				Shape.Connect(gluePointId, existingConnection.OtherShape, existingConnection.OtherPointId);
+				if (Repository != null) Repository.InsertConnection(Shape, gluePointId, existingConnection.OtherShape, existingConnection.OtherPointId);
 			}
-			if (Repository != null) Repository.Update(shape);
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
@@ -2697,7 +2805,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected void BaseConstruct(int gluePointId, Shape targetShape, ControlPointId targetPointId, int dX, int dY, ResizeModifiers modifiers) {
+		protected void BaseConstruct(ControlPointId gluePointId, Shape targetShape, ControlPointId targetPointId, int dX, int dY, ResizeModifiers modifiers) {
 			this.gluePointId = gluePointId;
 			this.targetShape = targetShape;
 			this.targetPointId = targetPointId;
@@ -2705,23 +2813,23 @@ namespace Dataweb.NShape.Commands {
 			this.dY = dY;
 			this.modifiers = modifiers;
 			// store original position of gluePoint (cannot be restored with dX/dY in case of PointToShape connections)
-			gluePointPosition = shape.GetControlPointPosition(gluePointId);
+			gluePointPosition = Shape.GetControlPointPosition(gluePointId);
 			// store existing connection
-			existingConnection = shape.GetConnectionInfo(this.gluePointId, null);
+			existingConnection = Shape.GetConnectionInfo(this.gluePointId, null);
 
 			// create new ConnectionInfo
 			if (targetShape != null && targetPointId != ControlPointId.None)
 				this.newConnection = new ShapeConnectionInfo(this.gluePointId, targetShape, targetPointId);
 			// set description
 			if (!existingConnection.IsEmpty) {
-				this.description = string.Format("Disconnect {0} from {1}", shape.Type.Name, existingConnection.OtherShape.Type.Name);
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Disconnect0From1, Shape.Type.Name, existingConnection.OtherShape.Type.Name);
 				if (!newConnection.IsEmpty)
-					this.description += string.Format(" and connect to {0}", newConnection.OtherShape.Type.Name);
+					this.Description += string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AndConnectTo0, newConnection.OtherShape.Type.Name);
 			} else {
 				if (!newConnection.IsEmpty)
-					this.description += string.Format("Connect {0} to {1}", shape.Type.Name, newConnection.OtherShape.Type.Name);
+					this.Description += string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Connect0To1, Shape.Type.Name, newConnection.OtherShape.Type.Name);
 				else
-					this.description = string.Format("Move glue point {0} of {1}", gluePointId, shape.Type.Name);
+					this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_MoveGluePoint0Of1, gluePointId, Shape.Type.Name);
 			}
 		}
 
@@ -2758,9 +2866,9 @@ namespace Dataweb.NShape.Commands {
 			this.shapes = new List<Shape>(shapes);
 			this.angle = tenthsOfDegree;
 			if (this.shapes.Count == 1)
-				this.description = string.Format("Rotate {0} by {1}°", this.shapes[0].Type.Name, tenthsOfDegree / 10f);
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0By1, this.shapes[0].Type.Name, tenthsOfDegree / 10f);
 			else
-				this.description = string.Format("Rotate {0} shapes by {1}°", this.shapes.Count, tenthsOfDegree / 10f);
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0ShapesBy1, this.shapes.Count, tenthsOfDegree / 10f);
 		}
 
 
@@ -2789,9 +2897,9 @@ namespace Dataweb.NShape.Commands {
 			this.rotateCenterX = rotateCenterX;
 			this.rotateCenterY = rotateCenterY;
 			if (this.shapes.Count == 1)
-				this.description = string.Format("Rotate {0} by {1}° at ({2}|{3}", this.shapes[0].Type.Name, tenthsOfDegree / 10f, rotateCenterX, rotateCenterY);
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0By1At23, this.shapes[0].Type.Name, tenthsOfDegree / 10f, rotateCenterX, rotateCenterY);
 			else
-				this.description = string.Format("Rotate {0} shapes by {1}° at ({2}|{3}", this.shapes.Count, tenthsOfDegree / 10f, rotateCenterX, rotateCenterY);
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0ShapesBy1At23, this.shapes.Count, tenthsOfDegree / 10f, rotateCenterX, rotateCenterY);
 		}
 
 
@@ -2855,13 +2963,13 @@ namespace Dataweb.NShape.Commands {
 		public SetCaptionTextCommand(IRepository repository, ICaptionedShape shape, int captionIndex, string oldValue, string newValue)
 			: base(repository) {
 			if (shape == null) throw new ArgumentNullException("shape");
-			if (!(shape is Shape)) throw new NShapeException("{0} is not of type {1}.", shape.GetType().Name, typeof(Shape).Name);
+			if (!(shape is Shape)) throw new ArgumentException(String.Format("{0} is not of type {1}.", shape.GetType().Name, typeof(Shape).Name));
 			this.modifiedLabeledShapes = new List<ICaptionedShape>(1);
 			this.modifiedLabeledShapes.Add(shape);
 			this.labelIndex = captionIndex;
 			this.oldValue = oldValue;
 			this.newValue = newValue;
-			this.description = string.Format("Change text of {0} from '{1}' to '{2}", ((Shape)shape).Type.Name, this.oldValue, this.newValue);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeTextOf0From1To2, ((Shape)shape).Type.Name, this.oldValue, this.newValue);
 		}
 
 
@@ -2919,15 +3027,15 @@ namespace Dataweb.NShape.Commands {
 	public class ConnectCommand : ConnectionCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public ConnectCommand(Shape connectorShape, int gluePointId, Shape targetShape, int targetPointId)
+		public ConnectCommand(Shape connectorShape, ControlPointId gluePointId, Shape targetShape, ControlPointId targetPointId)
 			: this(null, connectorShape, gluePointId, targetShape, targetPointId) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public ConnectCommand(IRepository repository, Shape connectorShape, int gluePointId, Shape targetShape, int targetPointId)
+		public ConnectCommand(IRepository repository, Shape connectorShape, ControlPointId gluePointId, Shape targetShape, ControlPointId targetPointId)
 			: base(repository, connectorShape, gluePointId, targetShape, targetPointId) {
-			this.description = string.Format("Connect {0} to {1}", connectorShape.Type.Name, targetShape.Type.Name);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Connect0To1, connectorShape.Type.Name, targetShape.Type.Name);
 		}
 
 
@@ -2951,35 +3059,35 @@ namespace Dataweb.NShape.Commands {
 	public class DisconnectCommand : ConnectionCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public DisconnectCommand(Shape connectorShape, int gluePointId)
+		public DisconnectCommand(Shape connectorShape, ControlPointId gluePointId)
 			: this(null, connectorShape, gluePointId) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public DisconnectCommand(IRepository repository, Shape connectorShape, int gluePointId)
+		public DisconnectCommand(IRepository repository, Shape connectorShape, ControlPointId gluePointId)
 			: base(repository, connectorShape, gluePointId) {
-			this.description = string.Format("Disconnect {0}", connectorShape.Type.Name);
-			this.connectorShape = connectorShape;
-			this.gluePointId = gluePointId;
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Disconnect0, connectorShape.Type.Name);
+			this.ConnectorShape = connectorShape;
+			this.GluePointId = gluePointId;
 
 			this.connectionInfo = connectorShape.GetConnectionInfo(gluePointId, null);
 			if (this.connectionInfo.IsEmpty)
-				throw new NShapeInternalException(string.Format("There is no connection for Point {0} of shape {1}.", gluePointId, connectorShape));
+				throw new NShapeInternalException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ThereIsNoConnectionForPoint0OfShape1, gluePointId, connectorShape));
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			connectorShape.Disconnect(gluePointId);
-			Repository.DeleteConnection(connectorShape, gluePointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
+			ConnectorShape.Disconnect(GluePointId);
+			Repository.DeleteConnection(ConnectorShape, GluePointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			connectorShape.Connect(gluePointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
-			Repository.InsertConnection(connectorShape, gluePointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
+			ConnectorShape.Connect(GluePointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
+			Repository.InsertConnection(ConnectorShape, GluePointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
 		}
 
 
@@ -2997,35 +3105,49 @@ namespace Dataweb.NShape.Commands {
 	public class GroupShapesCommand : ShapeAggregationCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public GroupShapesCommand(Diagram diagram, LayerIds layerIds, Shape shapeGroup, IEnumerable<Shape> childShapes)
-			: this(null, diagram, layerIds, shapeGroup, childShapes) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public GroupShapesCommand(Diagram diagram, LayerIds layers, Shape shapeGroup, IEnumerable<Shape> childShapes)
+			: this(null, diagram, Layer.NoLayerId, layers, shapeGroup, childShapes) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public GroupShapesCommand(IRepository repository, Diagram diagram, LayerIds layerIds, Shape shapeGroup, IEnumerable<Shape> childShapes)
-			: base(repository, diagram, shapeGroup, childShapes) {
-			if (!(aggregationShape is IShapeGroup)) throw new ArgumentException("Shape must be a shape group.");
-			this.description = string.Format("Aggregate {0} shapes to a '{1}'", base.shapes.Count, ((Shape)base.aggregationShape).Type.Name);
+		public GroupShapesCommand(Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape shapeGroup, IEnumerable<Shape> childShapes)
+			: this(null, diagram, homeLayer, supplementalLayers, shapeGroup, childShapes) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public GroupShapesCommand(IRepository repository, Diagram diagram, LayerIds supplementalLayers, Shape shapeGroup, IEnumerable<Shape> childShapes)
+			: this(repository, diagram, Layer.NoLayerId, supplementalLayers, shapeGroup, childShapes) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public GroupShapesCommand(IRepository repository, Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape shapeGroup, IEnumerable<Shape> childShapes)
+			: base(repository, diagram, shapeGroup, childShapes, homeLayer, supplementalLayers) {
+			if (!(AggregationShape is IShapeGroup)) throw new ArgumentException(string.Format("Shape does not implement required interface {0}.", typeof(IShapeGroup).Name));
+            this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Aggregate0ShapesToA1, base.Shapes.Count, ((Shape)base.AggregationShape).Type.Name);
 
 			// Calculate boundingRectangle of the children and
 			// move aggregationShape to children's center
-			if (aggregationShape.X == 0 && aggregationShape.Y == 0) {
+			if (AggregationShape.X == 0 && AggregationShape.Y == 0) {
 				Rectangle r = Rectangle.Empty;
 				foreach (Shape shape in childShapes) {
 					if (r.IsEmpty) r = shape.GetBoundingRectangle(true);
 					else r = Geometry.UniteRectangles(r, shape.GetBoundingRectangle(true));
 				}
-				aggregationShape.MoveTo(r.X + (r.Width / 2), r.Y + (r.Height / 2));
+				AggregationShape.MoveTo(r.X + (r.Width / 2), r.Y + (r.Height / 2));
 			}
-			aggregationShapeOwnedByDiagram = false;
+			AggregationShapeOwnedByDiagram = false;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
 			// insert aggregationShape into diagram (and Cache)
-			if (Repository != null) aggregationShape.ZOrder = Repository.ObtainNewTopZOrder(diagram);
+			if (Repository != null) AggregationShape.ZOrder = Repository.ObtainNewTopZOrder(Diagram);
 			CreateShapeAggregation(false);
 		}
 
@@ -3057,9 +3179,9 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public UngroupShapesCommand(IRepository repository, Diagram diagram, Shape shapeGroup)
 			: base(repository, diagram, shapeGroup, (shapeGroup != null) ? shapeGroup.Children : null) {
-			if (!(shapeGroup is IShapeGroup)) throw new ArgumentException("Shape must support IShapeGroup.");
-			this.description = string.Format("Release {0} shapes from {1}'s aggregation", base.shapes.Count, base.aggregationShape.Type.Name);
-			aggregationShapeOwnedByDiagram = false;
+			if (!(shapeGroup is IShapeGroup)) throw new ArgumentException(string.Format("Shape does not implement required interface {0}.", typeof(IShapeGroup).Name));
+            this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Release0ShapesFrom1SAggregation, base.Shapes.Count, base.AggregationShape.Type.Name);
+			AggregationShapeOwnedByDiagram = false;
 		}
 
 
@@ -3089,15 +3211,30 @@ namespace Dataweb.NShape.Commands {
 	public class AggregateCompositeShapeCommand : ShapeAggregationCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AggregateCompositeShapeCommand(Diagram diagram, LayerIds layerIds, Shape parentShape, IEnumerable<Shape> childShapes)
-			: this(null, diagram, layerIds, parentShape, childShapes) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AggregateCompositeShapeCommand(Diagram diagram, LayerIds layers, Shape parentShape, IEnumerable<Shape> childShapes)
+			: base(null, diagram, parentShape, childShapes, Layer.NoLayerId, layers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AggregateCompositeShapeCommand(IRepository repository, Diagram diagram, LayerIds layerIds, Shape parentShape, IEnumerable<Shape> childShapes)
-			: base(diagram, parentShape, childShapes) {
-			this.description = string.Format("Aggregate {0} shapes to a composite shape", base.shapes.Count);
+		public AggregateCompositeShapeCommand(Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape parentShape, IEnumerable<Shape> childShapes)
+			: base(null, diagram, parentShape, childShapes, Layer.NoLayerId, supplementalLayers) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AggregateCompositeShapeCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape parentShape, IEnumerable<Shape> childShapes)
+			: base(null, diagram, parentShape, childShapes, Layer.NoLayerId, layers) {
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Aggregate0ShapesToACompositeShape, base.Shapes.Count);
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public AggregateCompositeShapeCommand(IRepository repository, Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape parentShape, IEnumerable<Shape> childShapes)
+			: base(null, diagram, parentShape, childShapes, Layer.NoLayerId, supplementalLayers) {
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Aggregate0ShapesToACompositeShape, base.Shapes.Count);
 		}
 
 
@@ -3130,15 +3267,52 @@ namespace Dataweb.NShape.Commands {
 	public class SplitCompositeShapeCommand : ShapeAggregationCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public SplitCompositeShapeCommand(Diagram diagram, LayerIds layerIds, Shape parentShape)
-			: this(null, diagram, layerIds, parentShape) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public SplitCompositeShapeCommand(Diagram diagram, LayerIds layers, Shape parentShape)
+			: this(null, diagram, Layer.NoLayerId, layers, parentShape) {
+		}
+
+
+		/// <summary>
+		/// Splits a composite shape and into the parent shape and its child shapes. 
+		/// Assigns the parent shape to the given layers.
+		/// </summary>
+		public SplitCompositeShapeCommand(Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape parentShape)
+			: this(null, diagram, homeLayer, supplementalLayers, parentShape) {			
+		}
+
+
+		/// <summary>
+		/// Splits a composite shape and into the parent shape and its child shapes. 
+		/// </summary>
+		public SplitCompositeShapeCommand(Diagram diagram, Shape parentShape)
+			: this(null, diagram, Layer.NoLayerId, LayerIds.None, parentShape) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public SplitCompositeShapeCommand(IRepository repository, Diagram diagram, LayerIds layerIds, Shape parentShape)
-			: base(repository, diagram, parentShape, (parentShape != null) ? parentShape.Children : null) {
-			this.description = string.Format("Split composite shape into {0} single shapes", base.shapes.Count);
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public SplitCompositeShapeCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape parentShape)
+			: this(repository, diagram, Layer.NoLayerId, layers, parentShape) {
+		}
+
+
+		/// <summary>
+		/// Splits a composite shape and into the parent shape and its child shapes. 
+		/// </summary>
+		public SplitCompositeShapeCommand(IRepository repository, Diagram diagram, Shape parentShape)
+			: base(repository, diagram, parentShape, (parentShape != null) ? parentShape.Children : null, parentShape.HomeLayer, parentShape.SupplementalLayers) {
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_SplitCompositeShapeInto0SingleShapes, base.Shapes.Count);
+		}
+
+
+		/// <summary>
+		/// Splits a composite shape and into the parent shape and its child shapes. 
+		/// Assigns the parent shape to the given layers.
+		/// </summary>
+		public SplitCompositeShapeCommand(IRepository repository, Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape parentShape)
+			: base(repository, diagram, parentShape, (parentShape != null) ? parentShape.Children : null, homeLayer, supplementalLayers) {
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_SplitCompositeShapeInto0SingleShapes, base.Shapes.Count);
 		}
 
 
@@ -3184,7 +3358,7 @@ namespace Dataweb.NShape.Commands {
 		public AddConnectionPointCommand(IRepository repository, Shape shape, int x, int y)
 			: base(repository, shape) {
 			if (!(shape is ILinearShape)) throw new ArgumentException(string.Format("Shape does not implement required interface {0}.", typeof(ILinearShape).Name));
-			this.description = string.Format("Add Connection Point to {0} at {1}|{2}", shape, x, y);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AddConnectionPointTo0At12, shape, x, y);
 			this.x = x;
 			this.y = y;
 		}
@@ -3192,17 +3366,17 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Execute() {
-			insertedPointId = ((ILinearShape)shape).AddConnectionPoint(x, y);
-			shape.Invalidate();
-			if (Repository != null) Repository.Update(shape);
+			insertedPointId = ((ILinearShape)Shape).AddConnectionPoint(x, y);
+			Shape.Invalidate();
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			((ILinearShape)shape).RemoveConnectionPoint(insertedPointId);
-			shape.Invalidate();
-			if (Repository != null) Repository.Update(shape);
+			((ILinearShape)Shape).RemoveConnectionPoint(insertedPointId);
+			Shape.Invalidate();
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
@@ -3235,7 +3409,7 @@ namespace Dataweb.NShape.Commands {
 		public AddVertexCommand(IRepository repository, Shape shape, int x, int y)
 			: base(repository, shape) {
 			if (!(shape is ILinearShape)) throw new ArgumentException(string.Format("Shape does not implement required interface {0}.", typeof(ILinearShape).Name));
-			this.description = string.Format("Add Point to {0} at {1}|{2}", shape, x, y);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AddPointTo0At12, shape, x, y);
 			this.x = x;
 			this.y = y;
 		}
@@ -3243,15 +3417,15 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Execute() {
-			insertedPointId = ((ILinearShape)shape).AddVertex(x, y);
-			if (Repository != null) Repository.Update(shape);
+			insertedPointId = ((ILinearShape)Shape).AddVertex(x, y);
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			((ILinearShape)shape).RemoveVertex(insertedPointId);
-			if (Repository != null) Repository.Update(shape);
+			((ILinearShape)Shape).RemoveVertex(insertedPointId);
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
@@ -3286,7 +3460,7 @@ namespace Dataweb.NShape.Commands {
 			if (!(shape is ILinearShape)) throw new ArgumentException(string.Format("Shape does not implement required interface {0}.", typeof(ILinearShape).Name));
 			if (beforePointId == ControlPointId.None || beforePointId == ControlPointId.Any || beforePointId == ControlPointId.Reference || beforePointId == ControlPointId.FirstVertex)
 				throw new ArgumentException("beforePointId");
-			this.description = string.Format("Add Point to {0} at {1}|{2}", shape, x, y);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AddPointTo0At12, shape, x, y);
 			this.beforePointId = beforePointId;
 			this.x = x;
 			this.y = y;
@@ -3295,17 +3469,17 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Execute() {
-			if (insertedPointId != ControlPointId.None && shape is LineShapeBase)
-				insertedPointId = ((LineShapeBase)shape).InsertVertex(beforePointId, insertedPointId, x, y);
-			else insertedPointId = ((ILinearShape)shape).InsertVertex(beforePointId, x, y);
-			if (Repository != null) Repository.Update(shape);
+			if (insertedPointId != ControlPointId.None && Shape is LineShapeBase)
+				insertedPointId = ((LineShapeBase)Shape).InsertVertex(beforePointId, insertedPointId, x, y);
+			else insertedPointId = ((ILinearShape)Shape).InsertVertex(beforePointId, x, y);
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			((ILinearShape)shape).RemoveVertex(insertedPointId);
-			if (Repository != null) Repository.Update(shape);
+			((ILinearShape)Shape).RemoveVertex(insertedPointId);
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
@@ -3344,27 +3518,27 @@ namespace Dataweb.NShape.Commands {
 			// case instead of throwing an exception.
 			if (removedPointId != ControlPointId.None)
 				this.p = shape.GetControlPointPosition(removedPointId);
-			this.description = string.Format("Remove connection point from {0} at {1}|{2}", shape, p.X, p.Y);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_RemoveConnectionPointFrom0At12, shape, p.X, p.Y);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			((ILinearShape)shape).RemoveConnectionPoint(removedPointId);
-			shape.Invalidate();
-			if (Repository != null) Repository.Update(shape);
+			((ILinearShape)Shape).RemoveConnectionPoint(removedPointId);
+			Shape.Invalidate();
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			ControlPointId ptId = ((ILinearShape)shape).AddConnectionPoint(p.X, p.Y);
+			ControlPointId ptId = ((ILinearShape)Shape).AddConnectionPoint(p.X, p.Y);
 			if (ptId != removedPointId) {
 				Debug.Fail("PointId should not change when reverting a command!");
 				removedPointId = ptId;
 			}
-			shape.Invalidate();
-			if (Repository != null) Repository.Update(shape);
+			Shape.Invalidate();
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
@@ -3409,7 +3583,7 @@ namespace Dataweb.NShape.Commands {
 			this.nextPointId = ((ILinearShape)shape).GetNextVertexId(vertexId);
 
 			// Do not find point position here because if controlPointId is not valid, an exception would be thrown
-			this.description = string.Format("Remove point at {0}|{1} from {2} ", p.X, p.Y, shape);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_RemovePointAt01From2, p.X, p.Y, shape);
 		}
 
 
@@ -3417,9 +3591,9 @@ namespace Dataweb.NShape.Commands {
 		public override void Execute() {
 			if (removedPointId == ControlPointId.None) throw new NShapeException("ControlPointId.None is not a valid vertex to remove.");
 			// Store point position if not done yet
-			if (!Geometry.IsValid(p)) p = shape.GetControlPointPosition(removedPointId);
-			((ILinearShape)shape).RemoveVertex(removedPointId);
-			if (Repository != null) Repository.Update(shape);
+			if (!Geometry.IsValid(p)) p = Shape.GetControlPointPosition(removedPointId);
+			((ILinearShape)Shape).RemoveVertex(removedPointId);
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
@@ -3427,15 +3601,15 @@ namespace Dataweb.NShape.Commands {
 		public override void Revert() {
 			if (removedPointId == ControlPointId.None) throw new NShapeException("ControlPointId.None is not a valid vertex to add.");
 			ControlPointId id = ControlPointId.None;
-			if (shape is LineShapeBase) {
-				id = ((LineShapeBase)shape).InsertVertex(nextPointId, removedPointId, p.X, p.Y);
+			if (Shape is LineShapeBase) {
+				id = ((LineShapeBase)Shape).InsertVertex(nextPointId, removedPointId, p.X, p.Y);
 				Debug.Assert(id == removedPointId);
-			} else id = ((ILinearShape)shape).InsertVertex(nextPointId, p.X, p.Y);
+			} else id = ((ILinearShape)Shape).InsertVertex(nextPointId, p.X, p.Y);
 			foreach (KeyValuePair<ControlPointId, Point> item in ctrlPointPositions) {
 				if (item.Key == removedPointId || item.Key == id) continue;
-				shape.MoveControlPointTo(item.Key, item.Value.X, item.Value.Y, ResizeModifiers.None);
+				Shape.MoveControlPointTo(item.Key, item.Value.X, item.Value.Y, ResizeModifiers.None);
 			}
-			if (Repository != null) Repository.Update(shape);
+			if (Repository != null) Repository.Update(Shape);
 		}
 
 
@@ -3612,22 +3786,22 @@ namespace Dataweb.NShape.Commands {
 			: base(repository) {
 			if (modelObject == null) throw new ArgumentNullException("modelObject");
 			if (modelObject.Parent != null && parent == null)
-				this.description = string.Format(
-					"Remove {0} '{1}' from hierarchical position under {2} '{3}'.",
+				this.Description = string.Format(
+					Dataweb.NShape.Properties.Resources.MessageFmt_Remove01FromHierarchicalPositionUnder23,
 					modelObject.Type.Name, modelObject.Name,
 					modelObject.Parent.Type.Name, modelObject.Parent.Name);
 			else if (modelObject.Parent == null && parent != null)
-				this.description = string.Format(
-					"Move {0} '{1}' to hierarchical position under {2} '{3}'.",
+				this.Description = string.Format(
+					Dataweb.NShape.Properties.Resources.MessageFmt_Move01ToHierarchicalPositionUnder23,
 					modelObject.Type.Name, modelObject.Name,
 					parent.Type.Name, parent.Name);
 			else if (modelObject.Parent != null && parent != null)
-				this.description = string.Format(
-					"Change hierarchical position of {0} '{1}' from {2} '{3}' to {4} '{5}'.",
+				this.Description = string.Format(
+					Dataweb.NShape.Properties.Resources.MessageFmt_ChangeHierarchicalPositionOf01From23To45,
 					modelObject.Type.Name, modelObject.Name,
 					modelObject.Parent.Type.Name, modelObject.Parent.Name,
 					parent.Type.Name, parent.Name);
-			else this.description = string.Format("Move {0} '{1}'.", modelObject.Type.Name, modelObject.Name);
+			else this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Move01, modelObject.Type.Name, modelObject.Name);
 
 			this.modelObject = modelObject;
 			this.oldParent = modelObject.Parent;
@@ -3690,9 +3864,9 @@ namespace Dataweb.NShape.Commands {
 			if (modelObject == null) throw new ArgumentNullException("modelObject");
 
 			if (shape.ModelObject == null)
-				this.description = string.Format("Assign {0} '{1}' to {2}.", modelObject.Type.Name, modelObject.Name, shape.Type.Name);
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Assign01To2, modelObject.Type.Name, modelObject.Name, shape.Type.Name);
 			else
-				this.description = string.Format("Replace {0} '{1}' of {2} with {3} '{4}'.", shape.ModelObject.Type.Name, shape.ModelObject.Name, shape.Type.Name, modelObject.Type.Name, modelObject.Name);
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Replace01Of2With34, shape.ModelObject.Type.Name, shape.ModelObject.Name, shape.Type.Name, modelObject.Type.Name, modelObject.Name);
 
 			this.shape = shape;
 			this.oldModelObject = shape.ModelObject;
@@ -3774,7 +3948,7 @@ namespace Dataweb.NShape.Commands {
 			: base(repository) {
 			if (originalTemplate == null) throw new ArgumentNullException("originalTemplate");
 			if (changedTemplate == null) throw new ArgumentNullException("changedTemplate");
-			this.description = string.Format("Change tempate '{0}'", originalTemplate.Title);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeTempate0, originalTemplate.Title);
 			this.originalTemplate = originalTemplate;
 			this.oldTemplate = new Template(originalTemplate.Name, originalTemplate.Shape.Clone());
 			this.oldTemplate.CopyFrom(originalTemplate);
@@ -3914,7 +4088,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateTemplateCommand(IRepository repository, Template template)
 			: base(repository, template) {
-			this.description = string.Format("Create new tempate '{0}' based on '{1}'", template.Title, template.Shape.Type.Name);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_CreateNewTempate0BasedOn1, template.Title, template.Shape.Type.Name);
 		}
 
 
@@ -3929,7 +4103,7 @@ namespace Dataweb.NShape.Commands {
 			: base(repository) {
 			if (string.IsNullOrEmpty(templateName)) throw new ArgumentNullException("templateName");
 			if (baseShape == null) throw new ArgumentNullException("baseShape");
-			this.description = string.Format("Create new tempate '{0}' based on '{1}'", templateName, baseShape.Type.Name);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_CreateNewTempate0BasedOn1, templateName, baseShape.Type.Name);
 			this.templateName = templateName;
 			this.baseShape = baseShape;
 		}
@@ -3937,7 +4111,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Execute() {
-			if (template == null) {
+			if (Template == null) {
 				// Create a template shape and copy properties
 				Shape templateShape = baseShape.Type.CreateInstance();
 				foreach (Shape childShape in baseShape.Children.BottomUp)
@@ -3949,12 +4123,12 @@ namespace Dataweb.NShape.Commands {
 					templateShape.ModelObject = templateModelObject;
 				}
 				// Create the new template
-				template = new Template(templateName, templateShape);
+				Template = new Template(templateName, templateShape);
 			}
 			if (Repository != null) {
-				if (CanUndeleteEntity(template))
-					Repository.UndeleteAll(template);
-				else Repository.InsertAll(template);
+				if (CanUndeleteEntity(Template))
+					Repository.UndeleteAll(Template);
+				else Repository.InsertAll(Template);
 			}
 		}
 
@@ -3962,8 +4136,8 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override void Revert() {
 			if (Repository != null) {
-				Repository.Delete(template.GetPropertyMappings());
-				Repository.DeleteAll(template);
+				Repository.Delete(Template.GetPropertyMappings());
+				Repository.DeleteAll(Template);
 			}
 		}
 
@@ -3989,15 +4163,15 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public DeleteTemplateCommand(IRepository repository, Template template)
 			: base(repository, template) {
-			this.description = string.Format("Delete tempate '{0}' based on '{1}'", template.Title, template.Shape.Type.Name);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_DeleteTempate0BasedOn1, template.Title, template.Shape.Type.Name);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
 			if (Repository != null) {
-				Repository.Delete(template.GetPropertyMappings());
-				Repository.DeleteAll(template);
+				Repository.Delete(Template.GetPropertyMappings());
+				Repository.DeleteAll(Template);
 			}
 		}
 
@@ -4005,9 +4179,9 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override void Revert() {
 			if (Repository != null) {
-				if (CanUndeleteEntity(template))
-					Repository.UndeleteAll(template);
-				else Repository.InsertAll(template);
+				if (CanUndeleteEntity(Template))
+					Repository.UndeleteAll(Template);
+				else Repository.InsertAll(Template);
 			}
 		}
 
@@ -4030,7 +4204,7 @@ namespace Dataweb.NShape.Commands {
 			: base(repository) {
 			if (originalTemplate == null) throw new ArgumentNullException("originalTemplate");
 			if (changedTemplate == null) throw new ArgumentNullException("changedTemplate");
-			this.description = string.Format("Change shape of tempate  '{0}' from '{1}' to '{2}'", originalTemplate.Title, originalTemplate.Shape.Type.Name, changedTemplate.Shape.Type.Name);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeShapeOfTempate0From1To2, originalTemplate.Title, originalTemplate.Shape.Type.Name, changedTemplate.Shape.Type.Name);
 			this.originalTemplate = originalTemplate;
 			this.oldTemplate = originalTemplate.Clone();	// Shape and ModelObject(!) are also cloned in this step
 			this.newTemplate = changedTemplate;
@@ -4247,24 +4421,24 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateDesignCommand(IRepository repository, Design design)
 			: base(repository, design) {
-			description = string.Format("Create {0} '{1}'", design.GetType().Name, design.Name);
-			this.design = design;
+			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_CreateDesign0, design.Name);
+			this.Design = design;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
 			if (Repository != null) {
-				if (CanUndeleteEntity(design))
-					Repository.UndeleteAll(design);
-				else Repository.InsertAll(design);
+				if (CanUndeleteEntity(Design))
+					Repository.UndeleteAll(Design);
+				else Repository.InsertAll(Design);
 			}
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			if (Repository != null) Repository.DeleteAll(design);
+			if (Repository != null) Repository.DeleteAll(Design);
 		}
 
 	}
@@ -4284,23 +4458,23 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public DeleteDesignCommand(IRepository repository, Design design)
 			: base(repository, design) {
-			description = string.Format("Delete {0} '{1}'", design.GetType().Name, design.Name);
-			this.design = design;
+			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_DeleteDesign0, design.Name);
+			this.Design = design;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			if (Repository != null) Repository.DeleteAll(design);
+			if (Repository != null) Repository.DeleteAll(Design);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
 			if (Repository != null) {
-				if (CanUndeleteEntity(design))
-					Repository.UndeleteAll(design);
-				else Repository.InsertAll(design);
+				if (CanUndeleteEntity(Design))
+					Repository.UndeleteAll(Design);
+				else Repository.InsertAll(Design);
 			}
 		}
 
@@ -4322,15 +4496,15 @@ namespace Dataweb.NShape.Commands {
 		public CreateStyleCommand(IRepository repository, Design design, Style style)
 			: base(repository, design) {
 			if (style == null) throw new ArgumentNullException("style");
-			description = string.Format("Create {0} '{1}'", style.GetType().Name, style.Title);
-			this.design = design;
+			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_CreateStyle0, style.Title);
+			this.Design = design;
 			this.style = style;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			Design d = design ?? Repository.GetDesign(null);
+			Design d = Design ?? Repository.GetDesign(null);
 			d.AddStyle(style);
 			if (Repository != null) {
 				if (CanUndeleteEntity(style))
@@ -4345,7 +4519,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Revert() {
-			Design d = design ?? Repository.GetDesign(null);
+			Design d = Design ?? Repository.GetDesign(null);
 			d.RemoveStyle(style);
 			if (Repository != null) {
 				Repository.Delete(style);
@@ -4373,15 +4547,15 @@ namespace Dataweb.NShape.Commands {
 		public DeleteStyleCommand(IRepository repository, Design design, Style style)
 			: base(repository, design) {
 			if (style == null) throw new ArgumentNullException("style");
-			description = string.Format("Delete {0} '{1}'", style.GetType().Name, style.Title);
-			this.design = design;
+			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_DeleteStyle0, style.Title);
+			this.Design = design;
 			this.style = style;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			Design d = design ?? Repository.GetDesign(null);
+			Design d = Design ?? Repository.GetDesign(null);
 			d.RemoveStyle(style);
 			if (Repository != null) {
 				Repository.Delete(style);
@@ -4392,7 +4566,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Revert() {
-			Design d = design ?? Repository.GetDesign(null);
+			Design d = Design ?? Repository.GetDesign(null);
 			d.AddStyle(style);
 			if (Repository != null) {
 				if (CanUndeleteEntity(style))
@@ -4442,7 +4616,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public AddLayerCommand(IRepository repository, Diagram diagram, string layerName)
 			: base(repository, diagram, layerName) {
-			this.description = string.Format("Add layer '{0}'", layerName);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AddLayer0, layerName);
 		}
 
 
@@ -4455,135 +4629,250 @@ namespace Dataweb.NShape.Commands {
 		public override void Revert() {
 			RemoveLayers();
 		}
+
+	}
+
+
+	/// <ToBeCompleted></ToBeCompleted>
+	public abstract class ShapeLayersCommand : ShapesCommand {
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected ShapeLayersCommand(Diagram diagram, Shape shape) 
+			: this(null, diagram, shape) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public ShapeLayersCommand(Diagram diagram, IEnumerable<Shape> shapes)
+			: this(null, diagram, shapes) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public ShapeLayersCommand(IRepository repository, Diagram diagram, Shape shape) 
+			: this(repository, diagram, EnumerationHelper.Enumerate(shape)) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public ShapeLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes)
+			: base(repository, shapes) {
+			Diagram = diagram;
+			OriginalLayers = new List<LayerInfo>(Shapes.Count);
+			foreach (Shape shape in Shapes) 
+				OriginalLayers.Add(LayerInfo.Create(shape.HomeLayer, shape.SupplementalLayers));
+		}
+
+
+		/// <override></override>
+		public override void Revert() {
+			if (Shapes.Count > 0) {
+				for (int i = Shapes.Count - 1; i >= 0; --i) {
+					Shapes[i].SupplementalLayers = LayerIds.None;
+					Shapes[i].HomeLayer = Layer.NoLayerId;
+					Diagram.AddShapeToLayers(Shapes[i], OriginalLayers[i].HomeLayer, OriginalLayers[i].SupplementalLayers);
+				}
+				if (Repository != null) Repository.Update(Shapes);
+			}
+		}
+
+
+		/// <override></override>
+		public override Permission RequiredPermission {
+			get { return Permission.Layout; }
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected Diagram Diagram { get; private set; }
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected List<LayerInfo> OriginalLayers { get; private set; }
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected int HomeLayer {
+			get { return _homeLayer; }
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected LayerIds Layers {
+			get { return _supplementalLayers; }
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected void Construct(int homeLayer, LayerIds supplementalLayers) {
+			_homeLayer = homeLayer;
+			_supplementalLayers = supplementalLayers;
+		}
+
+
+		private int _homeLayer;
+		private LayerIds _supplementalLayers;
 	}
 
 
 	/// <summary>
 	/// Command for adding shapes to a layer of a diagram.
 	/// </summary>
-	public class AddShapesToLayersCommand : DiagramCommand {
+	public class AddShapesToLayersCommand : ShapeLayersCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AddShapesToLayersCommand(Diagram diagram, Shape shape, LayerIds layerIds)
-			: this(null, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layerIds) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AddShapesToLayersCommand(Diagram diagram, Shape shape, LayerIds layers)
+			: this(null, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layers) {
+		}
+
+		///// <ToBeCompleted></ToBeCompleted>
+		//public AddShapesToLayersCommand(Diagram diagram, Shape shape, IEnumerable<int> layerIds)
+		//    : this(null, diagram, shape, layerIds) {
+		//}
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public AddShapesToLayersCommand(Diagram diagram, Shape shape, int homeLayer, LayerIds supplementalLayers)
+			: this(null, diagram, SingleInstanceEnumerator<Shape>.Create(shape), homeLayer, supplementalLayers) {
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AddShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, LayerIds layerIds)
-			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layerIds) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AddShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, LayerIds layers)
+			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layers) {
+		}
+
+
+		///// <ToBeCompleted></ToBeCompleted>
+		//public AddShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, IEnumerable<int> layerIds)
+		//    : this(repository, diagram, EnumerationHelper.Enumerate(shape), layerIds) {
+		//}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public AddShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, int homeLayer, LayerIds supplementalLayers)
+			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), homeLayer, supplementalLayers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AddShapesToLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layerIds)
-			: this(null, diagram, shapes, layerIds) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AddShapesToLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers)
+			: this(null, diagram, shapes, layers) {
+		}
+
+
+		///// <ToBeCompleted></ToBeCompleted>
+		//public AddShapesToLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, IEnumerable<int> layerIds)
+		//    : this(null, diagram, shapes, layerIds) {
+		//}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public AddShapesToLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers)
+			: this(null, diagram, shapes, homeLayer, supplementalLayers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AddShapesToLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, LayerIds layerIds)
-			: base(repository, diagram) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
-			this.newLayerIds = layerIds;
-			this.shapes = new List<Shape>(shapes);
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AddShapesToLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers)
+			: this(repository, diagram, shapes, Layer.NoLayerId, layers) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public AddShapesToLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers)
+			: base(repository, diagram, shapes) {
+			Construct(homeLayer, supplementalLayers);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			diagram.AddShapesToLayers(shapes, newLayerIds);
-			if (Repository != null) Repository.Update(shapes);
+			Diagram.AddShapesToLayers(Shapes, HomeLayer, Layers);
+			if (Repository != null) Repository.Update(Shapes);
 		}
 
-
-		/// <override></override>
-		public override void Revert() {
-			diagram.RemoveShapesFromLayers(shapes, newLayerIds);
-			if (Repository != null) Repository.Update(shapes);
-		}
-
-
-		/// <override></override>
-		public override Permission RequiredPermission {
-			get { return Permission.Layout; }
-		}
-
-
-		private LayerIds newLayerIds;
-		private List<Shape> shapes;
 	}
 
 
 	/// <summary>
 	/// Command for assigning shapes to a layer of a diagram, thus replacing the current layer assignments of the shape.
 	/// </summary>
-	public class AssignShapesToLayersCommand : ShapesCommand {
+	public class AssignShapesToLayersCommand : ShapeLayersCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AssignShapesToLayersCommand(Diagram diagram, Shape shape, LayerIds layerIds)
-			: this(null, diagram, shape, layerIds) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AssignShapesToLayersCommand(Diagram diagram, Shape shape, LayerIds layers)
+			: this(null, diagram, shape, layers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AssignShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, LayerIds layerIds)
-			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layerIds) {
+		public AssignShapesToLayersCommand(Diagram diagram, Shape shape, int homeLayer, LayerIds supplementalLayers)
+			: this(null, diagram, shape, Layer.NoLayerId, supplementalLayers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AssignShapesToLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layerIds)
-			: this(null, diagram, shapes, layerIds) {
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AssignShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, LayerIds layers)
+			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layers) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public AssignShapesToLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, LayerIds layerIds)
-			: base(repository, shapes) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
-			this.newLayerIds = layerIds;
-			this.oldLayerIds = new List<LayerIds>(this.shapes.Count);
-			int cnt = this.shapes.Count;
-			foreach (Shape shape in shapes)
-				oldLayerIds.Add(shape.Layers);
+		public AssignShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, int homeLayer, LayerIds supplementalLayers)
+			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), homeLayer, supplementalLayers) {
+		}
+
+
+		///// <ToBeCompleted></ToBeCompleted>
+		//public AssignShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, IEnumerable<int> layerIds)
+		//    : this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layerIds) {
+		//}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AssignShapesToLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers)
+			: this(null, diagram, shapes, layers) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public AssignShapesToLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers)
+			: this(null, diagram, shapes, homeLayer, supplementalLayers) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		public AssignShapesToLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers)
+			: this(repository, diagram, shapes, Layer.NoLayerId, layers) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public AssignShapesToLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers)
+			: base(repository, diagram, shapes) {
+			Construct(homeLayer, supplementalLayers);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			if (shapes.Count > 0) {
-				foreach (Shape shape in shapes) {
-					diagram.RemoveShapeFromLayers(shape, LayerIds.All);
-					diagram.AddShapeToLayers(shape, newLayerIds);
+			if (Shapes.Count > 0) {
+				foreach (Shape shape in Shapes) {
+					shape.SupplementalLayers = LayerIds.None;
+					shape.HomeLayer = Layer.NoLayerId;
+					Diagram.AddShapeToLayers(shape, HomeLayer, Layers);
 				}
-				if (Repository != null) Repository.Update(shapes);
+				if (Repository != null) Repository.Update(Shapes);
 			}
 		}
 
-
-		/// <override></override>
-		public override void Revert() {
-			if (shapes.Count > 0) {
-				int i = -1;
-				foreach (Shape shape in shapes) {
-					diagram.RemoveShapeFromLayers(shape, LayerIds.All);
-					diagram.AddShapeToLayers(shape, oldLayerIds[++i]);
-				}
-				if (Repository != null) Repository.Update(shapes);
-			}
-		}
-
-
-		/// <override></override>
-		public override Permission RequiredPermission {
-			get { return Permission.Layout; }
-		}
-
-
-		private Diagram diagram;
-		private LayerIds newLayerIds;
-		private List<LayerIds> oldLayerIds;
 	}
 
 
@@ -4601,23 +4890,23 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateDiagramCommand(IRepository repository, Diagram diagram)
 			: base(repository, diagram) {
-			description = string.Format("Create diagram '{0}'.", diagram.Title);
+			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_CreateDiagram0, diagram.Title);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
 			if (Repository != null) {
-				if (CanUndeleteEntity(diagram))
-					Repository.UndeleteAll(diagram);
-				else Repository.InsertAll(diagram);
+				if (CanUndeleteEntity(Diagram))
+					Repository.UndeleteAll(Diagram);
+				else Repository.InsertAll(Diagram);
 			}
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			if (Repository != null) Repository.DeleteAll(diagram);
+			if (Repository != null) Repository.DeleteAll(Diagram);
 		}
 
 
@@ -4642,24 +4931,24 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public DeleteDiagramCommand(IRepository repository, Diagram diagram)
 			: base(repository, diagram) {
-			this.shapes = new ShapeCollection(diagram.Shapes);
+			this._shapes = new ShapeCollection(diagram.Shapes);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			if (Repository != null) Repository.DeleteAll(diagram);
+			if (Repository != null) Repository.DeleteAll(Diagram);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
 			if (Repository != null) {
-				if (diagram.Shapes.Count == 0)
-					diagram.Shapes.AddRange(shapes);
-				if (CanUndeleteEntity(diagram))
-					Repository.UndeleteAll(diagram);
-				else Repository.InsertAll(diagram);
+				if (Diagram.Shapes.Count == 0)
+					Diagram.Shapes.AddRange(_shapes);
+				if (CanUndeleteEntity(Diagram))
+					Repository.UndeleteAll(Diagram);
+				else Repository.InsertAll(Diagram);
 			}
 		}
 
@@ -4670,7 +4959,7 @@ namespace Dataweb.NShape.Commands {
 		}
 
 
-		private ShapeCollection shapes;
+		private ShapeCollection _shapes;
 	}
 
 
@@ -4691,8 +4980,8 @@ namespace Dataweb.NShape.Commands {
 			if (newValue == null) throw new ArgumentNullException("newValue");
 			if (property == ChangedProperty.LowerZoomThreshold || property == ChangedProperty.UpperZoomThreshold)
 				throw new ArgumentException("property");
-			this.oldStrValue = oldValue;
-			this.newStrValue = newValue;
+			this._oldStrValue = oldValue;
+			this._newStrValue = newValue;
 			Construct(layer, property);
 		}
 
@@ -4708,8 +4997,8 @@ namespace Dataweb.NShape.Commands {
 			: base(repository, diagram) {
 			if (property == ChangedProperty.Name || property == ChangedProperty.Title)
 				throw new ArgumentException("property");
-			this.oldIntValue = oldValue;
-			this.newIntValue = newValue;
+			this._oldIntValue = oldValue;
+			this._newIntValue = newValue;
 			Construct(layer, property);
 		}
 
@@ -4729,47 +5018,47 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public override void Execute() {
-			switch (changedProperty) {
+			switch (_changedProperty) {
 				case ChangedProperty.Name:
-					layer.Name = newStrValue;
+					Diagram.Layers.RenameLayer(_layer.Name, _newStrValue);
 					break;
 				case ChangedProperty.Title:
-					layer.Title = newStrValue;
+					_layer.Title = _newStrValue;
 					break;
 				case ChangedProperty.LowerZoomThreshold:
-					layer.LowerZoomThreshold = newIntValue;
+					_layer.LowerZoomThreshold = _newIntValue;
 					break;
 				case ChangedProperty.UpperZoomThreshold:
-					layer.UpperZoomThreshold = newIntValue;
+					_layer.UpperZoomThreshold = _newIntValue;
 					break;
 				default:
 					Debug.Fail("Unhandled switch case!");
 					break;
 			}
-			if (Repository != null) Repository.Update(diagram);
+			if (Repository != null) Repository.Update(Diagram);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public override void Revert() {
-			switch (changedProperty) {
+			switch (_changedProperty) {
 				case ChangedProperty.Name:
-					layer.Name = oldStrValue;
+					Diagram.Layers.RenameLayer(_layer.Name, _oldStrValue);
 					break;
 				case ChangedProperty.Title:
-					layer.Title = oldStrValue;
+					_layer.Title = _oldStrValue;
 					break;
 				case ChangedProperty.LowerZoomThreshold:
-					layer.LowerZoomThreshold = oldIntValue;
+					_layer.LowerZoomThreshold = _oldIntValue;
 					break;
 				case ChangedProperty.UpperZoomThreshold:
-					layer.UpperZoomThreshold = oldIntValue;
+					_layer.UpperZoomThreshold = _oldIntValue;
 					break;
 				default:
 					Debug.Fail("Unhandled switch case!");
 					break;
 			}
-			if (Repository != null) Repository.Update(diagram);
+			if (Repository != null) Repository.Update(Diagram);
 		}
 
 
@@ -4780,26 +5069,26 @@ namespace Dataweb.NShape.Commands {
 
 
 		private void Construct(Layer layer, ChangedProperty property) {
-			this.layer = layer;
-			this.changedProperty = property;
+			this._layer = layer;
+			this._changedProperty = property;
 			string quotes, oldVal, newVal;
 			if (property == ChangedProperty.Name || property == ChangedProperty.Title) {
 				quotes = "'";
-				oldVal = oldStrValue;
-				newVal = newStrValue;
+				oldVal = _oldStrValue;
+				newVal = _newStrValue;
 			} else {
-				quotes = "";
-				oldVal = oldIntValue.ToString();
-				newVal = newIntValue.ToString();
+				quotes = string.Empty;
+				oldVal = _oldIntValue.ToString();
+				newVal = _newIntValue.ToString();
 			}
-			description = string.Format("Change layer property '{0}' from {1}{2}{1} to {1}{3}{1}", property, quotes, oldVal, newVal);
+			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeLayerProperty0From121To131, property, quotes, oldVal, newVal);
 		}
 
 
-		private Layer layer = null;
-		private ChangedProperty changedProperty;
-		private string oldStrValue, newStrValue;
-		private int oldIntValue, newIntValue;
+		private Layer _layer = null;
+		private ChangedProperty _changedProperty;
+		private string _oldStrValue, _newStrValue;
+		private int _oldIntValue, _newIntValue;
 	}
 
 
@@ -4818,7 +5107,7 @@ namespace Dataweb.NShape.Commands {
 		public RemoveLayerCommand(IRepository repository, Diagram diagram, Layer layer)
 			: base(repository, diagram, layer) {
 			Construct();
-			this.description = string.Format("Remove layer '{0}' from diagram '{1}'", layer.Title, diagram.Title);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_RemoveLayer0FromDiagram1, layer.Title, diagram.Title);
 		}
 
 
@@ -4832,13 +5121,17 @@ namespace Dataweb.NShape.Commands {
 		public RemoveLayerCommand(IRepository repository, Diagram diagram, IEnumerable<Layer> layers)
 			: base(repository, diagram, layers) {
 			Construct();
-			this.description = string.Format("Remove {0} layers from diagram '{1}'", this.layers.Count, diagram.Title);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Remove0LayersFromDiagram1, this.Layers.Count, diagram.Title);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			diagram.RemoveShapesFromLayers(affectedShapes, layerIds);
+			LayerIds layers = Layer.ConvertToLayerIds(_layerIds);
+			foreach (Shape shape in _affectedShapes)
+				Diagram.RemoveShapeFromLayers(shape, _layerIds.Contains(shape.HomeLayer) ? shape.HomeLayer : Layer.NoLayerId, layers);
+			if (Repository != null) 
+				Repository.Update(_affectedShapes);
 			RemoveLayers();
 		}
 
@@ -4851,46 +5144,33 @@ namespace Dataweb.NShape.Commands {
 
 
 		private void Construct() {
-			layerIds = LayerIds.None;
-			for (int i = 0; i < layers.Count; ++i)
-				layerIds |= layers[i].Id;
+			_layerIds = new HashCollection<int>(LayerHelper.GetAllLayerIds(Layers));
 
-			affectedShapes = new List<Shape>();
-			originalLayers = new List<LayerIds>();
-			foreach (Shape shape in diagram.Shapes) {
-				if ((shape.Layers & layerIds) != 0) {
-					affectedShapes.Add(shape);
-					originalLayers.Add(shape.Layers);
+			_affectedShapes = new List<Shape>();
+			_originalLayers = new List<LayerInfo>();
+			foreach (Shape shape in Diagram.Shapes) {
+				if (_layerIds.Contains(shape.HomeLayer) || _layerIds.ContainsAny(LayerHelper.GetAllLayerIds(shape.SupplementalLayers))) {
+					_affectedShapes.Add(shape);
+					_originalLayers.Add(LayerInfo.Create(shape.HomeLayer, shape.SupplementalLayers));
 				}
 			}
 		}
 
 
 		private void RestoreShapeLayers() {
-			int cnt = affectedShapes.Count;
+			int cnt = _affectedShapes.Count;
 			for (int i = 0; i < cnt; ++i)
-				diagram.AddShapeToLayers(affectedShapes[i], originalLayers[i]);
-			if (Repository != null) Repository.Update(diagram);
-		}
-
-
-		private struct OriginalShapeLayer : IEquatable<OriginalShapeLayer> {
-			static OriginalShapeLayer() {
-				Empty.layerIds = LayerIds.None;
-				Empty.shape = null;
-			}
-			public static readonly OriginalShapeLayer Empty;
-			public Shape shape;
-			public LayerIds layerIds;
-			public bool Equals(OriginalShapeLayer other) {
-				return (other.layerIds == this.layerIds
-					&& other.shape == this.shape);
+				Diagram.AddShapeToLayers(_affectedShapes[i], _originalLayers[i].HomeLayer, _originalLayers[i].SupplementalLayers);
+			if (Repository != null) {
+				Repository.Update(_affectedShapes);
+				Repository.Update(Diagram);
 			}
 		}
 
-		private LayerIds layerIds;
-		private List<Shape> affectedShapes;
-		private List<LayerIds> originalLayers;
+
+		private HashCollection<int> _layerIds;
+		private List<Shape> _affectedShapes;
+		private List<LayerInfo> _originalLayers;
 	}
 
 
@@ -4913,64 +5193,93 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RemoveShapesFromLayersCommand(Diagram diagram, IEnumerable<Shape> shapes)
-			: this(null, diagram, shapes, LayerIds.All) {
+			: this(null, diagram, shapes, LayerHelper.GetAllLayerIds(diagram.Layers)) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RemoveShapesFromLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes)
-			: this(repository, diagram, shapes, LayerIds.All) {
+			: this(repository, diagram, shapes, LayerHelper.GetAllLayerIds(diagram.Layers)) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
 		public RemoveShapesFromLayersCommand(Diagram diagram, Shape shape, LayerIds removeFromLayerIds)
 			: this(null, diagram, shape, removeFromLayerIds) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public RemoveShapesFromLayersCommand(Diagram diagram, Shape shape, IEnumerable<int> removeFromLayerIds)
+			: this(null, diagram, shape, removeFromLayerIds) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
 		public RemoveShapesFromLayersCommand(IRepository repository, Diagram diagram, Shape shape, LayerIds removeFromLayerIds)
 			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), removeFromLayerIds) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public RemoveShapesFromLayersCommand(IRepository repository, Diagram diagram, Shape shape, IEnumerable<int> removeFromLayerIds)
+			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), removeFromLayerIds) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
 		public RemoveShapesFromLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, LayerIds removeFromLayerIds)
 			: this(null, diagram, shapes, removeFromLayerIds) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		public RemoveShapesFromLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, IEnumerable<int> removeFromLayerIds)
+			: this(null, diagram, shapes, removeFromLayerIds) {
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
 		public RemoveShapesFromLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, LayerIds removeFromLayerIds)
+			: this(repository, diagram, shapes, LayerHelper.GetAllLayerIds(removeFromLayerIds)) {
+		}
+		
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public RemoveShapesFromLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, IEnumerable<int> removeFromLayerIds)
 			: base(repository, shapes) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
-			this.removeLayerIds = removeFromLayerIds;
-			this.originalLayerIds = new List<LayerIds>(this.shapes.Count);
-			int cnt = this.shapes.Count;
+			this._diagram = diagram;
+			_removeFromHomeLayers = new HashCollection<int>(removeFromLayerIds);
+			_removeFromLayers = Layer.ConvertToLayerIds(removeFromLayerIds);
+			_originalLayers = new List<LayerInfo>(Shapes.Count);
 			foreach (Shape shape in shapes)
-				originalLayerIds.Add(shape.Layers);
+				_originalLayers.Add(LayerInfo.Create(shape.HomeLayer, shape.SupplementalLayers));
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			if (shapes.Count > 0) {
-				foreach (Shape shape in shapes)
-					diagram.RemoveShapeFromLayers(shape, removeLayerIds);
-				if (Repository != null) Repository.Update(shapes);
+			if (Shapes.Count > 0) {
+				foreach (Shape shape in Shapes) {
+					int homeLayer = _removeFromHomeLayers.Contains(shape.HomeLayer) ? shape.HomeLayer : Layer.NoLayerId;
+					_diagram.RemoveShapeFromLayers(shape, homeLayer, _removeFromLayers);
+				}
+				if (Repository != null) Repository.Update(Shapes);
 			}
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			if (shapes.Count > 0) {
-				int i = -1;
-				foreach (Shape shape in shapes)
-					diagram.AddShapeToLayers(shape, originalLayerIds[++i]);
-				if (Repository != null) Repository.Update(shapes);
+			if (Shapes.Count > 0) {
+				for (int i = 0; i < Shapes.Count; ++i)
+					_diagram.AddShapeToLayers(Shapes[i], _originalLayers[i].HomeLayer, _originalLayers[i].SupplementalLayers);
+				if (Repository != null) Repository.Update(Shapes);
 			}
 		}
 
@@ -4981,9 +5290,10 @@ namespace Dataweb.NShape.Commands {
 		}
 
 
-		private Diagram diagram;
-		private LayerIds removeLayerIds;
-		private List<LayerIds> originalLayerIds;
+		private Diagram _diagram;
+		private HashCollection<int> _removeFromHomeLayers;
+		private LayerIds _removeFromLayers;
+		private List<LayerInfo> _originalLayers;
 	}
 
 	#endregion
@@ -5036,8 +5346,8 @@ namespace Dataweb.NShape.Commands {
 		public override void Execute() {
 			base.Execute();
 			if (Repository != null) {
-				for (int i = modifiedObjects.Count - 1; i >= 0; --i)
-					Repository.Update(modifiedObjects[i]);
+				for (int i = ModifiedObjects.Count - 1; i >= 0; --i)
+					Repository.Update(ModifiedObjects[i]);
 			}
 		}
 
@@ -5046,8 +5356,8 @@ namespace Dataweb.NShape.Commands {
 		public override void Revert() {
 			base.Revert();
 			if (Repository != null) {
-				for (int i = modifiedObjects.Count - 1; i >= 0; --i)
-					Repository.Update(modifiedObjects[i]);
+				for (int i = ModifiedObjects.Count - 1; i >= 0; --i)
+					Repository.Update(ModifiedObjects[i]);
 			}
 		}
 
@@ -5111,8 +5421,8 @@ namespace Dataweb.NShape.Commands {
 		public override void Execute() {
 			base.Execute();
 			if (Repository != null) {
-				for (int i = modifiedObjects.Count - 1; i >= 0; --i)
-					Repository.Update(modifiedObjects[i]);
+				for (int i = ModifiedObjects.Count - 1; i >= 0; --i)
+					Repository.Update(ModifiedObjects[i]);
 			}
 		}
 
@@ -5121,15 +5431,15 @@ namespace Dataweb.NShape.Commands {
 		public override void Revert() {
 			base.Revert();
 			if (Repository != null) {
-				for (int i = modifiedObjects.Count - 1; i >= 0; --i)
-					Repository.Update(modifiedObjects[i]);
+				for (int i = ModifiedObjects.Count - 1; i >= 0; --i)
+					Repository.Update(ModifiedObjects[i]);
 			}
 		}
 
 
 		/// <override></override>
 		public override Permission RequiredPermission {
-			get { return (requiredPermissions != Permission.None) ? requiredPermissions : (Permission.Data | Permission.Present); }
+			get { return (RequiredPermissions != Permission.None) ? RequiredPermissions : (Permission.Data | Permission.Present); }
 		}
 
 
@@ -5214,7 +5524,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override Permission RequiredPermission {
-			get { return (requiredPermissions != Permission.None) ? requiredPermissions : Permission.Layout; }
+			get { return (RequiredPermissions != Permission.None) ? RequiredPermissions : Permission.Layout; }
 		}
 
 
@@ -5278,8 +5588,8 @@ namespace Dataweb.NShape.Commands {
 		public override void Execute() {
 			base.Execute();
 			if (Repository != null) {
-				if (modifiedObjects.Count == 1) Repository.Update(modifiedObjects[0]);
-				else Repository.Update(modifiedObjects);
+				if (ModifiedObjects.Count == 1) Repository.Update(ModifiedObjects[0]);
+				else Repository.Update(ModifiedObjects);
 			}
 		}
 
@@ -5288,15 +5598,15 @@ namespace Dataweb.NShape.Commands {
 		public override void Revert() {
 			base.Revert();
 			if (Repository != null) {
-				if (modifiedObjects.Count == 1) Repository.Update(modifiedObjects[0]);
-				else Repository.Update(modifiedObjects);
+				if (ModifiedObjects.Count == 1) Repository.Update(ModifiedObjects[0]);
+				else Repository.Update(ModifiedObjects);
 			}
 		}
 
 
 		/// <override></override>
 		public override Permission RequiredPermission {
-			get { return (requiredPermissions != Permission.None) ? requiredPermissions : Permission.Data; }
+			get { return (RequiredPermissions != Permission.None) ? RequiredPermissions : Permission.Data; }
 		}
 
 
@@ -5357,8 +5667,8 @@ namespace Dataweb.NShape.Commands {
 		public override void Execute() {
 			base.Execute();
 			if (Repository != null) {
-				if (modifiedObjects.Count == 1) Repository.Update(modifiedObjects[0]);
-				else Repository.Update(modifiedObjects);
+				if (ModifiedObjects.Count == 1) Repository.Update(ModifiedObjects[0]);
+				else Repository.Update(ModifiedObjects);
 			}
 		}
 
@@ -5367,8 +5677,8 @@ namespace Dataweb.NShape.Commands {
 		public override void Revert() {
 			base.Revert();
 			if (Repository != null) {
-				if (modifiedObjects.Count == 1) Repository.Update(modifiedObjects[0]);
-				else Repository.Update(modifiedObjects);
+				if (ModifiedObjects.Count == 1) Repository.Update(ModifiedObjects[0]);
+				else Repository.Update(ModifiedObjects);
 			}
 		}
 
@@ -5382,7 +5692,7 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, modifiedObjects);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, ModifiedObjects);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
@@ -5471,8 +5781,8 @@ namespace Dataweb.NShape.Commands {
 
 		private void UpdateRepository() {
 			if (Repository != null) {
-				for (int i = modifiedObjects.Count - 1; i >= 0; --i)
-					Repository.Update(modifiedObjects[i]);
+				for (int i = ModifiedObjects.Count - 1; i >= 0; --i)
+					Repository.Update(ModifiedObjects[i]);
 				Repository.Update(design);
 			}
 		}

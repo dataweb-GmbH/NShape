@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2016 dataweb GmbH
+  Copyright 2009-2017 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -54,10 +54,10 @@ namespace Dataweb.NShape.Advanced {
 		public override void CopyFrom(Shape source) {
 			if (source == null) throw new ArgumentNullException("source");
 
-			this.permissionSetName = source.SecurityDomainName;
-			this.tag = source.Tag;
-			this.data = source.Data;
-			this.displayService = source.DisplayService;
+			this._permissionSetName = source.SecurityDomainName;
+			this._tag = source.Tag;
+			this._data = source.Data;
+			this._displayService = source.DisplayService;
 			//this.Parent = source.Parent;
 			
 			// Do not recalculate Center after adding the children because in case the group is rotated, 
@@ -69,48 +69,48 @@ namespace Dataweb.NShape.Advanced {
 
 			// Do not assign to the property but to the field because the children are already on their (rotated) positions
 			if (source is IPlanarShape)
-				this.angle = ((IPlanarShape)source).Angle;
+				this._angle = ((IPlanarShape)source).Angle;
 			if (source is ShapeGroup)
-				this.angle = ((ShapeGroup)source).Angle;
+				this._angle = ((ShapeGroup)source).Angle;
 		}
 
 
 		/// <override></override>
 		public override ShapeType Type {
-			get { return shapeType; }
+			get { return _shapeType; }
 		}
 
 
 		/// <override></override>
 		public override IModelObject ModelObject {
-			get { return modelObject; }
-			set { modelObject = value; }
+			get { return _modelObject; }
+			set { _modelObject = value; }
 		}
 
 
 		/// <override></override>
 		public override Template Template {
-			get { return template; }
+			get { return _template; }
 		}
 
 
 		/// <override></override>
 		public override Diagram Diagram {
 			get {
-				if (owner is DiagramShapeCollection)
-					return ((DiagramShapeCollection)owner).Owner;
+				if (_owner is DiagramShapeCollection)
+					return ((DiagramShapeCollection)_owner).Owner;
 				else return null;
 			}
 			internal set {
-				if (owner != null && owner.Contains(this)) {
-					owner.Remove(this);
-					owner = null;
+				if (_owner != null && _owner.Contains(this)) {
+					_owner.Remove(this);
+					_owner = null;
 				}
 				if (value != null) {
 					if (value.Shapes is ShapeCollection)
-						owner = (ShapeCollection)value.Shapes;
+						_owner = (ShapeCollection)value.Shapes;
 					else throw new ArgumentException(string.Format("{0}'s Shapes property must be a {1}", value.GetType().Name, typeof(ShapeCollection).Name));
-				} else owner = null;
+				} else _owner = null;
 			}
 		}
 
@@ -118,21 +118,21 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override Shape Parent {
 			get {
-				if (owner is ShapeAggregation) return ((ShapeAggregation)owner).Owner;
+				if (_owner is ShapeAggregation) return ((ShapeAggregation)_owner).Owner;
 				else return null;
 			}
 			set {
 				if (value != null) {
-					if (owner != null && owner != value.Children) {
-						owner.Remove(this);
-						owner = null;
+					if (_owner != null && _owner != value.Children) {
+						_owner.Remove(this);
+						_owner = null;
 					}
 					if (value is ShapeGroup)
-						owner = ((ShapeGroup)value).ChildrenCollection;
+						_owner = ((ShapeGroup)value).ChildrenCollection;
 					else if (value.ChildrenCollection is ShapeAggregation)
-						owner = (ShapeAggregation)value.Children;
+						_owner = (ShapeAggregation)value.Children;
 					else throw new ArgumentException(string.Format("{0}'s Children property must be a {1}", value.GetType().Name, typeof(ShapeAggregation).Name));
-				} else owner = null;
+				} else _owner = null;
 			}
 		}
 
@@ -145,25 +145,25 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override object Tag {
-			get { return tag; }
-			set { tag = value; }
+			get { return _tag; }
+			set { _tag = value; }
 		}
 
 
 		/// <override></override>
 		public override string Data {
-			get { return data; }
-			set { data = value; }
+			get { return _data; }
+			set { _data = value; }
 		}
 
 
 		/// <override></override>
 		public override char SecurityDomainName {
-			get { return permissionSetName; }
+			get { return _permissionSetName; }
 			set {
 				if (value < 'A' || value > 'Z') 
-					throw new ArgumentOutOfRangeException("The domain qualifier has to be an upper case  ANSI letter (A-Z).");
-				permissionSetName = value;
+					throw new ArgumentOutOfRangeException(Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
+				_permissionSetName = value;
 			}
 		}
 
@@ -171,12 +171,12 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override IEnumerable<MenuItemDef> GetMenuItemDefs(int mouseX, int mouseY, int range) {
 			// no actions for the moment...
-			if (template != null) {
-				foreach (MenuItemDef action in template.GetMenuItemDefs())
+			if (_template != null) {
+				foreach (MenuItemDef action in _template.GetMenuItemDefs())
 					yield return action;
 			}
-			if (modelObject != null) {
-				foreach (MenuItemDef action in modelObject.GetMenuItemDefs())
+			if (_modelObject != null) {
+				foreach (MenuItemDef action in _modelObject.GetMenuItemDefs())
 					yield return action;
 			}
 		}
@@ -390,7 +390,7 @@ namespace Dataweb.NShape.Advanced {
 				int origValue = ChildrenCollection.Center.X;
 				if (!MoveTo(value, ChildrenCollection.Center.Y)) {
 					MoveTo(origValue, ChildrenCollection.Center.Y);
-					throw new InvalidOperationException(string.Format("Shape cannot move to {0}.", new Point(value, ChildrenCollection.Center.Y)));
+					throw new InvalidOperationException(string.Format(Properties.Resources.MessageFmt_ShapeCannotMoveTo0, new Point(value, ChildrenCollection.Center.Y)));
 				}
 			}
 		}
@@ -403,7 +403,7 @@ namespace Dataweb.NShape.Advanced {
 				int origValue = ChildrenCollection.Center.Y;
 				if (!MoveTo(ChildrenCollection.Center.X, value)) {
 					MoveTo(ChildrenCollection.Center.X, origValue);
-					throw new InvalidOperationException(string.Format("Shape cannot move to {0}.", new Point(ChildrenCollection.Center.X, value)));
+					throw new InvalidOperationException(string.Format(Properties.Resources.MessageFmt_ShapeCannotMoveTo0, new Point(ChildrenCollection.Center.X, value)));
 				}
 			}
 		}
@@ -450,7 +450,7 @@ namespace Dataweb.NShape.Advanced {
 			if (Owner != null) Owner.NotifyChildRotating(this);
 
 			// First, calculate the (normalized) rotation angle
-			angle = (3600 + angle + deltaAngle) % 3600;
+			_angle = (3600 + _angle + deltaAngle) % 3600;
 			// Then, calculate the new position of the center point (when performing an excentered rotation)
 			// and move the shape (including its children) to the new center point
 			if (x != X || y != Y) {
@@ -475,7 +475,7 @@ namespace Dataweb.NShape.Advanced {
 			else if (controlPointId == RotatePointId)
 				return RotatePoint;
 			else if (controlPointId == ControlPointId.None)
-				throw new ArgumentException(string.Format("{0} is not a valid {1} for this operation.", controlPointId, typeof(ControlPointId).Name));
+				throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidControlPointForThisOperation, controlPointId));
 			return Point.Empty;
 		}
 
@@ -512,12 +512,12 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override IDisplayService DisplayService {
-			get { return displayService; }
+			get { return _displayService; }
 			set {
-				if (displayService != value) {
-					displayService = value;
+				if (_displayService != value) {
+					_displayService = value;
 					if (ChildrenCollection != null && ChildrenCollection.Count > 0)
-						ChildrenCollection.SetDisplayService(displayService);
+						ChildrenCollection.SetDisplayService(_displayService);
 				}
 			}
 		}
@@ -595,8 +595,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Invalidate() {
-			if (displayService != null) 
-				displayService.Invalidate(GetBoundingRectangle(false));
+			if (_displayService != null) 
+				_displayService.Invalidate(GetBoundingRectangle(false));
 		}
 
 		#endregion
@@ -604,14 +604,15 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		[CategoryLayout()]
-		[Description("Rotation angle of the Shape in tenths of degree.")]
+		[LocalizedDisplayName("PropName_IPlanarShape_Angle")]
+		[LocalizedDescription("PropDesc_IPlanarShape_Angle")]
 		[PropertyMappingId(PropertyIdAngle)]
 		[RequiredPermission(Permission.Layout)]
 		public int Angle {
-			get { return angle; }
+			get { return _angle; }
 			set {
 				Invalidate();
-				int deltaAngle = value - angle;
+				int deltaAngle = value - _angle;
 				Rotate(deltaAngle, X, Y);
 				Invalidate();
 			}
@@ -651,27 +652,27 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		protected override sealed object IdCore { get { return id; } }
+		protected override sealed object IdCore { get { return _id; } }
 
 
 		/// <override></override>
 		protected override sealed void AssignIdCore(object id) {
 			if (id == null) throw new ArgumentNullException("id");
-			if (this.id != null) throw new InvalidOperationException("Shape group has already an id.");
-			this.id = id;
+			if (this._id != null) throw new InvalidOperationException("Shape group has already an id.");
+			this._id = id;
 		}
 
 
 		/// <override></override>
 		protected override void LoadFieldsCore(IRepositoryReader reader, int version) {
-			template = reader.ReadTemplate();
+			_template = reader.ReadTemplate();
 			int x = reader.ReadInt32();
 			int y = reader.ReadInt32();
 			MoveTo(x, y);
 			ZOrder = reader.ReadInt32();
-			Layers = (LayerIds)reader.ReadInt32();
-			angle = reader.ReadInt32();
-			if (version >= 5) data = reader.ReadString();
+			SupplementalLayers = (LayerIds)reader.ReadInt32();
+			_angle = reader.ReadInt32();
+			if (version >= 5) _data = reader.ReadString();
 		}
 
 
@@ -684,13 +685,13 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void SaveFieldsCore(IRepositoryWriter writer, int version) {
 			// Do the actual writing
-			writer.WriteTemplate(template);
+			writer.WriteTemplate(_template);
 			writer.WriteInt32(X);
 			writer.WriteInt32(Y);
 			writer.WriteInt32(ZOrder);
-			writer.WriteInt32((int)Layers);
-			writer.WriteInt32(angle);
-			if (version >= 5) writer.WriteString(data);
+			writer.WriteInt32((int)SupplementalLayers);
+			writer.WriteInt32(_angle);
+			if (version >= 5) writer.WriteString(_data);
 		}
 
 
@@ -735,8 +736,8 @@ namespace Dataweb.NShape.Advanced {
 		protected internal ShapeGroup(ShapeType shapeType, Template template)
 			: base() {
 			if (shapeType == null) throw new ArgumentNullException("shapeType");
-			this.shapeType = shapeType;
-			this.template = template;
+			this._shapeType = shapeType;
+			this._template = template;
 			ChildrenCollection = (GroupShapeAggregation)CreateChildrenCollection(DefaultCapacity);
 		}
 
@@ -745,8 +746,8 @@ namespace Dataweb.NShape.Advanced {
 		protected internal ShapeGroup(ShapeType shapeType, IStyleSet styleSet)
 			: base() {
 			if (shapeType == null) throw new ArgumentNullException("shapeType");
-			this.shapeType = shapeType;
-			this.template = null;
+			this._shapeType = shapeType;
+			this._template = null;
 			ChildrenCollection = (GroupShapeAggregation)CreateChildrenCollection(DefaultCapacity);
 		}
 
@@ -761,9 +762,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected internal override void AttachGluePointToConnectionPoint(ControlPointId ownPointId, Shape otherShape, ControlPointId gluePointId) {
 			if (ownPointId != ControlPointId.Reference && !HasControlPointCapability(ownPointId, ControlPointCapabilities.Connect))
-				throw new NShapeException(string.Format("{0}'s point {1} has to be a connection point.", Type.Name, ownPointId));
+				throw new NShapeException(string.Format(Properties.Resources.MessageFm_AttachGluePointToConnectionPoint_0SPoint1HasToBeAConnectionPoint, Type.Name, ownPointId));
 			if (!otherShape.HasControlPointCapability(gluePointId, ControlPointCapabilities.Glue))
-				throw new NShapeException(string.Format("{0}'s point {1} has to be a glue point.", otherShape.Type.Name, gluePointId));
+				throw new NShapeException(string.Format(Properties.Resources.MessageFmt_AttachGluePointToConnectionPoint_0SPoint1HasToBeAGluePoint, otherShape.Type.Name, gluePointId));
 			throw new NotSupportedException();
 		}
 
@@ -776,8 +777,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected internal override object InternalTag {
-			get { return internalTag; }
-			set { internalTag = value; }
+			get { return _internalTag; }
+			set { _internalTag = value; }
 		}
 
 
@@ -800,7 +801,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected ShapeCollection Owner {
-			get { return owner; }
+			get { return _owner; }
 		}
 
 
@@ -813,23 +814,22 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected const int PropertyIdAngle = 2;
+		private const int RotatePointId = 1;
 
 		// Shape fields
-		private Template template = null;
-		private IModelObject modelObject = null;
-		private ShapeType shapeType = null;
-		private IDisplayService displayService;
-		private char permissionSetName = 'A';
-		private ShapeCollection owner = null;
-		private object id = null;
-		private object tag = null;
-		private string data = null;
-		private object internalTag;
-		//private Point location;
+		private Template _template = null;
+		private IModelObject _modelObject = null;
+		private ShapeType _shapeType = null;
+		private IDisplayService _displayService;
+		private char _permissionSetName = 'A';
+		private ShapeCollection _owner = null;
+		private object _id = null;
+		private object _tag = null;
+		private string _data = null;
+		private object _internalTag;
 		
 		// ShapeGroup fields
-		private const int RotatePointId = 1;
-		private int angle;
+		private int _angle;
 
 		private const int DefaultCapacity = 4;
 		#endregion
