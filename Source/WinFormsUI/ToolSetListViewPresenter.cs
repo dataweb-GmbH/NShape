@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -64,17 +64,17 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[CategoryNShape()]
 		public ToolSetController ToolSetController {
-			get { return toolSetController; }
+			get { return _toolSetController; }
 			set {
-				if (toolSetController != null) {
+				if (_toolSetController != null) {
 					UnregisterToolBoxEventHandlers();
-					if (listView.ContextMenuStrip == presenterPrivateContextMenu)
-						listView.ContextMenuStrip = null;
+					if (_listView.ContextMenuStrip == presenterPrivateContextMenu)
+						_listView.ContextMenuStrip = null;
 				}
-				toolSetController = value;
-				if (toolSetController != null) {
-					if (listView != null && listView.ContextMenuStrip == null)
-						listView.ContextMenuStrip = presenterPrivateContextMenu;
+				_toolSetController = value;
+				if (_toolSetController != null) {
+					if (_listView != null && _listView.ContextMenuStrip == null)
+						_listView.ContextMenuStrip = presenterPrivateContextMenu;
 					RegisterToolBoxEventHandlers();
 				}
 			}
@@ -86,32 +86,32 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[CategoryNShape()]
 		public ListView ListView {
-			get { return listView; }
+			get { return _listView; }
 			set {
-				if (listView != null) {
+				if (_listView != null) {
 					UnregisterListViewEventHandlers();
-					if (listView.ContextMenuStrip == presenterPrivateContextMenu)
-						listView.ContextMenuStrip = null;
+					if (_listView.ContextMenuStrip == presenterPrivateContextMenu)
+						_listView.ContextMenuStrip = null;
 				}
-				listView = value;
-				if (listView != null) {
-					listView.HeaderStyle = ColumnHeaderStyle.None;
+				_listView = value;
+				if (_listView != null) {
+					_listView.HeaderStyle = ColumnHeaderStyle.None;
 					ColumnHeader header = new ColumnHeader();
 					header.Name = headerName;
 					header.Text = headerName;
-					if (listView.View == View.Details)
-						header.Width = listView.Width - SystemInformation.VerticalScrollBarWidth - (SystemInformation.Border3DSize.Width * 2) - listView.Padding.Horizontal;
-					listView.Columns.Add(header);
-					listView.MultiSelect = false;
-					listView.FullRowSelect = true;
-					listView.ShowItemToolTips = true;
-					listView.ShowGroups = true;
-					listView.LabelEdit = false;
-					listView.HideSelection = false;
-					listView.SmallImageList = smallImageList;
-					listView.LargeImageList = largeImageList;
-					if (listView.ContextMenuStrip == null) 
-						listView.ContextMenuStrip = presenterPrivateContextMenu;
+					if (_listView.View == View.Details)
+						header.Width = _listView.Width - SystemInformation.VerticalScrollBarWidth - (SystemInformation.Border3DSize.Width * 2) - _listView.Padding.Horizontal;
+					_listView.Columns.Add(header);
+					_listView.MultiSelect = false;
+					_listView.FullRowSelect = true;
+					_listView.ShowItemToolTips = true;
+					_listView.ShowGroups = true;
+					_listView.LabelEdit = false;
+					_listView.HideSelection = false;
+					_listView.SmallImageList = _smallImageList;
+					_listView.LargeImageList = _largeImageList;
+					if (_listView.ContextMenuStrip == null) 
+						_listView.ContextMenuStrip = presenterPrivateContextMenu;
 
 					RegisterListViewEventHandlers();
 				}
@@ -124,8 +124,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[CategoryBehavior()]
 		public bool HideDeniedMenuItems {
-			get { return hideMenuItemsIfNotGranted; }
-			set { hideMenuItemsIfNotGranted = value; }
+			get { return _hideMenuItemsIfNotGranted; }
+			set { _hideMenuItemsIfNotGranted = value; }
 		}
 
 
@@ -135,8 +135,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[CategoryBehavior()]
 		public bool ShowDefaultContextMenu {
-			get { return showDefaultContextMenu; }
-			set { showDefaultContextMenu = value; }
+			get { return _showDefaultContextMenu; }
+			set { _showDefaultContextMenu = value; }
 		}
 
 
@@ -154,47 +154,47 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods: (Un)Registering for events
 
 		private void RegisterToolBoxEventHandlers() {
-			toolSetController.Cleared += toolBoxController_Cleared;
-			toolSetController.ToolAdded += toolBoxController_ToolAdded;
-			toolSetController.ToolChanged += toolBoxController_ToolChanged;
-			toolSetController.ToolRemoved += toolBoxController_ToolRemoved;
-			toolSetController.ToolSelected += toolBoxController_ToolSelected;
+			_toolSetController.Cleared += toolBoxController_Cleared;
+			_toolSetController.ToolAdded += toolBoxController_ToolAdded;
+			_toolSetController.ToolChanged += toolBoxController_ToolChanged;
+			_toolSetController.ToolRemoved += toolBoxController_ToolRemoved;
+			_toolSetController.ToolSelected += toolBoxController_ToolSelected;
 		}
 
 
 		private void UnregisterToolBoxEventHandlers() {
-			toolSetController.ToolSelected -= toolBoxController_ToolSelected;
-			toolSetController.ToolRemoved -= toolBoxController_ToolRemoved;
-			toolSetController.ToolChanged -= toolBoxController_ToolChanged;
-			toolSetController.ToolAdded -= toolBoxController_ToolAdded;
-			toolSetController.Cleared -= toolBoxController_Cleared;
+			_toolSetController.ToolSelected -= toolBoxController_ToolSelected;
+			_toolSetController.ToolRemoved -= toolBoxController_ToolRemoved;
+			_toolSetController.ToolChanged -= toolBoxController_ToolChanged;
+			_toolSetController.ToolAdded -= toolBoxController_ToolAdded;
+			_toolSetController.Cleared -= toolBoxController_Cleared;
 		}
 
 
 		private void RegisterListViewEventHandlers() {
-			listView.MouseDown += listView_MouseDown;
-			listView.MouseUp += listView_MouseUp;
-			listView.MouseDoubleClick += listView_MouseDoubleClick;
-			listView.SizeChanged += listView_SizeChanged;
-			listView.SelectedIndexChanged += listView_SelectedIndexChanged;
-			listView.KeyDown += listView_KeyDown;
-			if (listView.ContextMenuStrip != null) {
-				listView.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
-				listView.ContextMenuStrip.Closing += ContextMenuStrip_Closing;
+			_listView.MouseDown += listView_MouseDown;
+			_listView.MouseUp += listView_MouseUp;
+			_listView.MouseDoubleClick += listView_MouseDoubleClick;
+			_listView.SizeChanged += listView_SizeChanged;
+			_listView.SelectedIndexChanged += listView_SelectedIndexChanged;
+			_listView.KeyDown += listView_KeyDown;
+			if (_listView.ContextMenuStrip != null) {
+				_listView.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+				_listView.ContextMenuStrip.Closing += ContextMenuStrip_Closing;
 			}
 		}
 
 
 		private void UnregisterListViewEventHandlers() {
-			listView.KeyDown -= listView_KeyDown;
-			listView.SelectedIndexChanged -= listView_SelectedIndexChanged;
-			listView.SizeChanged -= listView_SizeChanged;
-			listView.MouseDown -= listView_MouseDown;
-			listView.MouseUp -= listView_MouseUp;
-			listView.MouseDoubleClick -= listView_MouseDoubleClick;
-			if (listView.ContextMenuStrip != null) {
-				listView.ContextMenuStrip.Opening -= ContextMenuStrip_Opening;
-				listView.ContextMenuStrip.Closing -= ContextMenuStrip_Closing;
+			_listView.KeyDown -= listView_KeyDown;
+			_listView.SelectedIndexChanged -= listView_SelectedIndexChanged;
+			_listView.SizeChanged -= listView_SizeChanged;
+			_listView.MouseDown -= listView_MouseDown;
+			_listView.MouseUp -= listView_MouseUp;
+			_listView.MouseDoubleClick -= listView_MouseDoubleClick;
+			if (_listView.ContextMenuStrip != null) {
+				_listView.ContextMenuStrip.Opening -= ContextMenuStrip_Opening;
+				_listView.ContextMenuStrip.Closing -= ContextMenuStrip_Closing;
 			}
 		}
 
@@ -204,37 +204,37 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods
 
 		private void AssertListViewAvailable() {
-			if (listView == null) throw new NShapeException("Toolbox requires a ListView.");
+			if (_listView == null) throw new NShapeException("Toolbox requires a ListView.");
 		}
 
 
 		private void InitializeObjects() {
-			smallImageList = new ImageList();
-			smallImageList.ColorDepth = ColorDepth.Depth32Bit;
-			smallImageList.ImageSize = new Size(smallImageSize, smallImageSize);
-			smallImageList.TransparentColor = transparentColor;
+			_smallImageList = new ImageList();
+			_smallImageList.ColorDepth = ColorDepth.Depth32Bit;
+			_smallImageList.ImageSize = new Size(smallImageSize, smallImageSize);
+			_smallImageList.TransparentColor = _transparentColor;
 
-			largeImageList = new ImageList();
-			largeImageList.ColorDepth = ColorDepth.Depth32Bit;
-			largeImageList.ImageSize = new Size(largeImageSize, largeImageSize);
-			largeImageList.TransparentColor = transparentColor;
+			_largeImageList = new ImageList();
+			_largeImageList.ColorDepth = ColorDepth.Depth32Bit;
+			_largeImageList.ImageSize = new Size(largeImageSize, largeImageSize);
+			_largeImageList.TransparentColor = _transparentColor;
 		}
 
 
 		private void UpdateColumnWidth() {
-			if (listView == null || listView.View != View.Details || listView.Items.Count == 0)
+			if (_listView == null || _listView.View != View.Details || _listView.Items.Count == 0)
 				return;
-			ColumnHeader header = listView.Columns[headerName];
+			ColumnHeader header = _listView.Columns[headerName];
 			if (header != null) {
 				// There are special values for ListViewColumn.Width:
 				// -1 = Width of the widest item
 				// -2 = Fill remaining space
 				// But we get stuck in an endless loop if we use them when adding items,
 				// so we do the same manually...
-				int hdrWidth = listView.Width - smallImageList.ImageSize.Width - listView.Padding.Horizontal - 2;
-				if (listView.BorderStyle == BorderStyle.Fixed3D)
+				int hdrWidth = _listView.Width - _smallImageList.ImageSize.Width - _listView.Padding.Horizontal - 2;
+				if (_listView.BorderStyle == BorderStyle.Fixed3D)
 					hdrWidth -= (2 * SystemInformation.Border3DSize.Width);
-				else if (listView.BorderStyle == BorderStyle.FixedSingle)
+				else if (_listView.BorderStyle == BorderStyle.FixedSingle)
 					hdrWidth -= (2 * SystemInformation.BorderSize.Width);
 				header.Width = hdrWidth;
 			} else {
@@ -245,7 +245,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private ListViewItem FindItem(Tool tool) {
 			ListViewItem result = null;
-			foreach (ListViewItem lvi in listView.Items)
+			foreach (ListViewItem lvi in _listView.Items)
 				if (lvi.Tag == tool) {
 					result = lvi;
 					break;
@@ -259,11 +259,11 @@ namespace Dataweb.NShape.WinFormsUI {
 			item.ToolTipText = tool.ToolTipText;
 			item.Tag = tool;
 
-			int imgIdx = smallImageList.Images.IndexOfKey(tool.Name);
+			int imgIdx = _smallImageList.Images.IndexOfKey(tool.Name);
 			if (imgIdx < 0) {
-				smallImageList.Images.Add(tool.Name, tool.SmallIcon);
-				largeImageList.Images.Add(tool.Name, tool.LargeIcon);
-				imgIdx = smallImageList.Images.IndexOfKey(tool.Name);
+				_smallImageList.Images.Add(tool.Name, tool.SmallIcon);
+				_largeImageList.Images.Add(tool.Name, tool.LargeIcon);
+				imgIdx = _smallImageList.Images.IndexOfKey(tool.Name);
 			}
 			item.ImageIndex = imgIdx;
 			return item;
@@ -273,8 +273,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		private ListViewItem SelectedItem {
 			get {
 				ListViewItem result = null;
-				if (listView != null && listView.SelectedItems.Count > 0)
-					result = listView.SelectedItems[0];
+				if (_listView != null && _listView.SelectedItems.Count > 0)
+					result = _listView.SelectedItems[0];
 				return result;
 			}
 		}
@@ -285,38 +285,38 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Event handler implementations
 
 		private void toolBoxController_ToolSelected(object sender, ToolEventArgs e) {
-			if (listView != null) {
+			if (_listView != null) {
 				ListViewItem item = FindItem(e.Tool);
-				if (item != null && listView.SelectedItems.IndexOf(item) < 0)
+				if (item != null && _listView.SelectedItems.IndexOf(item) < 0)
 					item.Selected = true;
 			}
 		}
 
 
 		private void toolBoxController_Cleared(object sender, EventArgs args) {
-			if (listView != null) {
+			if (_listView != null) {
 				// This try/catch block is a workaround for a strange exception in WPF-Applications when trying to clear an empty tool box.
 				try {
-					listView.Items.Clear();
+					_listView.Items.Clear();
 				} catch (Exception exc) { 
 					Debug.Fail(exc.Message); 
 				}
-				smallImageList.Images.Clear();
-				largeImageList.Images.Clear();
+				_smallImageList.Images.Clear();
+				_largeImageList.Images.Clear();
 			}
 		}
 
 
 		private void toolBoxController_ToolAdded(object sender, ToolEventArgs e) {
 			// SaveChanges the list view: Move this to ToolSetListViewPresenter
-			if (listView == null) return;
+			if (_listView == null) return;
 
 			if (FindItem(e.Tool) != null)
 				throw new NShapeException(string.Format("Tool {0} already exists.", e.Tool.Title));
 			ListViewItem item = CreateItem(e.Tool);
 			// Put the tool into the right group
 			if (!string.IsNullOrEmpty(e.Tool.Category)) {
-				foreach (ListViewGroup group in listView.Groups) {
+				foreach (ListViewGroup group in _listView.Groups) {
 					if (group.Name.Equals(e.Tool.Category, StringComparison.InvariantCultureIgnoreCase)) {
 						item.Group = group;
 						break;
@@ -324,62 +324,62 @@ namespace Dataweb.NShape.WinFormsUI {
 				}
 				if (item.Group == null) {
 					ListViewGroup group = new ListViewGroup(e.Tool.Category, e.Tool.Category);
-					listView.Groups.Add(group);
+					_listView.Groups.Add(group);
 					item.Group = group;
 				}
 			}
 			// Adjust the heading column in the list view
-			if (listView.Columns[headerName] != null) {
-				using (Graphics gfx = Graphics.FromHwnd(listView.Handle)) {
-					SizeF txtSize = gfx.MeasureString(e.Tool.Title, listView.Font);
-					int currItemWidth = (int)Math.Round(txtSize.Width + 2 + listView.SmallImageList.ImageSize.Width);
-					if (currItemWidth > largestItemWidth) {
-						largestItemWidth = currItemWidth;
-						listView.Columns[headerName].Width = largestItemWidth;
+			if (_listView.Columns[headerName] != null) {
+				using (Graphics gfx = Graphics.FromHwnd(_listView.Handle)) {
+					SizeF txtSize = gfx.MeasureString(e.Tool.Title, _listView.Font);
+					int currItemWidth = (int)Math.Round(txtSize.Width + 2 + _listView.SmallImageList.ImageSize.Width);
+					if (currItemWidth > _largestItemWidth) {
+						_largestItemWidth = currItemWidth;
+						_listView.Columns[headerName].Width = _largestItemWidth;
 					}
 				}
 			}
 			// Add the item and select if default
-			listView.Items.Add(item);
+			_listView.Items.Add(item);
 		}
 
 
 		private void toolBoxController_ToolChanged(object sender, ToolEventArgs e) {
-			if (listView != null && e.Tool is TemplateTool) {
-				listView.BeginUpdate();
+			if (_listView != null && e.Tool is TemplateTool) {
+				_listView.BeginUpdate();
 				ListViewItem item = FindItem(e.Tool);
 				if (item != null) {
 					TemplateTool tool = (TemplateTool)e.Tool;
 					item.Text = tool.Title;
-					largeImageList.Images[item.ImageIndex] = tool.LargeIcon;
-					smallImageList.Images[item.ImageIndex] = tool.SmallIcon;
+					_largeImageList.Images[item.ImageIndex] = tool.LargeIcon;
+					_smallImageList.Images[item.ImageIndex] = tool.SmallIcon;
 				}
-				listView.EndUpdate();
+				_listView.EndUpdate();
 			}
 		}
 
 
 		private void toolBoxController_ToolRemoved(object sender, ToolEventArgs e) {
-			listView.SuspendLayout();
+			_listView.SuspendLayout();
 			ListViewItem item = FindItem(e.Tool);
-			listView.Items.Remove(item);
-			listView.ResumeLayout();
+			_listView.Items.Remove(item);
+			_listView.ResumeLayout();
 		}
 
 
 		private void listView_KeyDown(object sender, KeyEventArgs e) {
-			if (toolSetController.SelectedTool != null && e.KeyCode == Keys.Escape) {
-				toolSetController.SelectedTool.Cancel();
-				if (SelectedItem != null && SelectedItem.Tag != toolSetController.DefaultTool)
+			if (_toolSetController.SelectedTool != null && e.KeyCode == Keys.Escape) {
+				_toolSetController.SelectedTool.Cancel();
+				if (SelectedItem != null && SelectedItem.Tag != _toolSetController.DefaultTool)
 					SelectedItem.EnsureVisible();
 			}
 		}
 
 
 		private void listView_SelectedIndexChanged(object sender, EventArgs e) {
-			if (listView.SelectedItems.Count > 0 && !keepLastSelectedItem) {
-				Tool tool = listView.SelectedItems[0].Tag as Tool;
-				if (tool != null) toolSetController.SelectTool(tool, false);
+			if (_listView.SelectedItems.Count > 0 && !_keepLastSelectedItem) {
+				Tool tool = _listView.SelectedItems[0].Tag as Tool;
+				if (tool != null) _toolSetController.SelectTool(tool, false);
 			}
 		}
 
@@ -394,48 +394,48 @@ namespace Dataweb.NShape.WinFormsUI {
 			if ((e.Button & MouseButtons.Left) == MouseButtons.Left) {
 				if (hitTestInfo.Item != null) {
 					Tool tool = hitTestInfo.Item.Tag as Tool;
-					if (tool != null) toolSetController.SelectTool(tool, true);
+					if (tool != null) _toolSetController.SelectTool(tool, true);
 				}
 			}
 		}
 
 
 		private void listView_MouseUp(object sender, MouseEventArgs e) {
-			if (keepLastSelectedItem && lastSelectedItem != null) {
-				keepLastSelectedItem = false;
-				listView.SelectedIndices.Clear();
-				lastSelectedItem.Selected = true;
+			if (_keepLastSelectedItem && _lastSelectedItem != null) {
+				_keepLastSelectedItem = false;
+				_listView.SelectedIndices.Clear();
+				_lastSelectedItem.Selected = true;
 			}
 		}
 
 
 		private void listView_MouseDown(object sender, MouseEventArgs e) {
 			ListViewHitTestInfo hitTestInfo = ListView.HitTest(e.Location);
-			if (hitTestInfo.Item != null && !listView.SelectedItems.Contains(hitTestInfo.Item)) {
+			if (hitTestInfo.Item != null && !_listView.SelectedItems.Contains(hitTestInfo.Item)) {
 				Tool tool = hitTestInfo.Item.Tag as Tool;
-				if (tool != null) toolSetController.SelectTool(tool, false);
+				if (tool != null) _toolSetController.SelectTool(tool, false);
 			}
 		}
 
 
 		private void ContextMenuStrip_Opening(object sender, CancelEventArgs e) {
-			if (showDefaultContextMenu && listView != null) {
-				Debug.Assert(listView.ContextMenuStrip != null);
-				Point mousePos = listView.PointToClient(Control.MousePosition);
+			if (_showDefaultContextMenu && _listView != null) {
+				Debug.Assert(_listView.ContextMenuStrip != null);
+				Point mousePos = _listView.PointToClient(Control.MousePosition);
 				ListViewHitTestInfo hitTestInfo = ListView.HitTest(mousePos);
 				Tool clickedTool = null;
 				if (hitTestInfo.Item != null) clickedTool = hitTestInfo.Item.Tag as Tool;
 				
-				if (toolSetController == null) throw new ArgumentNullException("ToolSetController");
-				WinFormHelpers.BuildContextMenu(listView.ContextMenuStrip, toolSetController.GetMenuItemDefs(clickedTool), toolSetController.Project, hideMenuItemsIfNotGranted);
+				if (_toolSetController == null) throw new ArgumentNullException("ToolSetController");
+				WinFormHelpers.BuildContextMenu(_listView.ContextMenuStrip, _toolSetController.GetMenuItemDefs(clickedTool), _toolSetController.Project, _hideMenuItemsIfNotGranted);
 			}
-			e.Cancel = listView.ContextMenuStrip.Items.Count == 0;
+			e.Cancel = _listView.ContextMenuStrip.Items.Count == 0;
 		}
 
 
 		private void ContextMenuStrip_Closing(object sender, ToolStripDropDownClosingEventArgs e) {
-			if (sender == listView.ContextMenuStrip)
-				WinFormHelpers.CleanUpContextMenu(listView.ContextMenuStrip);
+			if (sender == _listView.ContextMenuStrip)
+				WinFormHelpers.CleanUpContextMenu(_listView.ContextMenuStrip);
 			ToolSetController.SelectedTool = ToolSetController.DefaultTool;
 			e.Cancel = false;
 		}
@@ -451,23 +451,23 @@ namespace Dataweb.NShape.WinFormsUI {
 		private const int smallImageSize = 16;
 		private const int largeImageSize = 32;
 
-		private ToolSetController toolSetController;
-		private ListView listView;
-		private int largestItemWidth = -1;
+		private ToolSetController _toolSetController;
+		private ListView _listView;
+		private int _largestItemWidth = -1;
 
 		// Settings
-		private Color transparentColor = Color.White;
-		private bool hideMenuItemsIfNotGranted = false;
-		private bool showDefaultContextMenu = true;
+		private Color _transparentColor = Color.White;
+		private bool _hideMenuItemsIfNotGranted = false;
+		private bool _showDefaultContextMenu = true;
 		
 		// buffers for preventing listview to select listview items on right click
-		private bool keepLastSelectedItem = false;
-		private ListViewItem lastSelectedItem = null;
+		private bool _keepLastSelectedItem = false;
+		private ListViewItem _lastSelectedItem = null;
 
 		// Small images for tool with same preview icon
-		private ImageList smallImageList;
+		private ImageList _smallImageList;
 		// Large images for tool with same preview icon
-		private ImageList largeImageList;
+		private ImageList _largeImageList;
 
 		#endregion
 	}

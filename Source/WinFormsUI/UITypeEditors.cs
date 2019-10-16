@@ -424,22 +424,22 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public static Project Project {
 			set {
-				if (projectBuffer != value) {
-					projectBuffer = value;
-					designBuffer = projectBuffer.Design;
+				if (_projectBuffer != value) {
+					_projectBuffer = value;
+					_designBuffer = _projectBuffer.Design;
 				} else {
-					bool replaceDesign = (designBuffer == null);
+					bool replaceDesign = (_designBuffer == null);
 					if (!replaceDesign) {
 						replaceDesign = true;
 						// Ensure that the current design is part in the repository:
-						foreach (Design design in projectBuffer.Repository.GetDesigns()) {
-							if (design == designBuffer) {
+						foreach (Design design in _projectBuffer.Repository.GetDesigns()) {
+							if (design == _designBuffer) {
 								replaceDesign = false;
 								break;
 							}
 						}
 					}
-					if (replaceDesign) designBuffer = projectBuffer.Design;
+					if (replaceDesign) _designBuffer = _projectBuffer.Design;
 				}
 			}
 		}
@@ -449,7 +449,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// The design providing styles for the <see cref="T:Dataweb.NShape.WinFormsUI.StyleUITypeEditor" />.
 		/// </summary>
 		public static Design Design {
-			set { designBuffer = value; }
+			set { _designBuffer = value; }
 		}
 
 
@@ -457,12 +457,12 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.WinFormsUI.StyleUITypeEditor" />.
 		/// </summary>
 		public StyleUITypeEditor() {
-			if (designBuffer == null) {
+			if (_designBuffer == null) {
 				string msg = string.Format("{0} is not set. Set the static property {1}.Design to a reference of the current design before creating the UI type editor.", typeof(Design).Name, GetType().Name);
 				throw new NShapeInternalException(msg);
 			}
-			this.project = projectBuffer;
-			this.design = designBuffer;
+			this._project = _projectBuffer;
+			this._design = _designBuffer;
 		}
 
 
@@ -478,22 +478,22 @@ namespace Dataweb.NShape.WinFormsUI {
 				IWindowsFormsEditorService editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
 				if (editorService != null) {
 					// fetch current Design (if changed)
-					if (designBuffer != null && designBuffer != design)
-						design = designBuffer;
+					if (_designBuffer != null && _designBuffer != _design)
+						_design = _designBuffer;
 
 					// Examine edited instances and determine whether the list item "Default Style" should be displayed.
 					bool showItemDefaultStyle = false;
 					bool showItemOpenEditor = false;
 					if (context.Instance is Shape) {
 						showItemDefaultStyle = ((Shape)context.Instance).Template != null;
-						showItemOpenEditor = project.SecurityManager.IsGranted(Permission.Designs);
+						showItemOpenEditor = _project.SecurityManager.IsGranted(Permission.Designs);
 					} else if (context.Instance is ICapStyle) {
 						showItemDefaultStyle = true;
 					} else if (context.Instance is object[]) {
 						object[] objArr = (object[])context.Instance;
 						int cnt = objArr.Length;
 						showItemDefaultStyle = true;
-						showItemOpenEditor = project.SecurityManager.IsGranted(Permission.Designs);
+						showItemOpenEditor = _project.SecurityManager.IsGranted(Permission.Designs);
 						foreach (object obj in objArr) {
 							Shape shape = obj as Shape;
 							if (shape == null || shape.Template == null) {
@@ -522,13 +522,13 @@ namespace Dataweb.NShape.WinFormsUI {
 								styleType = typeof(ParagraphStyle);
 							else throw new NShapeUnsupportedValueException(context.PropertyDescriptor.PropertyType);
 
-							if (project != null)
-								styleListBox = new StyleListBox(editorService, project, design, styleType, showItemDefaultStyle, showItemOpenEditor);
-							else styleListBox = new StyleListBox(editorService, design, styleType, showItemDefaultStyle, showItemOpenEditor);
+							if (_project != null)
+								styleListBox = new StyleListBox(editorService, _project, _design, styleType, showItemDefaultStyle, showItemOpenEditor);
+							else styleListBox = new StyleListBox(editorService, _design, styleType, showItemDefaultStyle, showItemOpenEditor);
 						} else {
-							if (project != null)
-								styleListBox = new StyleListBox(editorService, project, design, value as Style, showItemDefaultStyle, showItemOpenEditor);
-							else styleListBox = new StyleListBox(editorService, design, value as Style, showItemDefaultStyle, showItemOpenEditor);
+							if (_project != null)
+								styleListBox = new StyleListBox(editorService, _project, _design, value as Style, showItemDefaultStyle, showItemOpenEditor);
+							else styleListBox = new StyleListBox(editorService, _design, value as Style, showItemDefaultStyle, showItemOpenEditor);
 						}
 
 						editorService.DropDownControl(styleListBox);
@@ -601,7 +601,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void DrawStyleItem(Graphics gfx, Rectangle previewBounds, ICapStyle capStyle) {
-			Pen capPen = ToolCache.GetPen(design.LineStyles.Normal, null, capStyle);
+			Pen capPen = ToolCache.GetPen(_design.LineStyles.Normal, null, capStyle);
 			float scale = 1;
 			if (capStyle.CapSize + 2 >= previewBounds.Height) {
 				scale = Geometry.CalcScaleFactor(capStyle.CapSize + 2, capStyle.CapSize + 2, previewBounds.Width - 2, previewBounds.Height - 2);
@@ -633,7 +633,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			layoutRect.Width = (float)previewBounds.Width / scale;
 			layoutRect.Height = (float)previewBounds.Height / scale;
 			gfx.DrawString(string.Format("{0} {1} pt", charStyle.FontName, charStyle.SizeInPoints), 
-				font, fontBrush, layoutRect, formatter);
+				font, fontBrush, layoutRect, _formatter);
 		}
 
 
@@ -695,12 +695,12 @@ namespace Dataweb.NShape.WinFormsUI {
 			gfx.ScaleTransform(scale, scale);
 
 			// Draw
-			gfx.DrawString(previewText, Control.DefaultFont, Brushes.Black, r, stringFormat);
+			gfx.DrawString(_previewText, Control.DefaultFont, Brushes.Black, r, stringFormat);
 		}
 
 
 		static StyleUITypeEditor() {
-			previewText = "This is the first line of the sample text."
+			_previewText = "This is the first line of the sample text."
 				+ Environment.NewLine + "This is line 2 of the text."
 				+ Environment.NewLine + "Line 3 of the text.";
 		}
@@ -708,12 +708,12 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		#region Fields
 
-		private static Project projectBuffer;
-		private static Design designBuffer;
-		private static readonly string previewText;
-		private Project project;
-		private Design design;
-		private StringFormat formatter = new StringFormat(StringFormatFlags.NoWrap);
+		private static Project _projectBuffer;
+		private static Design _designBuffer;
+		private static readonly string _previewText;
+		private Project _project;
+		private Design _design;
+		private StringFormat _formatter = new StringFormat(StringFormatFlags.NoWrap);
 
 		#endregion
 	}

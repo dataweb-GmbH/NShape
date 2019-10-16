@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -419,19 +419,19 @@ namespace Dataweb.NShape.FlowChartShapes {
 					offset = Width / 4;
 
 				// top row (left to right)
-				shapePoints[0].X = left + offset; ;
-				shapePoints[0].Y = top;
-				shapePoints[1].X = right;
-				shapePoints[1].Y = top;
+				_shapePoints[0].X = left + offset; ;
+				_shapePoints[0].Y = top;
+				_shapePoints[1].X = right;
+				_shapePoints[1].Y = top;
 
 				// bottom row (right to left)
-				shapePoints[2].X = right - offset;
-				shapePoints[2].Y = bottom;
-				shapePoints[3].X = left;
-				shapePoints[3].Y = bottom;
+				_shapePoints[2].X = right - offset;
+				_shapePoints[2].Y = bottom;
+				_shapePoints[3].X = left;
+				_shapePoints[3].Y = bottom;
 
 				Path.StartFigure();
-				Path.AddPolygon(shapePoints);
+				Path.AddPolygon(_shapePoints);
 				Path.CloseFigure();
 				return true;
 			} else return false;
@@ -444,7 +444,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 
 		#region Fields
-		Point[] shapePoints = new Point[4];
+		private Point[] _shapePoints = new Point[4];
 		#endregion
 	}
 
@@ -549,15 +549,15 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		protected override Rectangle CalculateBoundingRectangle(bool tight) {
 			if (tight) {
-				CalcShapePoints(ref shapePoints);
+				CalcShapePoints(ref _shapePoints);
 
 				Matrix.Reset();
 				Matrix.Translate(X, Y);
 				Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Center, MatrixOrder.Append);
-				Matrix.TransformPoints(shapePoints);
+				Matrix.TransformPoints(_shapePoints);
 
 				Rectangle result;
-				Geometry.CalcBoundingRectangle(shapePoints, out result);
+				Geometry.CalcBoundingRectangle(_shapePoints, out result);
 				ShapeUtils.InflateBoundingRectangle(ref result, LineStyle);
 				return result;
 			} else return base.CalculateBoundingRectangle(tight);
@@ -668,11 +668,11 @@ namespace Dataweb.NShape.FlowChartShapes {
 		/// <override></override>
 		protected override bool CalculatePath() {
 			if (base.CalculatePath()) {
-				CalcShapePoints(ref shapePoints);
+				CalcShapePoints(ref _shapePoints);
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddPolygon(shapePoints);
+				Path.AddPolygon(_shapePoints);
 				Path.CloseFigure();
 				return true;
 			} else return false;
@@ -685,21 +685,21 @@ namespace Dataweb.NShape.FlowChartShapes {
 			int right = left + Width;
 			int bottom = top + Height;
 
-			shapePoints[0].X = left;
-			shapePoints[0].Y = top;
-			shapePoints[1].X = 0;
-			shapePoints[1].Y = top;
-			shapePoints[2].X = right;
-			shapePoints[2].Y = 0;
-			shapePoints[3].X = 0;
-			shapePoints[3].Y = bottom;
-			shapePoints[4].X = left;
-			shapePoints[4].Y = bottom;
+			_shapePoints[0].X = left;
+			_shapePoints[0].Y = top;
+			_shapePoints[1].X = 0;
+			_shapePoints[1].Y = top;
+			_shapePoints[2].X = right;
+			_shapePoints[2].Y = 0;
+			_shapePoints[3].X = 0;
+			_shapePoints[3].Y = bottom;
+			_shapePoints[4].X = left;
+			_shapePoints[4].Y = bottom;
 		}
 
 
 		// Fields
-		Point[] shapePoints = new Point[5];
+		private Point[] _shapePoints = new Point[5];
 	}
 
 
@@ -1022,15 +1022,15 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		protected override Rectangle CalculateBoundingRectangle(bool tight) {
 			if (tight) {
-				CalcShapePoints(ref shapePoints);
+				CalcShapePoints(ref _shapePoints);
 
 				Matrix.Reset();
 				Matrix.Translate(X, Y);
 				Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Center, MatrixOrder.Append);
-				Matrix.TransformPoints(shapePoints);
+				Matrix.TransformPoints(_shapePoints);
 
 				Rectangle result;
-				Geometry.CalcBoundingRectangle(shapePoints, out result);
+				Geometry.CalcBoundingRectangle(_shapePoints, out result);
 				ShapeUtils.InflateBoundingRectangle(ref result, LineStyle);
 				return result;
 			} else return base.CalculateBoundingRectangle(tight);
@@ -1088,11 +1088,11 @@ namespace Dataweb.NShape.FlowChartShapes {
 		/// <override></override>
 		protected override bool CalculatePath() {
 			if (base.CalculatePath()) {
-				CalcShapePoints(ref shapePoints);
+				CalcShapePoints(ref _shapePoints);
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddPolygon(shapePoints);
+				Path.AddPolygon(_shapePoints);
 				return true;
 			} else return false;
 		}
@@ -1121,7 +1121,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 
 		#region Fields
-		private Point[] shapePoints = new Point[6];
+		private Point[] _shapePoints = new Point[6];
 		#endregion
 	}
 
@@ -1318,26 +1318,26 @@ namespace Dataweb.NShape.FlowChartShapes {
 				int bottom = top + Height;
 				int arcRadius = CalcArcRadius();
 
-				shapePoints[0].X = left;
-				shapePoints[0].Y = 0;
-				shapePoints[1].X = left + arcRadius;
-				shapePoints[1].Y = top;
-				shapePoints[2].X = right;
-				shapePoints[2].Y = top;
-				shapePoints[3].X = right;
-				shapePoints[3].Y = bottom;
-				shapePoints[4].X = left + arcRadius;
-				shapePoints[4].Y = bottom;
+				_shapePoints[0].X = left;
+				_shapePoints[0].Y = 0;
+				_shapePoints[1].X = left + arcRadius;
+				_shapePoints[1].Y = top;
+				_shapePoints[2].X = right;
+				_shapePoints[2].Y = top;
+				_shapePoints[3].X = right;
+				_shapePoints[3].Y = bottom;
+				_shapePoints[4].X = left + arcRadius;
+				_shapePoints[4].Y = bottom;
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddLine(shapePoints[0], shapePoints[1]);
-				Path.AddLine(shapePoints[1].X, shapePoints[1].Y, shapePoints[2].X - arcRadius, shapePoints[2].Y);
+				Path.AddLine(_shapePoints[0], _shapePoints[1]);
+				Path.AddLine(_shapePoints[1].X, _shapePoints[1].Y, _shapePoints[2].X - arcRadius, _shapePoints[2].Y);
 				if (arcRadius > 0)
-					Path.AddArc(shapePoints[2].X - arcRadius - arcRadius, shapePoints[2].Y, arcRadius + arcRadius, Height, -90, 180);
-				else Path.AddLine(shapePoints[2], shapePoints[3]);
-				Path.AddLine(shapePoints[3].X - arcRadius, shapePoints[3].Y, shapePoints[4].X, shapePoints[4].Y);
-				Path.AddLine(shapePoints[4].X, shapePoints[4].Y, shapePoints[0].X, shapePoints[0].Y);
+					Path.AddArc(_shapePoints[2].X - arcRadius - arcRadius, _shapePoints[2].Y, arcRadius + arcRadius, Height, -90, 180);
+				else Path.AddLine(_shapePoints[2], _shapePoints[3]);
+				Path.AddLine(_shapePoints[3].X - arcRadius, _shapePoints[3].Y, _shapePoints[4].X, _shapePoints[4].Y);
+				Path.AddLine(_shapePoints[4].X, _shapePoints[4].Y, _shapePoints[0].X, _shapePoints[0].Y);
 				Path.CloseFigure();
 				return true;
 			}
@@ -1351,7 +1351,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 
 		#region Fields
-		private Point[] shapePoints = new Point[5];
+		private Point[] _shapePoints = new Point[5];
 		#endregion
 	}
 
@@ -1482,18 +1482,18 @@ namespace Dataweb.NShape.FlowChartShapes {
 				int bottom = top + Height;
 				int edgeInset = CalcEdgeInset();
 
-				shapePoints[0].X = left;
-				shapePoints[0].Y = top;
-				shapePoints[1].X = right;
-				shapePoints[1].Y = top;
-				shapePoints[2].X = right - edgeInset;
-				shapePoints[2].Y = bottom;
-				shapePoints[3].X = left + edgeInset;
-				shapePoints[3].Y = bottom;
+				_shapePoints[0].X = left;
+				_shapePoints[0].Y = top;
+				_shapePoints[1].X = right;
+				_shapePoints[1].Y = top;
+				_shapePoints[2].X = right - edgeInset;
+				_shapePoints[2].Y = bottom;
+				_shapePoints[3].X = left + edgeInset;
+				_shapePoints[3].Y = bottom;
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddPolygon(shapePoints);
+				Path.AddPolygon(_shapePoints);
 				Path.CloseFigure();
 				return true;
 			}
@@ -1505,7 +1505,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 
 		#region Fields
-		private Point[] shapePoints = new Point[4];
+		private Point[] _shapePoints = new Point[4];
 		#endregion
 	}
 

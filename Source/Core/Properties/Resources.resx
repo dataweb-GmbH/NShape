@@ -1591,4 +1591,13 @@
   <data name="PropName_Shape_SupplementalLayers" xml:space="preserve">
     <value>Supplemental Layers</value>
   </data>
+  <data name="PropDesc_Diagram_IsBackgroundImageVisible" xml:space="preserve">
+    <value>Toggles the visibility of the background image.</value>
+  </data>
+  <data name="PropName_Diagram_IsBackgroundImageVisible" xml:space="preserve">
+    <value>IsBackgroundImageVisible</value>
+  </data>
+  <data name="String1" xml:space="preserve">
+    <value />
+  </data>
 </root>

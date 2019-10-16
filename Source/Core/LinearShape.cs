@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -797,8 +797,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void UpdateDrawCache() {
-			if (drawCacheIsInvalid) {
-				Debug.Assert(shapePoints != null);
+			if (DrawCacheIsInvalid) {
+				Debug.Assert(ShapePoints != null);
 				// Calculate the line's shape points at the coordinate system's origin...
 				RecalcDrawCache();
 				// ... and transform to the current position
@@ -813,7 +813,7 @@ namespace Dataweb.NShape.Advanced {
 				DoRecalcCapPoints(ControlPointId.FirstVertex, StartCapStyleInternal, StartCapAngle, ref _startCapPointBuffer);
 			if (IsShapedLineCap(EndCapStyleInternal))
 				DoRecalcCapPoints(ControlPointId.LastVertex, EndCapStyleInternal, EndCapAngle, ref _endCapPointBuffer);
-			drawCacheIsInvalid = false;
+			DrawCacheIsInvalid = false;
 		}
 
 
@@ -827,7 +827,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="rotationCenterY">Y coordinate of the rotation center</param>
 		protected override void TransformDrawCache(int deltaX, int deltaY, int deltaAngle, int rotationCenterX, int rotationCenterY) {
 			Matrix.Reset();
-			if (!drawCacheIsInvalid) {
+			if (!DrawCacheIsInvalid) {
 				if (deltaX != 0 || deltaY != 0 || deltaAngle != 0) {
 					Matrix.Translate(deltaX, deltaY, MatrixOrder.Prepend);
 					if (deltaAngle != 0) {
@@ -836,7 +836,7 @@ namespace Dataweb.NShape.Advanced {
 						rotationCenter.Y = rotationCenterY;
 						Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(deltaAngle), rotationCenter, MatrixOrder.Append);
 					}
-					if (shapePoints != null) Matrix.TransformPoints(shapePoints);
+					if (ShapePoints != null) Matrix.TransformPoints(ShapePoints);
 					if (_startCapPointBuffer != null) Matrix.TransformPoints(_startCapPointBuffer);
 					if (_endCapPointBuffer != null) Matrix.TransformPoints(_endCapPointBuffer);
 				}
@@ -1052,7 +1052,7 @@ namespace Dataweb.NShape.Advanced {
 			_controlPoints = new List<LineControlPoint>(MinVertexCount);
 			for (int i = MinVertexCount - 1; i >= 0; --i)
 				InsertControlPoint(0, CreateVertex(i + 1, Point.Empty));
-			shapePoints = new Point[MinVertexCount];
+			ShapePoints = new Point[MinVertexCount];
 			InvalidateDrawCache();
 		}
 
@@ -1708,11 +1708,11 @@ namespace Dataweb.NShape.Advanced {
 			public static Enumerator Create(LineShapeBase shape, ControlPointCapabilities flags) {
 				Debug.Assert(shape != null);
 				Enumerator result;
-				result.shape = shape;
-				result.flags = flags;
+				result._shape = shape;
+				result._flags = flags;
 				// We use Reference id as the start value: RefId -> FirstVertex -> Id's -> LastVertex -> None
-				result.currentId = ControlPointId.Reference;
-				result.ctrlPointCnt = shape.ControlPointCount;
+				result._currentId = ControlPointId.Reference;
+				result._ctrlPointCnt = shape.ControlPointCount;
 				return result;
 			}
 
@@ -1740,13 +1740,13 @@ namespace Dataweb.NShape.Advanced {
 			public bool MoveNext() {
 				bool result = false;
 				do {
-					if (currentId == ControlPointId.Reference) 
-						currentId = ControlPointId.FirstVertex;
-					else currentId = shape.GetNextPointIdCore(currentId, ControlPointCapabilities.All, +1);
+					if (_currentId == ControlPointId.Reference) 
+						_currentId = ControlPointId.FirstVertex;
+					else _currentId = _shape.GetNextPointIdCore(_currentId, ControlPointCapabilities.All, +1);
 
-					if (currentId == ControlPointId.None)
+					if (_currentId == ControlPointId.None)
 						return false;
-					if (shape.HasControlPointCapability(currentId, flags))
+					if (_shape.HasControlPointCapability(_currentId, _flags))
 						result = true;
 				} while (result == false);
 				return result;
@@ -1754,15 +1754,15 @@ namespace Dataweb.NShape.Advanced {
 
 
 			public void Reset() {
-				ctrlPointCnt = shape.ControlPointCount;
-				currentId = 1;
+				_ctrlPointCnt = _shape.ControlPointCount;
+				_currentId = 1;
 			}
 
 
 			ControlPointId IEnumerator<ControlPointId>.Current {
 				get {
-					if (currentId == ControlPointId.None) throw new InvalidOperationException(Properties.Resources.MessageTxt_ControlPointIdNoneIsNotAValidControlPointIdForIterating);
-					return currentId;
+					if (_currentId == ControlPointId.None) throw new InvalidOperationException(Properties.Resources.MessageTxt_ControlPointIdNoneIsNotAValidControlPointIdForIterating);
+					return _currentId;
 				}
 			}
 
@@ -1781,10 +1781,10 @@ namespace Dataweb.NShape.Advanced {
 			#region IDisposable Members
 
 			public void Dispose() {
-				this.flags = 0;
-				this.currentId = ControlPointId.None;
-				this.ctrlPointCnt = 0;
-				this.shape = null;
+				this._flags = 0;
+				this._currentId = ControlPointId.None;
+				this._ctrlPointCnt = 0;
+				this._shape = null;
 			}
 
 			#endregion
@@ -1792,10 +1792,10 @@ namespace Dataweb.NShape.Advanced {
 
 			#region Fields
 
-			private LineShapeBase shape;
-			private ControlPointCapabilities flags;
-			private ControlPointId currentId;
-			private int ctrlPointCnt;
+			private LineShapeBase _shape;
+			private ControlPointCapabilities _flags;
+			private ControlPointId _currentId;
+			private int _ctrlPointCnt;
 
 			#endregion
 		}
@@ -1811,7 +1811,12 @@ namespace Dataweb.NShape.Advanced {
 		protected const int PropertyIdEndCapStyle = 8;
 
 		/// <summary>Array of points used for drawing. Transformation (for drawing) in TransformDrawCache is handled in this class</summary>
-		protected Point[] shapePoints = null;
+		/// <remarks>
+		/// For performance reasons, this is not a property but a field: 
+		/// Fields can be passed as ref parameter, properties not.
+		/// Passing the point arrays as ref param avoids unnecessary copying.
+		/// </remarks>
+		protected Point[] ShapePoints = null;
 
 		private readonly static string attrNameVertices = "Vertices";
 		private readonly static string[] vertexAttrNames = new string[] { "PointIndex", "PointId", "X", "Y" };

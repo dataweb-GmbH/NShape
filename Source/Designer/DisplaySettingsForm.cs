@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -41,6 +41,24 @@ namespace Dataweb.NShape.Designer {
 				resizePointCombo.Items.Add(ptShape);
 				connectionPointCombo.Items.Add(ptShape);
 			}
+		}
+
+
+		public bool MouseWheelZoom {
+			get { return wheelZoomCheckBox.Checked; }
+			set { wheelZoomCheckBox.Checked = value; }
+		}
+		
+		
+		public bool ShowScrollBars {
+			get { return !hideScrollBarsCheckBox.Checked; }
+			set { hideScrollBarsCheckBox.Checked = !value; }
+		}
+
+
+		public bool ShowDiagramSheet {
+			get { return showSheetCheckBox.Checked; }
+			set { showSheetCheckBox.Checked = value; }
 		}
 
 

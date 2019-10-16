@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -890,9 +890,9 @@ namespace Dataweb.NShape.Advanced {
 		[PropertyMappingId(PropertyIdIntegerValue)]
 		[Description("An integer value. This value is represented by the assigned Shape.")]
 		public int IntegerValue {
-			get { return integerValue; }
+			get { return _integerValue; }
 			set {
-				integerValue = value;
+				_integerValue = value;
 				OnPropertyChanged(PropertyIdIntegerValue);
 			}
 		}
@@ -902,9 +902,9 @@ namespace Dataweb.NShape.Advanced {
 		[PropertyMappingId(PropertyIdFloatValue)]
 		[Description("A floating point number value. This value is represented by the assigned Shape.")]
 		public float FloatValue {
-			get { return floatValue; }
+			get { return _floatValue; }
 			set {
-				floatValue = value;
+				_floatValue = value;
 				OnPropertyChanged(PropertyIdFloatValue);
 			}
 		}
@@ -914,9 +914,9 @@ namespace Dataweb.NShape.Advanced {
 		[PropertyMappingId(PropertyIdStringValue)]
 		[Description("A string value. This value is represented by the assigned Shape.")]
 		public string StringValue {
-			get { return stringValue; }
+			get { return _stringValue; }
 			set {
-				stringValue = value;
+				_stringValue = value;
 				OnPropertyChanged(PropertyIdStringValue);
 			}
 		}
@@ -924,11 +924,11 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override char SecurityDomainName {
-			get { return securityDomainName; }
+			get { return _securityDomainName; }
 			set {
 				if (value < 'A' || value > 'Z')
 					throw new ArgumentOutOfRangeException("SecurityDomainName", Dataweb.NShape.Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
-				securityDomainName = value;
+				_securityDomainName = value;
 			}
 		}
 
@@ -981,18 +981,18 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void LoadFieldsCore(IRepositoryReader reader, int version) {
 			base.LoadFieldsCore(reader, version);
-			integerValue = reader.ReadInt32();
-			floatValue = reader.ReadFloat();
-			stringValue = reader.ReadString();
+			_integerValue = reader.ReadInt32();
+			_floatValue = reader.ReadFloat();
+			_stringValue = reader.ReadString();
 		}
 
 
 		/// <override></override>
 		protected override void SaveFieldsCore(IRepositoryWriter writer, int version) {
 			base.SaveFieldsCore(writer, version);
-			writer.WriteInt32(integerValue);
-			writer.WriteFloat(floatValue);
-			writer.WriteString(stringValue);
+			writer.WriteInt32(_integerValue);
+			writer.WriteFloat(_floatValue);
+			writer.WriteString(_stringValue);
 		}
 
 
@@ -1010,10 +1010,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected const int PropertyIdFloatValue = 4;
 
-		private int integerValue;
-		private float floatValue;
-		private string stringValue;
-		private char securityDomainName = 'A';
+		private int _integerValue;
+		private float _floatValue;
+		private string _stringValue;
+		private char _securityDomainName = 'A';
 
 		#endregion
 	}

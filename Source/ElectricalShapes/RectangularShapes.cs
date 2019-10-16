@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -124,13 +124,13 @@ namespace Dataweb.NShape.ElectricalShapes {
 				int left = (int)Math.Round(-Size / 2f);
 				int top = (int)Math.Round(-Size / 2f);
 
-				shapeRect.X = left;
-				shapeRect.Y = top;
-				shapeRect.Width = Size;
-				shapeRect.Height = Size;
+				_shapeRect.X = left;
+				_shapeRect.Y = top;
+				_shapeRect.Width = Size;
+				_shapeRect.Height = Size;
 
 				Path.StartFigure();
-				Path.AddRectangle(shapeRect);
+				Path.AddRectangle(_shapeRect);
 				Path.CloseFigure();
 				return true;
 			}
@@ -149,7 +149,7 @@ namespace Dataweb.NShape.ElectricalShapes {
 
 
 		#region Fields
-		System.Drawing.Rectangle shapeRect;
+		Rectangle _shapeRect;
 		#endregion
 	}
 
@@ -216,16 +216,16 @@ namespace Dataweb.NShape.ElectricalShapes {
 
 		protected override Rectangle CalculateBoundingRectangle(bool tight) {
 			if (tight) {
-				CalcRingBounds(out upperRingBounds, out lowerRingBounds);
+				CalcRingBounds(out _upperRingBounds, out _lowerRingBounds);
 				float angle = Geometry.TenthsOfDegreeToDegrees(Angle);
-				float ringRadius = upperRingBounds.Width / 2f;
+				float ringRadius = _upperRingBounds.Width / 2f;
 
 				PointF upperCenter = PointF.Empty;
-				upperCenter.X = X + (upperRingBounds.Left + upperRingBounds.Width / 2f);
-				upperCenter.Y = Y + (upperRingBounds.Top + upperRingBounds.Height / 2f);
+				upperCenter.X = X + (_upperRingBounds.Left + _upperRingBounds.Width / 2f);
+				upperCenter.Y = Y + (_upperRingBounds.Top + _upperRingBounds.Height / 2f);
 				PointF lowerCenter = PointF.Empty;
-				lowerCenter.X = X + (lowerRingBounds.Left + lowerRingBounds.Width / 2f);
-				lowerCenter.Y = Y + (lowerRingBounds.Top + lowerRingBounds.Height / 2f);
+				lowerCenter.X = X + (_lowerRingBounds.Left + _lowerRingBounds.Width / 2f);
+				lowerCenter.Y = Y + (_lowerRingBounds.Top + _lowerRingBounds.Height / 2f);
 
 				upperCenter = Geometry.RotatePoint(X, Y, angle, upperCenter);
 				lowerCenter = Geometry.RotatePoint(X, Y, angle, lowerCenter);
@@ -270,18 +270,18 @@ namespace Dataweb.NShape.ElectricalShapes {
 
 			int top = -Height / 2;
 			int bottom = -(Height / 2) + Height;
-			CalcRingBounds(out upperRingBounds, out lowerRingBounds);
+			CalcRingBounds(out _upperRingBounds, out _lowerRingBounds);
 
 			// Add the lines between connection point and circles only if 
 			// necessary. Otherwise, DrawPath() throws an OutOfMemoryException 
 			// on Windows XP/Vista when drawing with a pen thicker than 1 pixel...
 			Path.StartFigure();
-			if (top < upperRingBounds.Top)
-				Path.AddLine(0, top, 0, upperRingBounds.Top);
-			Path.AddEllipse(upperRingBounds);
-			Path.AddEllipse(lowerRingBounds);
-			if (bottom > lowerRingBounds.Bottom)
-				Path.AddLine(0, lowerRingBounds.Bottom, 0, bottom);
+			if (top < _upperRingBounds.Top)
+				Path.AddLine(0, top, 0, _upperRingBounds.Top);
+			Path.AddEllipse(_upperRingBounds);
+			Path.AddEllipse(_lowerRingBounds);
+			if (bottom > _lowerRingBounds.Bottom)
+				Path.AddLine(0, _lowerRingBounds.Bottom, 0, bottom);
 			Path.CloseFigure();
 
 			return true;
@@ -309,19 +309,8 @@ namespace Dataweb.NShape.ElectricalShapes {
 
 		#region Fields
 
-		//// ControlPoint Id Constants
-		//private const int TopLeftControlPoint = 1;
-		//private const int TopCenterControlPoint = 2;
-		//private const int TopRightControlPoint = 3;
-		//private const int MiddleLeftControlPoint = 4;
-		//private const int MiddleRightControlPoint = 5;
-		//private const int BottomLeftControlPoint = 6;
-		//private const int BottomCenterControlPoint = 7;
-		//private const int BottomRightControlPoint = 8;
-		//private const int MiddleCenterControlPoint = 9;
-
-		Rectangle upperRingBounds;
-		Rectangle lowerRingBounds;
+		private Rectangle _upperRingBounds;
+		private Rectangle _lowerRingBounds;
 
 		#endregion
 	}
@@ -372,15 +361,15 @@ namespace Dataweb.NShape.ElectricalShapes {
 
 		protected override Rectangle CalculateBoundingRectangle(bool tight) {
 			if (tight) {
-				CalcShapePoints(ref shapeBuffer);
+				CalcShapePoints(ref _shapeBuffer);
 
 				Matrix.Reset();
 				Matrix.Translate(X, Y);
 				Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Center, System.Drawing.Drawing2D.MatrixOrder.Append);
-				Matrix.TransformPoints(shapeBuffer);
+				Matrix.TransformPoints(_shapeBuffer);
 
 				Rectangle result;
-				Geometry.CalcBoundingRectangle(shapeBuffer, out result);
+				Geometry.CalcBoundingRectangle(_shapeBuffer, out result);
 				ShapeUtils.InflateBoundingRectangle(ref result, LineStyle);
 				return result;
 			} else return base.CalculateBoundingRectangle(tight);
@@ -400,11 +389,11 @@ namespace Dataweb.NShape.ElectricalShapes {
 		/// <override></override>
 		protected override bool CalculatePath() {
 			if (base.CalculatePath()) {
-				CalcShapePoints(ref shapeBuffer);
+				CalcShapePoints(ref _shapeBuffer);
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddLines(shapeBuffer);
+				Path.AddLines(_shapeBuffer);
 				Path.CloseFigure();
 
 				return true;
@@ -510,19 +499,7 @@ namespace Dataweb.NShape.ElectricalShapes {
 
 		#region Fields
 
-		//// ControlPoint Id Constants
-		//private const int TopLeftControlPoint = 1;
-		//private const int TopCenterControlPoint = 2;
-		//private const int TopRightControlPoint = 3;
-		//private const int MiddleLeftControlPoint = 4;
-		//private const int MiddleRightControlPoint = 5;
-		//private const int BottomLeftControlPoint = 6;
-		//private const int BottomCenterControlPoint = 7;
-		//private const int BottomRightControlPoint = 8;
-		//private const int MiddleCenterControlPoint = 9;
-
-		//private Rectangle shapeBuffer = Rectangle.Empty;
-		private Point[] shapeBuffer = null;
+		private Point[] _shapeBuffer = null;
 
 		#endregion
 	}
@@ -610,19 +587,7 @@ namespace Dataweb.NShape.ElectricalShapes {
 
 
 		#region Fields
-
-		//// ControlPoint Id Constants
-		//private const int TopLeftControlPoint = 1;
-		//private const int TopCenterControlPoint = 2;
-		//private const int TopRightControlPoint = 3;
-		//private const int MiddleLeftControlPoint = 4;
-		//private const int MiddleRightControlPoint = 5;
-		//private const int BottomLeftControlPoint = 6;
-		//private const int BottomCenterControlPoint = 7;
-		//private const int BottomRightControlPoint = 8;
-		//private const int MiddleCenterControlPoint = 9;
-
-		private Rectangle shapeBuffer = Rectangle.Empty;
+		private Rectangle _shapeBuffer = Rectangle.Empty;
 		#endregion
 	}
 

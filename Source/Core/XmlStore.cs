@@ -1443,20 +1443,25 @@ namespace Dataweb.NShape {
 					if (_embeddedImages == null) _embeddedImages = new SortedList<string, byte[]>();
 					// When images share a file name/hash code, we assume they are equal. 
 					byte[] imageData;
-					string imageHashCode;
-					// As long as the repository loads images and not NamedImages, GetImageDataAndHashCode delivers the same performance and a 
-					// reduced memory footprint (because the namedImage has to create a byte[] as it cannot access the Image#s internal byte[]).
-					//if (image.Tag is NamedImage) {
-					//    imageHashCode = ((NamedImage)image.Tag).ImageHash;
-					//    imageData = ((NamedImage)image.Tag).ImageData;
-					//} else
-						GdiHelpers.GetImageDataAndHashCode(image, out imageData, out imageHashCode);
-					// Save the image
-					if (!_embeddedImages.ContainsKey(imageHashCode)) {
-						_embeddedImages.Add(imageHashCode, imageData);
-						SaveEmbeddedImage(imageHashCode, imageData);
+					string imageHash;
+					NamedImage namedImage = image.Tag as NamedImage;
+					if (namedImage != null) {
+						imageHash = namedImage.ImageHash;
+						imageData = namedImage.GetEncodedImageData();
+					} else {
+						imageData = GdiHelpers.GetEncodedImageData(image);
+						// Calculate hash of decoded, uncompressed raw pixel data. If not possible (vector image), use the save data.
+						if (image is Bitmap)
+							imageHash = GdiHelpers.CalculateHashCode((Bitmap)image);
+						else
+							imageHash = GdiHelpers.CalculateHashCode(imageData);
 					}
-					result = imageHashCode;
+					// Save the image
+					if (!_embeddedImages.ContainsKey(imageHash)) {
+						_embeddedImages.Add(imageHash, imageData);
+						SaveEmbeddedImage(imageHash, imageData);
+					}
+					result = imageHash;
 					break;
 				default:
 					throw new NShapeUnsupportedValueException(ImageLocation);

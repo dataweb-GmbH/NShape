@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -32,13 +32,13 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		protected EntityShapeColumnCommand(EntitySymbol shape, string columnText)
 			: base() {
-			this.shape = shape;
+			this._shape = shape;
 			this.columnText = columnText;
 		}
 
 
-		protected Shape Shape {
-			get { return shape; }
+		protected EntitySymbol Shape {
+			get { return _shape; }
 		}
 		
 		protected string ColumnText {
@@ -54,13 +54,13 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, shape.SecurityDomainName);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, Shape.SecurityDomainName);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
-		protected EntitySymbol shape;
+		private EntitySymbol _shape;
 		private string columnText;
 	}
 
@@ -77,15 +77,15 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		public override void Execute() {
-			shape.AddColumn(ColumnText);
-			if (Repository != null) Repository.Update(Shape);
+			Shape.AddColumn(ColumnText);
+			if (Repository != null) Repository.Update((Shape)Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			shape.RemoveColumn(ColumnText);
-			if (Repository != null) Repository.Update(Shape);
+			Shape.RemoveColumn(ColumnText);
+			if (Repository != null) Repository.Update((Shape)Shape);
 		}
 
 		#endregion
@@ -106,21 +106,21 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		public override void Execute() {
-			shape.AddColumn(shape.GetCaptionText(shape.CaptionCount - 1));
-			for (int i = shape.CaptionCount - 2; i > beforeIndex; --i)
-				shape.SetCaptionText(i, shape.GetCaptionText(i-1));
-			shape.SetCaptionText(beforeIndex, ColumnText);
-			if (Repository != null) Repository.Update(Shape);
+			Shape.AddColumn(Shape.GetCaptionText(Shape.CaptionCount - 1));
+			for (int i = Shape.CaptionCount - 2; i > beforeIndex; --i)
+				Shape.SetCaptionText(i, Shape.GetCaptionText(i-1));
+			Shape.SetCaptionText(beforeIndex, ColumnText);
+			if (Repository != null) Repository.Update((Shape)Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			for (int i = shape.CaptionCount - 1; i > beforeIndex; --i)
-				shape.SetCaptionText(i - 1, shape.GetCaptionText(i));
+			for (int i = Shape.CaptionCount - 1; i > beforeIndex; --i)
+				Shape.SetCaptionText(i - 1, Shape.GetCaptionText(i));
 			// The shape's Text does count as caption but not as column, that's why CaptionCount-2.
-			shape.RemoveColumnAt(shape.CaptionCount - 2);
-			if (Repository != null) Repository.Update(Shape);
+			Shape.RemoveColumnAt(Shape.CaptionCount - 2);
+			if (Repository != null) Repository.Update((Shape)Shape);
 		}
 
 		#endregion
@@ -144,23 +144,23 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		public override void Execute() {
-			string[] columns = new string[shape.ColumnNames.Length];
-			Array.Copy(shape.ColumnNames, columns, shape.ColumnNames.Length);
+			string[] columns = new string[Shape.ColumnNames.Length];
+			Array.Copy(Shape.ColumnNames, columns, Shape.ColumnNames.Length);
 			columns[columnIndex] = ColumnText;
 
-			shape.ColumnNames = columns;
-			if (Repository != null) Repository.Update(Shape);
+			Shape.ColumnNames = columns;
+			if (Repository != null) Repository.Update((Shape)Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			string[] columns = new string[shape.ColumnNames.Length];
-			Array.Copy(shape.ColumnNames, columns, shape.ColumnNames.Length);
+			string[] columns = new string[Shape.ColumnNames.Length];
+			Array.Copy(Shape.ColumnNames, columns, Shape.ColumnNames.Length);
 			columns[columnIndex] = oldColumnText;
 
-			shape.ColumnNames = columns;
-			if (Repository != null) Repository.Update(Shape);
+			Shape.ColumnNames = columns;
+			if (Repository != null) Repository.Update((Shape)Shape);
 		}
 
 		#endregion
@@ -184,22 +184,22 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		public override void Execute() {
-			int maxCaptionIdx = shape.CaptionCount - 1;
+			int maxCaptionIdx = Shape.CaptionCount - 1;
 			for (int i = removeIndex; i < maxCaptionIdx; ++i)
-				shape.SetCaptionText(i, shape.GetCaptionText(i + 1));
+				Shape.SetCaptionText(i, Shape.GetCaptionText(i + 1));
 			// The shape's Text does count as caption but not as column, that's why maxCaptionIdx - 1.
-			shape.RemoveColumnAt(maxCaptionIdx - 1);
-			if (Repository != null) Repository.Update(Shape);
+			Shape.RemoveColumnAt(maxCaptionIdx - 1);
+			if (Repository != null) Repository.Update((Shape)Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			shape.AddColumn(shape.GetCaptionText(shape.CaptionCount - 1));
-			for (int i = shape.CaptionCount - 2; i > removeIndex; --i)
-				shape.SetCaptionText(i, shape.GetCaptionText(i - 1));
-			shape.SetCaptionText(removeIndex, ColumnText);
-			if (Repository != null) Repository.Update(Shape);
+			Shape.AddColumn(Shape.GetCaptionText(Shape.CaptionCount - 1));
+			for (int i = Shape.CaptionCount - 2; i > removeIndex; --i)
+				Shape.SetCaptionText(i, Shape.GetCaptionText(i - 1));
+			Shape.SetCaptionText(removeIndex, ColumnText);
+			if (Repository != null) Repository.Update((Shape)Shape);
 		}
 
 		#endregion
@@ -257,9 +257,9 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		/// <override></override>
 		public override void MakePreview(IStyleSet styleSet) {
 			base.MakePreview(styleSet);
-			privateColumnCharacterStyle = styleSet.GetPreviewStyle(ColumnCharacterStyle);
-			privateColumnParagraphStyle = styleSet.GetPreviewStyle(ColumnParagraphStyle);
-			privateColumnBackgroundColorStyle = styleSet.GetPreviewStyle(ColumnBackgroundColorStyle);
+			_privateColumnCharacterStyle = styleSet.GetPreviewStyle(ColumnCharacterStyle);
+			_privateColumnParagraphStyle = styleSet.GetPreviewStyle(ColumnParagraphStyle);
+			_privateColumnBackgroundColorStyle = styleSet.GetPreviewStyle(ColumnBackgroundColorStyle);
 		}
 
 
@@ -292,8 +292,8 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			ColumnCharacterStyle = reader.ReadCharacterStyle();
 			ColumnParagraphStyle = reader.ReadParagraphStyle();
 			int colCnt = reader.ReadInt32();
-			if (columnNames == null) columnNames = new string[colCnt];
-			else Array.Resize(ref columnNames, colCnt);
+			if (_columnNames == null) _columnNames = new string[colCnt];
+			else Array.Resize(ref _columnNames, colCnt);
 		}
 
 
@@ -347,7 +347,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		#region ICaptionedShape Implementation
 
 		/// <override></override>
-		public override int CaptionCount { get { return base.CaptionCount + columnCaptions.Count; } }
+		public override int CaptionCount { get { return base.CaptionCount + _columnCaptions.Count; } }
 
 
 		/// <override></override>
@@ -359,8 +359,8 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				Rectangle captionBounds;
 				CalcCaptionBounds(index, out captionBounds);
 				Geometry.TransformRectangle(Center, Angle, captionBounds, out topLeft, out topRight, out bottomRight, out bottomLeft);
-				return (Geometry.ConvexPolygonContainsPoint(columnFrame, bottomLeft.X, bottomLeft.Y)
-					&& Geometry.ConvexPolygonContainsPoint(columnFrame, bottomRight.X, bottomRight.Y));
+				return (Geometry.ConvexPolygonContainsPoint(_columnFrame, bottomLeft.X, bottomLeft.Y)
+					&& Geometry.ConvexPolygonContainsPoint(_columnFrame, bottomRight.X, bottomRight.Y));
 			}
 		}
 
@@ -373,10 +373,10 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				int idx = index - 1;
 				Rectangle bounds;
 				CalcCaptionBounds(index, out bounds);
-				bounds = columnCaptions[idx].CalculateTextBounds(bounds, ColumnCharacterStyle, ColumnParagraphStyle, DisplayService);
+				bounds = _columnCaptions[idx].CalculateTextBounds(bounds, ColumnCharacterStyle, ColumnParagraphStyle, DisplayService);
 				Geometry.TransformRectangle(Center, Angle, bounds, out topLeft, out topRight, out bottomRight, out bottomLeft);
-				return (Geometry.QuadrangleContainsPoint(columnFrame[0], columnFrame[1], columnFrame[2], columnFrame[3], topLeft.X, topLeft.Y)
-					&& Geometry.QuadrangleContainsPoint(columnFrame[0], columnFrame[1], columnFrame[2], columnFrame[3], bottomRight.X, bottomRight.Y));
+				return (Geometry.QuadrangleContainsPoint(_columnFrame[0], _columnFrame[1], _columnFrame[2], _columnFrame[3], topLeft.X, topLeft.Y)
+					&& Geometry.QuadrangleContainsPoint(_columnFrame[0], _columnFrame[1], _columnFrame[2], _columnFrame[3], bottomRight.X, bottomRight.Y));
 			}
 		}
 
@@ -386,7 +386,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			if (index < base.CaptionCount)
 				return base.GetCaptionText(index);
 			else
-				return columnCaptions[index - 1].Text;
+				return _columnCaptions[index - 1].Text;
 		}
 
 
@@ -412,7 +412,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				base.SetCaptionText(index, text);
 			else {
 				Invalidate();
-				columnCaptions[index - 1].Text = text;
+				_columnCaptions[index - 1].Text = text;
 				InvalidateDrawCache();
 				Invalidate();
 			}
@@ -426,20 +426,20 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			else {
 				int idx = index - 1;
 				// Create if needed
-				if (columnCharacterStyles == null)
-					columnCharacterStyles = new SortedList<int, ICharacterStyle>(1);
+				if (_columnCharacterStyles == null)
+					_columnCharacterStyles = new SortedList<int, ICharacterStyle>(1);
 				// Set private style for a single caption
 				if (characterStyle != ColumnCharacterStyle) {
-					if (!columnCharacterStyles.ContainsKey(idx))
-						columnCharacterStyles.Add(idx, characterStyle);
-					else columnCharacterStyles[idx] = characterStyle;
+					if (!_columnCharacterStyles.ContainsKey(idx))
+						_columnCharacterStyles.Add(idx, characterStyle);
+					else _columnCharacterStyles[idx] = characterStyle;
 				} else {
-					if (columnCharacterStyles != null) {
-						if (columnCharacterStyles.ContainsKey(idx))
-							columnCharacterStyles.Remove(idx);
+					if (_columnCharacterStyles != null) {
+						if (_columnCharacterStyles.ContainsKey(idx))
+							_columnCharacterStyles.Remove(idx);
 						// Delete if not needed any more
-						if (columnCharacterStyles.Count == 0)
-							columnCharacterStyles = null;
+						if (_columnCharacterStyles.Count == 0)
+							_columnCharacterStyles = null;
 					}
 				}
 			}
@@ -453,20 +453,20 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			else {
 				int idx = index - 1;
 				// Create if needed
-				if (columnParagraphStyles == null) 
-					columnParagraphStyles = new SortedList<int, IParagraphStyle>(1);
+				if (_columnParagraphStyles == null) 
+					_columnParagraphStyles = new SortedList<int, IParagraphStyle>(1);
 				// Set private style for a single caption
 				if (paragraphStyle != ColumnParagraphStyle) {
-					if (!columnParagraphStyles.ContainsKey(idx))
-						columnParagraphStyles.Add(idx, paragraphStyle);
-					else columnParagraphStyles[idx] = paragraphStyle;
+					if (!_columnParagraphStyles.ContainsKey(idx))
+						_columnParagraphStyles.Add(idx, paragraphStyle);
+					else _columnParagraphStyles[idx] = paragraphStyle;
 				} else {
-					if (columnParagraphStyles != null) {
-						if (columnParagraphStyles.ContainsKey(idx))
-							columnParagraphStyles.Remove(idx);
+					if (_columnParagraphStyles != null) {
+						if (_columnParagraphStyles.ContainsKey(idx))
+							_columnParagraphStyles.Remove(idx);
 						// Delete if not needed any longer
-						if (columnParagraphStyles.Count == 0)
-							columnParagraphStyles = null;
+						if (_columnParagraphStyles.Count == 0)
+							_columnParagraphStyles = null;
 					}
 				}
 			}
@@ -478,7 +478,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			if (index < base.CaptionCount)
 				base.ShowCaptionText(index);
 			else
-				columnCaptions[index - 1].IsVisible = true;
+				_columnCaptions[index - 1].IsVisible = true;
 		}
 
 
@@ -487,7 +487,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			if (index < base.CaptionCount)
 				base.HideCaptionText(index);
 			else {
-				columnCaptions[index - 1].IsVisible = false;
+				_columnCaptions[index - 1].IsVisible = false;
 				Invalidate();
 			}
 		}
@@ -503,9 +503,9 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		[PropertyMappingId(PropertyIdColumnBackgroundColorStyle)]
 		[RequiredPermission(Permission.Present)]
 		public virtual IColorStyle ColumnBackgroundColorStyle {
-			get { return privateColumnBackgroundColorStyle ?? ((EntitySymbol)Template.Shape).ColumnBackgroundColorStyle; }
+			get { return _privateColumnBackgroundColorStyle ?? ((EntitySymbol)Template.Shape).ColumnBackgroundColorStyle; }
 			set {
-				privateColumnBackgroundColorStyle = (Template != null && Template.Shape is EntitySymbol && value == ((EntitySymbol)Template.Shape).ColumnBackgroundColorStyle) ? null : value;
+				_privateColumnBackgroundColorStyle = (Template != null && Template.Shape is EntitySymbol && value == ((EntitySymbol)Template.Shape).ColumnBackgroundColorStyle) ? null : value;
 				Invalidate();
 			}
 		}
@@ -517,10 +517,10 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		[PropertyMappingId(PropertyIdColumnCharacterStyle)]
 		[RequiredPermission(Permission.Present)]
 		public ICharacterStyle ColumnCharacterStyle {
-			get { return privateColumnCharacterStyle ?? ((EntitySymbol)Template.Shape).ColumnCharacterStyle; }
+			get { return _privateColumnCharacterStyle ?? ((EntitySymbol)Template.Shape).ColumnCharacterStyle; }
 			set {
 				Invalidate();
-				privateColumnCharacterStyle = (Template != null && Template.Shape is EntitySymbol && value == ((EntitySymbol)Template.Shape).ColumnCharacterStyle) ? null : value;
+				_privateColumnCharacterStyle = (Template != null && Template.Shape is EntitySymbol && value == ((EntitySymbol)Template.Shape).ColumnCharacterStyle) ? null : value;
 				InvalidateDrawCache();
 				Invalidate();
 			}
@@ -533,11 +533,11 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		[PropertyMappingId(PropertyIdColumnParagraphStyle)]
 		[RequiredPermission(Permission.Present)]
 		public IParagraphStyle ColumnParagraphStyle {
-			get { return privateColumnParagraphStyle ?? ((EntitySymbol)Template.Shape).ColumnParagraphStyle;
+			get { return _privateColumnParagraphStyle ?? ((EntitySymbol)Template.Shape).ColumnParagraphStyle;
 			}
 			set {
 				Invalidate();
-				privateColumnParagraphStyle = (Template != null && Template.Shape is EntitySymbol && value == ((EntitySymbol)Template.Shape).ColumnParagraphStyle) ? null : value;
+				_privateColumnParagraphStyle = (Template != null && Template.Shape is EntitySymbol && value == ((EntitySymbol)Template.Shape).ColumnParagraphStyle) ? null : value;
 				InvalidateDrawCache();
 				Invalidate();
 			}
@@ -552,13 +552,13 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		[Editor("Dataweb.NShape.WinFormsUI.TextUITypeEditor", typeof(UITypeEditor))]
 		public string[] ColumnNames {
 			get {
-				if (columnNames == null || columnNames.Length != columnCaptions.Count)
-					columnNames = new string[columnCaptions.Count];
-				for (int i = columnCaptions.Count - 1; i >= 0; --i) {
-					if (columnNames[i] != columnCaptions[i].Text)
-						columnNames[i] = columnCaptions[i].Text;
+				if (_columnNames == null || _columnNames.Length != _columnCaptions.Count)
+					_columnNames = new string[_columnCaptions.Count];
+				for (int i = _columnCaptions.Count - 1; i >= 0; --i) {
+					if (_columnNames[i] != _columnCaptions[i].Text)
+						_columnNames[i] = _columnCaptions[i].Text;
 				}
-				return columnNames; 
+				return _columnNames; 
 			}
 			set {
 				if (value == null) throw new ArgumentNullException();
@@ -566,15 +566,15 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 				// Remove columns that are no longer needed
 				int valueCnt = value.Length;
-				if (columnNames.Length > valueCnt) {
-					for (int i = columnNames.Length - 1; i >= valueCnt; --i)
+				if (_columnNames.Length > valueCnt) {
+					for (int i = _columnNames.Length - 1; i >= valueCnt; --i)
 						RemoveColumnAt(i);
 				}
 				// Replace existing and add new columns
 				for (int i = 0; i < valueCnt; ++i) {
-					if (i < columnNames.Length) {
-						columnCaptions[i].Text = 
-							columnNames[i] = value[i];
+					if (i < _columnNames.Length) {
+						_columnCaptions[i].Text = 
+							_columnNames[i] = value[i];
 					} else AddColumn(value[i]);
 				}
 
@@ -588,29 +588,29 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		#region Caption objects stuff
 
 		public void AddColumn(string columnName) {
-			columnCaptions.Add(new Caption(columnName));
-			Array.Resize(ref columnControlPoints, columnControlPoints.Length + 2);
-			Array.Resize(ref columnNames, columnNames.Length + 1);
-			columnNames[columnNames.Length - 1] = columnName;
+			_columnCaptions.Add(new Caption(columnName));
+			Array.Resize(ref _columnControlPoints, _columnControlPoints.Length + 2);
+			Array.Resize(ref _columnNames, _columnNames.Length + 1);
+			_columnNames[_columnNames.Length - 1] = columnName;
 			InvalidateDrawCache();
 			Invalidate();
 		}
 
 
 		public void InsertColumn(int index, string columnName) {
-			columnCaptions.Insert(index, new Caption(columnName));
-			Array.Resize(ref columnControlPoints, columnControlPoints.Length + 2);
-			Array.Resize(ref columnNames, columnCaptions.Count);
-			for (int i = columnCaptions.Count - 1; i >= 0; --i)
-				columnNames[i] = columnCaptions[i].Text;
+			_columnCaptions.Insert(index, new Caption(columnName));
+			Array.Resize(ref _columnControlPoints, _columnControlPoints.Length + 2);
+			Array.Resize(ref _columnNames, _columnCaptions.Count);
+			for (int i = _columnCaptions.Count - 1; i >= 0; --i)
+				_columnNames[i] = _columnCaptions[i].Text;
 			InvalidateDrawCache();
 			Invalidate();
 		}
 
 
 		public void RemoveColumn(string columnName) {
-			for (int i = columnCaptions.Count - 1; i >= 0; --i) {
-				if (columnName.Equals(columnCaptions[i].Text, StringComparison.InvariantCulture)) {
+			for (int i = _columnCaptions.Count - 1; i >= 0; --i) {
+				if (columnName.Equals(_columnCaptions[i].Text, StringComparison.InvariantCulture)) {
 					RemoveColumnAt(i);
 					break;
 				}
@@ -621,7 +621,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 
 		public void RemoveColumnAt(int index) {
-			if (index < 0 || index > columnCaptions.Count)
+			if (index < 0 || index > _columnCaptions.Count)
 				throw new ArgumentOutOfRangeException("index");
 			// Check whether connection points are not connected
 			const String stillConnectedMsg = "Cannot remove connection point {0}: Other shapes are still connected to this point.";
@@ -633,13 +633,13 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				throw new NShapeException(stillConnectedMsg, rightCtrlPtId);
 
 			// Remove caption
-			columnCaptions.RemoveAt(index);
-			if (index < columnControlPoints.Length - 2)
-				Array.Copy(columnControlPoints, index + 2, columnControlPoints, index, columnControlPoints.Length - index - 2);
-			Array.Resize(ref columnControlPoints, columnControlPoints.Length - 2);
-			if (index < columnNames.Length - 1)
-				Array.Copy(columnNames, index + 1, columnNames, index, columnNames.Length - index - 1);
-			Array.Resize(ref columnNames, columnCaptions.Count);
+			_columnCaptions.RemoveAt(index);
+			if (index < _columnControlPoints.Length - 2)
+				Array.Copy(_columnControlPoints, index + 2, _columnControlPoints, index, _columnControlPoints.Length - index - 2);
+			Array.Resize(ref _columnControlPoints, _columnControlPoints.Length - 2);
+			if (index < _columnNames.Length - 1)
+				Array.Copy(_columnNames, index + 1, _columnNames, index, _columnNames.Length - index - 1);
+			Array.Resize(ref _columnNames, _columnCaptions.Count);
 			
 			InvalidateDrawCache();
 			Invalidate();
@@ -647,9 +647,9 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 
 		public void ClearColumns() {
-			columnCaptions.Clear();
-			Array.Resize<Point>(ref columnControlPoints, 0);
-			Array.Resize(ref columnNames, 0);
+			_columnCaptions.Clear();
+			Array.Resize<Point>(ref _columnControlPoints, 0);
+			Array.Resize(ref _columnNames, 0);
 			InvalidateDrawCache();
 			Invalidate();
 		}
@@ -668,7 +668,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			int captionIdx = -1;
 			if (ContainsPoint(mouseX, mouseY)) {
 				Point tl, tr, bl, br;
-				for (int i = columnCaptions.Count - 1; i >= 0; --i) {
+				for (int i = _columnCaptions.Count - 1; i >= 0; --i) {
 					// +1 because Text Property is Caption '0'
 					GetCaptionBounds(i + 1, out tl, out tr, out br, out bl);
 					if (Geometry.QuadrangleContainsPoint(tl, tr, br, bl, mouseX, mouseY)) {
@@ -685,14 +685,14 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			bool isFeasible = captionIdx >= 0;
 			string description = Properties.Resources.MessageTxt_NoCaptionClicked;
 			if (isFeasible)
-				description = string.Format(Properties.Resources.MessageFmt_InsertNewColumnBeforeColumn0, columnNames[captionIdx]);
+				description = string.Format(Properties.Resources.MessageFmt_InsertNewColumnBeforeColumn0, _columnNames[captionIdx]);
 			yield return new CommandMenuItemDef(MenuItemNameInsertColumn, Properties.Resources.CaptionTxt_InsertColumn,
 				null, description, isFeasible, new InsertColumnCommand(this, captionIdx, newColumnTxt));
 			
 			if (isFeasible)
-				description = string.Format(Properties.Resources.MessageFmt_RemoveColumn0, columnNames[captionIdx]);
+				description = string.Format(Properties.Resources.MessageFmt_RemoveColumn0, _columnNames[captionIdx]);
 			yield return new CommandMenuItemDef(MenuItemNameRemoveColumn, Properties.Resources.CaptionTxt_RemoveColumn,
-				null, description, isFeasible, new RemoveColumnCommand(this, captionIdx, columnCaptions[captionIdx - 1].Text));
+				null, description, isFeasible, new RemoveColumnCommand(this, captionIdx, _columnCaptions[captionIdx - 1].Text));
 		}
 
 
@@ -742,7 +742,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		protected override int ControlPointCount { 
-			get { return base.ControlPointCount + columnControlPoints.Length; } 
+			get { return base.ControlPointCount + _columnControlPoints.Length; } 
 		}
 
 
@@ -753,7 +753,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			else {
 				UpdateDrawCache();
 				int idx = controlPointId - base.ControlPointCount - 1;
-				return columnControlPoints[idx];
+				return _columnControlPoints[idx];
 			}
 		}
 
@@ -796,33 +796,33 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 			// fill column background
 			if (Height > headerHeight) {
-				graphics.FillPolygon(columnBrush, columnFrame);
-				graphics.DrawPolygon(pen, columnFrame);
+				graphics.FillPolygon(columnBrush, _columnFrame);
+				graphics.DrawPolygon(pen, _columnFrame);
 
 				// draw column names
 				int top = (int)Math.Round(Y - (Height / 2f));
 				int bottom = (int)Math.Round(Y + (Height / 2f));
-				int captionCnt = columnCaptions.Count;
+				int captionCnt = _columnCaptions.Count;
 				for (int i = 0; i < captionCnt; ++i) {
 					// draw all captions that fit into the text area. 
 					if (top + headerHeight + (i * columnHeight) + columnHeight <= bottom - cornerRadius) {
-						if (columnCaptions[i].IsVisible) {
+						if (_columnCaptions[i].IsVisible) {
 							// If there are private styles for a single caption, use these
-							if (columnCharacterStyles != null || columnParagraphStyles != null) {
+							if (_columnCharacterStyles != null || _columnParagraphStyles != null) {
 								ICharacterStyle characterStyle = null;
-								if (columnCharacterStyles != null)
-									columnCharacterStyles.TryGetValue(i, out characterStyle);
+								if (_columnCharacterStyles != null)
+									_columnCharacterStyles.TryGetValue(i, out characterStyle);
 								IParagraphStyle paragraphStyle = null;
-								if (columnParagraphStyles != null)
-									columnParagraphStyles.TryGetValue(i, out paragraphStyle);
-								columnCaptions[i].Draw(graphics, characterStyle ?? ColumnCharacterStyle, paragraphStyle ?? ColumnParagraphStyle);
+								if (_columnParagraphStyles != null)
+									_columnParagraphStyles.TryGetValue(i, out paragraphStyle);
+								_columnCaptions[i].Draw(graphics, characterStyle ?? ColumnCharacterStyle, paragraphStyle ?? ColumnParagraphStyle);
 							} else
-								columnCaptions[i].Draw(graphics, ColumnCharacterStyle, ColumnParagraphStyle);
+								_columnCaptions[i].Draw(graphics, ColumnCharacterStyle, ColumnParagraphStyle);
 						}
 					} else {
 						// draw ellipsis indicators
-						graphics.DrawLines(pen, upperScrollArrow);
-						graphics.DrawLines(pen, lowerScrollArrow);
+						graphics.DrawLines(pen, _upperScrollArrow);
+						graphics.DrawLines(pen, _lowerScrollArrow);
 						break;
 					}
 				}
@@ -834,9 +834,9 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		/// <override></override>
 		protected override void InitializeToDefault(IStyleSet styleSet) {
 			base.InitializeToDefault(styleSet);
-			privateColumnBackgroundColorStyle = styleSet.ColorStyles.White;
-			privateColumnCharacterStyle = styleSet.CharacterStyles.Caption;
-			privateColumnParagraphStyle = styleSet.ParagraphStyles.Label;
+			_privateColumnBackgroundColorStyle = styleSet.ColorStyles.White;
+			_privateColumnCharacterStyle = styleSet.CharacterStyles.Caption;
+			_privateColumnParagraphStyle = styleSet.ParagraphStyles.Label;
 			Width = 80;
 			Height = 120;
 			Text = "Table";
@@ -881,18 +881,18 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			if (ControlPointCount > ctrlPtCnt) {
 				int halfColumnHeight = (int)Math.Round(CalcColumnHeight() / 2f);
 				int y;
-				for (int i = 0; i < columnControlPoints.Length; ++i) {
+				for (int i = 0; i < _columnControlPoints.Length; ++i) {
 					if (i % 2 == 0) {
 						y = top + headerHeight + (i * halfColumnHeight) + halfColumnHeight;
 						if (y > bottom) y = bottom;
-						columnControlPoints[i].X = left;
-						columnControlPoints[i].Y = y;
+						_columnControlPoints[i].X = left;
+						_columnControlPoints[i].Y = y;
 					}
 					else {
 						y = top + headerHeight + ((i - 1) * halfColumnHeight) + halfColumnHeight;
 						if (y > bottom) y = bottom;
-						columnControlPoints[i].X = right;
-						columnControlPoints[i].Y = y;
+						_columnControlPoints[i].X = right;
+						_columnControlPoints[i].Y = y;
 					}
 				}
 			}
@@ -903,15 +903,15 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		protected override void TransformDrawCache(int deltaX, int deltaY, int deltaAngle, int rotationCenterX, int rotationCenterY) {
 			base.TransformDrawCache(deltaX, deltaY, deltaAngle, rotationCenterX, rotationCenterY);
 			// transform ControlPoints
-			if (columnControlPoints.Length > 0)
-				Matrix.TransformPoints(columnControlPoints);
+			if (_columnControlPoints.Length > 0)
+				Matrix.TransformPoints(_columnControlPoints);
 			// transform column frame
-			Matrix.TransformPoints(columnFrame);
+			Matrix.TransformPoints(_columnFrame);
 			// transform ellipsis indicator
-			Matrix.TransformPoints(upperScrollArrow);
-			Matrix.TransformPoints(lowerScrollArrow);
+			Matrix.TransformPoints(_upperScrollArrow);
+			Matrix.TransformPoints(_lowerScrollArrow);
 			// transform Column paths
-			foreach (Caption caption in columnCaptions)
+			foreach (Caption caption in _columnCaptions)
 				caption.TransformPath(Matrix);
 		}
 
@@ -949,10 +949,10 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				int headerHeight = CalcHeaderHeight();
 				int columnHeight = CalcColumnHeight();
 
-				rectBuffer.X = left;
-				rectBuffer.Y = top;
-				rectBuffer.Width = Width;
-				rectBuffer.Height = Height;
+				_rectBuffer.X = left;
+				_rectBuffer.Y = top;
+				_rectBuffer.Width = Width;
+				_rectBuffer.Height = Height;
 
 				//Path.StartFigure();
 				//Path.AddLine(left + cornerRadius, top, right - cornerRadius, top);
@@ -971,17 +971,17 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 					int dblLineWidth = LineStyle.LineWidth + LineStyle.LineWidth;
 
 					// column section frame lines
-					columnFrame[0].X = left + cornerRadius;
-					columnFrame[0].Y = headerTop;
-					columnFrame[1].X = right - cornerRadius;
-					columnFrame[1].Y = headerTop;
-					columnFrame[2].X = right - cornerRadius;
-					columnFrame[2].Y = bottom - cornerRadius;
-					columnFrame[3].X = left + cornerRadius;
-					columnFrame[3].Y = bottom - cornerRadius;
+					_columnFrame[0].X = left + cornerRadius;
+					_columnFrame[0].Y = headerTop;
+					_columnFrame[1].X = right - cornerRadius;
+					_columnFrame[1].Y = headerTop;
+					_columnFrame[2].X = right - cornerRadius;
+					_columnFrame[2].Y = bottom - cornerRadius;
+					_columnFrame[3].X = left + cornerRadius;
+					_columnFrame[3].Y = bottom - cornerRadius;
 
 					Rectangle bounds = Rectangle.Empty;
-					int captionCnt = columnCaptions.Count;
+					int captionCnt = _columnCaptions.Count;
 					if (captionCnt > 0) {
 						int colX, colY, colWidth, colHeight;
 						colX = left + cornerRadius;
@@ -993,26 +993,26 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 							colY = top + headerHeight + (i * columnHeight);
 							// check if the column text is inside the column area
 							if (colY + colHeight <= bottom - cornerRadius)
-								columnCaptions[i].CalculatePath(colX, colY, colWidth, colHeight, ColumnCharacterStyle, ColumnParagraphStyle);
+								_columnCaptions[i].CalculatePath(colX, colY, colWidth, colHeight, ColumnCharacterStyle, ColumnParagraphStyle);
 							else {
 								// if not, draw an ellipsis symbol (double downward arrow)
 								int offsetX = dblLineWidth + dblLineWidth + dblLineWidth;
 								int offsetY = dblLineWidth + dblLineWidth;
 
 								// calculate arrows indicating that not all columns can be drawn
-								upperScrollArrow[0].X = right - cornerRadius - offsetX - offsetX;
-								upperScrollArrow[0].Y = bottom - cornerRadius - offsetY - offsetY - offsetY;
-								upperScrollArrow[1].X = right - cornerRadius - offsetX - (offsetX / 2);
-								upperScrollArrow[1].Y = bottom - cornerRadius - offsetY - offsetY;
-								upperScrollArrow[2].X = right - cornerRadius - offsetX;
-								upperScrollArrow[2].Y = bottom - cornerRadius - offsetY - offsetY - offsetY;
+								_upperScrollArrow[0].X = right - cornerRadius - offsetX - offsetX;
+								_upperScrollArrow[0].Y = bottom - cornerRadius - offsetY - offsetY - offsetY;
+								_upperScrollArrow[1].X = right - cornerRadius - offsetX - (offsetX / 2);
+								_upperScrollArrow[1].Y = bottom - cornerRadius - offsetY - offsetY;
+								_upperScrollArrow[2].X = right - cornerRadius - offsetX;
+								_upperScrollArrow[2].Y = bottom - cornerRadius - offsetY - offsetY - offsetY;
 
-								lowerScrollArrow[0].X = right - cornerRadius - offsetX - offsetX;
-								lowerScrollArrow[0].Y = bottom - cornerRadius - offsetY - offsetY;
-								lowerScrollArrow[1].X = right - cornerRadius - offsetX - (offsetX / 2);
-								lowerScrollArrow[1].Y = bottom - cornerRadius - offsetY;
-								lowerScrollArrow[2].X = right - cornerRadius - offsetX;
-								lowerScrollArrow[2].Y = bottom - cornerRadius - offsetY - offsetY;
+								_lowerScrollArrow[0].X = right - cornerRadius - offsetX - offsetX;
+								_lowerScrollArrow[0].Y = bottom - cornerRadius - offsetY - offsetY;
+								_lowerScrollArrow[1].X = right - cornerRadius - offsetX - (offsetX / 2);
+								_lowerScrollArrow[1].Y = bottom - cornerRadius - offsetY;
+								_lowerScrollArrow[2].X = right - cornerRadius - offsetX;
+								_lowerScrollArrow[2].Y = bottom - cornerRadius - offsetY - offsetY;
 								break;
 							}	// end of "is column in column area check"
 						} // end of for loop (processing all columnName-captions)
@@ -1028,16 +1028,16 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		protected override void ProcessExecModelPropertyChange(IModelMapping propertyMapping) {
 			switch (propertyMapping.ShapePropertyId) {
 				case PropertyIdColumnBackgroundColorStyle:
-					privateColumnBackgroundColorStyle = (propertyMapping.GetStyle() as IColorStyle);
+					_privateColumnBackgroundColorStyle = (propertyMapping.GetStyle() as IColorStyle);
 					Invalidate();
 					break;
 				case PropertyIdColumnCharacterStyle:
-					privateColumnCharacterStyle = (propertyMapping.GetStyle() as ICharacterStyle);
+					_privateColumnCharacterStyle = (propertyMapping.GetStyle() as ICharacterStyle);
 					InvalidateDrawCache();
 					Invalidate();
 					break;
 				case PropertyIdColumnParagraphStyle:
-					privateColumnParagraphStyle = (propertyMapping.GetStyle() as IParagraphStyle);
+					_privateColumnParagraphStyle = (propertyMapping.GetStyle() as IParagraphStyle);
 					InvalidateDrawCache();
 					Invalidate();
 					break;
@@ -1106,24 +1106,23 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		private const string attrNameColumns = "TableColumns";
 		private const string attrNameColumn = "Column";
-		private static string[] columnAttrNames = new string[] { "ColumnIndex", "ColumnName" };
-		private static Type[] columnAttrTypes = new Type[] { typeof(int), typeof(string) };
+		private static readonly string[] columnAttrNames = new string[] { "ColumnIndex", "ColumnName" };
+		private static readonly Type[] columnAttrTypes = new Type[] { typeof(int), typeof(string) };
 
-		private string[] columnNames = new string[0];
-		private List<Caption> columnCaptions = new List<Caption>(0);
-		private List<Rectangle> columnBounds = new List<Rectangle>(0);
-		private SortedList<int, ICharacterStyle> columnCharacterStyles = null;
-		private SortedList<int, IParagraphStyle> columnParagraphStyles = null;
-		private Point[] columnControlPoints = new Point[0];
-		private IColorStyle privateColumnBackgroundColorStyle = null;
-		private ICharacterStyle privateColumnCharacterStyle = null;
-		private IParagraphStyle privateColumnParagraphStyle = null;
+		private string[] _columnNames = new string[0];
+		private List<Caption> _columnCaptions = new List<Caption>(0);
+		private List<Rectangle> _columnBounds = new List<Rectangle>(0);
+		private SortedList<int, ICharacterStyle> _columnCharacterStyles = null;
+		private SortedList<int, IParagraphStyle> _columnParagraphStyles = null;
+		private Point[] _columnControlPoints = new Point[0];
+		private IColorStyle _privateColumnBackgroundColorStyle = null;
+		private ICharacterStyle _privateColumnCharacterStyle = null;
+		private IParagraphStyle _privateColumnParagraphStyle = null;
 
-		private Rectangle rectBuffer = Rectangle.Empty;
-		//private Point[] pointBuffer = new Point[4];
-		private Point[] columnFrame = new Point[4];
-		private Point[] upperScrollArrow = new Point[3];
-		private Point[] lowerScrollArrow = new Point[3];
+		private Rectangle _rectBuffer = Rectangle.Empty;
+		private Point[] _columnFrame = new Point[4];
+		private Point[] _upperScrollArrow = new Point[3];
+		private Point[] _lowerScrollArrow = new Point[3];
 
 		#endregion
 	}
@@ -1334,42 +1333,42 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				width = 37 * w;
 				height = 64 * h;
 				AddArcToGraphicsPath(left, top, width, height, ControlPoints[9].X, ControlPoints[9].Y, ControlPoints[10].X, ControlPoints[10].Y);
-				arcBounds[0] = RectangleF.FromLTRB(left, top, left + width, top + height);
+				_arcBounds[0] = RectangleF.FromLTRB(left, top, left + width, top + height);
 				/*****************************************/
 				left = -(35 * w);
 				top = -(64 * h);
 				width = 46 * w;
 				height = 62 * h;
 				AddArcToGraphicsPath(left, top, width, height, ControlPoints[10].X, ControlPoints[10].Y, ControlPoints[11].X, ControlPoints[11].Y);
-				arcBounds[1] = RectangleF.FromLTRB(left, top, left + width, top + height);
+				_arcBounds[1] = RectangleF.FromLTRB(left, top, left + width, top + height);
 				/*****************************************/
 				left = (3 * w);
 				top = -(64 * h);
 				width = 54 * w;
 				height = 78 * h;
 				AddArcToGraphicsPath(left, top, width, height, ControlPoints[11].X, ControlPoints[11].Y, ControlPoints[12].X, ControlPoints[12].Y);
-				arcBounds[2] = RectangleF.FromLTRB(left, top, left + width, top + height);
+				_arcBounds[2] = RectangleF.FromLTRB(left, top, left + width, top + height);
 				/*****************************************/
 				left = (21 * w);
 				top = -(25 * h);
 				width = 43 * w;
 				height = 81 * h;
 				AddArcToGraphicsPath(left, top, width, height, ControlPoints[12].X, ControlPoints[12].Y, ControlPoints[13].X, ControlPoints[13].Y);
-				arcBounds[3] = RectangleF.FromLTRB(left, top, left + width, top + height);
+				_arcBounds[3] = RectangleF.FromLTRB(left, top, left + width, top + height);
 				/*****************************************/
 				left = -(20 * w);
 				top = -(0 * h);
 				width = 53 * w;
 				height = 64 * h;
 				AddArcToGraphicsPath(left, top, width, height, ControlPoints[13].X, ControlPoints[13].Y, ControlPoints[14].X, ControlPoints[14].Y);
-				arcBounds[4] = RectangleF.FromLTRB(left, top, left + width, top + height);
+				_arcBounds[4] = RectangleF.FromLTRB(left, top, left + width, top + height);
 				/*****************************************/
 				left = -(64 * w);
 				top = -(10 * h);
 				width = 52 * w;
 				height = (73 * h);
 				AddArcToGraphicsPath(left, top, width, height, ControlPoints[14].X, ControlPoints[14].Y, ControlPoints[9].X, ControlPoints[9].Y);
-				arcBounds[5] = RectangleF.FromLTRB(left, top, left + width, top + height);
+				_arcBounds[5] = RectangleF.FromLTRB(left, top, left + width, top + height);
 				/*****************************************/
 				Path.CloseFigure();
 				return true;
@@ -1421,7 +1420,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 
 		#region Fields
-		private RectangleF[] arcBounds = new RectangleF[6];
+		private RectangleF[] _arcBounds = new RectangleF[6];
 		#endregion
 	}
 
@@ -1479,10 +1478,10 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			Matrix.Reset();
 			Matrix.Translate(X, Y);
 			Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Center);
-			Matrix.TransformPoints(shapePoints);
+			Matrix.TransformPoints(_shapePoints);
 
 			float currDist, dist = float.MaxValue;
-			foreach (Point p in Geometry.IntersectPolygonLine(shapePoints, startX, startY, X, Y, true)) {
+			foreach (Point p in Geometry.IntersectPolygonLine(_shapePoints, startX, startY, X, Y, true)) {
 				currDist = Geometry.DistancePointPoint(p.X, p.Y, startX, startY);
 				if (currDist < dist) {
 					dist = currDist;
@@ -1497,7 +1496,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		public override void Draw(Graphics graphics) {
 			base.Draw(graphics);
 			Pen pen = ToolCache.GetPen(LineStyle, null, null);
-			graphics.DrawLines(pen, foldingPoints);
+			graphics.DrawLines(pen, _foldingPoints);
 		}
 
 
@@ -1509,7 +1508,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 		/// <override></override>
 		protected override void TransformDrawCache(int deltaX, int deltaY, int deltaAngle, int rotationCenterX, int rotationCenterY) {
 			base.TransformDrawCache(deltaX, deltaY, deltaAngle, rotationCenterX, rotationCenterY);
-			Matrix.TransformPoints(foldingPoints);
+			Matrix.TransformPoints(_foldingPoints);
 		}
 
 
@@ -1520,7 +1519,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddPolygon(shapePoints);
+				Path.AddPolygon(_shapePoints);
 				Path.CloseFigure();
 				return true;
 			}
@@ -1535,41 +1534,30 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 			int right = left + Width;
 			int bottom = top + Height;
 
-			shapePoints[0].X = left;
-			shapePoints[0].Y = top;
-			shapePoints[1].X = right - foldingSize;
-			shapePoints[1].Y = top;
-			shapePoints[2].X = right;
-			shapePoints[2].Y = top + foldingSize;
-			shapePoints[3].X = right;
-			shapePoints[3].Y = bottom;
-			shapePoints[4].X = left;
-			shapePoints[4].Y = bottom;
+			_shapePoints[0].X = left;
+			_shapePoints[0].Y = top;
+			_shapePoints[1].X = right - foldingSize;
+			_shapePoints[1].Y = top;
+			_shapePoints[2].X = right;
+			_shapePoints[2].Y = top + foldingSize;
+			_shapePoints[3].X = right;
+			_shapePoints[3].Y = bottom;
+			_shapePoints[4].X = left;
+			_shapePoints[4].Y = bottom;
 
-			foldingPoints[0].X = right - foldingSize;
-			foldingPoints[0].Y = top;
-			foldingPoints[1].X = right - foldingSize;
-			foldingPoints[1].Y = top + foldingSize;
-			foldingPoints[2].X = right;
-			foldingPoints[2].Y = top + foldingSize;
+			_foldingPoints[0].X = right - foldingSize;
+			_foldingPoints[0].Y = top;
+			_foldingPoints[1].X = right - foldingSize;
+			_foldingPoints[1].Y = top + foldingSize;
+			_foldingPoints[2].X = right;
+			_foldingPoints[2].Y = top + foldingSize;
 		}
 
 
 		#region Fields
-
-		//// ControlPoint Id Constants
-		//private const int TopLeftControlPoint = 1;
-		//private const int TopCenterControlPoint = 2;
-		//private const int TopRightControlPoint = 3;
-		//private const int MiddleLeftControlPoint = 4;
-		//private const int MiddleRightControlPoint = 5;
-		//private const int BottomLeftControlPoint = 6;
-		//private const int BottomCenterControlPoint = 7;
-		//private const int BottomRightControlPoint = 8;
-		//private const int MiddleCenterControlPoint = 9;
 		
-		private Point[] shapePoints = new Point[5];
-		private Point[] foldingPoints = new Point[3];
+		private Point[] _shapePoints = new Point[5];
+		private Point[] _foldingPoints = new Point[3];
 		
 		#endregion
 	}
@@ -1965,18 +1953,18 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				w = (int)Math.Round((float)Width / 8);
 				h = (int)Math.Round((float)Height / 8);
 
-				shapePoints[0].X = left + w;
-				shapePoints[0].Y = top + h;
-				shapePoints[1].X = left + w;
-				shapePoints[1].Y = top;
-				shapePoints[2].X = right;
-				shapePoints[2].Y = top;
-				shapePoints[3].X = right;
-				shapePoints[3].Y = bottom;
-				shapePoints[4].X = left + w;
-				shapePoints[4].Y = bottom;
-				shapePoints[5].X = left + w;
-				shapePoints[5].Y = bottom - h;
+				_shapePoints[0].X = left + w;
+				_shapePoints[0].Y = top + h;
+				_shapePoints[1].X = left + w;
+				_shapePoints[1].Y = top;
+				_shapePoints[2].X = right;
+				_shapePoints[2].Y = top;
+				_shapePoints[3].X = right;
+				_shapePoints[3].Y = bottom;
+				_shapePoints[4].X = left + w;
+				_shapePoints[4].Y = bottom;
+				_shapePoints[5].X = left + w;
+				_shapePoints[5].Y = bottom - h;
 
 
 				Rectangle rect1Buffer = Rectangle.Empty;
@@ -1992,7 +1980,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 				rect2Buffer.Height = h + h;
 
 				Path.StartFigure();
-				Path.AddLines(shapePoints);
+				Path.AddLines(_shapePoints);
 				Path.AddRectangle(rect1Buffer);
 				Path.AddLine(left + w, h, left + w, -h);
 				Path.AddRectangle(rect2Buffer);
@@ -2004,7 +1992,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 
 		#region Fields
-		private Point[] shapePoints = new Point[6];
+		private Point[] _shapePoints = new Point[6];
 		#endregion
 	}
 

@@ -1,5 +1,5 @@
 ﻿/**************************************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -71,7 +71,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				flowRowDistanceTrackBar.Value = ((FlowLayouter)layouter).RowDistance;
 			}
 
-			this.layouter = layouter;
+			this._layouter = layouter;
 			algorithmListBox.SelectedIndex = panelIdx;
 		}
 
@@ -86,11 +86,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Provides access to a <see cref="T:Dataweb.NShape.Project" />.
 		/// </summary>
 		public Project Project {
-			get { return project; }
+			get { return _project; }
 			set {
-				if (project != null) UnregisterProjectEvents(project);
-				project = value;
-				if (project != null) RegisterProjectEvents(project);
+				if (_project != null) UnregisterProjectEvents(_project);
+				_project = value;
+				if (_project != null) RegisterProjectEvents(_project);
 			}
 		}
 
@@ -99,10 +99,10 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the diagram of the layouted shapes.
 		/// </summary>
 		public Diagram Diagram {
-			get { return diagram; }
+			get { return _diagram; }
 			set {
-				selectedShapes.Clear();
-				diagram = value;
+				_selectedShapes.Clear();
+				_diagram = value;
 			}
 		}
 
@@ -111,10 +111,10 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies the shapes to be layouted.
 		/// </summary>
 		public IEnumerable<Shape> SelectedShapes {
-			get { return selectedShapes; }
+			get { return _selectedShapes; }
 			set {
-				selectedShapes.Clear();
-				selectedShapes.AddRange(value);
+				_selectedShapes.Clear();
+				_selectedShapes.AddRange(value);
 			}
 		}
 
@@ -122,27 +122,27 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods
 
 		private void PrepareLayouter() {
-			switch ((string)currentPanel.Tag) {
+			switch ((string)_currentPanel.Tag) {
 				case "Expansion": // Distribution
-					if (layouter == null || !(layouter is ExpansionLayouter))
-						layouter = new ExpansionLayouter(Project);
-					ExpansionLayouter dl = (ExpansionLayouter)layouter;
+					if (_layouter == null || !(_layouter is ExpansionLayouter))
+						_layouter = new ExpansionLayouter(Project);
+					ExpansionLayouter dl = (ExpansionLayouter)_layouter;
 					dl.HorizontalCompression = horizontalCompressionTrackBar.Value;
 					dl.VerticalCompression = verticalCompressionTrackBar.Value;
 					break;
 				case "Alignment":
-					if (layouter == null || !(layouter is GridLayouter))
-						layouter = new GridLayouter(Project);
-					GridLayouter gl = (GridLayouter)layouter;
+					if (_layouter == null || !(_layouter is GridLayouter))
+						_layouter = new GridLayouter(Project);
+					GridLayouter gl = (GridLayouter)_layouter;
 					gl.CoarsenessX = columnDistanceTrackBar.Value;
 					gl.CoarsenessY = rowDistanceTrackBar.Value;
 					/* gl.ColumnDistance = columnDistanceTrackBar.Value;
 					gl.RowDistance = rowDistanceTrackBar.Value; */
 					break;
 				case "Clusters":
-					if (layouter == null || !(layouter is RepulsionLayouter))
-						layouter = new RepulsionLayouter(Project);
-					RepulsionLayouter rl = (RepulsionLayouter)layouter;
+					if (_layouter == null || !(_layouter is RepulsionLayouter))
+						_layouter = new RepulsionLayouter(Project);
+					RepulsionLayouter rl = (RepulsionLayouter)_layouter;
 					// The default distance between connected elements should be 100 display units.
 					// The default distance between unconnected elements should be 300 display units.
 					rl.Friction = 0; // 300;
@@ -154,9 +154,9 @@ namespace Dataweb.NShape.WinFormsUI {
 					rl.Mass = 50;
 					break;
 				case "Flow":
-					if (layouter == null || !(layouter is FlowLayouter))
-						layouter = new FlowLayouter(Project);
-					FlowLayouter fl = (FlowLayouter)layouter;
+					if (_layouter == null || !(_layouter is FlowLayouter))
+						_layouter = new FlowLayouter(Project);
+					FlowLayouter fl = (FlowLayouter)_layouter;
 					if (bottomUpRadioButton.Checked) fl.Direction = FlowLayouter.FlowDirection.BottomUp;
 					else if (leftToRightRadioButton.Checked) fl.Direction = FlowLayouter.FlowDirection.LeftToRight;
 					else if (topDownRadioButton.Checked) fl.Direction = FlowLayouter.FlowDirection.TopDown;
@@ -172,26 +172,26 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void SetShapes() {
-			if (diagram != null) {
-				layouter.AllShapes = diagram.Shapes;
-				if (selectedShapes.Count == 0) layouter.Shapes = diagram.Shapes;
-				else layouter.Shapes = selectedShapes;
+			if (_diagram != null) {
+				_layouter.AllShapes = _diagram.Shapes;
+				if (_selectedShapes.Count == 0) _layouter.Shapes = _diagram.Shapes;
+				else _layouter.Shapes = _selectedShapes;
 			}
 		}
 
 
 		private void DoPreview(int operation, bool fit) {
 			try {
-				if ((operation == 1 || operation == 4) && lastOperation == operation
-				&& project.History.IsNextUndoCommand(lastCommand))
-					project.History.Undo();
+				if ((operation == 1 || operation == 4) && _lastOperation == operation
+				&& _project.History.IsNextUndoCommand(_lastCommand))
+					_project.History.Undo();
 				SetShapes();
-				layouter.Prepare();
-				layouter.Execute(10);
-				if (fit) layouter.Fit(0, 0, diagram.Size.Width, diagram.Size.Height);
-				lastCommand = layouter.CreateLayoutCommand();
-				lastOperation = operation;
-				project.ExecuteCommand(lastCommand);
+				_layouter.Prepare();
+				_layouter.Execute(10);
+				if (fit) _layouter.Fit(0, 0, _diagram.Size.Width, _diagram.Size.Height);
+				_lastCommand = _layouter.CreateLayoutCommand();
+				_lastOperation = operation;
+				_project.ExecuteCommand(_lastCommand);
 				OnLayoutChanged();
 			} catch (NShapeException exc) {
 				MessageBox.Show(exc.Message, "Cannot Layout");
@@ -201,12 +201,12 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		// Returns false, if there are no more steps to execute.
 		private bool DoPreviewStep(int operation) {
-			bool undo = lastOperation == operation && project.History.IsNextUndoCommand(lastCommand);
-			bool finished = !layouter.ExecuteStep();
-			lastCommand = layouter.CreateLayoutCommand();
-			lastOperation = operation;
-			if (undo) project.History.Undo();
-			project.ExecuteCommand(lastCommand);
+			bool undo = _lastOperation == operation && _project.History.IsNextUndoCommand(_lastCommand);
+			bool finished = !_layouter.ExecuteStep();
+			_lastCommand = _layouter.CreateLayoutCommand();
+			_lastOperation = operation;
+			if (undo) _project.History.Undo();
+			_project.ExecuteCommand(_lastCommand);
 			OnLayoutChanged();
 			return !finished;
 		}
@@ -234,7 +234,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				// Hide all others
 				foreach (Control c in Controls)
 					if (c is Panel && c != newPanel) c.Hide();
-				currentPanel = newPanel;
+				_currentPanel = newPanel;
 			}
 		}
 
@@ -245,7 +245,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void StartAnimatedPreview() {
-			UnregisterProjectEvents(project);
+			UnregisterProjectEvents(_project);
 			previewButton.Text = "Running";
 			layoutTimer.Interval = animationInterval;
 			layoutTimer.Start();
@@ -256,7 +256,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			layoutTimer.Stop();
 			previewButton.Text = "Execute";
 			UpdateUndoRedoButtons();
-			RegisterProjectEvents(project);
+			RegisterProjectEvents(_project);
 		}
 
 
@@ -273,8 +273,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void UpdateUndoRedoButtons() {
-			undoButton.Enabled = (project != null && project.History.UndoCommandCount > 0);
-			redoButton.Enabled = (project != null && project.History.RedoCommandCount > 0);
+			undoButton.Enabled = (_project != null && _project.History.UndoCommandCount > 0);
+			redoButton.Enabled = (_project != null && _project.History.RedoCommandCount > 0);
 		}
 
 		#endregion
@@ -305,18 +305,18 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void applyButton_Click(object sender, EventArgs e) {
 			// This way we "forget" that the last operation was an immediate one or a step.
-			lastOperation = 0;
+			_lastOperation = 0;
 		}
 
 
 		private void centerButton_Click(object sender, EventArgs e) {
 			PrepareLayouter();
 			SetShapes();
-			layouter.Prepare();
-			layouter.Fit(0, 0, diagram.Size.Width, diagram.Size.Height);
-			lastCommand = layouter.CreateLayoutCommand();
-			lastOperation = 0;
-			project.ExecuteCommand(lastCommand);
+			_layouter.Prepare();
+			_layouter.Fit(0, 0, _diagram.Size.Width, _diagram.Size.Height);
+			_lastCommand = _layouter.CreateLayoutCommand();
+			_lastOperation = 0;
+			_project.ExecuteCommand(_lastCommand);
 			OnLayoutChanged();
 		}
 
@@ -405,14 +405,14 @@ namespace Dataweb.NShape.WinFormsUI {
 						DoPreview(2, true);
 					} else if (animatedRadioButton.Checked) {
 						SetShapes();
-						layouter.Prepare();
+						_layouter.Prepare();
 						StartAnimatedPreview();
 					} else if (stepRadioButton.Checked) {
 						// TODO 2: This will not take into account, if selection changes between steps
 						// But that would be difficult to handle anyway.
-						if (lastOperation != 4 || !project.History.IsNextUndoCommand(lastCommand)) {
+						if (_lastOperation != 4 || !_project.History.IsNextUndoCommand(_lastCommand)) {
 							SetShapes();
-							layouter.Prepare();
+							_layouter.Prepare();
 						}
 						DoPreviewStep(4);
 					} else {
@@ -439,7 +439,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void undoButton_Click(object sender, EventArgs e) {
 			try {
-				project.History.Undo();
+				_project.History.Undo();
 			} catch (Exception exc) {
 				MessageBox.Show(exc.Message, "Cannot Undo");
 			}
@@ -448,7 +448,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void redoButton_Click(object sender, EventArgs e) {
 			try {
-				project.History.Redo();
+				_project.History.Redo();
 			} catch (Exception exc) {
 				MessageBox.Show(exc.Message, "Cannot Redo");
 			}
@@ -475,15 +475,15 @@ namespace Dataweb.NShape.WinFormsUI {
 		const int animationInterval = 50;
 #endif
 
-		private Project project;
-		private Diagram diagram;
-		private List<Shape> selectedShapes = new List<Shape>(100);
+		private Project _project;
+		private Diagram _diagram;
+		private List<Shape> _selectedShapes = new List<Shape>(100);
 
-		private Panel currentPanel;
-		private ILayouter layouter;
-		private ICommand lastCommand;
+		private Panel _currentPanel;
+		private ILayouter _layouter;
+		private ICommand _lastCommand;
 		// 1 == immediate, 2 = fast, 3 = animated, 4 = step
-		private int lastOperation;
+		private int _lastOperation;
 
 		#endregion
 

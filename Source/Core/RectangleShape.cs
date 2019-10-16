@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -841,22 +841,22 @@ namespace Dataweb.NShape.Advanced {
 			int top = (int)Math.Round(Y - (Height / 2f));
 			int right = left + Width;
 			int bottom = top + Height;
-			pointBuffer[0].X = X;
-			pointBuffer[0].Y = top;
-			pointBuffer[1].X = right;
-			pointBuffer[1].Y = Y;
-			pointBuffer[2].X = X;
-			pointBuffer[2].Y = bottom;
-			pointBuffer[3].X = left;
-			pointBuffer[3].Y = Y;
+			ShapePoints[0].X = X;
+			ShapePoints[0].Y = top;
+			ShapePoints[1].X = right;
+			ShapePoints[1].Y = Y;
+			ShapePoints[2].X = X;
+			ShapePoints[2].Y = bottom;
+			ShapePoints[3].X = left;
+			ShapePoints[3].Y = Y;
 			// Rotate shape points if necessary
 			if (Angle % 1800 != 0) {
 				Matrix.Reset();
 				Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Center);
-				Matrix.TransformPoints(pointBuffer);
+				Matrix.TransformPoints(ShapePoints);
 			}
 			// Calculate intersection points and return the nearest (or the shape's Center if there is no intersection point)
-			result = Geometry.GetNearestPoint(startX, startY, Geometry.IntersectPolygonLine(pointBuffer, startX, startY, X, Y, true));
+			result = Geometry.GetNearestPoint(startX, startY, Geometry.IntersectPolygonLine(ShapePoints, startX, startY, X, Y, true));
 			if (!Geometry.IsValid(result)) return Center;
 			else return result;
 		}
@@ -886,7 +886,23 @@ namespace Dataweb.NShape.Advanced {
 			get { return 13; }
 		}
 
+		
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use ShapePoints instead.")]
+		protected Point[] PointBuffer {
+			get { return _shapePoints; }
+			set { _shapePoints = value; }
+		}
 
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected Point[] ShapePoints {
+		    get { return _shapePoints; }
+		    set { _shapePoints = value; }
+		}
+
+
+		
 		/// <override></override>
 		protected internal DiamondBase(ShapeType shapeType, Template template)
 			: base(shapeType, template) {
@@ -905,10 +921,10 @@ namespace Dataweb.NShape.Advanced {
 				Rectangle result = Rectangle.Empty;
 				if (Width >= 0 && Height >= 0) {
 					CalcTransformedShapePoints();
-					result.X = Math.Min(Math.Min(pointBuffer[0].X, pointBuffer[1].X), Math.Min(pointBuffer[2].X, pointBuffer[3].X));
-					result.Y = Math.Min(Math.Min(pointBuffer[0].Y, pointBuffer[1].Y), Math.Min(pointBuffer[2].Y, pointBuffer[3].Y));
-					result.Width = Math.Max(Math.Max(pointBuffer[0].X, pointBuffer[1].X), Math.Max(pointBuffer[2].X, pointBuffer[3].X)) - result.X;
-					result.Height = Math.Max(Math.Max(pointBuffer[0].Y, pointBuffer[1].Y), Math.Max(pointBuffer[2].Y, pointBuffer[3].Y)) - result.Y;
+					result.X = Math.Min(Math.Min(ShapePoints[0].X, ShapePoints[1].X), Math.Min(ShapePoints[2].X, ShapePoints[3].X));
+					result.Y = Math.Min(Math.Min(ShapePoints[0].Y, ShapePoints[1].Y), Math.Min(ShapePoints[2].Y, ShapePoints[3].Y));
+					result.Width = Math.Max(Math.Max(ShapePoints[0].X, ShapePoints[1].X), Math.Max(ShapePoints[2].X, ShapePoints[3].X)) - result.X;
+					result.Height = Math.Max(Math.Max(ShapePoints[0].Y, ShapePoints[1].Y), Math.Max(ShapePoints[2].Y, ShapePoints[3].Y)) - result.Y;
 					ShapeUtils.InflateBoundingRectangle(ref result, LineStyle);
 				}
 				return result;
@@ -925,14 +941,14 @@ namespace Dataweb.NShape.Advanced {
 			rectangle.Height = height;
 
 			CalcTransformedShapePoints();
-			return Geometry.PolygonIntersectsWithRectangle(pointBuffer, rectangle);
+			return Geometry.PolygonIntersectsWithRectangle(ShapePoints, rectangle);
 		}
 
 
 		/// <override></override>
 		protected override bool ContainsPointCore(int x, int y) {
 			CalcTransformedShapePoints();
-			return Geometry.QuadrangleContainsPoint(pointBuffer[0], pointBuffer[1], pointBuffer[2], pointBuffer[3], x, y);
+			return Geometry.QuadrangleContainsPoint(ShapePoints[0], ShapePoints[1], ShapePoints[2], ShapePoints[3], x, y);
 		}
 
 
@@ -1015,18 +1031,18 @@ namespace Dataweb.NShape.Advanced {
 				int right = left + Width;
 				int bottom = top + Height;
 
-				pointBuffer[0].X = 0;
-				pointBuffer[0].Y = top;
-				pointBuffer[1].X = right;
-				pointBuffer[1].Y = 0;
-				pointBuffer[2].X = 0;
-				pointBuffer[2].Y = bottom;
-				pointBuffer[3].X = left;
-				pointBuffer[3].Y = 0;
+				ShapePoints[0].X = 0;
+				ShapePoints[0].Y = top;
+				ShapePoints[1].X = right;
+				ShapePoints[1].Y = 0;
+				ShapePoints[2].X = 0;
+				ShapePoints[2].Y = bottom;
+				ShapePoints[3].X = left;
+				ShapePoints[3].Y = 0;
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddPolygon(pointBuffer);
+				Path.AddPolygon(ShapePoints);
 				Path.CloseFigure();
 				return true;
 			} else return false;
@@ -1038,28 +1054,28 @@ namespace Dataweb.NShape.Advanced {
 			int top = (int)Math.Round(Y - (Height / 2f));
 			int right = left + Width;
 			int bottom = top + Height;
-			pointBuffer[0].X = X;
-			pointBuffer[0].Y = top;
-			pointBuffer[1].X = right;
-			pointBuffer[1].Y = Y;
-			pointBuffer[2].X = X;
-			pointBuffer[2].Y = bottom;
-			pointBuffer[3].X = left;
-			pointBuffer[3].Y = Y;
+			ShapePoints[0].X = X;
+			ShapePoints[0].Y = top;
+			ShapePoints[1].X = right;
+			ShapePoints[1].Y = Y;
+			ShapePoints[2].X = X;
+			ShapePoints[2].Y = bottom;
+			ShapePoints[3].X = left;
+			ShapePoints[3].Y = Y;
 			if (Angle != 0) {
 				Matrix.Reset();
 				Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Center);
-				Matrix.TransformPoints(pointBuffer);
+				Matrix.TransformPoints(ShapePoints);
 			}
 		}
 
 
 		#region Fields
 
-		/// <ToBeCompleted></ToBeCompleted>
-		protected Point[] pointBuffer = new Point[4];
+		private Point[] _shapePoints = new Point[4];
 
 		#endregion
+
 	}
 
 
@@ -1097,6 +1113,13 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
+		/// <ToBeCompleted></ToBeCompleted>
+		protected Point[] ShapePoints {
+			get { return _shapePoints; }
+			set { _shapePoints = value; }
+		}
+
+
 		/// <override></override>
 		public override bool HasControlPointCapability(ControlPointId controlPointId, ControlPointCapabilities controlPointCapability) {
 			switch (controlPointId) {
@@ -1124,7 +1147,7 @@ namespace Dataweb.NShape.Advanced {
 			int y = boundingRect.Y + (int)Math.Round(boundingRect.Height / 2f);
 			Point result = Geometry.InvalidPoint;
 			CalculateTranslatedShapePoints();
-			result = Geometry.GetNearestPoint(startX, startY, Geometry.IntersectPolygonLine(shapePoints, startX, startY, x, y, true));
+			result = Geometry.GetNearestPoint(startX, startY, Geometry.IntersectPolygonLine(ShapePoints, startX, startY, x, y, true));
 			if (!Geometry.IsValid(result)) result = Center;
 			return result;
 		}
@@ -1154,7 +1177,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override bool ContainsPointCore(int x, int y) {
 			CalculateTranslatedShapePoints();
-			return Geometry.TriangleContainsPoint(shapePoints[0], shapePoints[1], shapePoints[2], x, y);
+			return Geometry.TriangleContainsPoint(ShapePoints[0], ShapePoints[1], ShapePoints[2], x, y);
 		}
 
 
@@ -1165,7 +1188,7 @@ namespace Dataweb.NShape.Advanced {
 			r.Width=width;
 			r.Height = height;
 			CalculateTranslatedShapePoints();
-			return Geometry.PolygonIntersectsWithRectangle(shapePoints, r);
+			return Geometry.PolygonIntersectsWithRectangle(ShapePoints, r);
 		}
 
 
@@ -1268,7 +1291,7 @@ namespace Dataweb.NShape.Advanced {
 					result.Height = Width;
 				} else {
 					CalculateTranslatedShapePoints();
-					Geometry.CalcBoundingRectangle(shapePoints[0], shapePoints[1], shapePoints[2], shapePoints[0], out result);
+					Geometry.CalcBoundingRectangle(ShapePoints[0], ShapePoints[1], ShapePoints[2], ShapePoints[0], out result);
 				}
 				ShapeUtils.InflateBoundingRectangle(ref result, LineStyle);
 			}
@@ -1285,12 +1308,12 @@ namespace Dataweb.NShape.Advanced {
 			int right = left + Width;
 			int bottom = top + Height;
 
-			shapePoints[0].X = 0;
-			shapePoints[0].Y = top;
-			shapePoints[1].X = left;
-			shapePoints[1].Y = bottom;
-			shapePoints[2].X = right;
-			shapePoints[2].Y = bottom;
+			ShapePoints[0].X = 0;
+			ShapePoints[0].Y = top;
+			ShapePoints[1].X = left;
+			ShapePoints[1].Y = bottom;
+			ShapePoints[2].X = right;
+			ShapePoints[2].Y = bottom;
 		}
 
 
@@ -1300,7 +1323,7 @@ namespace Dataweb.NShape.Advanced {
 			Matrix.Reset();
 			Matrix.Translate(X, Y);
 			if (Angle != 0) Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Center, MatrixOrder.Append);
-			Matrix.TransformPoints(shapePoints);
+			Matrix.TransformPoints(ShapePoints);
 		}
 
 
@@ -1311,7 +1334,7 @@ namespace Dataweb.NShape.Advanced {
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddPolygon(shapePoints);
+				Path.AddPolygon(ShapePoints);
 				Path.CloseFigure();
 				return true;
 			} else return false;
@@ -1333,7 +1356,7 @@ namespace Dataweb.NShape.Advanced {
 		#region Fields
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected Point[] shapePoints = new Point[3];
+		protected Point[] _shapePoints = new Point[3];
 		
 		private const float _centerPosFactorX = 0.5f;
 		private const float _centerPosFactorY = 0.66666666f;

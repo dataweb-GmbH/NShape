@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -766,7 +766,7 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private void Tool_ToolExecuted(object sender, ToolExecutedEventArgs e) {
-			switch (e.EventType) {
+			switch (e.Result) {
 				case ToolResult.Executed:
 					if ((SelectedTool == (Tool)sender) && _executeOnce)
 						SelectDefaultTool();
@@ -774,7 +774,7 @@ namespace Dataweb.NShape.Controllers {
 				case ToolResult.Canceled:
 					if (!_selecting) SelectDefaultTool(true);
 					break;
-				default: throw new NShapeUnsupportedValueException(e.EventType);
+				default: throw new NShapeUnsupportedValueException(e.Result);
 			}
 		}
 

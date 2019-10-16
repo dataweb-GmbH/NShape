@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -255,7 +255,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public Shape TopMost {
 			get {
-				if (shapes.Count > 0) return shapes[shapes.Count - 1];
+				if (Shapes.Count > 0) return Shapes[Shapes.Count - 1];
 				else return null;
 			}
 		}
@@ -266,7 +266,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public Shape Bottom {
 			get {
-				if (shapes.Count > 0) return shapes[0];
+				if (Shapes.Count > 0) return Shapes[0];
 				else return null;
 			}
 		}
@@ -276,7 +276,7 @@ namespace Dataweb.NShape {
 		/// Gets all shapes from the topmost to the bottom shape sorted by z-order values.
 		/// </summary>
 		public IEnumerable<Shape> TopDown {
-			get { return ShapeEnumerator.CreateTopDown(shapes); }
+			get { return ShapeEnumerator.CreateTopDown(Shapes); }
 		}
 
 
@@ -284,7 +284,7 @@ namespace Dataweb.NShape {
 		/// Gets all shapes from the bottom to the topmost shape sorted by z-order values.
 		/// </summary>
 		public IEnumerable<Shape> BottomUp {
-			get { return ShapeEnumerator.CreateBottomUp(shapes); }
+			get { return ShapeEnumerator.CreateBottomUp(Shapes); }
 		}
 
 
@@ -431,7 +431,7 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		public int MinZOrder {
 			get {
-				if (shapes.Count <= 0) return 0;
+				if (Shapes.Count <= 0) return 0;
 				else return Bottom.ZOrder;
 			}
 		}
@@ -440,7 +440,7 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		public int MaxZOrder {
 			get {
-				if (shapes.Count <= 0) return 0;
+				if (Shapes.Count <= 0) return 0;
 				else return TopMost.ZOrder;
 			}
 		}
@@ -499,13 +499,13 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		public void CopyTo(Shape[] array, int arrayIndex) {
 			if (array == null) throw new ArgumentNullException("array");
-			shapes.CopyTo(array, arrayIndex);
+			Shapes.CopyTo(array, arrayIndex);
 		}
 
 
 		/// <override></override>
 		public int Count {
-			get { return shapes.Count; }
+			get { return Shapes.Count; }
 		}
 
 
@@ -528,7 +528,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public IEnumerator<Shape> GetEnumerator() {
-			return ShapeEnumerator.CreateTopDown(shapes);
+			return ShapeEnumerator.CreateTopDown(Shapes);
 		}
 
 		#endregion
@@ -537,7 +537,7 @@ namespace Dataweb.NShape {
 		#region IEnumerable Members
 
 		IEnumerator IEnumerable.GetEnumerator() {
-			return ShapeEnumerator.CreateTopDown(shapes);
+			return ShapeEnumerator.CreateTopDown(Shapes);
 		}
 
 		#endregion
@@ -548,7 +548,7 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		public void CopyTo(Array array, int index) {
 			if (array == null) throw new ArgumentNullException("array");
-			Array.Copy(shapes.ToArray(), index, array, 0, array.Length);
+			Array.Copy(Shapes.ToArray(), index, array, 0, array.Length);
 		}
 
 
@@ -591,7 +591,7 @@ namespace Dataweb.NShape {
 #endif
 			ShapeCollection result = new ShapeCollection(Count);
 
-			Dictionary<Shape, Shape> shapeDict = new Dictionary<Shape, Shape>(shapes.Count);
+			Dictionary<Shape, Shape> shapeDict = new Dictionary<Shape, Shape>(Shapes.Count);
 			Dictionary<Shape, List<ShapeConnectionInfo>> connections = new Dictionary<Shape, List<ShapeConnectionInfo>>();
 			// clone from last to first shape in order to maintain the ZOrder
 			foreach (Shape shape in BottomUp) {
@@ -637,6 +637,12 @@ namespace Dataweb.NShape {
 			return result;
 		}
 
+		/// <summary>List of shapes in collection.</summary>
+		protected ReadOnlyList<Shape> Shapes {
+			get { return _shapes; }
+			set { _shapes = value; }
+		}
+
 
 		#region [Protected] Methods
 
@@ -659,23 +665,23 @@ namespace Dataweb.NShape {
 		protected virtual int InsertCore(int index, Shape shape) {
 			if (_shapeSet.Contains(shape)) throw new ArgumentException("The given shape is already part of the collection.");
 			int result = -1;
-			if (shapes.Count == 0 || index == shapes.Count || shape.ZOrder >= this.TopMost.ZOrder) {
-				if (shapes.Count > 0) { Debug.Assert(shape.ZOrder >= shapes[shapes.Count - 1].ZOrder); }
+			if (Shapes.Count == 0 || index == Shapes.Count || shape.ZOrder >= this.TopMost.ZOrder) {
+				if (Shapes.Count > 0) { Debug.Assert(shape.ZOrder >= Shapes[Shapes.Count - 1].ZOrder); }
 
 				// append shape
-				shapes.Add(shape);
-				result = shapes.Count - 1;
-			} else if (shape.ZOrder < shapes[0].ZOrder) {
-				Debug.Assert(shape.ZOrder <= shapes[0].ZOrder);
+				Shapes.Add(shape);
+				result = Shapes.Count - 1;
+			} else if (shape.ZOrder < Shapes[0].ZOrder) {
+				Debug.Assert(shape.ZOrder <= Shapes[0].ZOrder);
 
-				shapes.Insert(0, shape);
+				Shapes.Insert(0, shape);
 				result = index;
 			} else {
 				// prepend shape
-				if (index > 0) Debug.Assert(shapes[index - 1].ZOrder <= shape.ZOrder);
-				Debug.Assert(shape.ZOrder <= shapes[index].ZOrder);
+				if (index > 0) Debug.Assert(Shapes[index - 1].ZOrder <= shape.ZOrder);
+				Debug.Assert(shape.ZOrder <= Shapes[index].ZOrder);
 
-				shapes.Insert(index, shape);
+				Shapes.Insert(index, shape);
 				result = index;
 			}
 			AddShapeToIndex(shape);
@@ -693,8 +699,8 @@ namespace Dataweb.NShape {
 				// Check if the next shape can be inserted at the last position
 				// This is the case if the shapes are pre-sorted by ZOrder (upper shapes first)
 				if (IndexIsValid(lastInsertPos, shape)) {
-					if (shapes[shapes.Count - 1].ZOrder <= shape.ZOrder)
-						lastInsertPos = InsertCore(shapes.Count, shape);
+					if (Shapes[Shapes.Count - 1].ZOrder <= shape.ZOrder)
+						lastInsertPos = InsertCore(Shapes.Count, shape);
 					else {
 						AssertIndexIsValid(lastInsertPos, shape);
 						InsertCore(lastInsertPos, shape);
@@ -723,7 +729,7 @@ namespace Dataweb.NShape {
 			// Remove old shape from search dictionary and spacial index
 			RemoveShapeFromIndex(oldShape);
 			// Replace oldShape with newShape
-			shapes[idx] = newShape;
+			Shapes[idx] = newShape;
 			// Add newShape in search dictionary and spacial index
 			AddShapeToIndex(newShape);
 			// Reset BoundingRectangle
@@ -751,7 +757,7 @@ namespace Dataweb.NShape {
 			int idx = FindShapeIndex(shape);
 			Debug.Assert(idx >= 0);
 			if (idx >= 0) {
-				shapes.RemoveAt(idx);
+				Shapes.RemoveAt(idx);
 				RemoveShapeFromIndex(shape);
 			}
 			// Reset BoundingRectangle
@@ -781,7 +787,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void ClearCore() {
-			shapes.Clear();
+			Shapes.Clear();
 			_shapeSet.Clear();
 			if (_shapeMap != null) _shapeMap.Clear();
 			// Reset BoundingRectangle
@@ -813,7 +819,7 @@ namespace Dataweb.NShape {
 
 		internal void SetDisplayService(IDisplayService displayService) {
 			// set displayService for all shapes - the shapes set their children's DisplayService themselfs
-			foreach (Shape shape in shapes)
+			foreach (Shape shape in Shapes)
 				shape.DisplayService = displayService;
 		}
 
@@ -822,10 +828,10 @@ namespace Dataweb.NShape {
 
 		private void Construct(int capacity) {
 			if (capacity > 0) {
-				shapes = new ReadOnlyList<Shape>(capacity);
+				Shapes = new ReadOnlyList<Shape>(capacity);
 				_shapeSet = new HashCollection<Shape>(capacity);
 			} else {
-				shapes = new ReadOnlyList<Shape>();
+				Shapes = new ReadOnlyList<Shape>();
 				_shapeSet = new HashCollection<Shape>();
 			}
 			if (capacity >= 1000) _shapeMap = new MultiHashList<Shape>(capacity);
@@ -967,10 +973,10 @@ namespace Dataweb.NShape {
 			if (Count > 0) {
 				if (index > Count)
 					throw new NShapeInternalException("Index {0} is out of range: The collection contains only {1} element.", index, Count);
-				if (index > 0 && index <= Count && shapes[index - 1].ZOrder > shape.ZOrder)
-					throw new NShapeInternalException("ZOrder value {0} cannot be inserted after ZOrder value {1}.", shape.ZOrder, shapes[index - 1].ZOrder);
-				if (index < Count && shapes[index].ZOrder < shape.ZOrder)
-					throw new NShapeInternalException("ZOrder value {0} cannot be inserted before ZOrder value {1}.", shape.ZOrder, shapes[index].ZOrder);
+				if (index > 0 && index <= Count && Shapes[index - 1].ZOrder > shape.ZOrder)
+					throw new NShapeInternalException("ZOrder value {0} cannot be inserted after ZOrder value {1}.", shape.ZOrder, Shapes[index - 1].ZOrder);
+				if (index < Count && Shapes[index].ZOrder < shape.ZOrder)
+					throw new NShapeInternalException("ZOrder value {0} cannot be inserted before ZOrder value {1}.", shape.ZOrder, Shapes[index].ZOrder);
 			}
 		}
 
@@ -978,19 +984,19 @@ namespace Dataweb.NShape {
 		// Tests whether the shape can be inserted at the given index without violating
 		// the z-order sorting.
 		private bool IndexIsValid(int index, Shape shape) {
-			if (index >= 0 && index <= shapes.Count) {
+			if (index >= 0 && index <= Shapes.Count) {
 				// Insert into an empty list
-				if (shapes.Count == 0)
+				if (Shapes.Count == 0)
 					return (index == 0);
 				// Insert elsewhere (placed here because it is the most likely case)
-				else if (index > 0 && index < shapes.Count)
-					return (shapes[index].ZOrder >= shape.ZOrder && shapes[index - 1].ZOrder <= shape.ZOrder);
+				else if (index > 0 && index < Shapes.Count)
+					return (Shapes[index].ZOrder >= shape.ZOrder && Shapes[index - 1].ZOrder <= shape.ZOrder);
 				// Prepend
 				else if (index == 0)
-					return (shapes[0].ZOrder >= shape.ZOrder);
+					return (Shapes[0].ZOrder >= shape.ZOrder);
 				// Append
-				else if (index == shapes.Count)
-					return (shapes[index - 1].ZOrder <= shape.ZOrder);
+				else if (index == Shapes.Count)
+					return (Shapes[index - 1].ZOrder <= shape.ZOrder);
 			}
 			return false;
 		}
@@ -1025,11 +1031,11 @@ namespace Dataweb.NShape {
 								yield return s;
 
 			} else {
-				for (int i = shapes.Count - 1; i >= 0; --i) {
-					if (mode == SearchMode.Contained && Geometry.RectangleContainsRectangle(x, y, w, h, shapes[i].GetBoundingRectangle(tightBounds))
-						|| mode == SearchMode.Intersects && shapes[i].IntersectsWith(x, y, w, h)
-						|| mode == SearchMode.Near && IsShapeInRange(shapes[i], x + range, y + range, range, capabilities))
-						yield return shapes[i];
+				for (int i = Shapes.Count - 1; i >= 0; --i) {
+					if (mode == SearchMode.Contained && Geometry.RectangleContainsRectangle(x, y, w, h, Shapes[i].GetBoundingRectangle(tightBounds))
+						|| mode == SearchMode.Intersects && Shapes[i].IntersectsWith(x, y, w, h)
+						|| mode == SearchMode.Near && IsShapeInRange(Shapes[i], x + range, y + range, range, capabilities))
+						yield return Shapes[i];
 				}
 			}
 		}
@@ -1066,7 +1072,7 @@ namespace Dataweb.NShape {
 
 		private int FindShapeIndex(Shape shape) {
 			if (_shapeSet.Contains(shape)) {
-				int shapeCnt = shapes.Count;
+				int shapeCnt = Shapes.Count;
 				int zOrder = shape.ZOrder;
 				// Search with binary search style...
 				int sPos = 0;
@@ -1076,36 +1082,36 @@ namespace Dataweb.NShape {
 					// Find position where prevZOrder < zOrder < nextZOrder
 					// If the zorder is equal, we approach the last shape with an equal zOrder.
 					// If the correct shape is found while searching, return its position
-					if (shapes[searchIdx] == shape)
+					if (Shapes[searchIdx] == shape)
 						return searchIdx;
-					if (shapes[searchIdx].ZOrder == zOrder) {
+					if (Shapes[searchIdx].ZOrder == zOrder) {
 						// If there are shapes with identical zOrders, search them all
 						int i = searchIdx;
-						while (i < ePos && shapes[i].ZOrder == zOrder) {
-							if (shapes[i] == shape)
+						while (i < ePos && Shapes[i].ZOrder == zOrder) {
+							if (Shapes[i] == shape)
 								return i;
 							else ++i;
 						}
 						i = searchIdx;
-						while (i >= sPos && shapes[i].ZOrder == zOrder) {
-							if (shapes[i] == shape)
+						while (i >= sPos && Shapes[i].ZOrder == zOrder) {
+							if (Shapes[i] == shape)
 								return i;
 							else --i;
 						}
-					} else if (shapes[searchIdx].ZOrder > zOrder)
+					} else if (Shapes[searchIdx].ZOrder > zOrder)
 						sPos = searchIdx;
 					else ePos = searchIdx;
 				}
 				// If the shape was not found, there are duplicate ZOrders 
 				// which have to be searched sequently
 				int foundIndex = sPos;
-				if (shapes[foundIndex].ZOrder < zOrder) {
+				if (Shapes[foundIndex].ZOrder < zOrder) {
 					for (int i = foundIndex; i < shapeCnt; ++i)
-						if (shapes[i] == shape) 
+						if (Shapes[i] == shape) 
 							return i;
 				} else {
 					for (int i = foundIndex; i >= 0; --i)
-						if (shapes[i] == shape) 
+						if (Shapes[i] == shape) 
 							return i;
 				}
 				Debug.Fail("The shape was not found although it exists in the list!");
@@ -1116,12 +1122,12 @@ namespace Dataweb.NShape {
 
 		private int FindInsertPosition(int zOrder) {
 			// zOrder is lower than the lowest zOrder in the list
-			int shapeCnt = shapes.Count;
-			if (shapeCnt == 0 || zOrder < shapes[0].ZOrder)
+			int shapeCnt = Shapes.Count;
+			if (shapeCnt == 0 || zOrder < Shapes[0].ZOrder)
 				return 0;
 
 			// zOrder is higher than the highest ZOrder in the list
-			else if (zOrder >= shapes[shapeCnt - 1].ZOrder)
+			else if (zOrder >= Shapes[shapeCnt - 1].ZOrder)
 				return shapeCnt;
 
 			// search correct position 
@@ -1132,7 +1138,7 @@ namespace Dataweb.NShape {
 					int searchIdx = (ePos + sPos) / 2;
 					// Find position where prevZOrder < zOrder < nextZOrder
 					// If the zorder is equal, we approach the last shape with an equal zOrder.
-					if (shapes[searchIdx].ZOrder <= zOrder)
+					if (Shapes[searchIdx].ZOrder <= zOrder)
 						sPos = searchIdx;
 					else ePos = searchIdx;
 				}
@@ -1140,15 +1146,15 @@ namespace Dataweb.NShape {
 				if (foundIndex >= shapeCnt)
 					return shapeCnt;
 
-				if (shapes[foundIndex].ZOrder <= zOrder) {
+				if (Shapes[foundIndex].ZOrder <= zOrder) {
 					for (int i = foundIndex; i < shapeCnt; ++i) {
-						if (shapes[i].ZOrder > zOrder)
+						if (Shapes[i].ZOrder > zOrder)
 							return i;
 					}
 					return shapeCnt;
 				} else {
 					for (int i = foundIndex; i >= 0; --i) {
-						if (shapes[i].ZOrder < zOrder)
+						if (Shapes[i].ZOrder < zOrder)
 							return i + 1;
 					}
 					return 0;
@@ -1168,11 +1174,11 @@ namespace Dataweb.NShape {
 		private void GetBoundingRectangleCore(bool tight, out Rectangle boundingRectangle) {
 			// return an empty rectangle if the collection has no children
 			boundingRectangle = Geometry.InvalidRectangle;
-			if (shapes.Count > 0) {
+			if (Shapes.Count > 0) {
 				int left, right, top, bottom;
 				left = top = int.MaxValue;
 				right = bottom = int.MinValue;
-				foreach (Shape shape in shapes) {
+				foreach (Shape shape in Shapes) {
 					Rectangle r = shape.GetBoundingRectangle(tight);
 					Debug.Assert(Geometry.IsValid(r));
 					if (left > r.Left) left = r.Left;
@@ -1201,20 +1207,20 @@ namespace Dataweb.NShape {
 
 			public static ShapeEnumerator CreateBottomUp(ReadOnlyList<Shape> shapeList) {
 				ShapeEnumerator result;
-				result.shapeList = shapeList;
-				result.count = shapeList.Count;
-				result.startIdx = result.currIdx = -1;
-				result.step = 1;
+				result._shapeList = shapeList;
+				result._count = shapeList.Count;
+				result._startIdx = result._currIdx = -1;
+				result._step = 1;
 				return result;
 			}
 
 
 			public static ShapeEnumerator CreateTopDown(ReadOnlyList<Shape> shapeList) {
 				ShapeEnumerator result;
-				result.shapeList = shapeList;
-				result.count = shapeList.Count;
-				result.startIdx = result.currIdx = shapeList.Count;
-				result.step = -1;
+				result._shapeList = shapeList;
+				result._count = shapeList.Count;
+				result._startIdx = result._currIdx = shapeList.Count;
+				result._step = -1;
 				return result;
 			}
 
@@ -1237,8 +1243,8 @@ namespace Dataweb.NShape {
 
 			public Shape Current {
 				get {
-					if (currIdx >= 0 && currIdx < count)
-						return shapeList[currIdx];
+					if (_currIdx >= 0 && _currIdx < _count)
+						return _shapeList[_currIdx];
 					else return null;
 				}
 			}
@@ -1254,13 +1260,13 @@ namespace Dataweb.NShape {
 
 
 			public bool MoveNext() {
-				currIdx += step;
-				return (currIdx >= 0 && currIdx < count);
+				_currIdx += _step;
+				return (_currIdx >= 0 && _currIdx < _count);
 			}
 
 
 			public void Reset() {
-				currIdx = startIdx;
+				_currIdx = _startIdx;
 			}
 
 			#endregion
@@ -1269,17 +1275,17 @@ namespace Dataweb.NShape {
 			#region IDisposable Members
 
 			public void Dispose() {
-				shapeList = null;
+				_shapeList = null;
 			}
 
 			#endregion
 
 
 			static ShapeEnumerator() {
-				Empty.shapeList = null;
-				Empty.count = 0;
-				Empty.startIdx = -1;
-				Empty.step = 1;
+				Empty._shapeList = null;
+				Empty._count = 0;
+				Empty._startIdx = -1;
+				Empty._step = 1;
 			}
 
 
@@ -1287,11 +1293,11 @@ namespace Dataweb.NShape {
 
 			public static readonly ShapeEnumerator Empty;
 
-			private sbyte step;
-			private int currIdx;
-			private int startIdx;
-			private int count;
-			private ReadOnlyList<Shape> shapeList;
+			private sbyte _step;
+			private int _currIdx;
+			private int _startIdx;
+			private int _count;
+			private ReadOnlyList<Shape> _shapeList;
 
 			#endregion
 		}
@@ -1304,14 +1310,23 @@ namespace Dataweb.NShape {
 
 		#region Fields
 
-		// List of shapes in collection
-		/// <ToBeCompleted></ToBeCompleted>
-		protected ReadOnlyList<Shape> shapes;
-		// Last calculated bounding rectangle
-		/// <ToBeCompleted></ToBeCompleted>
-		protected Rectangle boundingRectangleTight = Geometry.InvalidRectangle;
-		/// <ToBeCompleted></ToBeCompleted>
-		protected Rectangle boundingRectangleLoose = Geometry.InvalidRectangle;
+
+		/// <summary>
+		/// The last calculated X-axis aligned bounding rectangle not including control points.
+		/// </summary>
+		/// <remarks>This is a protected field and not a property becaus properties cannot be passed as out or ref parameters.</remarks>
+		protected Rectangle boundingRectangleTight;
+
+
+		/// <summary>
+		/// The last calculated X-axis aligned bounding rectangle including control points.
+		/// </summary>
+		/// <remarks>This is a protected field and not a property becaus properties cannot be passed as out or ref parameters.</remarks>
+		protected Rectangle boundingRectangleLoose;
+
+
+		/// <summary>List of shapes in collection.</summary>
+		private ReadOnlyList<Shape> _shapes;
 
 		// HashCollection of contained shapes used for fast searching
 		private HashCollection<Shape> _shapeSet;

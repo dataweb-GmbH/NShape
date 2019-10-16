@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -655,10 +655,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected DelegateMenuItemDef(string name, string title, Bitmap image, Color transparentColor, string description, bool isChecked, bool isFeasible, Permission requiredPermission, IEnumerable<ISecurityDomainObject> objects, char securityDomainName, ActionExecuteDelegate executeDelegate)
 			: base(name, title, image, transparentColor, description, isChecked, isFeasible) {
-			this.executeDelegate = executeDelegate;
-			this.requiredPermission = requiredPermission;
-			this.securityDomainObjects = objects;
-			this.securityDomainName = securityDomainName;
+			this._executeDelegate = executeDelegate;
+			this._requiredPermission = requiredPermission;
+			this._securityDomainObjects = objects;
+			this._securityDomainName = securityDomainName;
 			Debug.Assert(PermissionsAreValid());
 		}
 
@@ -667,37 +667,37 @@ namespace Dataweb.NShape.Advanced {
 		public override void Execute(MenuItemDef action, Project project) {
 			if (action == null) throw new ArgumentNullException("action");
 			if (project == null) throw new ArgumentNullException("project");
-			executeDelegate(action, project);
+			_executeDelegate(action, project);
 		}
 
 
 		/// <override></override>
 		public override bool IsGranted(ISecurityManager securityManager) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			if (securityDomainObjects != null)
-				return securityManager.IsGranted(requiredPermission, securityDomainObjects);
-			else if (securityDomainName != NoSecurityDomain)
-				return securityManager.IsGranted(requiredPermission, securityDomainName);
-			else return securityManager.IsGranted(requiredPermission);
+			if (_securityDomainObjects != null)
+				return securityManager.IsGranted(_requiredPermission, _securityDomainObjects);
+			else if (_securityDomainName != NoSecurityDomain)
+				return securityManager.IsGranted(_requiredPermission, _securityDomainName);
+			else return securityManager.IsGranted(_requiredPermission);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Permission RequiredPermission {
-			get { return requiredPermission; }
-			set { requiredPermission = value; }
+			get { return _requiredPermission; }
+			set { _requiredPermission = value; }
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ActionExecuteDelegate Delegate {
-			get { return executeDelegate; }
-			set { executeDelegate = value; }
+			get { return _executeDelegate; }
+			set { _executeDelegate = value; }
 		}
 
 
 		private bool PermissionsAreValid() {
-			switch (requiredPermission) {
+			switch (_requiredPermission) {
 				case Permission.All: return false;
 				case Permission.None: return true;
 				case Permission.Connect:
@@ -706,21 +706,26 @@ namespace Dataweb.NShape.Advanced {
 				case Permission.Insert:
 				case Permission.Layout:
 				case Permission.Present:
-					return (securityDomainObjects != null || securityDomainName != NoSecurityDomain);
+					return (_securityDomainObjects != null || _securityDomainName != NoSecurityDomain);
 				case Permission.Designs:
 				case Permission.Security:
 				case Permission.Templates:
-					return (securityDomainObjects == null && securityDomainName == NoSecurityDomain);
-				default: return false;
+					return (_securityDomainObjects == null && _securityDomainName == NoSecurityDomain);
+				default:
+					// Permissions are flags, so we have to check for domain independent permissions and assume a domain dependent flag combination otherwise.
+					if ((_requiredPermission & Permission.Designs) != 0 || (_requiredPermission & Permission.Designs) != 0 || (_requiredPermission & Permission.Designs) != 0)
+						return (_securityDomainObjects == null && _securityDomainName == NoSecurityDomain);
+					else 
+						return (_securityDomainObjects != null || _securityDomainName != NoSecurityDomain);
 			}
 		}
 
 
 		// Fields
-		private Permission requiredPermission = Permission.None;
-		private char securityDomainName = NoSecurityDomain;
-		private IEnumerable<ISecurityDomainObject> securityDomainObjects = null;
-		private ActionExecuteDelegate executeDelegate;
+		private Permission _requiredPermission = Permission.None;
+		private char _securityDomainName = NoSecurityDomain;
+		private IEnumerable<ISecurityDomainObject> _securityDomainObjects = null;
+		private ActionExecuteDelegate _executeDelegate;
 	}
 
 

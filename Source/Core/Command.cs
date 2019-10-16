@@ -2737,8 +2737,8 @@ namespace Dataweb.NShape.Commands {
 			// Find target point
 			ControlPointId targetPointId = ControlPointId.None;
 			if (targetShape != null) {
-				targetPointId = targetShape.FindNearestControlPoint(gluePointPosition.X + dX, gluePointPosition.Y + dY, 0, ControlPointCapabilities.Connect);
-				if (targetPointId == ControlPointId.None && targetShape.ContainsPoint(gluePointPosition.X + dX, gluePointPosition.Y + dY))
+				targetPointId = targetShape.FindNearestControlPoint(_gluePointPosition.X + dX, _gluePointPosition.Y + dY, 0, ControlPointCapabilities.Connect);
+				if (targetPointId == ControlPointId.None && targetShape.ContainsPoint(_gluePointPosition.X + dX, _gluePointPosition.Y + dY))
 					targetPointId = ControlPointId.Reference;
 			}
 			BaseConstruct(gluePointId, targetShape, targetPointId, dX, dY, modifiers);
@@ -2765,16 +2765,16 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override void Execute() {
 			// DetachGluePointFromConnectionPoint existing connection
-			if (!existingConnection.IsEmpty) {
-				Shape.Disconnect(gluePointId);
-				if (Repository != null) Repository.DeleteConnection(Shape, gluePointId, existingConnection.OtherShape, existingConnection.OtherPointId);
+			if (!_existingConnection.IsEmpty) {
+				Shape.Disconnect(_gluePointId);
+				if (Repository != null) Repository.DeleteConnection(Shape, _gluePointId, _existingConnection.OtherShape, _existingConnection.OtherPointId);
 			}
 			// Move point
-			Shape.MoveControlPointBy(gluePointId, dX, dY, modifiers);
+			Shape.MoveControlPointBy(_gluePointId, _dX, _dY, _modifiers);
 			// Establish new connection
-			if (!newConnection.IsEmpty) {
-				Shape.Connect(gluePointId, newConnection.OtherShape, newConnection.OtherPointId);
-				if (Repository != null) Repository.InsertConnection(Shape, gluePointId, newConnection.OtherShape, newConnection.OtherPointId);
+			if (!_newConnection.IsEmpty) {
+				Shape.Connect(_gluePointId, _newConnection.OtherShape, _newConnection.OtherPointId);
+				if (Repository != null) Repository.InsertConnection(Shape, _gluePointId, _newConnection.OtherShape, _newConnection.OtherPointId);
 			}
 			if (Repository != null) Repository.Update(Shape);
 		}
@@ -2783,16 +2783,16 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override void Revert() {
 			// DetachGluePointFromConnectionPoint new connection
-			if (!newConnection.IsEmpty) {
-				Shape.Disconnect(gluePointId);
-				if (Repository != null) Repository.DeleteConnection(Shape, gluePointId, newConnection.OtherShape, newConnection.OtherPointId);
+			if (!_newConnection.IsEmpty) {
+				Shape.Disconnect(_gluePointId);
+				if (Repository != null) Repository.DeleteConnection(Shape, _gluePointId, _newConnection.OtherShape, _newConnection.OtherPointId);
 			}
 			// Move point
-			Shape.MoveControlPointTo(gluePointId, gluePointPosition.X, gluePointPosition.Y, modifiers);
+			Shape.MoveControlPointTo(_gluePointId, _gluePointPosition.X, _gluePointPosition.Y, _modifiers);
 			// Restore previous connection
-			if (!existingConnection.IsEmpty) {
-				Shape.Connect(gluePointId, existingConnection.OtherShape, existingConnection.OtherPointId);
-				if (Repository != null) Repository.InsertConnection(Shape, gluePointId, existingConnection.OtherShape, existingConnection.OtherPointId);
+			if (!_existingConnection.IsEmpty) {
+				Shape.Connect(_gluePointId, _existingConnection.OtherShape, _existingConnection.OtherPointId);
+				if (Repository != null) Repository.InsertConnection(Shape, _gluePointId, _existingConnection.OtherShape, _existingConnection.OtherPointId);
 			}
 			if (Repository != null) Repository.Update(Shape);
 		}
@@ -2806,28 +2806,28 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void BaseConstruct(ControlPointId gluePointId, Shape targetShape, ControlPointId targetPointId, int dX, int dY, ResizeModifiers modifiers) {
-			this.gluePointId = gluePointId;
-			this.targetShape = targetShape;
-			this.targetPointId = targetPointId;
-			this.dX = dX;
-			this.dY = dY;
-			this.modifiers = modifiers;
+			this._gluePointId = gluePointId;
+			this._targetShape = targetShape;
+			this._targetPointId = targetPointId;
+			this._dX = dX;
+			this._dY = dY;
+			this._modifiers = modifiers;
 			// store original position of gluePoint (cannot be restored with dX/dY in case of PointToShape connections)
-			gluePointPosition = Shape.GetControlPointPosition(gluePointId);
+			_gluePointPosition = Shape.GetControlPointPosition(gluePointId);
 			// store existing connection
-			existingConnection = Shape.GetConnectionInfo(this.gluePointId, null);
+			_existingConnection = Shape.GetConnectionInfo(this._gluePointId, null);
 
 			// create new ConnectionInfo
 			if (targetShape != null && targetPointId != ControlPointId.None)
-				this.newConnection = new ShapeConnectionInfo(this.gluePointId, targetShape, targetPointId);
+				this._newConnection = new ShapeConnectionInfo(this._gluePointId, targetShape, targetPointId);
 			// set description
-			if (!existingConnection.IsEmpty) {
-				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Disconnect0From1, Shape.Type.Name, existingConnection.OtherShape.Type.Name);
-				if (!newConnection.IsEmpty)
-					this.Description += string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AndConnectTo0, newConnection.OtherShape.Type.Name);
+			if (!_existingConnection.IsEmpty) {
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Disconnect0From1, Shape.Type.Name, _existingConnection.OtherShape.Type.Name);
+				if (!_newConnection.IsEmpty)
+					this.Description += string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AndConnectTo0, _newConnection.OtherShape.Type.Name);
 			} else {
-				if (!newConnection.IsEmpty)
-					this.Description += string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Connect0To1, Shape.Type.Name, newConnection.OtherShape.Type.Name);
+				if (!_newConnection.IsEmpty)
+					this.Description += string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Connect0To1, Shape.Type.Name, _newConnection.OtherShape.Type.Name);
 				else
 					this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_MoveGluePoint0Of1, gluePointId, Shape.Type.Name);
 			}
@@ -2835,15 +2835,15 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private Point gluePointPosition;
-		private ControlPointId gluePointId;
-		private Shape targetShape;
-		ControlPointId targetPointId;
-		private int dX;
-		private int dY;
-		private ResizeModifiers modifiers;
-		private ShapeConnectionInfo existingConnection;
-		private ShapeConnectionInfo newConnection = ShapeConnectionInfo.Empty;
+		private Point _gluePointPosition;
+		private ControlPointId _gluePointId;
+		private Shape _targetShape;
+		private ControlPointId _targetPointId;
+		private int _dX;
+		private int _dY;
+		private ResizeModifiers _modifiers;
+		private ShapeConnectionInfo _existingConnection;
+		private ShapeConnectionInfo _newConnection = ShapeConnectionInfo.Empty;
 		#endregion
 	}
 
@@ -2863,12 +2863,12 @@ namespace Dataweb.NShape.Commands {
 		public RotateShapesCommand(IRepository repository, IEnumerable<Shape> shapes, int tenthsOfDegree)
 			: base(repository) {
 			if (shapes == null) throw new ArgumentNullException("shapes");
-			this.shapes = new List<Shape>(shapes);
-			this.angle = tenthsOfDegree;
-			if (this.shapes.Count == 1)
-				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0By1, this.shapes[0].Type.Name, tenthsOfDegree / 10f);
+			this._shapes = new List<Shape>(shapes);
+			this._angle = tenthsOfDegree;
+			if (this._shapes.Count == 1)
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0By1, this._shapes[0].Type.Name, tenthsOfDegree / 10f);
 			else
-				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0ShapesBy1, this.shapes.Count, tenthsOfDegree / 10f);
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0ShapesBy1, this._shapes.Count, tenthsOfDegree / 10f);
 		}
 
 
@@ -2882,46 +2882,46 @@ namespace Dataweb.NShape.Commands {
 		public RotateShapesCommand(IRepository repository, IEnumerable<Shape> shapes, int tenthsOfDegree, int rotateCenterX, int rotateCenterY)
 			: base(repository) {
 			if (shapes == null) throw new ArgumentNullException("shapes");
-			this.shapes = new List<Shape>(shapes);
-			for (int i = 0; i < this.shapes.Count; ++i) {
-				if (this.shapes[i] is ILinearShape) {
+			this._shapes = new List<Shape>(shapes);
+			for (int i = 0; i < this._shapes.Count; ++i) {
+				if (this._shapes[i] is ILinearShape) {
 					List<Point> points = new List<Point>();
-					foreach (ControlPointId id in this.shapes[i].GetControlPointIds(ControlPointCapabilities.Resize)) {
-						Point p = this.shapes[i].GetControlPointPosition(id);
+					foreach (ControlPointId id in this._shapes[i].GetControlPointIds(ControlPointCapabilities.Resize)) {
+						Point p = this._shapes[i].GetControlPointPosition(id);
 						points.Add(p);
 					}
-					unrotatedLinePoints.Add((ILinearShape)this.shapes[i], points);
+					_unrotatedLinePoints.Add((ILinearShape)this._shapes[i], points);
 				}
 			}
-			this.angle = tenthsOfDegree;
-			this.rotateCenterX = rotateCenterX;
-			this.rotateCenterY = rotateCenterY;
-			if (this.shapes.Count == 1)
-				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0By1At23, this.shapes[0].Type.Name, tenthsOfDegree / 10f, rotateCenterX, rotateCenterY);
+			this._angle = tenthsOfDegree;
+			this._rotateCenterX = rotateCenterX;
+			this._rotateCenterY = rotateCenterY;
+			if (this._shapes.Count == 1)
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0By1At23, this._shapes[0].Type.Name, tenthsOfDegree / 10f, rotateCenterX, rotateCenterY);
 			else
-				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0ShapesBy1At23, this.shapes.Count, tenthsOfDegree / 10f, rotateCenterX, rotateCenterY);
+				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Rotate0ShapesBy1At23, this._shapes.Count, tenthsOfDegree / 10f, rotateCenterX, rotateCenterY);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			foreach (Shape shape in shapes) {
-				if (!Geometry.IsValid(rotateCenterX, rotateCenterY))
-					shape.Rotate(angle, shape.X, shape.Y);
-				else shape.Rotate(angle, rotateCenterX, rotateCenterY);
+			foreach (Shape shape in _shapes) {
+				if (!Geometry.IsValid(_rotateCenterX, _rotateCenterY))
+					shape.Rotate(_angle, shape.X, shape.Y);
+				else shape.Rotate(_angle, _rotateCenterX, _rotateCenterY);
 			}
-			if (Repository != null) Repository.Update(shapes);
+			if (Repository != null) Repository.Update(_shapes);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			foreach (Shape shape in shapes) {
-				if (!Geometry.IsValid(rotateCenterX, rotateCenterY))
-					shape.Rotate(-angle, shape.X, shape.Y);
-				else shape.Rotate(-angle, rotateCenterX, rotateCenterY);
+			foreach (Shape shape in _shapes) {
+				if (!Geometry.IsValid(_rotateCenterX, _rotateCenterY))
+					shape.Rotate(-_angle, shape.X, shape.Y);
+				else shape.Rotate(-_angle, _rotateCenterX, _rotateCenterY);
 			}
-			if (Repository != null) Repository.Update(shapes);
+			if (Repository != null) Repository.Update(_shapes);
 		}
 
 
@@ -2934,17 +2934,17 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, shapes);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, _shapes);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
-		private int angle;
-		private List<Shape> shapes;
-		private int rotateCenterX = Geometry.InvalidPoint.X;
-		private int rotateCenterY = Geometry.InvalidPoint.Y;
-		private Dictionary<ILinearShape, List<Point>> unrotatedLinePoints = new Dictionary<ILinearShape, List<Point>>();
+		private int _angle;
+		private List<Shape> _shapes;
+		private int _rotateCenterX = Geometry.InvalidPoint.X;
+		private int _rotateCenterY = Geometry.InvalidPoint.Y;
+		private Dictionary<ILinearShape, List<Point>> _unrotatedLinePoints = new Dictionary<ILinearShape, List<Point>>();
 	}
 
 
@@ -2964,29 +2964,29 @@ namespace Dataweb.NShape.Commands {
 			: base(repository) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			if (!(shape is Shape)) throw new ArgumentException(String.Format("{0} is not of type {1}.", shape.GetType().Name, typeof(Shape).Name));
-			this.modifiedLabeledShapes = new List<ICaptionedShape>(1);
-			this.modifiedLabeledShapes.Add(shape);
-			this.labelIndex = captionIndex;
-			this.oldValue = oldValue;
-			this.newValue = newValue;
-			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeTextOf0From1To2, ((Shape)shape).Type.Name, this.oldValue, this.newValue);
+			this._modifiedLabeledShapes = new List<ICaptionedShape>(1);
+			this._modifiedLabeledShapes.Add(shape);
+			this._labelIndex = captionIndex;
+			this._oldValue = oldValue;
+			this._newValue = newValue;
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeTextOf0From1To2, ((Shape)shape).Type.Name, this._oldValue, this._newValue);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			for (int i = modifiedLabeledShapes.Count - 1; i >= 0; --i) {
-				modifiedLabeledShapes[i].SetCaptionText(labelIndex, newValue);
-				if (Repository != null) Repository.Update((Shape)modifiedLabeledShapes[i]);
+			for (int i = _modifiedLabeledShapes.Count - 1; i >= 0; --i) {
+				_modifiedLabeledShapes[i].SetCaptionText(_labelIndex, _newValue);
+				if (Repository != null) Repository.Update((Shape)_modifiedLabeledShapes[i]);
 			}
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			for (int i = modifiedLabeledShapes.Count - 1; i >= 0; --i) {
-				modifiedLabeledShapes[i].SetCaptionText(labelIndex, oldValue);
-				if (Repository != null) Repository.Update((Shape)modifiedLabeledShapes[i]);
+			for (int i = _modifiedLabeledShapes.Count - 1; i >= 0; --i) {
+				_modifiedLabeledShapes[i].SetCaptionText(_labelIndex, _oldValue);
+				if (Repository != null) Repository.Update((Shape)_modifiedLabeledShapes[i]);
 			}
 		}
 
@@ -3001,8 +3001,8 @@ namespace Dataweb.NShape.Commands {
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
 			bool isGranted = true;
-			for (int i = modifiedLabeledShapes.Count - 1; i >= 0; --i) {
-				if (!securityManager.IsGranted(RequiredPermission, (Shape)modifiedLabeledShapes[i])) {
+			for (int i = _modifiedLabeledShapes.Count - 1; i >= 0; --i) {
+				if (!securityManager.IsGranted(RequiredPermission, (Shape)_modifiedLabeledShapes[i])) {
 					isGranted = false;
 					break;
 				}
@@ -3013,10 +3013,10 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private int labelIndex;
-		private string oldValue;
-		private string newValue;
-		private List<ICaptionedShape> modifiedLabeledShapes;
+		private int _labelIndex;
+		private string _oldValue;
+		private string _newValue;
+		private List<ICaptionedShape> _modifiedLabeledShapes;
 		#endregion
 	}
 
@@ -3071,8 +3071,8 @@ namespace Dataweb.NShape.Commands {
 			this.ConnectorShape = connectorShape;
 			this.GluePointId = gluePointId;
 
-			this.connectionInfo = connectorShape.GetConnectionInfo(gluePointId, null);
-			if (this.connectionInfo.IsEmpty)
+			this._connectionInfo = connectorShape.GetConnectionInfo(gluePointId, null);
+			if (this._connectionInfo.IsEmpty)
 				throw new NShapeInternalException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ThereIsNoConnectionForPoint0OfShape1, gluePointId, connectorShape));
 		}
 
@@ -3080,18 +3080,18 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override void Execute() {
 			ConnectorShape.Disconnect(GluePointId);
-			Repository.DeleteConnection(ConnectorShape, GluePointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
+			Repository.DeleteConnection(ConnectorShape, GluePointId, _connectionInfo.OtherShape, _connectionInfo.OtherPointId);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			ConnectorShape.Connect(GluePointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
-			Repository.InsertConnection(ConnectorShape, GluePointId, connectionInfo.OtherShape, connectionInfo.OtherPointId);
+			ConnectorShape.Connect(GluePointId, _connectionInfo.OtherShape, _connectionInfo.OtherPointId);
+			Repository.InsertConnection(ConnectorShape, GluePointId, _connectionInfo.OtherShape, _connectionInfo.OtherPointId);
 		}
 
 
-		private ShapeConnectionInfo connectionInfo;
+		private ShapeConnectionInfo _connectionInfo;
 	}
 
 	#endregion
@@ -3253,9 +3253,9 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override Permission RequiredPermission {
 			get {
-				// As the aggregated shape changes its visual appearance when (un)aggregating child 
-				// shapes, we have to check presentation permission
-				return Permission.Present;
+				// Needs Layout permissions.
+				// Needs Insert- and delete permissions because the aggregated child shapes will move from the display into the shape
+				return Permission.Layout;
 			}
 		}
 	}
@@ -3331,9 +3331,8 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override Permission RequiredPermission {
 			get {
-				// As the aggregated shape changes its visual appearance when (un)aggregating child 
-				// shapes, we have to check presentation permission
-				return Permission.Present;
+				// Needs Layout permissions
+				return Permission.Layout;
 			}
 		}
 	}
@@ -3359,14 +3358,14 @@ namespace Dataweb.NShape.Commands {
 			: base(repository, shape) {
 			if (!(shape is ILinearShape)) throw new ArgumentException(string.Format("Shape does not implement required interface {0}.", typeof(ILinearShape).Name));
 			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AddConnectionPointTo0At12, shape, x, y);
-			this.x = x;
-			this.y = y;
+			this._x = x;
+			this._y = y;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			insertedPointId = ((ILinearShape)Shape).AddConnectionPoint(x, y);
+			_insertedPointId = ((ILinearShape)Shape).AddConnectionPoint(_x, _y);
 			Shape.Invalidate();
 			if (Repository != null) Repository.Update(Shape);
 		}
@@ -3374,7 +3373,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Revert() {
-			((ILinearShape)Shape).RemoveConnectionPoint(insertedPointId);
+			((ILinearShape)Shape).RemoveConnectionPoint(_insertedPointId);
 			Shape.Invalidate();
 			if (Repository != null) Repository.Update(Shape);
 		}
@@ -3387,9 +3386,9 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private int x;
-		private int y;
-		private ControlPointId insertedPointId = ControlPointId.None;
+		private int _x;
+		private int _y;
+		private ControlPointId _insertedPointId = ControlPointId.None;
 		#endregion
 	}
 
@@ -3410,21 +3409,21 @@ namespace Dataweb.NShape.Commands {
 			: base(repository, shape) {
 			if (!(shape is ILinearShape)) throw new ArgumentException(string.Format("Shape does not implement required interface {0}.", typeof(ILinearShape).Name));
 			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AddPointTo0At12, shape, x, y);
-			this.x = x;
-			this.y = y;
+			this._x = x;
+			this._y = y;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			insertedPointId = ((ILinearShape)Shape).AddVertex(x, y);
+			_insertedPointId = ((ILinearShape)Shape).AddVertex(_x, _y);
 			if (Repository != null) Repository.Update(Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			((ILinearShape)Shape).RemoveVertex(insertedPointId);
+			((ILinearShape)Shape).RemoveVertex(_insertedPointId);
 			if (Repository != null) Repository.Update(Shape);
 		}
 
@@ -3436,9 +3435,9 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private int x;
-		private int y;
-		private ControlPointId insertedPointId = ControlPointId.None;
+		private int _x;
+		private int _y;
+		private ControlPointId _insertedPointId = ControlPointId.None;
 		#endregion
 	}
 
@@ -3461,24 +3460,24 @@ namespace Dataweb.NShape.Commands {
 			if (beforePointId == ControlPointId.None || beforePointId == ControlPointId.Any || beforePointId == ControlPointId.Reference || beforePointId == ControlPointId.FirstVertex)
 				throw new ArgumentException("beforePointId");
 			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_AddPointTo0At12, shape, x, y);
-			this.beforePointId = beforePointId;
-			this.x = x;
-			this.y = y;
+			this._beforePointId = beforePointId;
+			this._x = x;
+			this._y = y;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			if (insertedPointId != ControlPointId.None && Shape is LineShapeBase)
-				insertedPointId = ((LineShapeBase)Shape).InsertVertex(beforePointId, insertedPointId, x, y);
-			else insertedPointId = ((ILinearShape)Shape).InsertVertex(beforePointId, x, y);
+			if (_insertedPointId != ControlPointId.None && Shape is LineShapeBase)
+				_insertedPointId = ((LineShapeBase)Shape).InsertVertex(_beforePointId, _insertedPointId, _x, _y);
+			else _insertedPointId = ((ILinearShape)Shape).InsertVertex(_beforePointId, _x, _y);
 			if (Repository != null) Repository.Update(Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			((ILinearShape)Shape).RemoveVertex(insertedPointId);
+			((ILinearShape)Shape).RemoveVertex(_insertedPointId);
 			if (Repository != null) Repository.Update(Shape);
 		}
 
@@ -3490,10 +3489,10 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private ControlPointId beforePointId = ControlPointId.None;
-		private int x;
-		private int y;
-		private ControlPointId insertedPointId = ControlPointId.None;
+		private ControlPointId _beforePointId = ControlPointId.None;
+		private int _x;
+		private int _y;
+		private ControlPointId _insertedPointId = ControlPointId.None;
 		#endregion
 	}
 
@@ -3513,18 +3512,18 @@ namespace Dataweb.NShape.Commands {
 		public RemoveConnectionPointCommand(IRepository repository, Shape shape, ControlPointId removedPointId)
 			: base(repository, shape) {
 			if (!(shape is ILinearShape)) throw new ArgumentException(string.Format("Shape does not implement required interface {0}.", typeof(ILinearShape).Name));
-			this.removedPointId = removedPointId;
+			this._removedPointId = removedPointId;
 			// MenuItemDefs always create their commands, so we have to handle this
 			// case instead of throwing an exception.
 			if (removedPointId != ControlPointId.None)
-				this.p = shape.GetControlPointPosition(removedPointId);
-			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_RemoveConnectionPointFrom0At12, shape, p.X, p.Y);
+				this._p = shape.GetControlPointPosition(removedPointId);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_RemoveConnectionPointFrom0At12, shape, _p.X, _p.Y);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			((ILinearShape)Shape).RemoveConnectionPoint(removedPointId);
+			((ILinearShape)Shape).RemoveConnectionPoint(_removedPointId);
 			Shape.Invalidate();
 			if (Repository != null) Repository.Update(Shape);
 		}
@@ -3532,10 +3531,10 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Revert() {
-			ControlPointId ptId = ((ILinearShape)Shape).AddConnectionPoint(p.X, p.Y);
-			if (ptId != removedPointId) {
+			ControlPointId ptId = ((ILinearShape)Shape).AddConnectionPoint(_p.X, _p.Y);
+			if (ptId != _removedPointId) {
 				Debug.Fail("PointId should not change when reverting a command!");
-				removedPointId = ptId;
+				_removedPointId = ptId;
 			}
 			Shape.Invalidate();
 			if (Repository != null) Repository.Update(Shape);
@@ -3549,8 +3548,8 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private Point p;
-		private ControlPointId removedPointId = ControlPointId.None;
+		private Point _p;
+		private ControlPointId _removedPointId = ControlPointId.None;
 		#endregion
 	}
 
@@ -3573,40 +3572,40 @@ namespace Dataweb.NShape.Commands {
 			// MenuItemDefs always create their commands, regardless if there is a valid vertexId that can be removed or not.
 			// So we have to handle this case instead of throwing an exception.
 			if (vertexId != ControlPointId.None)
-				this.p = shape.GetControlPointPosition(vertexId);
-			ctrlPointPositions = new Dictionary<ControlPointId, Point>();
+				this._p = shape.GetControlPointPosition(vertexId);
+			_ctrlPointPositions = new Dictionary<ControlPointId, Point>();
 			foreach (ControlPointId id in shape.GetControlPointIds(ControlPointCapabilities.Resize | ControlPointCapabilities.Connect | ControlPointCapabilities.Movable)) {
 				if (id == vertexId) continue;
-				ctrlPointPositions.Add(id, shape.GetControlPointPosition(id));
+				_ctrlPointPositions.Add(id, shape.GetControlPointPosition(id));
 			}
-			this.removedPointId = vertexId;
-			this.nextPointId = ((ILinearShape)shape).GetNextVertexId(vertexId);
+			this._removedPointId = vertexId;
+			this._nextPointId = ((ILinearShape)shape).GetNextVertexId(vertexId);
 
 			// Do not find point position here because if controlPointId is not valid, an exception would be thrown
-			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_RemovePointAt01From2, p.X, p.Y, shape);
+			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_RemovePointAt01From2, _p.X, _p.Y, shape);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			if (removedPointId == ControlPointId.None) throw new NShapeException("ControlPointId.None is not a valid vertex to remove.");
+			if (_removedPointId == ControlPointId.None) throw new NShapeException("ControlPointId.None is not a valid vertex to remove.");
 			// Store point position if not done yet
-			if (!Geometry.IsValid(p)) p = Shape.GetControlPointPosition(removedPointId);
-			((ILinearShape)Shape).RemoveVertex(removedPointId);
+			if (!Geometry.IsValid(_p)) _p = Shape.GetControlPointPosition(_removedPointId);
+			((ILinearShape)Shape).RemoveVertex(_removedPointId);
 			if (Repository != null) Repository.Update(Shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			if (removedPointId == ControlPointId.None) throw new NShapeException("ControlPointId.None is not a valid vertex to add.");
+			if (_removedPointId == ControlPointId.None) throw new NShapeException("ControlPointId.None is not a valid vertex to add.");
 			ControlPointId id = ControlPointId.None;
 			if (Shape is LineShapeBase) {
-				id = ((LineShapeBase)Shape).InsertVertex(nextPointId, removedPointId, p.X, p.Y);
-				Debug.Assert(id == removedPointId);
-			} else id = ((ILinearShape)Shape).InsertVertex(nextPointId, p.X, p.Y);
-			foreach (KeyValuePair<ControlPointId, Point> item in ctrlPointPositions) {
-				if (item.Key == removedPointId || item.Key == id) continue;
+				id = ((LineShapeBase)Shape).InsertVertex(_nextPointId, _removedPointId, _p.X, _p.Y);
+				Debug.Assert(id == _removedPointId);
+			} else id = ((ILinearShape)Shape).InsertVertex(_nextPointId, _p.X, _p.Y);
+			foreach (KeyValuePair<ControlPointId, Point> item in _ctrlPointPositions) {
+				if (item.Key == _removedPointId || item.Key == id) continue;
 				Shape.MoveControlPointTo(item.Key, item.Value.X, item.Value.Y, ResizeModifiers.None);
 			}
 			if (Repository != null) Repository.Update(Shape);
@@ -3620,10 +3619,10 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private Point p = Geometry.InvalidPoint;
-		private ControlPointId removedPointId = ControlPointId.None;
-		private ControlPointId nextPointId = ControlPointId.None;
-		private Dictionary<ControlPointId, Point> ctrlPointPositions = null;
+		private Point _p = Geometry.InvalidPoint;
+		private ControlPointId _removedPointId = ControlPointId.None;
+		private ControlPointId _nextPointId = ControlPointId.None;
+		private Dictionary<ControlPointId, Point> _ctrlPointPositions = null;
 		#endregion
 	}
 
@@ -3688,13 +3687,13 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateModelObjectsCommand(IRepository repository, IEnumerable<IModelObject> modelObjects)
 			: base(repository) {
-			modelObjectBuffer = new List<IModelObject>(modelObjects);
+			_modelObjectBuffer = new List<IModelObject>(modelObjects);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			if (ModelObjects.Count == 0) SetModelObjects(modelObjectBuffer);
+			if (ModelObjects.Count == 0) SetModelObjects(_modelObjectBuffer);
 			InsertModelObjects(true);
 		}
 
@@ -3712,7 +3711,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		// ToDO: Remove this buffer as soon as the ModelObject gets a Children Property...
-		private List<IModelObject> modelObjectBuffer;
+		private List<IModelObject> _modelObjectBuffer;
 	}
 
 
@@ -3742,13 +3741,13 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public DeleteModelObjectsCommand(IRepository repository, IEnumerable<IModelObject> modelObjects)
 			: base(repository) {
-			modelObjectBuffer = new List<IModelObject>(modelObjects);
+			_modelObjectBuffer = new List<IModelObject>(modelObjects);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			if (ModelObjects.Count == 0) SetModelObjects(modelObjectBuffer);
+			if (ModelObjects.Count == 0) SetModelObjects(_modelObjectBuffer);
 			RemoveModelObjects(true);
 		}
 
@@ -3766,7 +3765,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		// ToDO: Remove this buffer as soon as the ModelObject gets a Children Property...
-		private List<IModelObject> modelObjectBuffer;
+		private List<IModelObject> _modelObjectBuffer;
 	}
 
 
@@ -3803,23 +3802,23 @@ namespace Dataweb.NShape.Commands {
 					parent.Type.Name, parent.Name);
 			else this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Move01, modelObject.Type.Name, modelObject.Name);
 
-			this.modelObject = modelObject;
-			this.oldParent = modelObject.Parent;
-			this.newParent = parent;
+			this._modelObject = modelObject;
+			this._oldParent = modelObject.Parent;
+			this._newParent = parent;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			modelObject.Parent = newParent;
-			if (Repository != null) Repository.UpdateOwner(modelObject, newParent);
+			_modelObject.Parent = _newParent;
+			if (Repository != null) Repository.UpdateOwner(_modelObject, _newParent);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			modelObject.Parent = oldParent;
-			if (Repository != null) Repository.UpdateOwner(modelObject, oldParent);
+			_modelObject.Parent = _oldParent;
+			if (Repository != null) Repository.UpdateOwner(_modelObject, _oldParent);
 		}
 
 
@@ -3832,16 +3831,16 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, newParent.Shapes);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, _newParent.Shapes);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
 		#region Fields
-		private IModelObject modelObject;
-		private IModelObject oldParent;
-		private IModelObject newParent;
+		private IModelObject _modelObject;
+		private IModelObject _oldParent;
+		private IModelObject _newParent;
 		#endregion
 	}
 
@@ -3868,23 +3867,23 @@ namespace Dataweb.NShape.Commands {
 			else
 				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Replace01Of2With34, shape.ModelObject.Type.Name, shape.ModelObject.Name, shape.Type.Name, modelObject.Type.Name, modelObject.Name);
 
-			this.shape = shape;
-			this.oldModelObject = shape.ModelObject;
-			this.newModelObject = modelObject;
+			this._shape = shape;
+			this._oldModelObject = shape.ModelObject;
+			this._newModelObject = modelObject;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			shape.ModelObject = newModelObject;
-			if (Repository != null) Repository.Update(shape);
+			_shape.ModelObject = _newModelObject;
+			if (Repository != null) Repository.Update(_shape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			shape.ModelObject = oldModelObject;
-			if (Repository != null) Repository.Update(shape);
+			_shape.ModelObject = _oldModelObject;
+			if (Repository != null) Repository.Update(_shape);
 		}
 
 
@@ -3897,16 +3896,16 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, shape);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, _shape);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
 		#region Fields
-		private Shape shape;
-		private IModelObject oldModelObject;
-		private IModelObject newModelObject;
+		private Shape _shape;
+		private IModelObject _oldModelObject;
+		private IModelObject _newModelObject;
 		#endregion
 	}
 
@@ -3949,23 +3948,23 @@ namespace Dataweb.NShape.Commands {
 			if (originalTemplate == null) throw new ArgumentNullException("originalTemplate");
 			if (changedTemplate == null) throw new ArgumentNullException("changedTemplate");
 			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeTempate0, originalTemplate.Title);
-			this.originalTemplate = originalTemplate;
-			this.oldTemplate = new Template(originalTemplate.Name, originalTemplate.Shape.Clone());
-			this.oldTemplate.CopyFrom(originalTemplate);
-			this.newTemplate = new Template(changedTemplate.Name, changedTemplate.Shape.Clone());
-			this.newTemplate.CopyFrom(changedTemplate);
+			this._originalTemplate = originalTemplate;
+			this._oldTemplate = new Template(originalTemplate.Name, originalTemplate.Shape.Clone());
+			this._oldTemplate.CopyFrom(originalTemplate);
+			this._newTemplate = new Template(changedTemplate.Name, changedTemplate.Shape.Clone());
+			this._newTemplate.CopyFrom(changedTemplate);
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			DoExchangeTemplates(originalTemplate, oldTemplate, newTemplate);
+			DoExchangeTemplates(_originalTemplate, _oldTemplate, _newTemplate);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			DoExchangeTemplates(originalTemplate, newTemplate, oldTemplate);
+			DoExchangeTemplates(_originalTemplate, _newTemplate, _oldTemplate);
 		}
 
 
@@ -4065,11 +4064,11 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private Template originalTemplate;
-		private Template oldTemplate;
-		private Template newTemplate;
+		private Template _originalTemplate;
+		private Template _oldTemplate;
+		private Template _newTemplate;
 
-		private List<ShapeConnectionInfo> shapeConnectionInfos = new List<ShapeConnectionInfo>();
+		private List<ShapeConnectionInfo> _shapeConnectionInfos = new List<ShapeConnectionInfo>();
 		#endregion
 	}
 
@@ -4104,8 +4103,8 @@ namespace Dataweb.NShape.Commands {
 			if (string.IsNullOrEmpty(templateName)) throw new ArgumentNullException("templateName");
 			if (baseShape == null) throw new ArgumentNullException("baseShape");
 			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_CreateNewTempate0BasedOn1, templateName, baseShape.Type.Name);
-			this.templateName = templateName;
-			this.baseShape = baseShape;
+			this._templateName = templateName;
+			this._baseShape = baseShape;
 		}
 
 
@@ -4113,17 +4112,17 @@ namespace Dataweb.NShape.Commands {
 		public override void Execute() {
 			if (Template == null) {
 				// Create a template shape and copy properties
-				Shape templateShape = baseShape.Type.CreateInstance();
-				foreach (Shape childShape in baseShape.Children.BottomUp)
+				Shape templateShape = _baseShape.Type.CreateInstance();
+				foreach (Shape childShape in _baseShape.Children.BottomUp)
 					templateShape.Children.Add(childShape.Type.CreateInstance(), childShape.ZOrder);
-				templateShape.CopyFrom(baseShape);
+				templateShape.CopyFrom(_baseShape);
 				// Clone model object if necessary
-				if (baseShape.ModelObject != null) {
-					IModelObject templateModelObject = baseShape.ModelObject.Clone();
+				if (_baseShape.ModelObject != null) {
+					IModelObject templateModelObject = _baseShape.ModelObject.Clone();
 					templateShape.ModelObject = templateModelObject;
 				}
 				// Create the new template
-				Template = new Template(templateName, templateShape);
+				Template = new Template(_templateName, templateShape);
 			}
 			if (Repository != null) {
 				if (CanUndeleteEntity(Template))
@@ -4143,8 +4142,8 @@ namespace Dataweb.NShape.Commands {
 
 
 		#region Fields
-		private string templateName;
-		private Shape baseShape;
+		private string _templateName;
+		private Shape _baseShape;
 		#endregion
 	}
 
@@ -4205,55 +4204,55 @@ namespace Dataweb.NShape.Commands {
 			if (originalTemplate == null) throw new ArgumentNullException("originalTemplate");
 			if (changedTemplate == null) throw new ArgumentNullException("changedTemplate");
 			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeShapeOfTempate0From1To2, originalTemplate.Title, originalTemplate.Shape.Type.Name, changedTemplate.Shape.Type.Name);
-			this.originalTemplate = originalTemplate;
-			this.oldTemplate = originalTemplate.Clone();	// Shape and ModelObject(!) are also cloned in this step
-			this.newTemplate = changedTemplate;
+			this._originalTemplate = originalTemplate;
+			this._oldTemplate = originalTemplate.Clone();	// Shape and ModelObject(!) are also cloned in this step
+			this._newTemplate = changedTemplate;
 
-			this.oldTemplateShape = originalTemplate.Shape;	// Should we store the orignial model object, too?
-			this.newTemplateShape = changedTemplate.Shape;
-			this.newTemplateShape.DisplayService = oldTemplateShape.DisplayService;
+			this._oldTemplateShape = originalTemplate.Shape;	// Should we store the orignial model object, too?
+			this._newTemplateShape = changedTemplate.Shape;
+			this._newTemplateShape.DisplayService = _oldTemplateShape.DisplayService;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
-			if (Repository != null && shapesFromTemplate == null)
-				shapesFromTemplate = new List<ReplaceShapesBuffer>(GetShapesToReplace());
+			if (Repository != null && _shapesFromTemplate == null)
+				_shapesFromTemplate = new List<ReplaceShapesBuffer>(GetShapesToReplace());
 
 			// Copy all Properties of the new template to the reference of the original Template
-			originalTemplate.Shape = null;
-			originalTemplate.CopyFrom(newTemplate);
-			originalTemplate.Shape = newTemplateShape;
+			_originalTemplate.Shape = null;
+			_originalTemplate.CopyFrom(_newTemplate);
+			_originalTemplate.Shape = _newTemplateShape;
 			// exchange oldShapes with newShapes
-			int cnt = shapesFromTemplate.Count;
+			int cnt = _shapesFromTemplate.Count;
 			for (int i = 0; i < cnt; ++i) {
-				ReplaceShapes(shapesFromTemplate[i].diagram,
-									shapesFromTemplate[i].oldShape,
-									shapesFromTemplate[i].newShape,
-									shapesFromTemplate[i].oldConnections,
-									shapesFromTemplate[i].newConnections);
+				ReplaceShapes(_shapesFromTemplate[i].diagram,
+									_shapesFromTemplate[i].oldShape,
+									_shapesFromTemplate[i].newShape,
+									_shapesFromTemplate[i].oldConnections,
+									_shapesFromTemplate[i].newConnections);
 			}
 			if (Repository != null)
-				Repository.ReplaceTemplateShape(originalTemplate, oldTemplateShape, newTemplateShape);
+				Repository.ReplaceTemplateShape(_originalTemplate, _oldTemplateShape, _newTemplateShape);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
-			originalTemplate.Shape = null;
-			originalTemplate.CopyFrom(oldTemplate);
-			originalTemplate.Shape = oldTemplateShape;
+			_originalTemplate.Shape = null;
+			_originalTemplate.CopyFrom(_oldTemplate);
+			_originalTemplate.Shape = _oldTemplateShape;
 			// exchange old shape with new Shape
-			int cnt = shapesFromTemplate.Count;
+			int cnt = _shapesFromTemplate.Count;
 			for (int i = 0; i < cnt; ++i)
-				ReplaceShapes(shapesFromTemplate[i].diagram,
-									shapesFromTemplate[i].newShape,
-									shapesFromTemplate[i].oldShape,
-									shapesFromTemplate[i].newConnections,
-									shapesFromTemplate[i].oldConnections);
+				ReplaceShapes(_shapesFromTemplate[i].diagram,
+									_shapesFromTemplate[i].newShape,
+									_shapesFromTemplate[i].oldShape,
+									_shapesFromTemplate[i].newConnections,
+									_shapesFromTemplate[i].oldConnections);
 
 			if (Repository != null)
-				Repository.ReplaceTemplateShape(originalTemplate, newTemplateShape, oldTemplateShape);
+				Repository.ReplaceTemplateShape(_originalTemplate, _newTemplateShape, _oldTemplateShape);
 		}
 
 
@@ -4262,14 +4261,14 @@ namespace Dataweb.NShape.Commands {
 			// For now, find all Shapes in the Cache created from the changed Template and change their shape's type
 			foreach (Diagram diagram in Repository.GetDiagrams()) {
 				foreach (Shape shape in diagram.Shapes) {
-					if (shape.Template == originalTemplate) {
+					if (shape.Template == _originalTemplate) {
 						// copy as much properties as possible from the old shape into the new shape
 						ReplaceShapesBuffer buffer = new ReplaceShapesBuffer();
 						buffer.diagram = diagram;
 						buffer.oldShape = shape;
 						// Create a new shape instance refering to the original template
-						buffer.newShape = newTemplate.Shape.Type.CreateInstance(originalTemplate);
-						buffer.newShape.CopyFrom(newTemplate.Shape);	// Copy all properties of the new shape (Template will not be copied)
+						buffer.newShape = _newTemplate.Shape.Type.CreateInstance(_originalTemplate);
+						buffer.newShape.CopyFrom(_newTemplate.Shape);	// Copy all properties of the new shape (Template will not be copied)
 						buffer.oldConnections = new List<ShapeConnectionInfo>(shape.GetConnectionInfos(ControlPointId.Any, null));
 						buffer.newConnections = new List<ShapeConnectionInfo>(buffer.oldConnections.Count);
 						foreach (ShapeConnectionInfo sci in buffer.oldConnections) {
@@ -4393,12 +4392,12 @@ namespace Dataweb.NShape.Commands {
 			}
 		}
 
-		private Template originalTemplate;	// reference on the (original) Template which has to be changed
-		private Template oldTemplate;			// a clone of the original Template (needed for reverting the command)
-		private Template newTemplate;			// a clone of the new Template
-		private Shape oldTemplateShape;		// the original template shape
-		private Shape newTemplateShape;		// the new template shape
-		private List<ReplaceShapesBuffer> shapesFromTemplate = null;
+		private Template _originalTemplate;	// reference on the (original) Template which has to be changed
+		private Template _oldTemplate;			// a clone of the original Template (needed for reverting the command)
+		private Template _newTemplate;			// a clone of the new Template
+		private Shape _oldTemplateShape;		// the original template shape
+		private Shape _newTemplateShape;		// the new template shape
+		private List<ReplaceShapesBuffer> _shapesFromTemplate = null;
 		#endregion
 	}
 
@@ -4498,20 +4497,20 @@ namespace Dataweb.NShape.Commands {
 			if (style == null) throw new ArgumentNullException("style");
 			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_CreateStyle0, style.Title);
 			this.Design = design;
-			this.style = style;
+			this._style = style;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
 			Design d = Design ?? Repository.GetDesign(null);
-			d.AddStyle(style);
+			d.AddStyle(_style);
 			if (Repository != null) {
-				if (CanUndeleteEntity(style))
-					Repository.Undelete(d, style);
-				if (CanUndeleteEntity(style))
-					Repository.Undelete(d, style);
-				else Repository.Insert(d, style);
+				if (CanUndeleteEntity(_style))
+					Repository.Undelete(d, _style);
+				if (CanUndeleteEntity(_style))
+					Repository.Undelete(d, _style);
+				else Repository.Insert(d, _style);
 				Repository.Update(d);
 			}
 		}
@@ -4520,15 +4519,15 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override void Revert() {
 			Design d = Design ?? Repository.GetDesign(null);
-			d.RemoveStyle(style);
+			d.RemoveStyle(_style);
 			if (Repository != null) {
-				Repository.Delete(style);
+				Repository.Delete(_style);
 				Repository.Update(d);
 			}
 		}
 
 
-		private Style style;
+		private Style _style;
 	}
 
 
@@ -4549,16 +4548,16 @@ namespace Dataweb.NShape.Commands {
 			if (style == null) throw new ArgumentNullException("style");
 			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_DeleteStyle0, style.Title);
 			this.Design = design;
-			this.style = style;
+			this._style = style;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
 			Design d = Design ?? Repository.GetDesign(null);
-			d.RemoveStyle(style);
+			d.RemoveStyle(_style);
 			if (Repository != null) {
-				Repository.Delete(style);
+				Repository.Delete(_style);
 				Repository.Update(d);
 			}
 		}
@@ -4567,17 +4566,17 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override void Revert() {
 			Design d = Design ?? Repository.GetDesign(null);
-			d.AddStyle(style);
+			d.AddStyle(_style);
 			if (Repository != null) {
-				if (CanUndeleteEntity(style))
-					Repository.Undelete(d, style);
-				else Repository.Insert(d, style);
+				if (CanUndeleteEntity(_style))
+					Repository.Undelete(d, _style);
+				else Repository.Insert(d, _style);
 				Repository.Update(d);
 			}
 		}
 
 
-		private Style style;
+		private Style _style;
 	}
 
 	#endregion
@@ -5464,7 +5463,7 @@ namespace Dataweb.NShape.Commands {
 		public LayerPropertySetCommand(Diagram diagram, IEnumerable<Layer> modifiedLayers, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
 			: base(modifiedLayers, propertyInfo, oldValues, newValues) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
+			this._diagram = diagram;
 		}
 
 
@@ -5472,7 +5471,7 @@ namespace Dataweb.NShape.Commands {
 		public LayerPropertySetCommand(IRepository repository, Diagram diagram, IEnumerable<Layer> modifiedLayers, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
 			: base(repository, modifiedLayers, propertyInfo, oldValues, newValues) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
+			this._diagram = diagram;
 		}
 
 
@@ -5480,7 +5479,7 @@ namespace Dataweb.NShape.Commands {
 		public LayerPropertySetCommand(Diagram diagram, IEnumerable<Layer> modifiedLayers, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
 			: base(modifiedLayers, propertyInfo, oldValues, newValue) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
+			this._diagram = diagram;
 		}
 
 
@@ -5488,7 +5487,7 @@ namespace Dataweb.NShape.Commands {
 		public LayerPropertySetCommand(IRepository repository, Diagram diagram, IEnumerable<Layer> modifiedLayers, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
 			: base(repository, modifiedLayers, propertyInfo, oldValues, newValue) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
+			this._diagram = diagram;
 		}
 
 
@@ -5496,7 +5495,7 @@ namespace Dataweb.NShape.Commands {
 		public LayerPropertySetCommand(Diagram diagram, Layer modifiedLayer, PropertyInfo propertyInfo, object oldValue, object newValue)
 			: base(modifiedLayer, propertyInfo, oldValue, newValue) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
+			this._diagram = diagram;
 		}
 
 
@@ -5504,21 +5503,21 @@ namespace Dataweb.NShape.Commands {
 		public LayerPropertySetCommand(IRepository repository, Diagram diagram, Layer modifiedLayer, PropertyInfo propertyInfo, object oldValue, object newValue)
 			: base(repository, modifiedLayer, propertyInfo, oldValue, newValue) {
 			if (diagram == null) throw new ArgumentNullException("diagram");
-			this.diagram = diagram;
+			this._diagram = diagram;
 		}
 
 
 		/// <override></override>
 		public override void Execute() {
 			base.Execute();
-			if (Repository != null) Repository.Update(diagram);
+			if (Repository != null) Repository.Update(_diagram);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
 			base.Revert();
-			if (Repository != null) Repository.Update(diagram);
+			if (Repository != null) Repository.Update(_diagram);
 		}
 
 
@@ -5531,14 +5530,14 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
 			if (securityManager == null) throw new ArgumentNullException("securityManager");
-			bool isGranted = securityManager.IsGranted(RequiredPermission, diagram.SecurityDomainName);
+			bool isGranted = securityManager.IsGranted(RequiredPermission, _diagram.SecurityDomainName);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
 		}
 
 
 		#region Fields
-		private Diagram diagram;
+		private Diagram _diagram;
 		#endregion
 	}
 
@@ -5709,7 +5708,7 @@ namespace Dataweb.NShape.Commands {
 		public StylePropertySetCommand(Design design, IEnumerable<Style> modifiedStyles, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
 			: base(modifiedStyles, propertyInfo, oldValues, newValues) {
 			if (design == null) throw new ArgumentNullException("design");
-			this.design = design;
+			this._design = design;
 		}
 
 
@@ -5717,7 +5716,7 @@ namespace Dataweb.NShape.Commands {
 		public StylePropertySetCommand(IRepository repository, Design design, IEnumerable<Style> modifiedStyles, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
 			: base(repository, modifiedStyles, propertyInfo, oldValues, newValues) {
 			if (design == null) throw new ArgumentNullException("design");
-			this.design = design;
+			this._design = design;
 		}
 
 
@@ -5725,7 +5724,7 @@ namespace Dataweb.NShape.Commands {
 		public StylePropertySetCommand(Design design, IEnumerable<Style> modifiedStyles, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
 			: base(modifiedStyles, propertyInfo, oldValues, newValue) {
 			if (design == null) throw new ArgumentNullException("design");
-			this.design = design;
+			this._design = design;
 		}
 
 
@@ -5733,7 +5732,7 @@ namespace Dataweb.NShape.Commands {
 		public StylePropertySetCommand(IRepository repository, Design design, IEnumerable<Style> modifiedStyles, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
 			: base(repository, modifiedStyles, propertyInfo, oldValues, newValue) {
 			if (design == null) throw new ArgumentNullException("design");
-			this.design = design;
+			this._design = design;
 		}
 
 
@@ -5741,7 +5740,7 @@ namespace Dataweb.NShape.Commands {
 		public StylePropertySetCommand(Design design, Style modifiedStyle, PropertyInfo propertyInfo, object oldValue, object newValue)
 			: base(modifiedStyle, propertyInfo, oldValue, newValue) {
 			if (design == null) throw new ArgumentNullException("design");
-			this.design = design;
+			this._design = design;
 		}
 
 
@@ -5749,7 +5748,7 @@ namespace Dataweb.NShape.Commands {
 		public StylePropertySetCommand(IRepository repository, Design design, Style modifiedStyle, PropertyInfo propertyInfo, object oldValue, object newValue)
 			: base(repository, modifiedStyle, propertyInfo, oldValue, newValue) {
 			if (design == null) throw new ArgumentNullException("design");
-			this.design = design;
+			this._design = design;
 		}
 
 
@@ -5783,13 +5782,13 @@ namespace Dataweb.NShape.Commands {
 			if (Repository != null) {
 				for (int i = ModifiedObjects.Count - 1; i >= 0; --i)
 					Repository.Update(ModifiedObjects[i]);
-				Repository.Update(design);
+				Repository.Update(_design);
 			}
 		}
 
 
 		#region Fields
-		private Design design;
+		private Design _design;
 		#endregion
 	}
 

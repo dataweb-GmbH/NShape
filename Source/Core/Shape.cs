@@ -484,9 +484,11 @@ namespace Dataweb.NShape {
 		[Editor("Dataweb.NShape.WinFormsUI.LayerUITypeEditor, Dataweb.NShape.WinFormsUI", typeof(System.Drawing.Design.UITypeEditor))]
 		public LayerIds SupplementalLayers {
 			get { return _supplementalLayers; }
-			set { 
-				_supplementalLayers = value;
-				Invalidate();
+			set {
+				if (_supplementalLayers != value) {
+					_supplementalLayers = value;
+					Invalidate();
+				}
 			}
 		}
 
@@ -500,9 +502,11 @@ namespace Dataweb.NShape {
 		[Editor("Dataweb.NShape.WinFormsUI.LayerUITypeEditor, Dataweb.NShape.WinFormsUI", typeof(System.Drawing.Design.UITypeEditor))]
 		public int HomeLayer {
 			get { return _homeLayer; }
-			set { 
-				_homeLayer = value;
-				Invalidate();
+			set {
+				if (_homeLayer != value) {
+					_homeLayer = value;
+					Invalidate();
+				}
 			}
 		}
 

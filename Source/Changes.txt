@@ -7,8 +7,37 @@ Known issues:
 
 
 ====================================================================================================
+Changes in 2.2.1.20:
+====================================================================================================
+- Bugfix: KeyNotFoundException when saving XML repository with embedded images.
+- Improvement: Added generic versions of Template.CreateShape() for more convenient shape creation.
+
+====================================================================================================
+Changes in 2.2.1.18:
+====================================================================================================
+- New Feature: Adjustable margin around the diagram sheet: Display.DiagramMargin
+
+====================================================================================================
+Changes in 2.2.1.17:
+====================================================================================================
+- Bugfix: Solved several NullReferenceExceptions when Display's ActiveTool is null.
+- Improvement: Renamed all fields so they do no longer collide with property names in case 
+  insensitive .NET languages such as VB.NET.
+
+====================================================================================================
 Changes in 2.2.1.16:
 ====================================================================================================
+- Breaking change: In order to achieve CLS compliancy and fulfill code guidelines, several protected 
+  fields were replaced with properties and therefore the casing changed:
+  class ShapeBase:
+	protected List<ShapeConnectionInfo> connectionInfos;
+	protected bool drawCacheIsInvalid = true;
+	protected bool isGluePointFollowingConnectionPoint = false;
+  For all of these, a property with upper case first letter exists:
+	protected List<ShapeConnectionInfo> ConnectionInfos { get; set; }
+	protected bool DrawCacheIsInvalid { get; set; }
+	protected bool IsGluePointFollowingConnectionPoint { get; set; }
+
 - New Feature: Localization support: All user relevant texts are defined as resource strings now
 
 - New Feature: Extending the number of supported layers. See documentation for an explanaition of 
@@ -109,6 +138,8 @@ Changes in 2.2.1.16:
 - Changed Behavior: The constructors of NamedImage no longer clone the given image in order to avoid 
   unnecessary image copying. So if you create a NamedImage e.g. from embedded resources, you have to 
   clone these resources new instead of passing them to the constructor directly.
+- Changed Behavior: Permissions for 'Aggregate Shapes' and 'Disaggregate Shapes' commands changed 
+  from 'Present' to 'Layout'.
 - Bugfix: The CachedRepository now disposes its cached resources correctly.
 - Bugfix: XmlStore's buffers for diagrams to load and embedded images are now reset correctly when 
   closing the store.

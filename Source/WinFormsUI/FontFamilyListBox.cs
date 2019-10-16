@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -380,15 +380,16 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		#region Fields
+
 		private IWindowsFormsEditorService _editorService;
 		private bool _highlightItems = true;
 		
 		// drawing stuff
-		List<Font> _fonts = new List<Font>(FontFamily.Families.Length);
-		StringFormat _formatter = new StringFormat();
+		private List<Font> _fonts = new List<Font>(FontFamily.Families.Length);
+		private StringFormat _formatter = new StringFormat();
 		
-		const int margin = 2;
-		Rectangle _itemBounds = Rectangle.Empty;
+		private const int margin = 2;
+		private Rectangle _itemBounds = Rectangle.Empty;
 
 		private Color _itemBackgroundColor = Color.FromKnownColor(KnownColor.Window);
 		private Color _itemHighlightedColor = Color.FromKnownColor(KnownColor.HighlightText);
@@ -405,6 +406,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		private Brush _textBrush;
 		private Pen _itemBorderPen;
 		private Pen _focusBorderPen;
+
 		#endregion
 	}
 }

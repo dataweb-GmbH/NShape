@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -129,7 +129,7 @@ namespace Dataweb.NShape.Advanced {
 				return center;
 			} else if (controlPointId == ControlPointId.None)
 				throw new NShapeException("Unsupported PointId.");
-			if (drawCacheIsInvalid) UpdateDrawCache(); 
+			if (DrawCacheIsInvalid) UpdateDrawCache(); 
 
 			int index = GetControlPointIndex(controlPointId);
 			return ControlPoints[index];
@@ -301,7 +301,7 @@ namespace Dataweb.NShape.Advanced {
 		protected override Rectangle CalculateBoundingRectangle(bool tight) {
 			if (tight) {
 				Rectangle result = Rectangle.Empty;
-				if (drawCacheIsInvalid) {
+				if (DrawCacheIsInvalid) {
 					CalculatePath();
 					result = Rectangle.Ceiling(Path.GetBounds());
 					if (Angle != 0) {
@@ -316,7 +316,7 @@ namespace Dataweb.NShape.Advanced {
 				return result;
 			} else {
 				Rectangle result = Rectangle.Empty;
-				if (drawCacheIsInvalid) {
+				if (DrawCacheIsInvalid) {
 					CalcControlPoints();
 					Point tl = Point.Empty, tr = Point.Empty, bl = Point.Empty, br = Point.Empty;
 					for (int i = ControlPoints.Length - 1; i >= 0; --i) {
@@ -354,7 +354,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override bool EndMove(int deltaX, int deltaY) {
-			if (!drawCacheIsInvalid) TransformDrawCache(deltaX, deltaY, 0, X, Y);
+			if (!DrawCacheIsInvalid) TransformDrawCache(deltaX, deltaY, 0, X, Y);
 			return base.EndMove(deltaX, deltaY);
 		}
 
@@ -433,13 +433,13 @@ namespace Dataweb.NShape.Advanced {
 			if (ObjectState == ObjectState.Normal) {
 				if (_path != null) _path.Reset();
 			}
-			boundingRectangleUnrotated = Geometry.InvalidRectangle;
+			BoundingRectangleUnrotated = Geometry.InvalidRectangle;
 		}
 
 
 		/// <override></override>
 		protected override void UpdateDrawCache() {
-			if (drawCacheIsInvalid) {
+			if (DrawCacheIsInvalid) {
 				Debug.Assert(_path != null); 
 				Debug.Assert(_controlPoints != null);
 				RecalcDrawCache();
@@ -459,8 +459,8 @@ namespace Dataweb.NShape.Advanced {
 			if (CalculatePath()) {
 				// store unrotated bounding rectangle for transforming brushes to the right size.
 				// rotated bounding rectangles have usually not the correct size for this purpose
-				boundingRectangleUnrotated = Rectangle.Round(Path.GetBounds());
-				drawCacheIsInvalid = false;
+				BoundingRectangleUnrotated = Rectangle.Round(Path.GetBounds());
+				DrawCacheIsInvalid = false;
 			}
 		}
 
@@ -476,7 +476,7 @@ namespace Dataweb.NShape.Advanced {
 		protected override void TransformDrawCache(int deltaX, int deltaY, int deltaAngle, int rotationCenterX, int rotationCenterY) {
 			// transform DrawCache only if the drawCache is valid, otherwise it will be recalculated
 			// at the correct position/size
-			if (!drawCacheIsInvalid) {
+			if (!DrawCacheIsInvalid) {
 				Matrix.Reset();
 				if (deltaX != 0 || deltaY != 0 || deltaAngle != 0) {
 					Matrix.Translate(deltaX, deltaY, MatrixOrder.Prepend);
@@ -493,7 +493,7 @@ namespace Dataweb.NShape.Advanced {
 					Path.Transform(Matrix);
 				}
 				// transform unrotated boundingRectangle
-				boundingRectangleUnrotated.Offset(deltaX, deltaY);
+				BoundingRectangleUnrotated.Offset(deltaX, deltaY);
 			}
 		}
 
@@ -522,7 +522,7 @@ namespace Dataweb.NShape.Advanced {
 		protected void DrawPath(Graphics graphics, ILineStyle lineStyle, IFillStyle fillStyle) {
 			UpdateDrawCache();
 			if (fillStyle != null) {
-				Brush brush = ToolCache.GetTransformedBrush(FillStyle, boundingRectangleUnrotated, Center, Angle);
+				Brush brush = ToolCache.GetTransformedBrush(FillStyle, BoundingRectangleUnrotated, Center, Angle);
 				graphics.FillPath(brush, Path);
 			}
 			if (lineStyle != null) {
@@ -541,7 +541,8 @@ namespace Dataweb.NShape.Advanced {
 		protected const int PropertyIdFillStyle = 3;
 
 		/// <summary>Tight fitting BoundingRectangle of the unrotated shape, used for transforming brushes</summary>
-		protected Rectangle boundingRectangleUnrotated = Geometry.InvalidRectangle;
+		/// <remarks>This is a field instead of a property because fields can be passed as out- or ref parameter, which avoids unnecessary copying.</remarks>
+		protected Rectangle BoundingRectangleUnrotated = Geometry.InvalidRectangle;
 
 		// Location of the Shape (usually the BalancePoint of the shape)
 		private Point _location = Point.Empty;

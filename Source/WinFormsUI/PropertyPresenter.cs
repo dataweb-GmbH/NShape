@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -62,10 +62,10 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		[CategoryNShape()]
 		public IPropertyController PropertyController {
-			get { return propertyController; }
+			get { return _propertyController; }
 			set {
 				UnregisterPropertyControllerEvents();
-				propertyController = value;
+				_propertyController = value;
 				RegisterPropertyControllerEvents();
 			}
 		}
@@ -78,8 +78,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		public int PageCount {
 			get {
 				int result = 0;
-				if (primaryPropertyGrid != null) ++result;
-				if (secondaryPropertyGrid != null) ++result;
+				if (_primaryPropertyGrid != null) ++result;
+				if (_secondaryPropertyGrid != null) ++result;
 				return result;
 			}
 		}
@@ -89,11 +89,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies a PropertyGrid for editing primary objects.
 		/// </summary>
 		public PropertyGrid PrimaryPropertyGrid {
-			get { return primaryPropertyGrid; }
+			get { return _primaryPropertyGrid; }
 			set {
-				UnregisterPropertyGridEvents(primaryPropertyGrid);
-				primaryPropertyGrid = value;
-				RegisterPropertyGridEvents(primaryPropertyGrid);
+				UnregisterPropertyGridEvents(_primaryPropertyGrid);
+				_primaryPropertyGrid = value;
+				RegisterPropertyGridEvents(_primaryPropertyGrid);
 			}
 		}
 
@@ -102,11 +102,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies a PropertyGrid for editing secondary objects.
 		/// </summary>
 		public PropertyGrid SecondaryPropertyGrid {
-			get { return secondaryPropertyGrid; }
+			get { return _secondaryPropertyGrid; }
 			set {
-				UnregisterPropertyGridEvents(secondaryPropertyGrid);
-				secondaryPropertyGrid = value;
-				RegisterPropertyGridEvents(secondaryPropertyGrid);
+				UnregisterPropertyGridEvents(_secondaryPropertyGrid);
+				_secondaryPropertyGrid = value;
+				RegisterPropertyGridEvents(_secondaryPropertyGrid);
 			}
 		}
 
@@ -117,10 +117,10 @@ namespace Dataweb.NShape.WinFormsUI {
 			propertyGrid = null;
 			switch (pageIndex) {
 				case 0:
-					propertyGrid = primaryPropertyGrid;
+					propertyGrid = _primaryPropertyGrid;
 					break;
 				case 1:
-					propertyGrid = secondaryPropertyGrid;
+					propertyGrid = _secondaryPropertyGrid;
 					break;
 				default: throw new ArgumentOutOfRangeException("pageIndex");
 			}
@@ -154,20 +154,20 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods: (Un)Registering for events
 
 		private void RegisterPropertyControllerEvents() {
-			if (propertyController != null) {
-				propertyController.ObjectsModified += propertyController_RefreshObjects;
-				propertyController.ObjectsSet += propertyController_ObjectsSet;
-				propertyController.ProjectClosing += propertyController_ProjectClosing;
+			if (_propertyController != null) {
+				_propertyController.ObjectsModified += propertyController_RefreshObjects;
+				_propertyController.ObjectsSet += propertyController_ObjectsSet;
+				_propertyController.ProjectClosing += propertyController_ProjectClosing;
 			}
 		}
 
 
 		private void UnregisterPropertyControllerEvents() {
-			if (propertyController != null) {
+			if (_propertyController != null) {
 				TypeDescriptionProviderDg.PropertyController = null;
-				propertyController.ObjectsModified -= propertyController_RefreshObjects;
-				propertyController.ObjectsSet -= propertyController_ObjectsSet;
-				propertyController.ProjectClosing -= propertyController_ProjectClosing;
+				_propertyController.ObjectsModified -= propertyController_RefreshObjects;
+				_propertyController.ObjectsSet -= propertyController_ObjectsSet;
+				_propertyController.ProjectClosing -= propertyController_ProjectClosing;
 			}
 		}
 
@@ -201,21 +201,21 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void propertyGrid_Enter(object sender, EventArgs e) {
-			TypeDescriptionProviderDg.PropertyController = propertyController;
+			TypeDescriptionProviderDg.PropertyController = _propertyController;
 		}
 
 
 		private void propertyController_ObjectsSet(object sender, PropertyControllerEventArgs e) {
 			AssertControllerExists();
 
-			propertyController.CancelSetProperty();
-			if (propertyController.Project != null && propertyController.Project.IsOpen)
-				StyleUITypeEditor.Project = propertyController.Project;
+			_propertyController.CancelSetProperty();
+			if (_propertyController.Project != null && _propertyController.Project.IsOpen)
+				StyleUITypeEditor.Project = _propertyController.Project;
 
 			PropertyGrid grid = null;
 			GetPropertyGrid(e.PageIndex, out grid);
 			if (grid != null) {
-				TypeDescriptionProviderDg.PropertyController = propertyController;
+				TypeDescriptionProviderDg.PropertyController = _propertyController;
 				if (e.Objects.Count > 0)
 				    grid.SelectedObjects = e.GetObjectArray();
 				else if (grid.SelectedObject != null)
@@ -228,7 +228,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		private void propertyController_RefreshObjects(object sender, PropertyControllerEventArgs e) {
 			AssertControllerExists();
 			
-			StyleUITypeEditor.Project = propertyController.Project;
+			StyleUITypeEditor.Project = _propertyController.Project;
 			PropertyGrid grid = null;
 			GetPropertyGrid(e.PageIndex, out grid);
 			if (grid != null) {
@@ -241,35 +241,35 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		private void propertyController_ProjectClosing(object sender, EventArgs e) {
 			AssertControllerExists();
-			propertyController.CancelSetProperty();
-			if (primaryPropertyGrid != null && primaryPropertyGrid.SelectedObject != null) 
-				primaryPropertyGrid.SelectedObject = null;
-			if (secondaryPropertyGrid != null && secondaryPropertyGrid.SelectedObject != null) 
-				secondaryPropertyGrid.SelectedObject = null;
+			_propertyController.CancelSetProperty();
+			if (_primaryPropertyGrid != null && _primaryPropertyGrid.SelectedObject != null) 
+				_primaryPropertyGrid.SelectedObject = null;
+			if (_secondaryPropertyGrid != null && _secondaryPropertyGrid.SelectedObject != null) 
+				_secondaryPropertyGrid.SelectedObject = null;
 		}
 
 
 		private void propertyGrid_KeyDown(object sender, KeyEventArgs e) {
 			if (e.KeyCode == Keys.Escape && PropertyController != null) 
-				propertyController.CancelSetProperty();
+				_propertyController.CancelSetProperty();
 		}
 
 
 		private void propertyGrid_PropertyValueChanged(object sender, PropertyValueChangedEventArgs e) {
 			AssertControllerExists();
-			propertyController.CommitSetProperty();
+			_propertyController.CommitSetProperty();
 			if (sender is PropertyGrid) ((PropertyGrid)sender).Refresh();
 		}
 
 
 		private void propertyGrid_SelectedGridItemChanged(object sender, SelectedGridItemChangedEventArgs e) {
-			if (propertyController != null
+			if (_propertyController != null
 				&& e.NewSelection != null
 				&& e.OldSelection != null) {
 				if (e.OldSelection.Equals(e.NewSelection)) return;
 				else {
-					propertyController.CancelSetProperty();
-					TypeDescriptionProviderDg.PropertyController = propertyController;
+					_propertyController.CancelSetProperty();
+					TypeDescriptionProviderDg.PropertyController = _propertyController;
 				}
 			}
 		}
@@ -279,9 +279,9 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		#region Fields
 
-		private PropertyGrid primaryPropertyGrid = null;
-		private PropertyGrid secondaryPropertyGrid = null;
-		private IPropertyController propertyController = null;
+		private PropertyGrid _primaryPropertyGrid = null;
+		private PropertyGrid _secondaryPropertyGrid = null;
+		private IPropertyController _propertyController = null;
 
 		#endregion
 	

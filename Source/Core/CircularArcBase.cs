@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -96,7 +96,7 @@ namespace Dataweb.NShape.Advanced {
 				result.X = x;
 				result.Y = y;
 			} else {
-				if (drawCacheIsInvalid) UpdateDrawCache();
+				if (DrawCacheIsInvalid) UpdateDrawCache();
 				float angleDeg = Geometry.RadiansToDegrees(Geometry.Angle(Center.X, Center.Y, point.X, point.Y));
 				result = Geometry.CalcPoint(point.X, point.Y, angleDeg, 100);
 			}
@@ -474,16 +474,16 @@ namespace Dataweb.NShape.Advanced {
 				// Workaround:
 				// We detect that condition and move the end points of the line farther away from each other such that 
 				// the caps do not intersect anymore.
-				int lastIdx = shapePoints.Length - 1;
-				Point startPoint = shapePoints[0];
-				Point endPoint = shapePoints[lastIdx];
+				int lastIdx = ShapePoints.Length - 1;
+				Point startPoint = ShapePoints[0];
+				Point endPoint = ShapePoints[lastIdx];
 				Pen pen = ToolCache.GetPen(LineStyle, StartCapStyleInternal, EndCapStyleInternal);
 				try {
 					Point safeStartPoint, safeEndPoint;
-					bool hasInvalidCapIntersection = ShapeUtils.LineHasInvalidCapIntersection(shapePoints, pen, out safeStartPoint, out safeEndPoint);
+					bool hasInvalidCapIntersection = ShapeUtils.LineHasInvalidCapIntersection(ShapePoints, pen, out safeStartPoint, out safeEndPoint);
 					if (hasInvalidCapIntersection) {
-						shapePoints[0] = safeStartPoint;
-						shapePoints[lastIdx] = safeEndPoint;
+						ShapePoints[0] = safeStartPoint;
+						ShapePoints[lastIdx] = safeEndPoint;
 						RecalculateArc(safeStartPoint, RadiusPoint, safeEndPoint);
 					}
 					// Draw interior of line caps
@@ -495,8 +495,8 @@ namespace Dataweb.NShape.Advanced {
 					if (hasInvalidCapIntersection) 
 						_arcIsInvalid = false;
 				} finally {
-					shapePoints[0] = startPoint;
-					shapePoints[lastIdx] = endPoint;
+					ShapePoints[0] = startPoint;
+					ShapePoints[lastIdx] = endPoint;
 				}
 
 #if DEBUG_DIAGNOSTICS
@@ -757,7 +757,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override void DrawOutline(Graphics graphics, Pen pen) {
 			if (IsLine) {
-				ShapeUtils.DrawLinesSafe(graphics, pen, shapePoints);
+				ShapeUtils.DrawLinesSafe(graphics, pen, ShapePoints);
 			} else {
 				Debug.Assert(Geometry.IsValid(_arcBounds));
 				Debug.Assert(!float.IsNaN(StartAngle));
@@ -1042,10 +1042,10 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override float CalcCapAngle(ControlPointId pointId) {
-			if (drawCacheIsInvalid) RecalcShapePoints();
+			if (DrawCacheIsInvalid) RecalcShapePoints();
 			if (IsLine) {
 				Pen pen = ToolCache.GetPen(LineStyle, StartCapStyleInternal, EndCapStyleInternal);
-				return ShapeUtils.CalcLineCapAngle(shapePoints, pointId, pen);
+				return ShapeUtils.CalcLineCapAngle(ShapePoints, pointId, pen);
 			} else {
 				if (pointId == ControlPointId.FirstVertex)
 					return CalcArcCapAngle(GetControlPointIndex(pointId), StartCapStyleInternal.CapSize);
@@ -1209,12 +1209,12 @@ namespace Dataweb.NShape.Advanced {
 
 		private void RecalcShapePoints() {
 			// Reset draw cache to origin (for later transformation)
-			if (shapePoints.Length != VertexCount) Array.Resize<Point>(ref shapePoints, VertexCount);
+			if (ShapePoints.Length != VertexCount) Array.Resize<Point>(ref ShapePoints, VertexCount);
 			int i = -1;
 			foreach (ControlPointId pointId in GetControlPointIds(ControlPointCapabilities.Resize)) {
 				Point p = GetControlPointPosition(pointId);
 				p.Offset(-X, -Y);
-				shapePoints[++i] = p;
+				ShapePoints[++i] = p;
 			}
 		}
 

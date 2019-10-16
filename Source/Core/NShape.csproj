@@ -123,9 +123,7 @@
     <Compile Include="Layer.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="MenuItemDef.cs" />
-    <Compile Include="AdoNetStore.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="AdoNetStore.cs" />
     <Compile Include="DiagramPresenter.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="GdiHelpers.cs" />

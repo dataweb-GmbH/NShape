@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -61,17 +61,17 @@ namespace Dataweb.NShape.Designer {
 				if (pi != null) name += string.Format(" ({0})", pi.GetValue(eventSender, null).ToString());
 			}
 
-			eventSources.Add(eventSender);
+			_eventSources.Add(eventSender);
 			eventSourcesListBox.Items.Add(name);
 		}
 
 
 		public bool RemoveEventSource<T>(T eventSource) {
-			int idx = eventSources.IndexOf(eventSource);
+			int idx = _eventSources.IndexOf(eventSource);
 			if (idx < 0) return false;
 
 			UnregisterEvents(eventSource);
-			eventSources.RemoveAt(idx);
+			_eventSources.RemoveAt(idx);
 			eventSourcesListBox.Items.RemoveAt(idx);
 			return true;
 		}
@@ -265,16 +265,16 @@ namespace Dataweb.NShape.Designer {
 			Delegate eventHandler = Delegate.CreateDelegate(eventInfo.EventHandlerType, handler.Target, handler.Method);
 			eventInfo.AddEventHandler(eventSender, eventHandler);
 
-			if (!eventHandlerDictionary.ContainsKey(eventSender))
-				eventHandlerDictionary.Add(eventSender, new List<HandlerInfo>());
-			eventHandlerDictionary[eventSender].Add(HandlerInfo.Create(eventSender, eventInfo, eventHandler));
+			if (!_eventHandlerDictionary.ContainsKey(eventSender))
+				_eventHandlerDictionary.Add(eventSender, new List<HandlerInfo>());
+			_eventHandlerDictionary[eventSender].Add(HandlerInfo.Create(eventSender, eventInfo, eventHandler));
 		}
 
 
 		private void DoUnregisterEvents(object eventSender) {
-			if (eventHandlerDictionary.ContainsKey(eventSender)) {
-				for (int i = eventHandlerDictionary[eventSender].Count - 1; i >= 0; --i) {
-					HandlerInfo handlerInfo = eventHandlerDictionary[eventSender][i];
+			if (_eventHandlerDictionary.ContainsKey(eventSender)) {
+				for (int i = _eventHandlerDictionary[eventSender].Count - 1; i >= 0; --i) {
+					HandlerInfo handlerInfo = _eventHandlerDictionary[eventSender][i];
 					handlerInfo.EventInfo.RemoveEventHandler(handlerInfo.EventSender, handlerInfo.Handler);
 				}
 			} else {
@@ -308,9 +308,9 @@ namespace Dataweb.NShape.Designer {
 		
 		private void componentsListBox_ItemCheck(object sender, ItemCheckEventArgs e) {
 			if (e.NewValue == CheckState.Checked) {
-				RegisterEvents(eventSources[e.Index]);
+				RegisterEvents(_eventSources[e.Index]);
 			} else {
-				UnregisterEvents(eventSources[e.Index]);
+				UnregisterEvents(_eventSources[e.Index]);
 			}
 		}
 
@@ -381,8 +381,8 @@ namespace Dataweb.NShape.Designer {
 
 		#region [Private] Fields
 
-		Dictionary<object, List<HandlerInfo>> eventHandlerDictionary = new Dictionary<object, List<HandlerInfo>>();
-		List<object> eventSources = new List<object>();
+		Dictionary<object, List<HandlerInfo>> _eventHandlerDictionary = new Dictionary<object, List<HandlerInfo>>();
+		List<object> _eventSources = new List<object>();
 
 		#endregion
 

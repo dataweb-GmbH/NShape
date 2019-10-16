@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -820,8 +820,8 @@ namespace Dataweb.NShape.Controllers {
 				reason = Properties.Resources.MessageFmt_NotEnoughShapesSelected;
 			else if (!CanDeleteShapes(diagram, shapes))
 				reason = string.Format(Properties.Resources.MessageFmt_Permission0NotGranted, Permission.Delete);
-			else if (!Project.SecurityManager.IsGranted(Permission.Present, compositeShape))
-				reason = string.Format(Properties.Resources.MessageFmt_Permission0NotGranted, Permission.Present);
+			else if (!Project.SecurityManager.IsGranted(Permission.Insert, compositeShape))
+				reason = string.Format(Properties.Resources.MessageFmt_Permission0NotGranted, Permission.Insert);
 			else if (compositeShape is IShapeGroup)
 				reason = Properties.Resources.MessageTxt_GroupsCannotBeAggregated;
 			return string.IsNullOrEmpty(reason);
@@ -851,8 +851,8 @@ namespace Dataweb.NShape.Controllers {
 				reason = Properties.Resources.MessageTxt_ShapeIsNotACompositeShape;
 			else if (!CanInsertShapes(diagram, compositeShape.Children))
 				reason = string.Format(Properties.Resources.MessageFmt_Permission0NotGranted, Permission.Insert);
-			else if (!Project.SecurityManager.IsGranted(Permission.Present, compositeShape))
-				reason = string.Format(Properties.Resources.MessageFmt_Permission0NotGranted, Permission.Present);
+			else if (!Project.SecurityManager.IsGranted(Permission.Delete, compositeShape))
+				reason = string.Format(Properties.Resources.MessageFmt_Permission0NotGranted, Permission.Delete);
 			return string.IsNullOrEmpty(reason);
 		}
 
@@ -1765,31 +1765,31 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <summary>Gets a value indicating whether the CTRL key was pressed.</summary>
 		public bool Control {
-			get { return (_keyData & control) == control; }
+			get { return (_keyData & KeyCodeControl) == KeyCodeControl; }
 		}
 
 
 		/// <summary>Gets or sets a value indicating whether the key event should be passed on to the underlying control</summary>
 		public bool Shift {
-			get { return (_keyData & shift) == shift; }
+			get { return (_keyData & KeyCodeShift) == KeyCodeShift; }
 		}
 
 
 		/// <summary>Gets a value indicating whether the ALT key was pressed.</summary>
 		public bool Alt {
-			get { return (_keyData & alt) == alt; }
+			get { return (_keyData & KeyCodeAlt) == KeyCodeAlt; }
 		}
 
 
 		/// <summary>Gets the keyboard code for a keyboard event.</summary>
 		public int KeyCode {
-			get { return _keyData & keyCode; }
+			get { return _keyData & MaxKeyCode; }
 		}
 
 
 		/// <summary>Specifies the currently pressed modifier keys.</summary>
 		public int Modifiers {
-			get { return (_keyData & ~keyCode); }
+			get { return (_keyData & ~MaxKeyCode); }
 		}
 
 
@@ -1804,33 +1804,27 @@ namespace Dataweb.NShape.Controllers {
 
 
 		/// <summary>
-		/// The bitmask to extract modifiers from a key value.
-		/// </summary>
-		protected const int modifiers = -65536;
-
-	
-		/// <summary>
 		/// The bitmask to extract a key code from a key value.
 		/// </summary>
-		protected const int keyCode = ushort.MaxValue;
+		protected const int MaxKeyCode = ushort.MaxValue;
 
 		
 		/// <summary>
 		/// The SHIFT modifier key.
 		/// </summary>
-		protected const int shift = ushort.MaxValue;
+		protected const int KeyCodeShift = ushort.MaxValue;
 
 		
 		/// <summary>
 		/// The CTRL modifier key.
 		/// </summary>
-		protected const int control = 131072;
+		protected const int KeyCodeControl = 131072;
 
 		
 		/// <summary>
 		/// The ALT modifier key.
 		/// </summary>
-		protected const int alt = 262144;
+		protected const int KeyCodeAlt = 262144;
 
 
 		/// <ToBeCompleted></ToBeCompleted>

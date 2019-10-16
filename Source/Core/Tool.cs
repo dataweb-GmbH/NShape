@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -45,11 +45,11 @@ namespace Dataweb.NShape {
 	public class ToolExecutedEventArgs : EventArgs {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public ToolExecutedEventArgs(Tool tool, ToolResult eventType)
+		public ToolExecutedEventArgs(Tool tool, ToolResult result)
 			: base() {
 			if (tool == null) throw new ArgumentNullException("tool");
 			this._tool = tool;
-			this._eventType = eventType;
+			this._result = result;
 		}
 
 
@@ -59,14 +59,21 @@ namespace Dataweb.NShape {
 		}
 
 
+		[Obsolete("Use ToolExecutedEventArgs.Result instead.")]
 		/// <ToBeCompleted></ToBeCompleted>
 		public ToolResult EventType {
-			get { return _eventType; }
+			get { return Result; }
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public ToolResult Result {
+			get { return _result; }
 		}
 
 
 		private Tool _tool;
-		private ToolResult _eventType;
+		private ToolResult _result;
 
 	}
 

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -369,25 +369,6 @@ namespace Dataweb.NShape.Advanced {
 		// PropertyId constant
 		/// <ToBeCompleted></ToBeCompleted>
 		protected const int PropertyIdDiameter = 7;
-
-		/// <summary>ControlPointId of the top left control point.</summary>
-		internal const int pointIdTopLeft = 1;
-		/// <summary>ControlPointId of the top center control point.</summary>
-		internal const int pointIdTopCenter = 2;
-		/// <summary>ControlPointId of the top right control point.</summary>
-		internal const int pointIdTopRight = 3;
-		/// <summary>ControlPointId of the middle left control point.</summary>
-		internal const int pointIdMiddleLeft = 4;
-		/// <summary>ControlPointId of the middle right control point.</summary>
-		internal const int pointIdMiddleRight = 5;
-		/// <summary>ControlPointId of the bottom left control point.</summary>
-		internal const int pointIdBottomLeft = 6;
-		/// <summary>ControlPointId of the bottom center control point.</summary>
-		internal const int pointIdBottomCenter = 7;
-		/// <summary>ControlPointId of the bottom right control point.</summary>
-		internal const int pointIdBottomRight = 8;
-		/// <summary>ControlPointId of the center control point.</summary>
-		internal const int pointIdMiddleCenter = 9;
 
 		private int _internalDiameter = 0;
 

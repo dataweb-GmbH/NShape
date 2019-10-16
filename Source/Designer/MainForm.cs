@@ -51,12 +51,12 @@ namespace Dataweb.NShape.Designer {
 			toolStripContainer.TopToolStripPanel.Controls.Remove(debugToolStrip);
 #endif
 			// Find out the latest repository version
-			maxRepositoryVersion = 0;
+			_maxRepositoryVersion = 0;
 			try {
 				using (Project p = new Project()) {
 					p.Name = "Test";
 					p.Create();
-					maxRepositoryVersion = p.Repository.Version;
+					_maxRepositoryVersion = p.Repository.Version;
 					p.Close();
 				}
 			} catch (Exception) { }
@@ -65,37 +65,64 @@ namespace Dataweb.NShape.Designer {
 
 		#region [Public] Properties
 
+		public bool MouseWheelZoom {
+			get { return _mouseWheelZoom; }
+			set { 
+				_mouseWheelZoom = value;
+				if (CurrentDisplay != null) CurrentDisplay.ZoomWithMouseWheel = value;
+			}
+		}
+
+
+		public bool ShowScrollBars{
+			get { return _showScrollBars; }
+			set { 
+				_showScrollBars = value;
+				if (CurrentDisplay != null) CurrentDisplay.ShowScrollBars = value;
+			}
+		}
+
+
+		public bool ShowDiagramSheet {
+			get { return _showSheet; }
+			set { 
+				_showSheet = value;
+				if (CurrentDisplay != null) CurrentDisplay.IsSheetVisible = value;
+			}
+		}
+		
+		
 		public bool ShowGrid {
-			get { return showGrid; }
+			get { return _showGrid; }
 			set {
-				showGrid = value;
+				_showGrid = value;
 				if (CurrentDisplay != null) CurrentDisplay.IsGridVisible = value;
 			}
 		}
 
 
 		public bool SnapToGrid {
-			get { return snapToGrid; }
+			get { return _snapToGrid; }
 			set {
-				snapToGrid = value;
+				_snapToGrid = value;
 				if (CurrentDisplay != null) CurrentDisplay.SnapToGrid = value;
 			}
 		}
 
 
 		public Color GridColor {
-			get { return gridColor; }
+			get { return _gridColor; }
 			set {
-				gridColor = value;
+				_gridColor = value;
 				if (CurrentDisplay != null) CurrentDisplay.GridColor = value;
 			}
 		}
 
 
 		public bool ShowDefaultContextMenu {
-			get { return showDefaultContextMenu; }
+			get { return _showDefaultContextMenu; }
 			set {
-				showDefaultContextMenu = value;
+				_showDefaultContextMenu = value;
 				toolSetListViewPresenter.ShowDefaultContextMenu =
 				modelTreePresenter.ShowDefaultContextMenu =
 				layerEditorListView.ShowDefaultContextMenu = value;
@@ -105,9 +132,9 @@ namespace Dataweb.NShape.Designer {
 
 
 		public bool HideDeniedMenuItems {
-			get {				return hideDeniedMenuItems;			}
+			get {				return _hideDeniedMenuItems;			}
 			set {
-				hideDeniedMenuItems = value;
+				_hideDeniedMenuItems = value;
 				toolSetListViewPresenter.HideDeniedMenuItems = 
 				modelTreePresenter.HideDeniedMenuItems = 
 				layerEditorListView.HideDeniedMenuItems = value;
@@ -117,65 +144,65 @@ namespace Dataweb.NShape.Designer {
 
 
 		public int GridSize {
-			get { return gridSize; }
+			get { return _gridSize; }
 			set {
-				gridSize = value;
+				_gridSize = value;
 				if (CurrentDisplay != null) CurrentDisplay.GridSize = value;
 			}
 		}
 
 
 		public int SnapDistance {
-			get { return snapDistance; }
+			get { return _snapDistance; }
 			set {
-				snapDistance = value;
+				_snapDistance = value;
 				if (CurrentDisplay != null) CurrentDisplay.SnapDistance = value;
 			}
 		}
 
 
 		public ControlPointShape ResizePointShape {
-			get { return resizePointShape; }
+			get { return _resizePointShape; }
 			set {
-				resizePointShape = value;
+				_resizePointShape = value;
 				if (CurrentDisplay != null) CurrentDisplay.ResizeGripShape = value;
 			}
 		}
 
 
 		public ControlPointShape ConnectionPointShape {
-			get { return connectionPointShape; }
+			get { return _connectionPointShape; }
 			set {
-				connectionPointShape = value;
+				_connectionPointShape = value;
 				if (CurrentDisplay != null) CurrentDisplay.ConnectionPointShape = value;
 			}
 		}
 
 
 		public int ControlPointSize {
-			get { return controlPointSize; }
+			get { return _controlPointSize; }
 			set {
-				controlPointSize = value;
+				_controlPointSize = value;
 				if (CurrentDisplay != null) CurrentDisplay.GripSize = value;
 			}
 		}
 
 
 		public int Zoom {
-			get { return zoom; }
+			get { return _zoom; }
 			set {
-				zoom = value;
-				if (CurrentDisplay != null && CurrentDisplay.ZoomLevel != zoom)
-					CurrentDisplay.ZoomLevel = zoom;
+				_zoom = value;
+				if (CurrentDisplay != null && CurrentDisplay.ZoomLevel != _zoom)
+					CurrentDisplay.ZoomLevel = _zoom;
 				UpdateZoomControl();
 			}
 		}
 
 
 		public bool HighQuality {
-			get { return highQuality; }
+			get { return _highQuality; }
 			set {
-				highQuality = value;
+				_highQuality = value;
 				if (CurrentDisplay != null) {
 					CurrentDisplay.HighQualityBackground = value;
 					CurrentDisplay.HighQualityRendering = value;
@@ -186,53 +213,56 @@ namespace Dataweb.NShape.Designer {
 
 
 		public Display CurrentDisplay {
-			get { return currentDisplay; }
+			get { return _currentDisplay; }
 			set {
-				if (currentDisplay != null) {
-					UnregisterDisplayEvents(currentDisplay);
-					((IDiagramPresenter)currentDisplay).CloseCaptionEditor(true);
+				if (_currentDisplay != null) {
+					UnregisterDisplayEvents(_currentDisplay);
+					((IDiagramPresenter)_currentDisplay).CloseCaptionEditor(true);
 				}
-				currentDisplay = value;
-				if (currentDisplay != null) {
-					RegisterDisplayEvents(currentDisplay);
+				_currentDisplay = value;
+				if (_currentDisplay != null) {
+					RegisterDisplayEvents(_currentDisplay);
 
 					// Grip settings
-					currentDisplay.ConnectionPointShape = ConnectionPointShape;
-					currentDisplay.ResizeGripShape = ResizePointShape;
-					currentDisplay.GripSize = ControlPointSize;
+					_currentDisplay.ConnectionPointShape = ConnectionPointShape;
+					_currentDisplay.ResizeGripShape = ResizePointShape;
+					_currentDisplay.GripSize = ControlPointSize;
 					// Grid settings
-					currentDisplay.GridColor = GridColor;
-					currentDisplay.GridSize = GridSize;
-					currentDisplay.IsGridVisible = ShowGrid;
+					_currentDisplay.GridColor = GridColor;
+					_currentDisplay.GridSize = GridSize;
+					_currentDisplay.IsGridVisible = ShowGrid;
+					// Display Settings
+					_currentDisplay.ZoomWithMouseWheel = MouseWheelZoom;
+					_currentDisplay.ShowScrollBars = ShowScrollBars;
+					_currentDisplay.IsSheetVisible = ShowDiagramSheet;
 					// Security Settings
-					currentDisplay.ShowDefaultContextMenu = ShowDefaultContextMenu;
-					currentDisplay.HideDeniedMenuItems = HideDeniedMenuItems;
+					_currentDisplay.ShowDefaultContextMenu = ShowDefaultContextMenu;
+					_currentDisplay.HideDeniedMenuItems = HideDeniedMenuItems;
 					// Rendering settings
-					currentDisplay.HighQualityRendering = HighQuality;
-					currentDisplay.IsGridVisible = ShowGrid;
-					currentDisplay.HighQualityBackground = HighQuality;
+					_currentDisplay.HighQualityRendering = HighQuality;
+					_currentDisplay.HighQualityBackground = HighQuality;
 #if DEBUG_UI
-					currentDisplay.IsDebugInfoCellOccupationVisible = ShowCellOccupation;
-					currentDisplay.IsDebugInfoInvalidateVisible = ShowInvalidatedAreas;
+					_currentDisplay.IsDebugInfoCellOccupationVisible = ShowCellOccupation;
+					_currentDisplay.IsDebugInfoInvalidateVisible = ShowInvalidatedAreas;
 #endif
 					// Apply display's zoom to the UI
-					Zoom = currentDisplay.ZoomLevel;
+					Zoom = _currentDisplay.ZoomLevel;
 
-					if (currentDisplay.Diagram != null) {
-						currentDisplay.ActiveTool = toolSetController.SelectedTool;
-						if (currentDisplay.SelectedShapes.Count > 0)
-							propertyController.SetObjects(0, currentDisplay.SelectedShapes);
-						else propertyController.SetObject(0, currentDisplay.Diagram);
+					if (_currentDisplay.Diagram != null) {
+						_currentDisplay.ActiveTool = toolSetController.SelectedTool;
+						if (_currentDisplay.SelectedShapes.Count > 0)
+							propertyController.SetObjects(0, _currentDisplay.SelectedShapes);
+						else propertyController.SetObject(0, _currentDisplay.Diagram);
 					}
 					layerPresenter.DiagramPresenter = CurrentDisplay;
 
-					if (layoutControlForm != null) {
-						if (currentDisplay.Diagram != null)
-							layoutControlForm.Diagram = currentDisplay.Diagram;
-						else layoutControlForm.Close();
+					if (_layoutControlForm != null) {
+						if (_currentDisplay.Diagram != null)
+							_layoutControlForm.Diagram = _currentDisplay.Diagram;
+						else _layoutControlForm.Close();
 					}
 
-					display_ShapesSelected(currentDisplay, EventArgs.Empty);
+					display_ShapesSelected(_currentDisplay, EventArgs.Empty);
 				}
 			}
 		}
@@ -241,18 +271,18 @@ namespace Dataweb.NShape.Designer {
 #if DEBUG_UI
 
 		public bool ShowCellOccupation {
-			get { return showCellOccupation; }
+			get { return _showCellOccupation; }
 			set {
-				showCellOccupation = value;
+				_showCellOccupation = value;
 				if (CurrentDisplay != null) CurrentDisplay.IsDebugInfoCellOccupationVisible = value;
 			}
 		}
 
 
 		public bool ShowInvalidatedAreas {
-			get { return showInvalidatedAreas; }
+			get { return _showInvalidatedAreas; }
 			set {
-				showInvalidatedAreas = value;
+				_showInvalidatedAreas = value;
 				if (CurrentDisplay != null) CurrentDisplay.IsDebugInfoInvalidateVisible = value;
 			}
 		}
@@ -375,7 +405,7 @@ namespace Dataweb.NShape.Designer {
 
 		private XmlDocument ReadConfigFile() {
 			XmlDocument result = new XmlDocument();
-			string filePath = Path.Combine(configFolder, ConfigFileName);
+			string filePath = Path.Combine(_configFolder, ConfigFileName);
 			if (File.Exists(filePath)) {
 				XmlReader cfgReader = OpenCfgReader(filePath);
 				
@@ -389,11 +419,11 @@ namespace Dataweb.NShape.Designer {
 		private void ReadConfig(XmlDocument xmlDoc) {
 			// Read recently used directory for XML repositories
 			XmlNode projectDirNode = xmlDoc.SelectSingleNode(string.Format(QueryNodeAttr, NodeNameProjectDirectory, AttrNamePath));
-			if (projectDirNode != null) xmlStoreDirectory = projectDirNode.Attributes[AttrNamePath].Value;
+			if (projectDirNode != null) _xmlStoreDirectory = projectDirNode.Attributes[AttrNamePath].Value;
 
 			// Read recently used directory for XML repositories
 			XmlNode loadToolbarsNode = xmlDoc.SelectSingleNode(string.Format(QueryNodeAttr, NodeNameLoadToolbarSettings, AttrNameValue));
-			if (loadToolbarsNode != null) loadToolStripLayoutOnStartup = bool.Parse(loadToolbarsNode.Attributes[AttrNameValue].Value);
+			if (loadToolbarsNode != null) _loadToolStripLayoutOnStartup = bool.Parse(loadToolbarsNode.Attributes[AttrNameValue].Value);
 
 			// Read recently opened projects
 			foreach (XmlNode xmlNode in xmlDoc.SelectNodes(string.Format(QueryNode, NodeNameProject))) {
@@ -403,10 +433,10 @@ namespace Dataweb.NShape.Designer {
 					repositoryInfo.typeName = xmlNode.Attributes[AttrNameRepositoryType].Value;
 					repositoryInfo.computerName = xmlNode.Attributes[AttrNameServerName].Value;
 					repositoryInfo.location = xmlNode.Attributes[AttrNameDataSource].Value;
-					if (repositoryInfo != RepositoryInfo.Empty && !recentProjects.Contains(repositoryInfo)) {
-						if (recentProjects.Count == recentProjectsItemCount)
-							recentProjects.RemoveAt(0);
-						recentProjects.Add(repositoryInfo);
+					if (repositoryInfo != RepositoryInfo.Empty && !_recentProjects.Contains(repositoryInfo)) {
+						if (_recentProjects.Count == recentProjectsItemCount)
+							_recentProjects.RemoveAt(0);
+						_recentProjects.Add(repositoryInfo);
 					}
 				} catch (Exception exc) {
 					Debug.Fail(exc.Message);
@@ -417,8 +447,8 @@ namespace Dataweb.NShape.Designer {
 
 		private void ReadWindowConfig(XmlDocument xmlDoc) {
 			// Load ToolStrip Positions only if a config was saved before
-			if (loadToolStripLayoutOnStartup) ToolStripManager.LoadSettings(this, GetToolStripSettingsName());
-			else loadToolStripLayoutOnStartup = true;	// Load next time
+			if (_loadToolStripLayoutOnStartup) ToolStripManager.LoadSettings(this, GetToolStripSettingsName());
+			else _loadToolStripLayoutOnStartup = true;	// Load next time
 
 			// Read window settings
 			XmlNode wndSettingsNode = xmlDoc.SelectSingleNode(string.Format(QueryNode, NodeNameWindowSettings));
@@ -443,7 +473,7 @@ namespace Dataweb.NShape.Designer {
 				ToolStripManager.SaveSettings(this, GetToolStripSettingsName());
 
 				// Create a new config file if it does not exist
-				string filePath = Path.Combine(configFolder, ConfigFileName);
+				string filePath = Path.Combine(_configFolder, ConfigFileName);
 				if (!File.Exists(filePath)) CreateConfigFile(filePath);
 
 				XmlDocument xmlDoc = new XmlDocument();
@@ -461,7 +491,7 @@ namespace Dataweb.NShape.Designer {
 					projectDirectoryNode = CreateConfigNode(xmlDoc, settingsNode, NodeNameProjectDirectory);
 				// Save last project directory
 				projectDirectoryNode.RemoveAll();
-				projectDirectoryNode.Attributes.Append(xmlDoc.CreateAttribute(AttrNamePath)).Value = xmlStoreDirectory;
+				projectDirectoryNode.Attributes.Append(xmlDoc.CreateAttribute(AttrNamePath)).Value = _xmlStoreDirectory;
 
 				// Find the "Load Toolbar Settings" node
 				XmlNode loadToolbarSettingsNode = xmlDoc.SelectSingleNode(string.Format(QueryNode, NodeNameLoadToolbarSettings));
@@ -469,14 +499,14 @@ namespace Dataweb.NShape.Designer {
 					loadToolbarSettingsNode = CreateConfigNode(xmlDoc, settingsNode, NodeNameLoadToolbarSettings);
 				// Save last project directory
 				loadToolbarSettingsNode.RemoveAll();
-				loadToolbarSettingsNode.Attributes.Append(xmlDoc.CreateAttribute(AttrNameValue)).Value = loadToolStripLayoutOnStartup.ToString();
+				loadToolbarSettingsNode.Attributes.Append(xmlDoc.CreateAttribute(AttrNameValue)).Value = _loadToolStripLayoutOnStartup.ToString();
 
 				// Find the "Projects" node
 				XmlNode repositoriesNode = xmlDoc.SelectSingleNode(string.Format(QueryNode, NodeNameProjects));
 				Debug.Assert(repositoriesNode != null);
 				// Save all recent projects
 				repositoriesNode.RemoveAll();
-				foreach (RepositoryInfo projectInfo in recentProjects) {
+				foreach (RepositoryInfo projectInfo in _recentProjects) {
 					XmlNode newNode = xmlDoc.CreateNode(XmlNodeType.Element, NodeNameProject, xmlDoc.NamespaceURI);
 					newNode.Attributes.Append(xmlDoc.CreateAttribute(AttrNameName)).Value = projectInfo.projectName;
 					newNode.Attributes.Append(xmlDoc.CreateAttribute(AttrNameRepositoryType)).Value = projectInfo.typeName;
@@ -535,11 +565,11 @@ namespace Dataweb.NShape.Designer {
 		private void MaintainRecentProjects() {
 			// Check existence of all recently opened (XML) projects 
 			List<int> missingProjects = null;
-			for (int i = recentProjects.Count - 1; i >= 0; --i) {
-				if (recentProjects[i].typeName == RepositoryInfo.SqlServerStoreTypeName)
+			for (int i = _recentProjects.Count - 1; i >= 0; --i) {
+				if (_recentProjects[i].typeName == RepositoryInfo.SqlServerStoreTypeName)
 					continue;
-				else if (recentProjects[i].typeName == RepositoryInfo.XmlStoreTypeName) {
-					if (!File.Exists(recentProjects[i].location)) {
+				else if (_recentProjects[i].typeName == RepositoryInfo.XmlStoreTypeName) {
+					if (!File.Exists(_recentProjects[i].location)) {
 						// Add all indexes of missing projects, decide later what to to
 						if (missingProjects == null) missingProjects = new List<int>();
 						missingProjects.Insert(0, i);
@@ -558,7 +588,7 @@ namespace Dataweb.NShape.Designer {
 					const string msgText = "{0} recently opened project files were not found:{1}{2}{1}Do you want to decide for each project whether to remove it from the 'Recently opened projects' list?";
 					string projectList = string.Empty;
 					foreach (int i in missingProjects)
-						projectList += recentProjects[i].location + Environment.NewLine;
+						projectList += _recentProjects[i].location + Environment.NewLine;
 					res = MessageBox.Show(this, string.Format(msgText, missingProjects.Count, Environment.NewLine, projectList), "File not found", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 				} else {
 					// Preselect "Ask for each missin project" if only one project is missing
@@ -571,7 +601,7 @@ namespace Dataweb.NShape.Designer {
 						string msgFormat = "A recently opened project file was not found:{0}{1}{0}{0}Do you want to remove it from the 'Recently opened projects' list?";
 						for (int i = missingProjects.Count - 1; i >= 0; --i) {
 							int prjIdx = missingProjects[i];
-							res = MessageBox.Show(this, string.Format(msgFormat, Environment.NewLine, recentProjects[prjIdx].location), "File not found", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+							res = MessageBox.Show(this, string.Format(msgFormat, Environment.NewLine, _recentProjects[prjIdx].location), "File not found", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 							if (res == DialogResult.No) 
 								missingProjects.RemoveAt(i);
 						}
@@ -579,7 +609,7 @@ namespace Dataweb.NShape.Designer {
 					// Remove all (remaining) missing projects
 					if (missingProjects.Count > 0) {
 						for (int i = missingProjects.Count - 1; i >= 0; --i)
-							recentProjects.RemoveAt(missingProjects[i]);
+							_recentProjects.RemoveAt(missingProjects[i]);
 						SaveConfigFile();
 					}
 				}
@@ -634,8 +664,8 @@ namespace Dataweb.NShape.Designer {
 
 		private void CreateRecentProjectsMenuItems() {
 			ClearRecentProjectsMenu();
-			recentProjectsMenuItem.Visible = (recentProjects.Count > 0);
-			foreach (RepositoryInfo recentProject in recentProjects)
+			recentProjectsMenuItem.Visible = (_recentProjects.Count > 0);
+			foreach (RepositoryInfo recentProject in _recentProjects)
 				PrependRecentProjectsMenuItem(recentProject);
 		}
 
@@ -665,12 +695,12 @@ namespace Dataweb.NShape.Designer {
 
 		private bool AddToRecentProjects(RepositoryInfo projectInfo) {
 			// Check if the project already exists in the recent projects list
-			foreach (RepositoryInfo recentProject in recentProjects)
+			foreach (RepositoryInfo recentProject in _recentProjects)
 				if (recentProject == projectInfo) return false;
 			// If it does not, add it and create a new menu item
-			if (recentProjects.Count == recentProjectsItemCount)
-				recentProjects.RemoveAt(0);
-			recentProjects.Add(projectInfo);
+			if (_recentProjects.Count == recentProjectsItemCount)
+				_recentProjects.RemoveAt(0);
+			_recentProjects.Add(projectInfo);
 			PrependRecentProjectsMenuItem(projectInfo);
 			SaveConfigFile();
 			return true;
@@ -683,13 +713,13 @@ namespace Dataweb.NShape.Designer {
 
 
 		private bool RemoveFromRecentProjects(RepositoryInfo projectInfo) {
-			return recentProjects.Remove(projectInfo);
+			return _recentProjects.Remove(projectInfo);
 		}
 
 
 		private void UpdateRecentProjectsMenu() {
 			ClearRecentProjectsMenu();
-			foreach (RepositoryInfo pi in recentProjects)
+			foreach (RepositoryInfo pi in _recentProjects)
 				PrependRecentProjectsMenuItem(pi);
 		}
 
@@ -706,7 +736,7 @@ namespace Dataweb.NShape.Designer {
 		private void CreateProject(string projectName, Store store, bool askUserLoadLibraries) {
 			ReplaceStore(projectName, store);
 			project.Create();
-			projectSaved = false;
+			_projectSaved = false;
 			DisplayDiagrams(true);
 			if (askUserLoadLibraries) 
 				CheckLibrariesLoaded();
@@ -747,7 +777,7 @@ namespace Dataweb.NShape.Designer {
 				project.Open();
 				DisplayDiagrams(false);
 
-				projectSaved = true;
+				_projectSaved = true;
 				// Move project on top of the recent projects list 
 				RepositoryInfo repositoryInfo = GetReposistoryInfo(project);
 				RemoveFromRecentProjects(repositoryInfo);
@@ -770,7 +800,7 @@ namespace Dataweb.NShape.Designer {
 
 		private bool SaveProject() {
 			bool result = false;
-			if (!projectSaved || !project.Repository.Exists())
+			if (!_projectSaved || !project.Repository.Exists())
 				result = SaveProjectAs();
 			else result = DoSaveProject();
 			return result;
@@ -785,16 +815,16 @@ namespace Dataweb.NShape.Designer {
 			// If there is no store, create an XmlStore
 			if (cachedRepository.Store == null) {
 				// Get default storage location
-				if (!Directory.Exists(xmlStoreDirectory)) {
+				if (!Directory.Exists(_xmlStoreDirectory)) {
 					StringBuilder path = new StringBuilder(512);
 					const int COMMON_DOCUMENTS = 0x002e;
 					if (SHGetSpecialFolderPath(IntPtr.Zero, path, COMMON_DOCUMENTS, 0) != 0)
-						xmlStoreDirectory = Path.Combine(Path.Combine(path.ToString(), "NShape"), "Demo Projects");
-					else xmlStoreDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+						_xmlStoreDirectory = Path.Combine(Path.Combine(path.ToString(), "NShape"), "Demo Projects");
+					else _xmlStoreDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 				}
 
 				XmlStore xmlStore = new XmlStore() {
-					DirectoryName = xmlStoreDirectory,
+					DirectoryName = _xmlStoreDirectory,
 					FileExtension = ProjectFileExtension,
 					LazyLoading = true
 				};
@@ -869,7 +899,7 @@ namespace Dataweb.NShape.Designer {
 
 				// Save changes to file / database
 				project.Repository.SaveChanges();
-				projectSaved = true;
+				_projectSaved = true;
 
 				// Add project to "Recent Projects" list
 				RepositoryInfo projectInfo = GetReposistoryInfo(project);
@@ -893,7 +923,7 @@ namespace Dataweb.NShape.Designer {
 			// We check not only the Repository's IsModified property but also the projectIsModified field
 			// in order to suppress the "Save changes?" question when closing a new project with loaded 
 			// libraries (which modify the repository)
-			if (projectIsModified && project.Repository.IsModified) {
+			if (_projectIsModified && project.Repository.IsModified) {
 				string msg = string.Format("Do you want to save the current project '{0}' before closing it?", project.Name);
 				DialogResult dlgResult = MessageBox.Show(this, msg, "Save changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 				switch (dlgResult) {
@@ -913,7 +943,7 @@ namespace Dataweb.NShape.Designer {
 
 			if (result) {
 				project.Close();
-				projectSaved = false;
+				_projectSaved = false;
 				// Clear all displays and diagramControllers
 				for (int i = displayTabControl.TabPages.Count - 1; i >= 0; --i) {
 					DisplayTabPage displayTabPage = displayTabControl.TabPages[i] as DisplayTabPage;
@@ -1002,7 +1032,7 @@ namespace Dataweb.NShape.Designer {
 			if (CurrentDisplay != null && CurrentDisplay.Diagram != null) {
 				CurrentDisplay.ControlToDiagram(CurrentDisplay.DrawBounds, out bounds);
 				//diagramSize = currentDisplay.Diagram.Size;
-				shapeCnt = currentDisplay.Diagram.Shapes.Count;
+				shapeCnt = _currentDisplay.Diagram.Shapes.Count;
 
 				if (CurrentDisplay.SelectedShapes.Count > 0)
 					selectionSize = CurrentDisplay.SelectedShapes.GetBoundingRectangle(true).Size;
@@ -1021,12 +1051,12 @@ namespace Dataweb.NShape.Designer {
 				upgradeVersionMenuItem.ToolTipText = "No project opened.";
 			else if (!project.Repository.CanModifyVersion)
 				upgradeVersionMenuItem.ToolTipText = "The current repository does not support upgrading storage version.";
-			else if (project.Repository.Version >= maxRepositoryVersion)
+			else if (project.Repository.Version >= _maxRepositoryVersion)
 				upgradeVersionMenuItem.ToolTipText = "The repository storage version is up to date.";
 			else {
 				upgradeVersionMenuItem.Enabled = true;
 				upgradeVersionMenuItem.ToolTipText = string.Format("Upgrade repository storage version from {0} to {1}.", 
-					project.Repository.Version, maxRepositoryVersion);
+					project.Repository.Version, _maxRepositoryVersion);
 			}
 
 			if (cachedRepository.Store is XmlStore || cachedRepository.Store == null) {
@@ -1125,7 +1155,7 @@ namespace Dataweb.NShape.Designer {
 			if (zoomToolStripComboBox.Focused)
 				cursorPos = zoomToolStripComboBox.SelectionStart;
 
-			string txt = string.Format(PercentFormatStr, currentDisplay.ZoomLevel);
+			string txt = string.Format(PercentFormatStr, _currentDisplay.ZoomLevel);
 			if (txt != zoomToolStripComboBox.Text)
 				zoomToolStripComboBox.Text = txt;
 
@@ -1187,6 +1217,9 @@ namespace Dataweb.NShape.Designer {
 			display.HighQualityRendering = HighQuality;
 			display.HighQualityBackground = HighQuality;
 			display.IsGridVisible = ShowGrid;
+			display.ZoomWithMouseWheel = MouseWheelZoom;
+			display.ShowScrollBars = ShowScrollBars;
+			display.IsSheetVisible = ShowDiagramSheet;
 			display.GridSize = GridSize;
 			display.SnapToGrid = SnapToGrid;
 			display.SnapDistance = SnapDistance;
@@ -1380,7 +1413,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void project_Closed(object sender, EventArgs e) {
-			if (layoutControlForm != null) layoutControlForm.Close();
+			if (_layoutControlForm != null) _layoutControlForm.Close();
 
 			UnregisterPropertyControllerEvents();
 			UnregisterRepositoryEvents();
@@ -1397,7 +1430,7 @@ namespace Dataweb.NShape.Designer {
 			if (CurrentDisplay != null) {
 				if (project.History.UndoCommandCount + project.History.RedoCommandCount != historyTrackBar.Maximum)
 					historyTrackBar.Maximum = project.History.UndoCommandCount + project.History.RedoCommandCount;
-				currHistoryPos = 0;
+				_currHistoryPos = 0;
 				historyTrackBar.Value = 0;
 			}
 		}
@@ -1408,12 +1441,12 @@ namespace Dataweb.NShape.Designer {
 			try {
 				historyTrackBar.ValueChanged -= historyTrackBar_ValueChanged;
 				if (e.Reverted) {
-					if (currHistoryPos != historyTrackBar.Value) {
-						currHistoryPos += e.Commands.Count;
+					if (_currHistoryPos != historyTrackBar.Value) {
+						_currHistoryPos += e.Commands.Count;
 						historyTrackBar.Value += e.Commands.Count;
 					}
 				} else {
-					if (currHistoryPos > 0) currHistoryPos -= e.Commands.Count;
+					if (_currHistoryPos > 0) _currHistoryPos -= e.Commands.Count;
 					if (historyTrackBar.Value > 0) historyTrackBar.Value -= e.Commands.Count;
 				}
 			} finally {
@@ -1424,7 +1457,7 @@ namespace Dataweb.NShape.Designer {
 
 		private void repository_DiagramDeleted(object sender, RepositoryDiagramEventArgs e) {
 			RemoveDisplayOfDiagram(e.Diagram);
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
@@ -1432,7 +1465,7 @@ namespace Dataweb.NShape.Designer {
 			DisplayTabPage tabPage = FindDisplayTabPage(e.Diagram);
 			if (tabPage != null) tabPage.Text = e.Diagram.Title;
 			UpdateStatusInfo();
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
@@ -1441,7 +1474,7 @@ namespace Dataweb.NShape.Designer {
 			if (tabPage == null)
 				displayTabControl.TabPages.Add(CreateDiagramTabPage(e.Diagram, false));
 			UpdateAllMenuItems();
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
@@ -1452,52 +1485,52 @@ namespace Dataweb.NShape.Designer {
 				break;
 			}
 			UpdateModelComponentsVisibility(modelExists);
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
 		private void Repository_TemplateModified(object sender, RepositoryTemplateEventArgs e) {
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
 		private void Repository_StyleModified(object sender, RepositoryStyleEventArgs e) {
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
 		private void Repository_ShapesModified(object sender, RepositoryShapesEventArgs e) {
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
 		private void Repository_ProjectModified(object sender, RepositoryProjectEventArgs e) {
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
 		private void Repository_ModelObjectsModified(object sender, RepositoryModelObjectsEventArgs e) {
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
 		private void Repository_ModelMappingsModified(object sender, RepositoryTemplateEventArgs e) {
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
 		private void Repository_ModelModified(object sender, RepositoryModelEventArgs e) {
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
 		private void Repository_DesignModified(object sender, RepositoryDesignEventArgs e) {
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 
 		private void Repository_ConnectionModified(object sender, RepositoryShapeConnectionEventArgs e) {
-			projectIsModified = true;
+			_projectIsModified = true;
 		}
 
 		#endregion
@@ -1526,8 +1559,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void display_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e) {
-			int x = e.X;
-			int y = e.Y;
+			int x = e.X, y = e.Y;
 			if (CurrentDisplay != null)
 				CurrentDisplay.ControlToDiagram(e.X, e.Y, out x, out y);
 			DisplayMouseCoordinates(x, y);
@@ -1535,7 +1567,8 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void display_DragOver(object sender, System.Windows.Forms.DragEventArgs e) {
-			p.X = e.X; p.Y = e.Y;
+			Point p = Point.Empty;
+			p.Offset(e.X, e.Y);
 			if (CurrentDisplay != null)
 				CurrentDisplay.ScreenToDiagram(p, out p);
 			DisplayMouseCoordinates(p.X, p.Y);
@@ -1553,8 +1586,8 @@ namespace Dataweb.NShape.Designer {
 				UpdateAllMenuItems();
 				UpdateStatusInfo();
 				//
-				if (layoutControlForm != null)
-					layoutControlForm.SelectedShapes = CurrentDisplay.SelectedShapes;
+				if (_layoutControlForm != null)
+					_layoutControlForm.SelectedShapes = CurrentDisplay.SelectedShapes;
 			}
 		}
 
@@ -1594,8 +1627,8 @@ namespace Dataweb.NShape.Designer {
 		#region [Private] Event Handler implementations - ToolBox
 
 		private void toolBoxAdapter_ShowTemplateEditorDialog(object sender, TemplateEditorEventArgs e) {
-			templateEditorDialog = new TemplateEditorDialog(e.Project, e.Template);
-			templateEditorDialog.Show(this);
+			_templateEditorDialog = new TemplateEditorDialog(e.Project, e.Template);
+			_templateEditorDialog.Show(this);
 		}
 
 
@@ -1625,15 +1658,15 @@ namespace Dataweb.NShape.Designer {
 		private void DiagramDesignerMainForm_Load(object sender, EventArgs e) {
 			try {
 				// Read config file
-				configFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), nShapeConfigDirectory);
-				if (!Directory.Exists(configFolder)) Directory.CreateDirectory(configFolder);
+				_configFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _nShapeConfigDirectory);
+				if (!Directory.Exists(_configFolder)) Directory.CreateDirectory(_configFolder);
 				// Init history controls
 				historyTrackBar.Minimum = 0;
 				historyTrackBar.Maximum = 0;
 				historyTrackBar.Value = 0;
 				historyTrackBar.TickStyle = System.Windows.Forms.TickStyle.BottomRight;
 				historyTrackBar.TickFrequency = 1;
-				currHistoryPos = historyTrackBar.Value;
+				_currHistoryPos = historyTrackBar.Value;
 				project.History.CommandAdded += history_CommandAdded;
 				project.History.CommandsExecuted += history_CommandsExecuted;
 				diagramSetController.SelectModelObjectsRequested += diagramSetController_SelectModelObjectsRequested;
@@ -1716,7 +1749,7 @@ namespace Dataweb.NShape.Designer {
 					//project.AddLibraryByFilePath("Dataweb.NShape.GeneralModelObjects.dll");
 #endif
 					// Mark project as "Not modified" in order to suppress the "Do you want to save changes" question
-					projectIsModified = false;
+					_projectIsModified = false;
 				}
 
 				UpdateAllMenuItems();
@@ -1769,7 +1802,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void LayoutControlForm_FormClosed(object sender, FormClosedEventArgs e) {
-			layoutControlForm = null;
+			_layoutControlForm = null;
 		}
 
 
@@ -1969,12 +2002,12 @@ namespace Dataweb.NShape.Designer {
 
 		private void openXMLRepositoryToolStripMenuItem_Click(object sender, EventArgs e) {
 			openFileDialog.Filter = FileFilterXmlRepository;
-			if (Directory.Exists(xmlStoreDirectory))
-				openFileDialog.InitialDirectory = xmlStoreDirectory;
+			if (Directory.Exists(_xmlStoreDirectory))
+				openFileDialog.InitialDirectory = _xmlStoreDirectory;
 			if (openFileDialog.ShowDialog() == DialogResult.OK && CloseProject()) {
-				xmlStoreDirectory = Path.GetDirectoryName(openFileDialog.FileName);
+				_xmlStoreDirectory = Path.GetDirectoryName(openFileDialog.FileName);
 				XmlStore store = new XmlStore() {
-					DirectoryName = xmlStoreDirectory,
+					DirectoryName = _xmlStoreDirectory,
 					FileExtension = Path.GetExtension(openFileDialog.FileName),
 					LazyLoading = true
 				};
@@ -2015,7 +2048,7 @@ namespace Dataweb.NShape.Designer {
 			try {
 				string msg = string.Format("Project '{0}' will be upgraded from file version {1} to {2}. " 
 					+ "{3}After upgrading, the project will be saved automatically.{3}Do you want to continue upgrading and saving the project?",
-					project.Name, project.Repository.Version, maxRepositoryVersion, Environment.NewLine);
+					project.Name, project.Repository.Version, _maxRepositoryVersion, Environment.NewLine);
 				DialogResult res = MessageBox.Show(msg, "Upgrade and Save Project?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 				if (res == DialogResult.Yes) {
 					// Upgrade repository version
@@ -2318,7 +2351,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void historyTrackBar_ValueChanged(object sender, EventArgs e) {
-			int d = currHistoryPos - historyTrackBar.Value;
+			int d = _currHistoryPos - historyTrackBar.Value;
 			bool commandExecuted = false;
 			try {
 				//project.History.CommandExecuted -= history_CommandExecuted;
@@ -2341,9 +2374,9 @@ namespace Dataweb.NShape.Designer {
 			}
 
 			if (commandExecuted)
-				currHistoryPos = historyTrackBar.Value;
-			else if (historyTrackBar.Value != currHistoryPos)
-				historyTrackBar.Value = currHistoryPos;
+				_currHistoryPos = historyTrackBar.Value;
+			else if (historyTrackBar.Value != _currHistoryPos)
+				historyTrackBar.Value = _currHistoryPos;
 			UpdateAllMenuItems();
 		}
 
@@ -2419,6 +2452,9 @@ namespace Dataweb.NShape.Designer {
 		private void showDisplaySettingsItem_Click(object sender, EventArgs e) {
 			using (DisplaySettingsForm dlg = new DisplaySettingsForm(this)) {
 				dlg.ShowGrid = ShowGrid;
+				dlg.MouseWheelZoom = MouseWheelZoom;
+				dlg.ShowScrollBars = ShowScrollBars;
+				dlg.ShowDiagramSheet = ShowDiagramSheet;
 				dlg.SnapToGrid = SnapToGrid;
 				dlg.GridColor = GridColor;
 				dlg.GridSize = GridSize;
@@ -2430,6 +2466,9 @@ namespace Dataweb.NShape.Designer {
 				dlg.HideDeniedMenuItems = HideDeniedMenuItems;
 
 				if (dlg.ShowDialog(this) == DialogResult.OK) {
+					MouseWheelZoom = dlg.MouseWheelZoom;
+					ShowScrollBars = dlg.ShowScrollBars;
+					ShowDiagramSheet = dlg.ShowDiagramSheet;
 					ShowGrid = dlg.ShowGrid;
 					GridColor = dlg.GridColor;
 					showGridMenuItem.Checked = ShowGrid;
@@ -2459,7 +2498,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void viewShowLayoutControlToolStripMenuItem_Click(object sender, EventArgs e) {
-			if (layoutControlForm == null) {
+			if (_layoutControlForm == null) {
 				LayoutDialog lcf = new LayoutDialog();
 				lcf.Project = CurrentDisplay.Project;
 				lcf.Diagram = CurrentDisplay.Diagram;
@@ -2467,9 +2506,9 @@ namespace Dataweb.NShape.Designer {
 				lcf.FormClosed += LayoutControlForm_FormClosed;
 				lcf.LayoutChanged += LayoutControlForm_LayoutChanged;
 				lcf.Show(this);
-				layoutControlForm = lcf;
+				_layoutControlForm = lcf;
 			} else {
-				layoutControlForm.Activate();
+				_layoutControlForm.Activate();
 			}
 		}
 
@@ -2486,7 +2525,7 @@ namespace Dataweb.NShape.Designer {
 			res = MessageBox.Show(this, areYouSureQuestion, "Reset Toolbar Layout", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
 			if (res == DialogResult.Yes) {
 				// Store setting "Do no load layout at next start"
-				loadToolStripLayoutOnStartup = false;
+				_loadToolStripLayoutOnStartup = false;
 				// Ask for restart
 				string msgTxt = "Resetting the toolbar layout requires restarting the application. \nDo want to restart now?";
 				MessageBox.Show(this, msgTxt, "Restart Required", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
@@ -2575,51 +2614,51 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void nShapeEventMonitorToolStripMenuItem_Click(object sender, EventArgs e) {
-			if (eventMoniorForm == null) {
-				eventMoniorForm = new EventMonitorForm();
-				eventMoniorForm.FormClosed += eventMoniorForm_FormClosed;
+			if (_eventMoniorForm == null) {
+				_eventMoniorForm = new EventMonitorForm();
+				_eventMoniorForm.FormClosed += eventMoniorForm_FormClosed;
 				try {
 					// Display
-					eventMoniorForm.AddEventSource(CurrentDisplay);
+					_eventMoniorForm.AddEventSource(CurrentDisplay);
 					// Project + History
-					eventMoniorForm.AddEventSource(project);
-					eventMoniorForm.AddEventSource(project.History);
+					_eventMoniorForm.AddEventSource(project);
+					_eventMoniorForm.AddEventSource(project.History);
 					// Repository
-					eventMoniorForm.AddEventSource(cachedRepository);
+					_eventMoniorForm.AddEventSource(cachedRepository);
 					// DiagramSetController
-					eventMoniorForm.AddEventSource(diagramSetController);
+					_eventMoniorForm.AddEventSource(diagramSetController);
 					// ToolSetController + ToolSetPresenter + Tools
-					eventMoniorForm.AddEventSource(toolSetController);
-					eventMoniorForm.AddEventSource(toolSetListViewPresenter);
+					_eventMoniorForm.AddEventSource(toolSetController);
+					_eventMoniorForm.AddEventSource(toolSetListViewPresenter);
 					foreach (Tool tool in toolSetController.Tools)
-						eventMoniorForm.AddEventSource(tool);
+						_eventMoniorForm.AddEventSource(tool);
 					// PropertyController + PropertyPresenter
-					eventMoniorForm.AddEventSource(propertyController);
-					eventMoniorForm.AddEventSource(propertyPresenter);
+					_eventMoniorForm.AddEventSource(propertyController);
+					_eventMoniorForm.AddEventSource(propertyPresenter);
 
-					eventMoniorForm.AddEventSource(layerController);
-					eventMoniorForm.AddEventSource(layerPresenter);
+					_eventMoniorForm.AddEventSource(layerController);
+					_eventMoniorForm.AddEventSource(layerPresenter);
 
 					if (modelTreeController != null)
-						eventMoniorForm.AddEventSource(modelTreeController);
+						_eventMoniorForm.AddEventSource(modelTreeController);
 					if (modelTreePresenter != null)
-						eventMoniorForm.AddEventSource(modelTreePresenter);
+						_eventMoniorForm.AddEventSource(modelTreePresenter);
 
-					eventMoniorForm.Show();
+					_eventMoniorForm.Show();
 				} catch (Exception exc) {
 					MessageBox.Show(this, exc.Message, "Error while opening EventMonitor", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					eventMoniorForm.Close();
+					_eventMoniorForm.Close();
 				}
-			} else eventMoniorForm.Close();
-			nShapeEventMonitorToolStripMenuItem.Checked = (eventMoniorForm != null);
+			} else _eventMoniorForm.Close();
+			nShapeEventMonitorToolStripMenuItem.Checked = (_eventMoniorForm != null);
 		}
 
 
 		private void eventMoniorForm_FormClosed(object sender, FormClosedEventArgs e) {
-			eventMoniorForm.FormClosed -= eventMoniorForm_FormClosed;
-			eventMoniorForm.Dispose();
-			eventMoniorForm = null;
-			nShapeEventMonitorToolStripMenuItem.Checked = (eventMoniorForm != null);
+			_eventMoniorForm.FormClosed -= eventMoniorForm_FormClosed;
+			_eventMoniorForm.Dispose();
+			_eventMoniorForm = null;
+			nShapeEventMonitorToolStripMenuItem.Checked = (_eventMoniorForm != null);
 		}
 
 		#endregion
@@ -2796,45 +2835,47 @@ namespace Dataweb.NShape.Designer {
 		private const int historyDropDownItemCount = 20;
 		private const int recentProjectsItemCount = 25;
 
-		private EventMonitorForm eventMoniorForm;
-		private LayoutDialog layoutControlForm;
-		private TemplateEditorDialog templateEditorDialog;
+		private EventMonitorForm _eventMoniorForm;
+		private LayoutDialog _layoutControlForm;
+		private TemplateEditorDialog _templateEditorDialog;
 		
-		private string nShapeConfigDirectory = Path.Combine(Path.Combine("dataweb", "NShape"), Application.ProductName);
-		private string xmlStoreDirectory;
-		private bool projectSaved = false;
-		private int maxRepositoryVersion;
+		private string _nShapeConfigDirectory = Path.Combine(Path.Combine("dataweb", "NShape"), Application.ProductName);
+		private string _xmlStoreDirectory;
+		private bool _projectSaved = false;
+		private int _maxRepositoryVersion;
 
-		private Point p;
-		private int currHistoryPos;
-		private Display currentDisplay;
+		private int _currHistoryPos;
+		private Display _currentDisplay;
 
 		// display config
-		private bool showGrid = true;
-		private bool snapToGrid = true;
-		private int gridSize = 20;
-		private Color gridColor = Color.Gainsboro;
-		private int snapDistance = 5;
-		private ControlPointShape resizePointShape = ControlPointShape.Square;
-		private ControlPointShape connectionPointShape = ControlPointShape.Circle;
-		private int controlPointSize = 3;
-		private bool showDefaultContextMenu = true;
-		private bool hideDeniedMenuItems = false;
+		private bool _mouseWheelZoom = false;
+		private bool _showScrollBars = true;
+		private bool _showSheet = true;
+		private bool _showGrid = true;
+		private bool _snapToGrid = true;
+		private int _gridSize = 20;
+		private Color _gridColor = Color.Gainsboro;
+		private int _snapDistance = 5;
+		private ControlPointShape _resizePointShape = ControlPointShape.Square;
+		private ControlPointShape _connectionPointShape = ControlPointShape.Circle;
+		private int _controlPointSize = 3;
+		private bool _showDefaultContextMenu = true;
+		private bool _hideDeniedMenuItems = false;
 #if DEBUG
-		private bool showCellOccupation = false;
-		private bool showInvalidatedAreas = false;
+		private bool _showCellOccupation = false;
+		private bool _showInvalidatedAreas = false;
 #endif
 
-		private string configFolder;
-		private int zoom = 100;
-		private bool highQuality = true;
+		private string _configFolder;
+		private int _zoom = 100;
+		private bool _highQuality = true;
 
-		private List<RepositoryInfo> recentProjects = new List<RepositoryInfo>(recentProjectsItemCount);
-		private bool loadToolStripLayoutOnStartup = true;
+		private List<RepositoryInfo> _recentProjects = new List<RepositoryInfo>(recentProjectsItemCount);
+		private bool _loadToolStripLayoutOnStartup = true;
 		
 		// Specifies whether the project is regarded as changed from the user's perspective 
 		// (loading libraries in an empty repository created at startup will set the repository's IsModified state to "True")
-		private bool projectIsModified = false;
+		private bool _projectIsModified = false;
 
 #if TdbRepository
 		private const string fileFilterAllRepositories = "NShape Repository Files|*.xml;*.tdbd|XML Repository Files|*.xml|TurboDB Repository Databases|*.tdbd|All Files|*.*";
@@ -2865,22 +2906,22 @@ namespace Dataweb.NShape.Designer {
 
 
 		public Display Display {
-			get { return tabDisplay; }
+			get { return _tabDisplay; }
 			set {
-				if (tabDisplay != null && tabDisplay != value) {
-					Controls.Remove(tabDisplay);
-					tabDisplay.Clear();
-					tabDisplay.Dispose();
-					tabDisplay = null;
+				if (_tabDisplay != null && _tabDisplay != value) {
+					Controls.Remove(_tabDisplay);
+					_tabDisplay.Clear();
+					_tabDisplay.Dispose();
+					_tabDisplay = null;
 				}
-				tabDisplay = value;
-				if (tabDisplay != null)
-					Controls.Add(tabDisplay);
+				_tabDisplay = value;
+				if (_tabDisplay != null)
+					Controls.Add(_tabDisplay);
 			}
 		}
 
 
-		private Display tabDisplay;
+		private Display _tabDisplay;
 	}
 
 

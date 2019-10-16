@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -315,11 +315,11 @@ namespace Dataweb.NShape.Advanced {
 
 			// Perform the connection operation
 			ShapeConnectionInfo connectionInfo = ShapeConnectionInfo.Create(ownPointId, otherShape, otherPointId);
-			if (connectionInfos == null) connectionInfos = new List<ShapeConnectionInfo>();
-			if (!connectionInfos.Contains(connectionInfo)) {
+			if (ConnectionInfos == null) ConnectionInfos = new List<ShapeConnectionInfo>();
+			if (!ConnectionInfos.Contains(connectionInfo)) {
 				// Model objects will be connected by AtachGluePointToConnectionPoint()
 				otherShape.AttachGluePointToConnectionPoint(otherPointId, this, ownPointId);
-				connectionInfos.Add(connectionInfo);
+				ConnectionInfos.Add(connectionInfo);
 			}
 			// Make the GluePoint move to the target connection point
 			FollowConnectionPointWithGluePoint(ownPointId, otherShape, otherPointId);
@@ -331,14 +331,14 @@ namespace Dataweb.NShape.Advanced {
 		/// If ownPointId is 0, the global connection is meant.
 		/// </summary>
 		public override void Disconnect(ControlPointId gluePointId) {
-			if (connectionInfos == null) return;
-			for (int i = connectionInfos.Count - 1; i >= 0; --i) {
-				ShapeConnectionInfo connectionInfo = connectionInfos[i];
+			if (ConnectionInfos == null) return;
+			for (int i = ConnectionInfos.Count - 1; i >= 0; --i) {
+				ShapeConnectionInfo connectionInfo = ConnectionInfos[i];
 				if (connectionInfo.OwnPointId == gluePointId) {
 					// Model objects will be disconnected by DetachGluePointFromConnectionPoint
 					connectionInfo.OtherShape.DetachGluePointFromConnectionPoint(connectionInfo.OtherPointId, this, gluePointId);
-					connectionInfos.RemoveAt(i);
-					if (connectionInfos.Count == 0) connectionInfos = null;
+					ConnectionInfos.RemoveAt(i);
+					if (ConnectionInfos.Count == 0) ConnectionInfos = null;
 				}
 			}
 		}
@@ -362,10 +362,10 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public override IEnumerable<ShapeConnectionInfo> GetConnectionInfos(ControlPointId ownPointId, Shape otherShape) {
 			if (ownPointId == ControlPointId.None) throw new ArgumentException("ownPointId");
-			if (connectionInfos == null) yield break;
+			if (ConnectionInfos == null) yield break;
 			// We cannot use foreach here because the collection may be canged from outside.
-			for (int i = connectionInfos.Count - 1; i >= 0; --i) {
-				ShapeConnectionInfo connectionInfo = connectionInfos[i];
+			for (int i = ConnectionInfos.Count - 1; i >= 0; --i) {
+				ShapeConnectionInfo connectionInfo = ConnectionInfos[i];
 				if (otherShape != null && connectionInfo.OtherShape != otherShape)
 					continue;
 				if (ownPointId != ControlPointId.Any) {
@@ -395,8 +395,8 @@ namespace Dataweb.NShape.Advanced {
 			if (!HasControlPointCapability(gluePointId, ControlPointCapabilities.Glue))
 				throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_TheGivenControlPointId0IsNotAGluePoint, gluePointId));
 			if (gluePointId == ControlPointId.None) throw new ArgumentException("gluePointId");
-			if (connectionInfos != null) {
-				foreach (ShapeConnectionInfo connectionInfo in connectionInfos) {
+			if (ConnectionInfos != null) {
+				foreach (ShapeConnectionInfo connectionInfo in ConnectionInfos) {
 					if (otherShape != null && connectionInfo.OtherShape != otherShape)
 						continue;
 					if (gluePointId != ControlPointId.Any) {
@@ -426,8 +426,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override ControlPointId IsConnected(ControlPointId ownPointId, Shape otherShape) {
 			if (ownPointId == ControlPointId.None) throw new ArgumentException("ownPointId");
-			if (connectionInfos != null) {
-				foreach (ShapeConnectionInfo connectionInfo in connectionInfos) {
+			if (ConnectionInfos != null) {
+				foreach (ShapeConnectionInfo connectionInfo in ConnectionInfos) {
 					if (otherShape != null && connectionInfo.OtherShape != otherShape)
 						continue;
 					if (ownPointId != ControlPointId.Any) {
@@ -459,15 +459,15 @@ namespace Dataweb.NShape.Advanced {
 		/// In all cases, if the glue point cannot be moved to the new required position because of constraints, the connection is dissolved.
 		/// </summary>
 		public override void FollowConnectionPointWithGluePoint(ControlPointId gluePointId, Shape connectedShape, ControlPointId movedPointId) {
-			Debug.Assert(connectionInfos != null);
+			Debug.Assert(ConnectionInfos != null);
 			Rectangle boundsBefore = GetBoundingRectangle(true);
 			BeginResize();
 
 			try {
-				isGluePointFollowingConnectionPoint = true;
+				IsGluePointFollowingConnectionPoint = true;
 				DoMoveConnectedGluePoint(gluePointId, connectedShape, movedPointId);
 			} finally {
-				isGluePointFollowingConnectionPoint = false;
+				IsGluePointFollowingConnectionPoint = false;
 			}
 
 			Rectangle boundsAfter = GetBoundingRectangle(true);
@@ -856,9 +856,9 @@ namespace Dataweb.NShape.Advanced {
 							}
 						}
 					}
-					if (connectionInfos != null) {
-						for (int i = connectionInfos.Count - 1; i >= 0; --i) {
-							ShapeConnectionInfo connectionInfo = connectionInfos[i];
+					if (ConnectionInfos != null) {
+						for (int i = ConnectionInfos.Count - 1; i >= 0; --i) {
+							ShapeConnectionInfo connectionInfo = ConnectionInfos[i];
 							if (HasControlPointCapability(connectionInfo.OwnPointId, ControlPointCapabilities.Glue))
 								Disconnect(connectionInfo.OwnPointId);
 							else connectionInfo.OtherShape.Disconnect(connectionInfo.OtherPointId);
@@ -978,6 +978,27 @@ namespace Dataweb.NShape.Advanced {
 		#endregion
 
 
+		/// <summary>True if any other shape is connected to this shape</summary>
+		protected List<ShapeConnectionInfo> ConnectionInfos {
+			get { return _connectionInfos; }
+			private set { _connectionInfos = value; }
+		}
+
+		
+		/// <summary>True if the draw cache has to be recalculated</summary>
+		protected bool DrawCacheIsInvalid {
+			get { return _drawCacheIsInvalid; }
+			set { _drawCacheIsInvalid = value; }
+		}
+
+		
+		/// <summary></summary>
+		protected bool IsGluePointFollowingConnectionPoint {
+			get { return _isGluePointFollowingConnectionPoint; }
+			set { _isGluePointFollowingConnectionPoint = value; }
+		}
+
+
 		/// <override></override>
 		protected internal override void InitializeToDefault(IStyleSet styleSet) {
 			_privateLineStyle = styleSet.LineStyles.Normal;
@@ -1001,11 +1022,11 @@ namespace Dataweb.NShape.Advanced {
 				throw new NShapeException(string.Format(Properties.Resources.MessageFmt_AttachGluePointToConnectionPoint_0SPoint1HasToBeAGluePoint, otherShape.Type.Name, gluePointId));
 			// store the ShapeConnectionInfo
 			ShapeConnectionInfo connectionInfo = ShapeConnectionInfo.Create(ownPointId, otherShape, gluePointId);
-			if (connectionInfos == null) connectionInfos = new List<ShapeConnectionInfo>();
-			if (!connectionInfos.Contains(connectionInfo)) {
+			if (ConnectionInfos == null) ConnectionInfos = new List<ShapeConnectionInfo>();
+			if (!ConnectionInfos.Contains(connectionInfo)) {
 				if (this.ModelObject != null && otherShape.ModelObject != null && otherShape.Template != null)
 					ModelObject.Connect(Template.GetMappedTerminalId(ownPointId), otherShape.ModelObject, otherShape.Template.GetMappedTerminalId(gluePointId));
-				connectionInfos.Add(connectionInfo);
+				ConnectionInfos.Add(connectionInfo);
 			}
 		}
 
@@ -1015,7 +1036,7 @@ namespace Dataweb.NShape.Advanced {
 		/// If ownPointId is 0, the global connection is meant.
 		/// </summary>
 		protected internal override sealed void DetachGluePointFromConnectionPoint(ControlPointId ownPointId, Shape otherShape, ControlPointId gluePointId) {
-			Debug.Assert(connectionInfos != null);
+			Debug.Assert(ConnectionInfos != null);
 			// fill ShapeConnectionInfo
 			ShapeConnectionInfo connectionInfo = ShapeConnectionInfo.Empty;
 			connectionInfo.OwnPointId = ownPointId;
@@ -1023,12 +1044,12 @@ namespace Dataweb.NShape.Advanced {
 			connectionInfo.OtherPointId = gluePointId;
 
 			// find ShapeConnectionInfo and remove it
-			if (connectionInfos.Contains(connectionInfo)) {
-				connectionInfos.Remove(connectionInfo);
+			if (ConnectionInfos.Contains(connectionInfo)) {
+				ConnectionInfos.Remove(connectionInfo);
 				if (this.ModelObject != null && otherShape.ModelObject != null && otherShape.Template != null)
 					ModelObject.Disconnect(Template.GetMappedTerminalId(ownPointId), otherShape.ModelObject, otherShape.Template.GetMappedTerminalId(gluePointId));
 				// delete list if there are no more connections
-				if (connectionInfos.Count == 0) connectionInfos = null;
+				if (ConnectionInfos.Count == 0) ConnectionInfos = null;
 			} else
 				throw new NShapeException("The connection does not exist.");
 		}
@@ -1221,8 +1242,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void ControlPointsHaveMoved() {
-			if (connectionInfos != null) {
-				foreach (ShapeConnectionInfo connectionInfo in connectionInfos) {
+			if (ConnectionInfos != null) {
+				foreach (ShapeConnectionInfo connectionInfo in ConnectionInfos) {
 					if (connectionInfo.OtherShape.HasControlPointCapability(connectionInfo.OtherPointId, ControlPointCapabilities.Glue)) {
 						// Check if the positions of the points are equal. Recalculate gluepoint position only if the 
 						// partner point has really moved (for performance reasons and in order to prevent endless recursive 
@@ -1358,7 +1379,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void InvalidateDrawCache() {
-			drawCacheIsInvalid = true;
+			DrawCacheIsInvalid = true;
 			// Reset boundingRectangles
 			_boundingRectangleTight = Geometry.InvalidRectangle;
 			_boundingRectangleLoose = Geometry.InvalidRectangle;
@@ -1766,10 +1787,10 @@ namespace Dataweb.NShape.Advanced {
 
 			public static Enumerator Create(ShapeBase shape, ControlPointCapabilities flags) {
 				Enumerator result;
-				result.shape = shape;
-				result.flags = flags;
-				result.currentIndex = -1;
-				result.ctrlPointCnt = shape.ControlPointCount;
+				result._shape = shape;
+				result._flags = flags;
+				result._currentIndex = -1;
+				result._ctrlPointCnt = shape.ControlPointCount;
 				return result;
 			}
 
@@ -1796,9 +1817,9 @@ namespace Dataweb.NShape.Advanced {
 
 			public bool MoveNext() {
 				bool result = false;
-				while (currentIndex + 1 < ctrlPointCnt) {
-					++currentIndex;
-					if (shape.HasControlPointCapability(shape.GetControlPointId(currentIndex), flags)) {
+				while (_currentIndex + 1 < _ctrlPointCnt) {
+					++_currentIndex;
+					if (_shape.HasControlPointCapability(_shape.GetControlPointId(_currentIndex), _flags)) {
 						result = true;
 						break;
 					}
@@ -1808,16 +1829,16 @@ namespace Dataweb.NShape.Advanced {
 
 
 			public void Reset() {
-				ctrlPointCnt = shape.ControlPointCount;
-				currentIndex = -1;
+				_ctrlPointCnt = _shape.ControlPointCount;
+				_currentIndex = -1;
 			}
 
 
 			ControlPointId IEnumerator<ControlPointId>.Current {
 				get {
-					if (currentIndex < 0 || currentIndex >= ctrlPointCnt)
+					if (_currentIndex < 0 || _currentIndex >= _ctrlPointCnt)
 						throw new InvalidOperationException();
-					return shape.GetControlPointId(currentIndex);
+					return _shape.GetControlPointId(_currentIndex);
 				}
 			}
 
@@ -1836,10 +1857,10 @@ namespace Dataweb.NShape.Advanced {
 			#region IDisposable Members
 
 			public void Dispose() {
-				this.flags = 0;
-				this.currentIndex = -1;
-				this.ctrlPointCnt = 0;
-				this.shape = null;
+				this._flags = 0;
+				this._currentIndex = -1;
+				this._ctrlPointCnt = 0;
+				this._shape = null;
 			}
 
 			#endregion
@@ -1847,10 +1868,10 @@ namespace Dataweb.NShape.Advanced {
 
 			#region Fields
 
-			private ShapeBase shape;
-			private ControlPointCapabilities flags;
-			private int currentIndex;
-			private int ctrlPointCnt;
+			private ShapeBase _shape;
+			private ControlPointCapabilities _flags;
+			private int _currentIndex;
+			private int _ctrlPointCnt;
 
 			#endregion
 		}
@@ -1861,13 +1882,13 @@ namespace Dataweb.NShape.Advanced {
 		#region Fields
 
 		/// <summary>True if any other shape is connected to this shape</summary>
-		protected List<ShapeConnectionInfo> connectionInfos;
+		private List<ShapeConnectionInfo> _connectionInfos;
 
 		/// <summary>True if the draw cache has to be recalculated</summary>
-		protected bool drawCacheIsInvalid = true;
+		private bool _drawCacheIsInvalid = true;
 
 		/// <summary></summary>
-		protected bool isGluePointFollowingConnectionPoint = false;
+		private bool _isGluePointFollowingConnectionPoint = false;
 
 		/// <summary>True if Dispose() was called.</summary>
 		private ObjectState _objectState = ObjectState.Normal;

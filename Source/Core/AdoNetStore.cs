@@ -192,10 +192,10 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override string ProjectName {
-			get { return projectName; }
+			get { return _projectName; }
 			set {
-				if (value == null) projectName = string.Empty;
-				else projectName = value;
+				if (value == null) _projectName = string.Empty;
+				else _projectName = value;
 			}
 		}
 
@@ -205,12 +205,12 @@ namespace Dataweb.NShape {
 			bool closeConnection = EnsureDataSourceOpen();
 			bool commandsLoaded = false;
 			try {
-				if (commands.Count == 0) {
+				if (_commands.Count == 0) {
 					LoadSysCommands();
 					commandsLoaded = true;
 				}
-				version = DoReadVersion(cache.ProjectName);
-				cache.SetRepositoryBaseVersion(version);
+				_version = DoReadVersion(cache.ProjectName);
+				cache.SetRepositoryBaseVersion(_version);
 			} finally {
 				// As the AdoNetStore assumes the project is open when commands exist, we have to clear them here
 				if (commandsLoaded) ClearCommands();
@@ -225,12 +225,12 @@ namespace Dataweb.NShape {
 			bool closeConnection = EnsureDataSourceOpen();
 			bool commandsLoaded = false;
 			try {
-				if (commands.Count == 0) {
+				if (_commands.Count == 0) {
 					LoadSysCommands();
 					commandsLoaded = true;
 				}
 				IDbCommand cmd = GetCommand(ProjectSettings.EntityTypeName, RepositoryCommandType.SelectByName);
-				((IDataParameter)cmd.Parameters[0]).Value = projectName;
+				((IDataParameter)cmd.Parameters[0]).Value = _projectName;
 				using (IDataReader reader = cmd.ExecuteReader())
 					result = reader.Read();
 			} finally {
@@ -268,12 +268,12 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		public override void Close(IStoreCache storeCache) {
 			if (storeCache == null) throw new ArgumentNullException("storeCache");
-			if (connection != null) connection.Dispose();
-			connection = null;
-			foreach (KeyValuePair<CommandKey, IDbCommand> item in commands) {
+			if (_connection != null) _connection.Dispose();
+			_connection = null;
+			foreach (KeyValuePair<CommandKey, IDbCommand> item in _commands) {
 				if (item.Value != null) item.Value.Dispose();
 			}
-			commands.Clear();
+			_commands.Clear();
 			base.Close(storeCache);
 		}
 
@@ -286,11 +286,11 @@ namespace Dataweb.NShape {
 				LoadSysCommands();
 				// If all constraints are in place, deleting the project info is sufficient.
 				IDbCommand cmd = GetCommand(projectInfoEntityTypeName, RepositoryCommandType.Delete);
-				cmd.Transaction = transaction;
-				((DbParameter)cmd.Parameters[0]).Value = projectName;
+				cmd.Transaction = _transaction;
+				((DbParameter)cmd.Parameters[0]).Value = _projectName;
 				cmd.ExecuteNonQuery();
 			} finally {
-				commands.Clear();	// Unload all commands
+				_commands.Clear();	// Unload all commands
 				if (dataSourceOpened) EnsureDataSourceClosed();
 			}
 		}
@@ -303,8 +303,8 @@ namespace Dataweb.NShape {
 			AssertValid();
 			const bool transactional = true;
 			Connection.Open();
-			Debug.Assert(transaction == null);
-			if (transactional) transaction = Connection.BeginTransaction();
+			Debug.Assert(_transaction == null);
+			if (transactional) _transaction = Connection.BeginTransaction();
 			try {
 				// -- Zeroth Step: Insert or update the project --
 				IDbCommand projectCommand;
@@ -312,8 +312,8 @@ namespace Dataweb.NShape {
 					// project is a new one
 					projectCommand = GetCommand(projectInfoEntityTypeName, RepositoryCommandType.Insert);
 					((DbParameter)projectCommand.Parameters[0]).Value = cache.ProjectName;
-					((DbParameter)projectCommand.Parameters[1]).Value = version;
-					projectCommand.Transaction = transaction;
+					((DbParameter)projectCommand.Parameters[1]).Value = _version;
+					projectCommand.Transaction = _transaction;
 					// Cast to int makes sure the command returns an id.
 					cache.SetProjectOwnerId((int)projectCommand.ExecuteScalar());
 				} else {
@@ -321,8 +321,8 @@ namespace Dataweb.NShape {
 					projectCommand = GetCommand(projectInfoEntityTypeName, RepositoryCommandType.Update);
 					((DbParameter)projectCommand.Parameters[0]).Value = cache.ProjectId;
 					((DbParameter)projectCommand.Parameters[1]).Value = cache.ProjectName;
-					((DbParameter)projectCommand.Parameters[2]).Value = version;
-					projectCommand.Transaction = transaction;
+					((DbParameter)projectCommand.Parameters[2]).Value = _version;
+					projectCommand.Transaction = _transaction;
 					projectCommand.ExecuteNonQuery();
 				}
 				// -- First Step: Delete --
@@ -435,15 +435,15 @@ namespace Dataweb.NShape {
 				foreach (EntityType et in cache.EntityTypes)
 					if (et.Category == EntityCategory.Shape)
 						UpdateEntities<Shape>(cache, et, cache.LoadedShapes, delegate(Shape s, IEntity o) { return s.Type.FullName == et.FullName; });
-				if (transactional) transaction.Commit();
+				if (transactional) _transaction.Commit();
 			} catch (Exception exc) {
 				Debug.Print(exc.Message);
-				if (transactional) transaction.Rollback();
+				if (transactional) _transaction.Rollback();
 				throw;
 			} finally {
-				if (transaction != null) {
-					transaction.Dispose();
-					transaction = null;
+				if (_transaction != null) {
+					_transaction.Dispose();
+					_transaction = null;
 				}
 				Connection.Close();
 			}
@@ -829,10 +829,10 @@ namespace Dataweb.NShape {
 		/// Specifies the name of the ADO.NET provider used as listed in the system configuration.
 		/// </summary>
 		public string ProviderName {
-			get { return providerName; }
+			get { return _providerName; }
 			set {
-				providerName = value;
-				factory = string.IsNullOrEmpty(providerName) ? null : DbProviderFactories.GetFactory(providerName);
+				_providerName = value;
+				_factory = string.IsNullOrEmpty(_providerName) ? null : DbProviderFactories.GetFactory(_providerName);
 			}
 		}
 
@@ -841,8 +841,8 @@ namespace Dataweb.NShape {
 		/// Specifies the connection string for the database store.
 		/// </summary>
 		public string ConnectionString {
-			get { return connectionString; }
-			set { connectionString = value; }
+			get { return _connectionString; }
+			set { _connectionString = value; }
 		}
 
 		#endregion
@@ -895,7 +895,7 @@ namespace Dataweb.NShape {
 		public IDbCommand GetSelectSysParameterCommand() {
 			// The column 'No', which defines the parameter sequence, was introduced with version 3.
 			IDbCommand result = CreateCommand(
-				string.Format("SELECT Name, Type FROM SysParameter WHERE Command = @Command {0}", version <= 2 ? string.Empty : "ORDER BY No"),
+				string.Format("SELECT Name, Type FROM SysParameter WHERE Command = @Command {0}", _version <= 2 ? string.Empty : "ORDER BY No"),
 				CreateParameter("Command", DbType.Int32));
 			result.Connection = Connection;
 			return result;
@@ -906,9 +906,9 @@ namespace Dataweb.NShape {
 		/// Retrieves a command that creates all tables of the database schema.
 		/// </summary>
 		public IDbCommand GetCreateTablesCommand() {
-			if (createTablesCommand == null) throw new AdoNetStoreException(ResourceStrings.MessageTxt_CommandForCreatingTheSchemaIsNotDefined);
-			if (createTablesCommand.Connection != Connection) createTablesCommand.Connection = Connection;
-			return createTablesCommand;
+			if (_createTablesCommand == null) throw new AdoNetStoreException(ResourceStrings.MessageTxt_CommandForCreatingTheSchemaIsNotDefined);
+			if (_createTablesCommand.Connection != Connection) _createTablesCommand.Connection = Connection;
+			return _createTablesCommand;
 		}
 
 
@@ -917,7 +917,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public void SetCreateTablesCommand(IDbCommand command) {
 			if (command == null) throw new ArgumentNullException("command");
-			createTablesCommand = command;
+			_createTablesCommand = command;
 		}
 
 
@@ -931,7 +931,7 @@ namespace Dataweb.NShape {
 			CommandKey commandKey;
 			commandKey.Kind = cmdType;
 			commandKey.EntityTypeName = entityTypeName;
-			if (!commands.TryGetValue(commandKey, out result))
+			if (!_commands.TryGetValue(commandKey, out result))
 				throw new InvalidOperationException(string.Format(ResourceStrings.MessageFmt_ADONETCommand0ForEntityType1HasNotBeenDefined, cmdType, entityTypeName));
 			if (result.Connection != Connection) result.Connection = Connection;
 			return result;
@@ -948,9 +948,9 @@ namespace Dataweb.NShape {
 			CommandKey commandKey;
 			commandKey.Kind = cmdType;
 			commandKey.EntityTypeName = entityTypeName;
-			if (commands.ContainsKey(commandKey))
-				commands[commandKey] = command;
-			else commands.Add(commandKey, command);
+			if (_commands.ContainsKey(commandKey))
+				_commands[commandKey] = command;
+			else _commands.Add(commandKey, command);
 		}
 
 		#endregion
@@ -958,13 +958,13 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		protected internal override int Version {
-			get { return version; }
-			set { version = value; }
+			get { return _version; }
+			set { _version = value; }
 		}
 
 
 		internal IDbTransaction CurrentTransaction {
-			get { return transaction; }
+			get { return _transaction; }
 		}
 
 
@@ -994,9 +994,9 @@ namespace Dataweb.NShape {
 		/// Creates an ADO.NET command.
 		/// </summary>
 		protected IDbCommand CreateCommand() {
-			if (factory == null)
+			if (_factory == null)
 				throw new AdoNetStoreException(ResourceStrings.MessageTxt_NoValidADONETProviderSpecified);
-			return factory.CreateCommand();
+			return _factory.CreateCommand();
 		}
 
 
@@ -1016,7 +1016,7 @@ namespace Dataweb.NShape {
 		/// Creates an ADO.NET command parameter.
 		/// </summary>
 		protected IDataParameter CreateParameter(string name, DbType dbType) {
-			IDataParameter result = factory.CreateParameter();
+			IDataParameter result = _factory.CreateParameter();
 			result.DbType = dbType;
 			result.ParameterName = name;
 			return result;
@@ -1031,17 +1031,17 @@ namespace Dataweb.NShape {
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				// Dispose and delete commands
-				if (commands != null) {
-					foreach (KeyValuePair<CommandKey, IDbCommand> item in commands)
+				if (_commands != null) {
+					foreach (KeyValuePair<CommandKey, IDbCommand> item in _commands)
 						if (item.Value != null) item.Value.Dispose();
-					commands.Clear();
+					_commands.Clear();
 				}
-				if (createTablesCommand != null) createTablesCommand.Dispose();
-				if (transaction != null) transaction.Dispose();
+				if (_createTablesCommand != null) _createTablesCommand.Dispose();
+				if (_transaction != null) _transaction.Dispose();
 				// Close and dispose connection
-				if (connection != null) {
-					if (connection.State != ConnectionState.Closed) connection.Close();
-					connection.Dispose();
+				if (_connection != null) {
+					if (_connection.State != ConnectionState.Closed) _connection.Close();
+					_connection.Dispose();
 				}
 			}
 			base.Dispose(disposing);
@@ -1053,9 +1053,9 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public virtual void CreateDbCommands(IStoreCache cache) {
 			if (cache == null) throw new ArgumentNullException("cache");
-			foreach (KeyValuePair<CommandKey, IDbCommand> item in commands)
+			foreach (KeyValuePair<CommandKey, IDbCommand> item in _commands)
 				item.Value.Dispose();
-			commands.Clear();
+			_commands.Clear();
 			Version = cache.RepositoryBaseVersion;
 		}
 
@@ -1081,7 +1081,7 @@ namespace Dataweb.NShape {
 				try {
 					cmdCmd.Prepare();
 					paramCmd.Prepare();
-					foreach (KeyValuePair<CommandKey, IDbCommand> item in commands) {
+					foreach (KeyValuePair<CommandKey, IDbCommand> item in _commands) {
 						((IDbDataParameter)cmdCmd.Parameters[0]).Value = item.Key.Kind;
 						((IDbDataParameter)cmdCmd.Parameters[1]).Value = item.Key.EntityTypeName;
 						((IDbDataParameter)cmdCmd.Parameters[2]).Value = item.Value.CommandText;
@@ -1127,7 +1127,7 @@ namespace Dataweb.NShape {
 					} else throw exc;
 				}
 				IDbCommand dropCommand = GetCommand("All", RepositoryCommandType.Delete);
-				dropCommand.Connection = connection;
+				dropCommand.Connection = _connection;
 				dropCommand.ExecuteNonQuery();
 
 			} finally {
@@ -1161,7 +1161,7 @@ namespace Dataweb.NShape {
 									(DbType)Enum.Parse(typeof(DbType), paramReader.GetString(1))));
 							}
 						}
-						commands.Add(ck, command);
+						_commands.Add(ck, command);
 					} // while loop
 				} // using commandReader
 			} finally {
@@ -1224,13 +1224,13 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected void OpenCore(IStoreCache cache, bool create) {
 			// Check if store is already open
-			if (commands.Count > 0) throw new InvalidOperationException(string.Format(ResourceStrings.MessageFmt_0IsAlreadyOpen, GetType().Name));
+			if (_commands.Count > 0) throw new InvalidOperationException(string.Format(ResourceStrings.MessageFmt_0IsAlreadyOpen, GetType().Name));
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
 				LoadSysCommands();
 				if (!create) {
 					int ver = DoReadVersion(cache.ProjectName);
-					Debug.Assert(ver == version);
+					Debug.Assert(ver == _version);
 				}
 			} finally {
 				if (dataSourceOpened) EnsureDataSourceClosed();
@@ -1347,7 +1347,7 @@ namespace Dataweb.NShape {
 					repositoryWriter = new DbParameterWriter(this, cache);
 					repositoryWriter.Reset(entityType.PropertyDefinitions);
 					repositoryWriter.Command = dbCommand;
-					repositoryWriter.Command.Transaction = transaction;
+					repositoryWriter.Command.Transaction = _transaction;
 				}
 				repositoryWriter.Prepare(e.Key);
 				// Write parent id (only ProjectInfo and Design have none)
@@ -1383,7 +1383,7 @@ namespace Dataweb.NShape {
 		protected virtual void DeleteShapeConnections(IStoreCache cache) {
 			// Delete command need not be defined if no deleted shape connections exist.
 			IDbCommand command = GetCommand(connectionEntityTypeName, RepositoryCommandType.Delete);
-			command.Transaction = transaction;
+			command.Transaction = _transaction;
 			foreach (ShapeConnection sc in cache.DeletedShapeConnections) {
 				((IDataParameter)command.Parameters[0]).Value = ((IEntity)sc.ConnectorShape).Id;
 				((IDataParameter)command.Parameters[1]).Value = sc.GluePointId;
@@ -1397,7 +1397,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		protected virtual void InsertShapeConnections(IStoreCache storeCache) {
 			IDbCommand command = GetCommand(connectionEntityTypeName, RepositoryCommandType.Insert);
-			command.Transaction = transaction;
+			command.Transaction = _transaction;
 			foreach (ShapeConnection sc in storeCache.NewShapeConnections) {
 				((IDataParameter)command.Parameters[0]).Value = ((IEntity)sc.ConnectorShape).Id;
 				((IDataParameter)command.Parameters[1]).Value = sc.GluePointId;
@@ -1427,7 +1427,7 @@ namespace Dataweb.NShape {
 						if (repositoryWriter == null) {
 							repositoryWriter = new DbParameterWriter(this, cache);
 							repositoryWriter.Command = GetCommand(entityType.FullName, RepositoryCommandType.Update);
-							repositoryWriter.Command.Transaction = transaction;
+							repositoryWriter.Command.Transaction = _transaction;
 							repositoryWriter.Reset(entityType.PropertyDefinitions);
 						}
 						repositoryWriter.Prepare(ei.ObjectRef);
@@ -1473,7 +1473,7 @@ namespace Dataweb.NShape {
 								repositoryWriter = new DbParameterWriter(this, cache);
 								repositoryWriter.Reset(entityType.PropertyDefinitions);
 								repositoryWriter.Command = GetCommand(entityType.FullName, RepositoryCommandType.Delete);
-								repositoryWriter.Command.Transaction = transaction;
+								repositoryWriter.Command.Transaction = _transaction;
 							}
 							repositoryWriter.Prepare(ei.ObjectRef);
 							repositoryWriter.WriteId(ei.ObjectRef.Id);
@@ -1516,7 +1516,7 @@ namespace Dataweb.NShape {
 						Debug.Fail("Unexpected owner in AdoNetRepository.Update!");
 						updateOwnerCmd = null;
 					}
-					updateOwnerCmd.Transaction = transaction;
+					updateOwnerCmd.Transaction = _transaction;
 					((IDataParameter)updateOwnerCmd.Parameters[0]).Value = ((IEntity)eb.ObjectRef).Id;
 					((IDataParameter)updateOwnerCmd.Parameters[1]).Value = ((IEntity)eb.Owner).Id;
 					updateOwnerCmd.ExecuteNonQuery();
@@ -1665,7 +1665,7 @@ namespace Dataweb.NShape {
 			public DbParameterReader(AdoNetStore store, IStoreCache cache)
 				: base(cache) {
 				if (store == null) throw new ArgumentNullException("store");
-				this.store = store;
+				this._store = store;
 			}
 
 
@@ -1699,7 +1699,7 @@ namespace Dataweb.NShape {
 			/// </summary>
 			protected internal void ResetFieldReading(IEnumerable<EntityPropertyDefinition> propertyInfos, IDataReader dataReader) {
 				base.ResetFieldReading(propertyInfos);
-				this.dataReader = dataReader;
+				this._dataReader = dataReader;
 			}
 
 
@@ -1715,8 +1715,8 @@ namespace Dataweb.NShape {
 			/// The IDataReader providing the data.
 			/// </summary>
 			protected internal IDataReader DataReader {
-				get { return dataReader; }
-				set { dataReader = value; }
+				get { return _dataReader; }
+				set { _dataReader = value; }
 			}
 
 			#endregion
@@ -1728,7 +1728,7 @@ namespace Dataweb.NShape {
 			protected internal override object ReadId() {
 				++PropertyIndex;
 				ValidateFieldIndex();
-				object result = dataReader.GetValue(PropertyIndex + internalPropertyCount);
+				object result = _dataReader.GetValue(PropertyIndex + internalPropertyCount);
 				return Convert.IsDBNull(result) ? null : result;
 			}
 
@@ -1737,8 +1737,8 @@ namespace Dataweb.NShape {
 			/// Prepares the reader for reading fields of an entity. The first fields to read internally are the id and the parent id. Therefore we start at index -2.
 			/// </summary>
 			protected internal override bool DoBeginObject() {
-				Debug.Assert(dataReader != null);
-				if (dataReader.Read()) PropertyIndex = -internalPropertyCount - 1;
+				Debug.Assert(_dataReader != null);
+				if (_dataReader.Read()) PropertyIndex = -internalPropertyCount - 1;
 				else PropertyIndex = int.MinValue;
 				return PropertyIndex > int.MinValue;
 			}
@@ -1759,43 +1759,43 @@ namespace Dataweb.NShape {
 
 			/// <override></override>
 			protected override bool DoReadBool() {
-				return dataReader.GetBoolean(PropertyIndex + internalPropertyCount);
+				return _dataReader.GetBoolean(PropertyIndex + internalPropertyCount);
 			}
 
 
 			/// <override></override>
 			protected override byte DoReadByte() {
-				return dataReader.GetByte(PropertyIndex + internalPropertyCount);
+				return _dataReader.GetByte(PropertyIndex + internalPropertyCount);
 			}
 
 
 			/// <override></override>
 			protected override short DoReadInt16() {
-				return dataReader.GetInt16(PropertyIndex + internalPropertyCount);
+				return _dataReader.GetInt16(PropertyIndex + internalPropertyCount);
 			}
 
 
 			/// <override></override>
 			protected override int DoReadInt32() {
-				return dataReader.GetInt32(PropertyIndex + internalPropertyCount);
+				return _dataReader.GetInt32(PropertyIndex + internalPropertyCount);
 			}
 
 
 			/// <override></override>
 			protected override long DoReadInt64() {
-				return dataReader.GetInt64(PropertyIndex + internalPropertyCount);
+				return _dataReader.GetInt64(PropertyIndex + internalPropertyCount);
 			}
 
 
 			/// <override></override>
 			protected override float DoReadFloat() {
-				return dataReader.GetFloat(PropertyIndex + internalPropertyCount);
+				return _dataReader.GetFloat(PropertyIndex + internalPropertyCount);
 			}
 
 
 			/// <override></override>
 			protected override double DoReadDouble() {
-				return dataReader.GetDouble(PropertyIndex + internalPropertyCount);
+				return _dataReader.GetDouble(PropertyIndex + internalPropertyCount);
 			}
 
 
@@ -1803,22 +1803,22 @@ namespace Dataweb.NShape {
 			protected override char DoReadChar() {
 				// SqlDataReader.GetChar is not implemented and _always_ throws a NotSupportedException()
 				//return dataReader.GetChar(PropertyIndex + internalPropertyCount);
-				return Char.Parse(dataReader.GetString(PropertyIndex + internalPropertyCount));
+				return Char.Parse(_dataReader.GetString(PropertyIndex + internalPropertyCount));
 			}
 
 
 			/// <override></override>
 			protected override string DoReadString() {
 				string result = string.Empty;
-				if (!dataReader.IsDBNull(PropertyIndex + internalPropertyCount))
-					result = dataReader.GetString(PropertyIndex + internalPropertyCount);
+				if (!_dataReader.IsDBNull(PropertyIndex + internalPropertyCount))
+					result = _dataReader.GetString(PropertyIndex + internalPropertyCount);
 				return result;
 			}
 
 
 			/// <override></override>
 			protected override DateTime DoReadDate() {
-				DateTime result = dataReader.GetDateTime(PropertyIndex + internalPropertyCount).ToLocalTime();
+				DateTime result = _dataReader.GetDateTime(PropertyIndex + internalPropertyCount).ToLocalTime();
 				return result;
 			}
 
@@ -1826,9 +1826,9 @@ namespace Dataweb.NShape {
 			/// <override></override>
 			protected override Image DoReadImage() {
 				Image result = null;
-				if (!dataReader.IsDBNull(PropertyIndex + internalPropertyCount)) {
-					byte[] buffer = new Byte[dataReader.GetBytes(PropertyIndex + internalPropertyCount, 0, null, 0, 0)];
-					dataReader.GetBytes(PropertyIndex + internalPropertyCount, 0, buffer, 0, buffer.Length);
+				if (!_dataReader.IsDBNull(PropertyIndex + internalPropertyCount)) {
+					byte[] buffer = new Byte[_dataReader.GetBytes(PropertyIndex + internalPropertyCount, 0, null, 0, 0)];
+					_dataReader.GetBytes(PropertyIndex + internalPropertyCount, 0, buffer, 0, buffer.Length);
 					if (buffer.Length > 0) {
 						MemoryStream stream = new MemoryStream(buffer, false);
 						result = Image.FromStream(stream);
@@ -1846,15 +1846,15 @@ namespace Dataweb.NShape {
 				// TODO 3: Replace by generic mechanism once the string reader is established
 				if (AdoNetStore.IsComposition(innerInfo)) {
 					innerObjectsReader = new StringReader(Cache);
-					((StringReader)innerObjectsReader).ResetFieldReading(innerInfo.PropertyDefinitions, dataReader.GetString(PropertyIndex + internalPropertyCount));
+					((StringReader)innerObjectsReader).ResetFieldReading(innerInfo.PropertyDefinitions, _dataReader.GetString(PropertyIndex + internalPropertyCount));
 				} else {
-					IDbCommand cmd = store.GetCommand(innerInfo.EntityTypeName, RepositoryCommandType.SelectById);
-					cmd.Transaction = store.CurrentTransaction;
+					IDbCommand cmd = _store.GetCommand(innerInfo.EntityTypeName, RepositoryCommandType.SelectById);
+					cmd.Transaction = _store.CurrentTransaction;
 					((IDataParameter)cmd.Parameters[0]).Value = Object.Id;
-					innerObjectsDataReader = cmd.ExecuteReader();
+					_innerObjectsDataReader = cmd.ExecuteReader();
 					cmd.Dispose(); // Geht das?
-					innerObjectsReader = new DbParameterReader(store, Cache);
-					InnerObjectsReader.ResetFieldReading(innerInfo.PropertyDefinitions, innerObjectsDataReader);
+					innerObjectsReader = new DbParameterReader(_store, Cache);
+					InnerObjectsReader.ResetFieldReading(innerInfo.PropertyDefinitions, _innerObjectsDataReader);
 				}
 			}
 
@@ -1862,9 +1862,9 @@ namespace Dataweb.NShape {
 			/// <override></override>
 			public override void EndReadInnerObjects() {
 				Debug.Assert(innerObjectsReader != null);
-				if (innerObjectsDataReader != null) {
-					innerObjectsDataReader.Dispose();
-					innerObjectsDataReader = null;
+				if (_innerObjectsDataReader != null) {
+					_innerObjectsDataReader.Dispose();
+					_innerObjectsDataReader = null;
 				}
 				innerObjectsReader.Dispose();
 				innerObjectsReader = null;
@@ -1879,9 +1879,9 @@ namespace Dataweb.NShape {
 
 			/// <override></override>
 			protected override void Dispose(bool disposing) {
-				if (innerObjectsDataReader != null) {
-					innerObjectsDataReader.Dispose();
-					innerObjectsDataReader = null;
+				if (_innerObjectsDataReader != null) {
+					_innerObjectsDataReader.Dispose();
+					_innerObjectsDataReader = null;
 				}
 			}
 
@@ -1891,7 +1891,7 @@ namespace Dataweb.NShape {
 			#region [Private] Methods
 
 			private void ValidateFieldIndex() {
-				if (PropertyIndex >= dataReader.FieldCount)
+				if (PropertyIndex >= _dataReader.FieldCount)
 					throw new InvalidOperationException(ResourceStrings.MessageTxt_AnObjectTriesToLoadMorePropertiesThanTheEntityIsDefined);
 			}
 
@@ -1908,13 +1908,13 @@ namespace Dataweb.NShape {
 			// Id and parent id are always inside the cache.
 			private const int internalPropertyCount = 2;
 
-			private AdoNetStore store;
+			private AdoNetStore _store;
 
 			// Reference to an outside-created data repositoryReader for fields reading
-			private IDataReader dataReader;
+			private IDataReader _dataReader;
 
 			// Owned data repositoryReader for the fields of inner objects read by additional cache repositoryReader.
-			private IDataReader innerObjectsDataReader;
+			private IDataReader _innerObjectsDataReader;
 
 			#endregion
 
@@ -1933,7 +1933,7 @@ namespace Dataweb.NShape {
 			/// <param name="cache"></param>
 			public DbParameterWriter(AdoNetStore store, IStoreCache cache)
 				: base(cache) {
-				this.store = store;
+				this._store = store;
 			}
 
 
@@ -1941,8 +1941,8 @@ namespace Dataweb.NShape {
 			/// Specifies the IDbCommand providing the parameters for the DbParameterWriter.
 			/// </summary>
 			public IDbCommand Command {
-				get { return command; }
-				set { command = value; }
+				get { return _command; }
+				set { _command = value; }
 			}
 
 
@@ -1954,15 +1954,15 @@ namespace Dataweb.NShape {
 			internal protected void Flush() {
 				if (Entity == null) {
 					// Writing an inner object
-					command.ExecuteNonQuery();
+					_command.ExecuteNonQuery();
 				} else if (Entity.Id == null) {
 					// Inserting an entity
-					Entity.AssignId(command.ExecuteScalar());
+					Entity.AssignId(_command.ExecuteScalar());
 				} else {
 					// Updating an entity
-					object result = command.ExecuteNonQuery();
+					object result = _command.ExecuteNonQuery();
 					if (result == null)
-						throw new Exception(string.Format(ResourceStrings.MessageFmt_NoRecordsAffectedByStatement01, Environment.NewLine, command.CommandText));
+						throw new Exception(string.Format(ResourceStrings.MessageFmt_NoRecordsAffectedByStatement01, Environment.NewLine, _command.CommandText));
 				}
 			}
 
@@ -2112,10 +2112,10 @@ namespace Dataweb.NShape {
 					((StringWriter)base.InnerObjectsWriter).Reset(innerInfo.PropertyDefinitions);
 				} else {
 					DoDeleteInnerObjects();
-					base.InnerObjectsWriter = new DbParameterWriter(store, Cache);
+					base.InnerObjectsWriter = new DbParameterWriter(_store, Cache);
 					InnerObjectsWriter.Reset(((EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex]).PropertyDefinitions);
-					InnerObjectsWriter.Command = store.GetCommand(((EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex]).EntityTypeName, RepositoryCommandType.Insert);
-					InnerObjectsWriter.Command.Transaction = store.transaction;
+					InnerObjectsWriter.Command = _store.GetCommand(((EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex]).EntityTypeName, RepositoryCommandType.Insert);
+					InnerObjectsWriter.Command.Transaction = _store._transaction;
 				}
 			}
 
@@ -2123,7 +2123,7 @@ namespace Dataweb.NShape {
 			/// <override></override>
 			protected override void DoEndWriteInnerObjects() {
 				if (base.InnerObjectsWriter is StringWriter) {
-					((IDataParameter)command.Parameters[PropertyIndex + 1]).Value = ((StringWriter)base.InnerObjectsWriter).StringData;
+					((IDataParameter)_command.Parameters[PropertyIndex + 1]).Value = ((StringWriter)base.InnerObjectsWriter).StringData;
 				} else {
 					// Nothing to do
 				}
@@ -2153,8 +2153,8 @@ namespace Dataweb.NShape {
 				if (!(PropertyInfos[PropertyIndex] is EntityInnerObjectsDefinition)) throw new AdoNetStoreException(ResourceStrings.MessageTxt_PropertyIsNotAnInnerObjectsProperty);
 				//
 				// Delete all existing inner objects of the current persistable object			
-				IDbCommand command = store.GetCommand(((EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex]).EntityTypeName, RepositoryCommandType.Delete);
-				command.Transaction = store.CurrentTransaction;
+				IDbCommand command = _store.GetCommand(((EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex]).EntityTypeName, RepositoryCommandType.Delete);
+				command.Transaction = _store.CurrentTransaction;
 				((IDataParameter)command.Parameters[0]).Value = Entity.Id;
 				int count = command.ExecuteNonQuery();
 			}
@@ -2172,7 +2172,7 @@ namespace Dataweb.NShape {
 			// Cannot check against the property count, because tables can contain additional 
 			// columns, e.g for the parent id and the id.
 			private void ValidateFieldIndex() {
-				if (PropertyIndex >= command.Parameters.Count)
+				if (PropertyIndex >= _command.Parameters.Count)
 					throw new AdoNetStoreException(MessageFmt_Field0OfEntityCannotBeWrittenNotEnoughParameters, PropertyIndex);
 			}
 
@@ -2187,7 +2187,7 @@ namespace Dataweb.NShape {
 			private void DoWriteValue(object value) {
 				++PropertyIndex;
 				ValidateFieldIndex();
-				((IDataParameter)command.Parameters[PropertyIndex + 1]).Value = value;
+				((IDataParameter)_command.Parameters[PropertyIndex + 1]).Value = value;
 			}
 
 			#endregion
@@ -2197,8 +2197,8 @@ namespace Dataweb.NShape {
 
 			private const string MessageFmt_Field0OfEntityCannotBeWrittenNotEnoughParameters = "Field '{0}' of entity cannot be written to the repository because the mapping contains not enough items. Check whether the SQL commands for this entity are correct.";
 
-			private AdoNetStore store;
-			private IDbCommand command;
+			private AdoNetStore _store;
+			private IDbCommand _command;
 
 			#endregion
 		}
@@ -2227,8 +2227,8 @@ namespace Dataweb.NShape {
 			public void ResetFieldReading(IEnumerable<EntityPropertyDefinition> fieldInfos, string data) {
 				base.ResetFieldReading(fieldInfos);
 				if (data == null) throw new ArgumentNullException("data");
-				str = data;
-				p = 0;
+				_str = data;
+				_pos = 0;
 			}
 
 
@@ -2249,15 +2249,15 @@ namespace Dataweb.NShape {
 			/// <override></override>
 			protected internal override bool DoBeginObject() {
 				// Current position is either a valid field start or end of string
-				if (p < 0 || p > str.Length) throw new InvalidOperationException("Unsupported string position");
-				return p < str.Length;
+				if (_pos < 0 || _pos > _str.Length) throw new InvalidOperationException("Unsupported string position");
+				return _pos < _str.Length;
 			}
 
 
 			/// <override></override>
 			protected internal override void DoEndObject() {
-				if (str[p] != AdoNetStore.CompositionSeperatorChar) throw new InvalidOperationException(ResourceStrings.MessageTxt_UnsupportedStringSemicolonExpected);
-				++p;
+				if (_str[_pos] != AdoNetStore.CompositionSeperatorChar) throw new InvalidOperationException(ResourceStrings.MessageTxt_UnsupportedStringSemicolonExpected);
+				++_pos;
 			}
 
 
@@ -2271,14 +2271,14 @@ namespace Dataweb.NShape {
 			protected internal override object ReadId() {
 				object result = null;
 				// read id type
-				if (p < str.Length && str[p] == '(') {
+				if (_pos < _str.Length && _str[_pos] == '(') {
 					string typeDesc = string.Empty;
-					++p; // skip '('
-					while (p < str.Length && str[p] != ')') {
-						typeDesc += str[p];
-						++p;
+					++_pos; // skip '('
+					while (_pos < _str.Length && _str[_pos] != ')') {
+						typeDesc += _str[_pos];
+						++_pos;
 					}
-					if (p < str.Length && str[p] == ')') ++p;
+					if (_pos < _str.Length && _str[_pos] == ')') ++_pos;
 
 					if (typeDesc != string.Empty) {
 						if (typeDesc == typeof(int).Name)
@@ -2287,7 +2287,7 @@ namespace Dataweb.NShape {
 							result = DoReadInt64();
 						else throw new NotSupportedException();
 					}
-					if (p < str.Length && str[p] == AdoNetStore.CompositionFieldSeperatorChar) ++p;
+					if (_pos < _str.Length && _str[_pos] == AdoNetStore.CompositionFieldSeperatorChar) ++_pos;
 				}
 				return result;
 			}
@@ -2378,48 +2378,48 @@ namespace Dataweb.NShape {
 
 			private long DoReadIntValue() {
 				long result = 0;
-				int startPos = p;
-				if (p < str.Length && (str[p] == '-' || str[p] == '+'))
-					++p;
-				while (p < str.Length && str[p] >= '0' && str[p] <= '9')
-					++p;
-				result = long.Parse(str.Substring(startPos, p - startPos), CultureInfo.InvariantCulture);
-				if (p < str.Length && str[p] == AdoNetStore.CompositionFieldSeperatorChar)
-					++p;
+				int startPos = _pos;
+				if (_pos < _str.Length && (_str[_pos] == '-' || _str[_pos] == '+'))
+					++_pos;
+				while (_pos < _str.Length && _str[_pos] >= '0' && _str[_pos] <= '9')
+					++_pos;
+				result = long.Parse(_str.Substring(startPos, _pos - startPos), CultureInfo.InvariantCulture);
+				if (_pos < _str.Length && _str[_pos] == AdoNetStore.CompositionFieldSeperatorChar)
+					++_pos;
 				return result;
 			}
 
 
 			private double DoReadDblValue() {
 				double result = DoReadIntValue();
-				if (p < str.Length && str[p] == '.') {
-					++p;
-					int startPos = p;
-					while (p < str.Length && str[p] >= '0' && str[p] <= '9')
-						++p;
-					string fracValueStr = str.Substring(startPos, p - startPos);
+				if (_pos < _str.Length && _str[_pos] == '.') {
+					++_pos;
+					int startPos = _pos;
+					while (_pos < _str.Length && _str[_pos] >= '0' && _str[_pos] <= '9')
+						++_pos;
+					string fracValueStr = _str.Substring(startPos, _pos - startPos);
 					result += (long.Parse(fracValueStr, CultureInfo.InvariantCulture) / Math.Pow(10, fracValueStr.Length));
-					if (p < str.Length && str[p] == AdoNetStore.CompositionFieldSeperatorChar)
-						++p;
+					if (_pos < _str.Length && _str[_pos] == AdoNetStore.CompositionFieldSeperatorChar)
+						++_pos;
 				}
 				return result;
 			}
 
 
 			private string DoReadStringValue() {
-				int seperatorPos = str.IndexOfAny(seperators, p);
+				int seperatorPos = _str.IndexOfAny(_seperators, _pos);
 				if (seperatorPos < 0) throw new AdoNetStoreException(ResourceStrings.MessageTxt_InvalidRepositoryFormat);
-				string result = Uri.UnescapeDataString(str.Substring(p, seperatorPos - p));
-				p = seperatorPos;
+				string result = Uri.UnescapeDataString(_str.Substring(_pos, seperatorPos - _pos));
+				_pos = seperatorPos;
 				return result;
 			}
 
 
 			// String data
-			private string str;
+			private string _str;
 			// Current position within string data
-			private int p;
-			private char[] seperators = new char[2] { AdoNetStore.CompositionFieldSeperatorChar, AdoNetStore.CompositionSeperatorChar };
+			private int _pos;
+			private char[] _seperators = new char[2] { AdoNetStore.CompositionFieldSeperatorChar, AdoNetStore.CompositionSeperatorChar };
 		}
 
 
@@ -2451,7 +2451,7 @@ namespace Dataweb.NShape {
 
 			/// <override></override>
 			protected internal override void Finish() {
-				str.Append(AdoNetStore.CompositionSeperatorChar);
+				_str.Append(AdoNetStore.CompositionSeperatorChar);
 				base.Finish();
 			}
 
@@ -2460,15 +2460,15 @@ namespace Dataweb.NShape {
 			/// Gets the data written by this <see cref="T:Dataweb.NShape.AdoNetStore.StringWriter" />.
 			/// </summary>
 			public string StringData {
-				get { return str.ToString(); }
+				get { return _str.ToString(); }
 			}
 
 
 			/// <override></override>
 			protected override void DoWriteId(object id) {
 				++PropertyIndex;
-				if (PropertyIndex >= 0) str.Append(AdoNetStore.CompositionFieldSeperatorChar);
-				str.Append(string.Format("({0}){1}", id.GetType().Name, id));
+				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeperatorChar);
+				_str.Append(string.Format("({0}){1}", id.GetType().Name, id));
 			}
 
 
@@ -2570,26 +2570,26 @@ namespace Dataweb.NShape {
 
 			private void DoWriteDblValue(double value) {
 				++PropertyIndex;
-				if (PropertyIndex >= 0) str.Append(AdoNetStore.CompositionFieldSeperatorChar);
-				str.Append(value.ToString(CultureInfo.InvariantCulture));
+				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeperatorChar);
+				_str.Append(value.ToString(CultureInfo.InvariantCulture));
 			}
 
 
 			private void DoWriteIntValue(long value) {
 				++PropertyIndex;
-				if (PropertyIndex >= 0) str.Append(AdoNetStore.CompositionFieldSeperatorChar);
-				str.Append(value.ToString(CultureInfo.InvariantCulture));
+				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeperatorChar);
+				_str.Append(value.ToString(CultureInfo.InvariantCulture));
 			}
 
 
 			private void DoWriteStrValue(string value) {
 				++PropertyIndex;
-				if (PropertyIndex >= 0) str.Append(AdoNetStore.CompositionFieldSeperatorChar);
-				if (!string.IsNullOrEmpty(value)) str.Append(Uri.EscapeDataString(value));
+				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeperatorChar);
+				if (!string.IsNullOrEmpty(value)) _str.Append(Uri.EscapeDataString(value));
 			}
 
 
-			private StringBuilder str = new StringBuilder();
+			private StringBuilder _str = new StringBuilder();
 		}
 
 		#endregion
@@ -2597,15 +2597,15 @@ namespace Dataweb.NShape {
 
 		private IDbConnection Connection {
 			get {
-				if (connection == null) {
+				if (_connection == null) {
 					if (string.IsNullOrEmpty(ProviderName))
 						throw new AdoNetStoreException(ResourceStrings.MessageTxt_ProviderNameNotSet);
 					if (string.IsNullOrEmpty(ConnectionString))
 						throw new AdoNetStoreException(ResourceStrings.MessageTxt_ConnectionStringNotSet);
-					connection = factory.CreateConnection();
-					connection.ConnectionString = ConnectionString;
+					_connection = _factory.CreateConnection();
+					_connection.ConnectionString = ConnectionString;
 				}
-				return connection;
+				return _connection;
 			}
 		}
 
@@ -2627,9 +2627,9 @@ namespace Dataweb.NShape {
 
 
 		private void ClearCommands() {
-			foreach (KeyValuePair<CommandKey, IDbCommand> item in commands)
+			foreach (KeyValuePair<CommandKey, IDbCommand> item in _commands)
 				item.Value.Dispose();
-			commands.Clear();
+			_commands.Clear();
 		}
 
 
@@ -2694,17 +2694,17 @@ namespace Dataweb.NShape {
 		protected const string connectionPointEntityTypeName = "Core.ConnectionPoint";
 
 
-		private string projectName;
-		private string providerName;
-		private string connectionString;
-		private DbProviderFactory factory;
-		private IDbConnection connection;
-		private int version;
+		private string _projectName;
+		private string _providerName;
+		private string _connectionString;
+		private DbProviderFactory _factory;
+		private IDbConnection _connection;
+		private int _version;
 		// Currently active transaction
-		private IDbTransaction transaction;
-		private IDbCommand createTablesCommand;
+		private IDbTransaction _transaction;
+		private IDbCommand _createTablesCommand;
 		// Commands used to load and save against the data store
-		private Dictionary<CommandKey, IDbCommand> commands = new Dictionary<CommandKey, IDbCommand>(1000);
+		private Dictionary<CommandKey, IDbCommand> _commands = new Dictionary<CommandKey, IDbCommand>(1000);
 
 		#endregion
 	}

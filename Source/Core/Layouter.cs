@@ -1,5 +1,5 @@
 ﻿/**************************************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -103,9 +103,10 @@ namespace Dataweb.NShape.Layouters {
 		/// </summary>
 		protected LayouterBase(Project project) {
 			if (project == null) throw new ArgumentNullException("project");
-			this.project = project;
+			_project = project;
 		}
 
+		#region [Public] Properties
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public abstract string InvariantName { get; }
@@ -115,50 +116,58 @@ namespace Dataweb.NShape.Layouters {
 		public abstract string Description { get; }
 
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// All shapes in the diagram.
+		/// </summary>
 		public IEnumerable<Shape> AllShapes {
-			get { return allShapes; }
-			set { 
-				allShapes.Clear();
-				allShapes.AddRange(value);
-			}
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public IEnumerable<Shape> Shapes {
-			get { return selectedShapes; }
+			get { return _allShapes; }
 			set {
-				selectedShapes.Clear();
-				selectedShapes.AddRange(value);
+				_allShapes.Clear();
+				_allShapes.AddRange(value);
 			}
 		}
 
+
+		/// <summary>
+		/// The shapes being layouted.
+		/// </summary>
+		public IEnumerable<Shape> Shapes {
+			get { return _selectedShapes; }
+			set {
+				_selectedShapes.Clear();
+				_selectedShapes.AddRange(value);
+			}
+		}
+
+		#endregion
+
+
+		#region [Public] Methods
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void SaveState() {
-			selectedPositions.Clear();
-			foreach (Shape s in selectedShapes)
-				if (ExcludeFromFitting(s)) selectedPositions.Add(Point.Empty);
-				else selectedPositions.Add(new Point(s.X, s.Y));
+			SelectedPositions.Clear();
+			foreach (Shape s in SelectedShapes)
+				if (ExcludeFromFitting(s)) SelectedPositions.Add(Point.Empty);
+				else SelectedPositions.Add(new Point(s.X, s.Y));
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void RestoreState() {
-			Debug.Assert(selectedShapes.Count == selectedPositions.Count);
-			for (int i = 0; i < selectedShapes.Count; ++i)
-				if (!ExcludeFromFitting(selectedShapes[i]))
-					selectedShapes[i].MoveControlPointTo(ControlPointId.Reference, selectedPositions[i].X, selectedPositions[i].Y, ResizeModifiers.None);
+			Debug.Assert(SelectedShapes.Count == SelectedPositions.Count);
+			for (int i = 0; i < SelectedShapes.Count; ++i)
+				if (!ExcludeFromFitting(SelectedShapes[i]))
+					SelectedShapes[i].MoveControlPointTo(ControlPointId.Reference, SelectedPositions[i].X, SelectedPositions[i].Y, ResizeModifiers.None);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual void Prepare() {
-			if (selectedShapes.Count <= 0) throw new InvalidOperationException("There is no shape selected");
+			if (_selectedShapes.Count <= 0) throw new InvalidOperationException("There is no shape selected");
 			SaveState();
-			layoutArea = CalcLayoutArea();
-			stepCount = 0;
+			_layoutArea = CalcLayoutArea();
+			_stepCount = 0;
 		}
 
 
@@ -168,7 +177,7 @@ namespace Dataweb.NShape.Layouters {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Execute(int maxSeconds) {
-			if (selectedPositions.Count != selectedShapes.Count)
+			if (SelectedPositions.Count != _selectedShapes.Count)
 				throw new InvalidOperationException("You must call Prepare() before calling Execute().");
 
 			if (maxSeconds <= 0) maxSeconds = int.MaxValue;
@@ -183,7 +192,7 @@ namespace Dataweb.NShape.Layouters {
 		/// <returns></returns>
 		public bool ExecuteStep() {
 			bool result = ExecuteStepCore();
-			++stepCount;
+			++_stepCount;
 			return result;
 		}
 
@@ -194,8 +203,8 @@ namespace Dataweb.NShape.Layouters {
 		/// <returns></returns>
 		public ICommand CreateLayoutCommand() {
 			MoveShapesToCommand cmd = new MoveShapesToCommand();
-			for (int i = 0; i < selectedShapes.Count; ++i)
-				cmd.AddMoveTo(selectedShapes[i], selectedPositions[i].X, selectedPositions[i].Y, selectedShapes[i].X, selectedShapes[i].Y);
+			for (int i = 0; i < _selectedShapes.Count; ++i)
+				cmd.AddMoveTo(_selectedShapes[i], SelectedPositions[i].X, SelectedPositions[i].Y, _selectedShapes[i].X, _selectedShapes[i].Y);
 			RestoreState();
 			return cmd;
 		}
@@ -252,6 +261,50 @@ namespace Dataweb.NShape.Layouters {
 			}
 		}
 
+		#endregion
+
+
+		#region [Protected] Properties
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected Project Project {
+			get { return _project; }
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		protected Rectangle LayoutArea {
+			get { return _layoutArea; }
+		}
+
+
+		/// <summary>
+		/// The stored positions of the selected shapes
+		/// </summary>
+		protected List<Shape> SelectedShapes {
+			get { return _selectedShapes; }
+			set { _selectedShapes = value; }
+		}
+
+
+		/// <summary>
+		/// The stored positions of the selected shapes
+		/// </summary>
+		protected List<Point> SelectedPositions {
+			get { return _selectedPositions; }
+			set { _selectedPositions = value; }
+		}
+
+
+		/// <summary>
+		/// Number of steps executed since last call to Prepare
+		/// </summary>
+		protected int StepCount {
+			get { return _stepCount; }
+			set { _stepCount = value; }
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Actual optimizing step execution to be implemented by derived implementations.
@@ -265,11 +318,11 @@ namespace Dataweb.NShape.Layouters {
 		/// </summary>
 		protected Rectangle CalcLayoutArea() {
 			Rectangle result = Rectangle.Empty;
-			int left = selectedShapes[0].X;
-			int top = selectedShapes[0].Y;
+			int left = _selectedShapes[0].X;
+			int top = _selectedShapes[0].Y;
 			int right = left;
 			int bottom = top;
-			foreach (Shape s in selectedShapes) {
+			foreach (Shape s in _selectedShapes) {
 				if (s.X < left) left = s.X;
 				else if (s.X > right) right = s.X;
 				if (s.Y < top) top = s.Y;
@@ -294,28 +347,12 @@ namespace Dataweb.NShape.Layouters {
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
-		protected readonly Project project;
-
-		// All shapes in the diagram
-		/// <ToBeCompleted></ToBeCompleted>
-		protected List<Shape> allShapes = new List<Shape>(1000);
-
-		// The selected shapes being layoutet
-		/// <ToBeCompleted></ToBeCompleted>
-		protected List<Shape> selectedShapes = new List<Shape>(100);
-
-		// The stored positions of the selected shapes
-		/// <ToBeCompleted></ToBeCompleted>
-		protected List<Point> selectedPositions = new List<Point>(100);
-
-		/// <ToBeCompleted></ToBeCompleted>
-		protected Rectangle layoutArea;
-
-		/// <summary>
-		/// Number of steps executed since last call to Prepare
-		/// </summary>
-		protected int stepCount;
+		private Project _project;
+		private List<Shape> _allShapes = new List<Shape>(1000);
+		private List<Shape> _selectedShapes = new List<Shape>(100);
+		private List<Point> _selectedPositions = new List<Point>(100);
+		private Rectangle _layoutArea;
+		private int _stepCount;
 	}
 
 
@@ -565,7 +602,7 @@ namespace Dataweb.NShape.Layouters {
 			layoutArea.X = boundingArea.X - (layoutArea.Width - boundingArea.Width)/2;
 			layoutArea.Y = boundingArea.Y - (layoutArea.Height - boundingArea.Height)/2;
 			//
-			foreach (Shape s in selectedShapes) {
+			foreach (Shape s in SelectedShapes) {
 				int nx = layoutArea.X + horizontalCompression * (s.X - boundingArea.X) / 100;
 				int ny = layoutArea.Y + verticalCompression * (s.Y - boundingArea.Y) / 100;
 				s.MoveControlPointTo(ControlPointId.Reference, nx, ny, ResizeModifiers.None);

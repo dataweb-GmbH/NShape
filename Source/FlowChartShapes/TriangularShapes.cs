@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -236,12 +236,12 @@ namespace Dataweb.NShape.FlowChartShapes {
 			int right = left + Width;
 			int bottom = top + Height;
 
-			shapePoints[0].X = left;
-			shapePoints[0].Y = top;
-			shapePoints[1].X = right;
-			shapePoints[1].Y = top;
-			shapePoints[2].X = 0;
-			shapePoints[2].Y = bottom;
+			ShapePoints[0].X = left;
+			ShapePoints[0].Y = top;
+			ShapePoints[1].X = right;
+			ShapePoints[1].Y = top;
+			ShapePoints[2].X = 0;
+			ShapePoints[2].Y = bottom;
 		}
 
 
@@ -252,7 +252,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 		#region Fields
 		private const float centerPosFactorY = 0.3333333333f;
 
-		Point[] shapeBuffer = new Point[3];
+		private Point[] _shapeBuffer = new Point[3];
 
 		#endregion
 	}
@@ -286,12 +286,12 @@ namespace Dataweb.NShape.FlowChartShapes {
 				int right = left + Width;
 				int bottom = top + Height;
 
-				shapePoints[0].X = left;
-				shapePoints[0].Y = top;
-				shapePoints[1].X = right;
-				shapePoints[1].Y = top;
-				shapePoints[2].X = 0;
-				shapePoints[2].Y = bottom;
+				ShapePoints[0].X = left;
+				ShapePoints[0].Y = top;
+				ShapePoints[1].X = right;
+				ShapePoints[1].Y = top;
+				ShapePoints[2].X = 0;
+				ShapePoints[2].Y = bottom;
 
 				int x1, x2, y1, y2;
 				int a1, b1, c1, a2, b2, c2, a, b, c;
@@ -303,7 +303,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddPolygon(shapePoints);
+				Path.AddPolygon(ShapePoints);
 				Path.CloseFigure();
 				Path.StartFigure();
 				Path.AddLine(x1, y1, x2, y2);

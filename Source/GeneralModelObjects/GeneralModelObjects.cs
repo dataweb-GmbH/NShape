@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -69,8 +69,8 @@ namespace Dataweb.NShape.GeneralModelObjects {
 
 		[Description("The state of the device. This value is represented by the assigned Shape.")]
 		public StateEnum State {
-			get { return state; }
-			set { state = value; }
+			get { return _state; }
+			set { _state = value; }
 		}
 
 
@@ -83,35 +83,35 @@ namespace Dataweb.NShape.GeneralModelObjects {
 
 		[Description("The minimum value of the Device.")]
 		public double MinValue {
-			get { return minValue; }
-			set { minValue = value; }
+			get { return _minValue; }
+			set { _minValue = value; }
 		}
 
 
 		[Description("The maximum value of the Device.")]
 		public double MaxValue {
-			get { return maxValue; }
-			set { maxValue = value; }
+			get { return _maxValue; }
+			set { _maxValue = value; }
 		}
 
 
 
 		/// <override></override>
 		public override char SecurityDomainName {
-			get { return securityDomainName; }
+			get { return _securityDomainName; }
 			set {
 				if (value < 'A' || value > 'Z')
 					throw new ArgumentOutOfRangeException("SecurityDomainName", "The domain qualifier has to be an upper case  ANSI letter (A-Z).");
-				securityDomainName = value;
+				_securityDomainName = value;
 			}
 		}
 
 
 		//private double value;
-		private StateEnum state;
-		private double minValue;
-		private double maxValue;
-		private char securityDomainName = 'A';
+		private StateEnum _state;
+		private double _minValue;
+		private double _maxValue;
+		private char _securityDomainName = 'A';
 	}
 
 

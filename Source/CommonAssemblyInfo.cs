@@ -14,6 +14,7 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System;
 
 // General Information about an library is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -21,6 +22,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("dataweb GmbH - www.dataweb.de")]
 [assembly: AssemblyCopyright("Copyright © dataweb GmbH 2009-2019")]
 [assembly: AssemblyCulture("")]
+
+// Enables CLS compliancy checks
+//[assembly: CLSCompliant(true)]
 
 // Setting ComVisible to false makes the types in this library not visible 
 // to COM components.  If you need to access a type in this library from 
@@ -35,5 +39,5 @@ using System.Runtime.InteropServices;
 //      Revision
 //
 //[assembly: AssemblyVersion("1.0.0.*")]
-[assembly: AssemblyVersion("2.2.1.16")]
-[assembly: AssemblyFileVersion("2.2.1.16")]
+[assembly: AssemblyVersion("2.2.1.20")]
+[assembly: AssemblyFileVersion("2.2.1.20")]

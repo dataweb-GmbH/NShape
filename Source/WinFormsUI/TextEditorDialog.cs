@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -52,7 +52,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		public TextEditorDialog(string text)
 			: this() {
 			textBox.Text = text;
-			wantReturn = false;
+			_wantReturn = false;
 		}
 
 
@@ -64,7 +64,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			if (lines == null) throw new ArgumentNullException("lines");
 			foreach (string line in lines)
 				textBox.Text += line + Environment.NewLine;
-			wantReturn = true;
+			_wantReturn = true;
 		}
 
 
@@ -176,8 +176,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Specifies whether the user can insert line breaks using the RETURN key.
 		/// </summary>
 		public bool WantReturn {
-			get { return wantReturn; }
-			set { wantReturn = value; }
+			get { return _wantReturn; }
+			set { _wantReturn = value; }
 		}
 
 		#endregion
@@ -205,7 +205,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		private void textBox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) {
 			switch (e.KeyCode) {
 				case Keys.Return:
-					if (wantReturn) {
+					if (_wantReturn) {
 						if ((e.Modifiers & Keys.Control) != 0)
 							okButton_Click(this, null);
 					}
@@ -229,7 +229,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		#region Fields
-		private bool wantReturn = false;
+		private bool _wantReturn = false;
 		#endregion
 	}
 

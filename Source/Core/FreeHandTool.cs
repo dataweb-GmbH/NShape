@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -67,17 +67,17 @@ namespace Dataweb.NShape.Advanced {
 			try {
 				switch (e.EventType) {
 					case MouseEventType.MouseDown:
-						timer.Stop();
+						_timer.Stop();
 						break;
 
 					case MouseEventType.MouseMove:
 						if (CurrentMouseState.Position != newMouseState.Position) {
 							if (newMouseState.IsButtonDown(MouseButtonsDg.Left)
 								&& diagramPresenter.Project.SecurityManager.IsGranted(Permission.Insert)) {
-								diagramPresenter.ControlToDiagram(e.Position, out p);
-								currentStroke.Add(p.X, p.Y);
+								diagramPresenter.ControlToDiagram(e.Position, out _p);
+								_currentStroke.Add(_p.X, _p.Y);
 							}
-							diagramPresenter.SetCursor(penCursorId);
+							diagramPresenter.SetCursor(_penCursorId);
 						}
 						Invalidate(diagramPresenter);
 						break;
@@ -87,9 +87,9 @@ namespace Dataweb.NShape.Advanced {
 							&& diagramPresenter.Project.SecurityManager.IsGranted(Permission.Insert)) {
 							StartToolAction(diagramPresenter, 0, newMouseState, false);
 
-							strokeSet.Add(currentStroke);
-							currentStroke = new Stroke();
-							timer.Start();
+							_strokeSet.Add(_currentStroke);
+							_currentStroke = new Stroke();
+							_timer.Start();
 						}
 						break;
 
@@ -128,13 +128,13 @@ namespace Dataweb.NShape.Advanced {
 			diagramPresenter.ResetTransformation();
 			try {
 				// draw stroke(s)
-				foreach (Stroke stroke in strokeSet) {
+				foreach (Stroke stroke in _strokeSet) {
 					for (int i = 0; i < stroke.Count - 1; ++i)
 						diagramPresenter.DrawLine(stroke[i], stroke[i + 1]);
 				}
 				// draw stroke(s)
-				for (int i = 0; i < currentStroke.Count - 1; ++i)
-					diagramPresenter.DrawLine(currentStroke[i], currentStroke[i + 1]);
+				for (int i = 0; i < _currentStroke.Count - 1; ++i)
+					diagramPresenter.DrawLine(_currentStroke[i], _currentStroke[i + 1]);
 			} finally { diagramPresenter.RestoreTransformation(); }
 		}
 
@@ -146,19 +146,19 @@ namespace Dataweb.NShape.Advanced {
 			int y = int.MaxValue;
 			int width = int.MinValue;
 			int height = int.MinValue;
-			if (strokeSet.Count > 0)
+			if (_strokeSet.Count > 0)
 				GetStrokeSetBounds(out x, out y, out width, out height);
 
 			// invalidate Stroke(s)
-			foreach (Point p in currentStroke) {
+			foreach (Point p in _currentStroke) {
 				if (p.X < x) x = p.X;
 				if (p.Y < y) y = p.Y;
 				if (p.X > x + width) width = p.X - x;
 				if (p.Y > y + height) height = p.Y - y;
 			}
 			if (diagramPresenter != null) {
-				diagramPresenter.ControlToDiagram(rect, out rect);
-				if (strokeSet.Count > 0 || currentStroke.Count > 0)
+				diagramPresenter.ControlToDiagram(_rect, out _rect);
+				if (_strokeSet.Count > 0 || _currentStroke.Count > 0)
 					diagramPresenter.InvalidateDiagram(x, y, width, height);
 			}
 		}
@@ -180,8 +180,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override void CancelCore() {
 			//InvalidatePreview(currentDisplay);
-			currentStroke.Clear();
-			strokeSet.Clear();
+			_currentStroke.Clear();
+			_strokeSet.Clear();
 		}
 
 
@@ -192,14 +192,14 @@ namespace Dataweb.NShape.Advanced {
 		public override void Dispose() {
 			base.Dispose();
 
-			timer.Stop();
-			timer.Elapsed -= timer_Tick;
-			timer.Dispose();
+			_timer.Stop();
+			_timer.Elapsed -= timer_Tick;
+			_timer.Dispose();
 		}
 
 
 		static FreeHandTool() {
-			penCursorId = CursorProvider.RegisterCursor(Resources.PenCursor);
+			_penCursorId = CursorProvider.RegisterCursor(Resources.PenCursor);
 		}
 
 
@@ -214,17 +214,17 @@ namespace Dataweb.NShape.Advanced {
 			LargeIcon = global::Dataweb.NShape.Resources.FreehandIconLarge;
 			LargeIcon.MakeTransparent(Color.Fuchsia);
 
-			polygone = new PathFigureShape();
-			strokeSet = new StrokeSequence();
-			currentStroke = new Stroke();
-			shaper = new Shaper();
+			_polygone = new PathFigureShape();
+			_strokeSet = new StrokeSequence();
+			_currentStroke = new Stroke();
+			_shaper = new Shaper();
 
-			timer = new Timer();
-			timer.Enabled = false;
-			timer.Interval = timeOut;
-			timer.Elapsed += timer_Tick;
+			_timer = new Timer();
+			_timer.Enabled = false;
+			_timer.Interval = _timeOut;
+			_timer.Elapsed += timer_Tick;
 
-			this.project = project;
+			this._project = project;
 			project.LibraryLoaded += project_LibraryLoaded;
 			RegisterFigures();
 		}
@@ -236,21 +236,21 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void RegisterFigures() {
-			foreach (ShapeType shapeType in project.ShapeTypes)
-				if (!shaper.IsRegistered(shapeType.FullName))
-					shaper.RegisterFigure(shapeType.FullName, shapeType.FreehandReferenceImage);
+			foreach (ShapeType shapeType in _project.ShapeTypes)
+				if (!_shaper.IsRegistered(shapeType.FullName))
+					_shaper.RegisterFigure(shapeType.FullName, shapeType.FreehandReferenceImage);
 		}
 
 
 		private void timer_Tick(object sender, EventArgs e) {
-			timer.Stop();
+			_timer.Stop();
 			IdentifyFigure(ActionDiagramPresenter);
 		}
 
 
 		private void IdentifyFigure(IDiagramPresenter diagramPresenter) {
 			// Das ShapeSet berechnen
-			Figure shapeSet = shaper.IdentifyShapes(strokeSet);
+			Figure shapeSet = _shaper.IdentifyShapes(_strokeSet);
 
 			// FeedBack
 			foreach (FigureShape s in shapeSet.Shapes) {
@@ -261,10 +261,10 @@ namespace Dataweb.NShape.Advanced {
 			}
 			Console.Write("=> ");
 
-			Figure figure = shaper.FindFigure(shapeSet);
+			Figure figure = _shaper.FindFigure(shapeSet);
 			List<string> figureNames = new List<string>();
 			if (figure != null) {
-				figureNames.AddRange(shaper.GetFigureNames(figure));
+				figureNames.AddRange(_shaper.GetFigureNames(figure));
 				Console.WriteLine(figureNames.ToString());
 			} else
 				Console.Write("No idea" + Environment.NewLine);
@@ -273,18 +273,18 @@ namespace Dataweb.NShape.Advanced {
 				if (diagramPresenter.Project.Repository == null)
 					throw new NullReferenceException("Unable to access repository of current ownerDisplay.");
 
-				matchingTemplates.Clear();
+				_matchingTemplates.Clear();
 				foreach (Template t in diagramPresenter.Project.Repository.GetTemplates()) {
 					foreach (string figName in figureNames) {
 						if (t.Shape.Type.FullName == figName) {
-							matchingTemplates.Add(t);
+							_matchingTemplates.Add(t);
 						}
 					}
 				}
 
-				if (matchingTemplates.Count == 1) {
-					CreateShape(diagramPresenter, matchingTemplates[0]);
-				} else if (matchingTemplates.Count > 1) {
+				if (_matchingTemplates.Count == 1) {
+					CreateShape(diagramPresenter, _matchingTemplates[0]);
+				} else if (_matchingTemplates.Count > 1) {
 
 					// ToDo: Create "CreateShapeFromTemplateAction" and build the ContextMenu from actions here
 					// show context menu with matching templates
@@ -305,8 +305,8 @@ namespace Dataweb.NShape.Advanced {
 
 			Invalidate(diagramPresenter);
 
-			strokeSet.Clear();
-			currentStroke.Clear();
+			_strokeSet.Clear();
+			_currentStroke.Clear();
 
 			OnToolExecuted(ExecutedEventArgs);
 		}
@@ -331,56 +331,56 @@ namespace Dataweb.NShape.Advanced {
 			shape.Fit(x, y, width, height);
 
 			ICommand cmd = new InsertShapeCommand(diagramPresenter.Diagram, diagramPresenter.ActiveLayers, shape, true, false);
-			project.ExecuteCommand(cmd);
+			_project.ExecuteCommand(cmd);
 		}
 
 
 		private void GetStrokeSetBounds(out int x, out int y, out int width, out int height) {
 			x = y = 0;
 			width = height = 1;
-			if (strokeSet.Count > 0) {
-				rect.X = int.MaxValue;
-				rect.Y = int.MaxValue;
-				rect.Width = int.MinValue;
-				rect.Height = int.MinValue;
-				foreach (Stroke stroke in strokeSet) {
+			if (_strokeSet.Count > 0) {
+				_rect.X = int.MaxValue;
+				_rect.Y = int.MaxValue;
+				_rect.Width = int.MinValue;
+				_rect.Height = int.MinValue;
+				foreach (Stroke stroke in _strokeSet) {
 					foreach (Point p in stroke) {
-						if (p.X < rect.Left) rect.X = p.X;
-						if (p.Y < rect.Top) rect.Y = p.Y;
-						if (p.X > rect.Right) rect.Width = rect.Width + (p.X - rect.Right);
-						if (p.Y > rect.Bottom) rect.Height = rect.Height + (p.Y - rect.Bottom);
+						if (p.X < _rect.Left) _rect.X = p.X;
+						if (p.Y < _rect.Top) _rect.Y = p.Y;
+						if (p.X > _rect.Right) _rect.Width = _rect.Width + (p.X - _rect.Right);
+						if (p.Y > _rect.Bottom) _rect.Height = _rect.Height + (p.Y - _rect.Bottom);
 					}
 				}
-				x = rect.X;
-				y = rect.Y;
-				width = rect.Width;
-				height = rect.Height;
+				x = _rect.X;
+				y = _rect.Y;
+				width = _rect.Width;
+				height = _rect.Height;
 			}
 		}
 
 
 		#region Fields
 
-		private static int penCursorId;
-		private Project project;
+		private static int _penCursorId;
+		private Project _project;
 
-		private readonly Brush[] brushes = new Brush[] { Brushes.Blue, Brushes.Red, Brushes.Green, Brushes.Pink, Brushes.Plum };
-		private Shaper shaper;
-		private PathFigureShape polygone;
-		private StrokeSequence strokeSet;
-		private Stroke currentStroke;
+		private readonly Brush[] _brushes = new Brush[] { Brushes.Blue, Brushes.Red, Brushes.Green, Brushes.Pink, Brushes.Plum };
+		private Shaper _shaper;
+		private PathFigureShape _polygone;
+		private StrokeSequence _strokeSet;
+		private Stroke _currentStroke;
 
 		// ToDo: Timer ins Display verlagern
-		private Timer timer;
-		private const int timeOut = 1250;
+		private Timer _timer;
+		private const int _timeOut = 1250;
 
-		private List<Template> matchingTemplates = new List<Template>();
-		private System.Drawing.Rectangle rect;
+		private List<Template> _matchingTemplates = new List<Template>();
+		private System.Drawing.Rectangle _rect;
 
 		//private ContextMenuStrip contextMenu = new ContextMenuStrip();
 
 		// buffer for coordinate conversions
-		private Point p;
+		private Point _p;
 
 		#endregion
 	}

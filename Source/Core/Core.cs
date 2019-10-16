@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2018 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -240,9 +240,9 @@ namespace Dataweb.NShape.Advanced
 		/// Empties the projectData.
 		/// </summary>
 		public void Clear() {
-			this.id = null;
-			this.lastSaved = DateTime.MinValue;
-			this.libraries.Clear();
+			this._id = null;
+			this._lastSaved = DateTime.MinValue;
+			this._libraries.Clear();
 		}
 
 
@@ -252,11 +252,11 @@ namespace Dataweb.NShape.Advanced
 		/// <param name="source"></param>
 		public void CopyFrom(ProjectSettings source) {
 			if (source == null) throw new ArgumentNullException("source");
-			id = ((IEntity)source).Id;
-			lastSaved = source.LastSaved;
-			foreach (LibraryData library in source.libraries) {
-				if (!libraries.Contains(library))
-					libraries.Add(library);
+			_id = ((IEntity)source).Id;
+			_lastSaved = source.LastSaved;
+			foreach (LibraryData library in source._libraries) {
+				if (!_libraries.Contains(library))
+					_libraries.Add(library);
 			}
 		}
 
@@ -266,8 +266,8 @@ namespace Dataweb.NShape.Advanced
 		/// </summary>
 		public DateTime LastSaved
 		{
-			get { return lastSaved; }
-			set { lastSaved = value; }
+			get { return _lastSaved; }
+			set { _lastSaved = value; }
 		}
 
 
@@ -276,8 +276,8 @@ namespace Dataweb.NShape.Advanced
 		/// </summary>
 		public string Description
 		{
-			get { return description; }
-			set { description = value; }
+			get { return _description; }
+			set { _description = value; }
 		}
 
 
@@ -287,7 +287,7 @@ namespace Dataweb.NShape.Advanced
 		public void AddLibrary(string name, string assemblyName, int libraryVersion) {
 			if (name == null) throw new ArgumentNullException("name");
 			if (assemblyName == null) throw new ArgumentNullException("assemblyName");
-			libraries.Add(new LibraryData(name, assemblyName, libraryVersion));
+			_libraries.Add(new LibraryData(name, assemblyName, libraryVersion));
 		}
 
 
@@ -320,7 +320,7 @@ namespace Dataweb.NShape.Advanced
 		{
 			get
 			{
-				foreach (LibraryData ld in libraries)
+				foreach (LibraryData ld in _libraries)
 					yield return ld.AssemblyName;
 			}
 		}
@@ -349,34 +349,34 @@ namespace Dataweb.NShape.Advanced
 
 		object IEntity.Id
 		{
-			get { return id; }
+			get { return _id; }
 		}
 
 
 		void IEntity.AssignId(object id) {
 			if (id == null) throw new ArgumentNullException("id");
-			if (this.id != null)
+			if (this._id != null)
 				throw new InvalidOperationException("Project settings have already an id.");
-			this.id = id;
+			this._id = id;
 		}
 
 
 		void IEntity.SaveFields(IRepositoryWriter writer, int version) {
 			writer.WriteDate(DateTime.Now);
-			if (version >= 5) writer.WriteString(description);
+			if (version >= 5) writer.WriteString(_description);
 		}
 
 
 		void IEntity.LoadFields(IRepositoryReader reader, int version) {
-			lastSaved = reader.ReadDate();
-			if (version >= 5) description = reader.ReadString();
+			_lastSaved = reader.ReadDate();
+			if (version >= 5) _description = reader.ReadString();
 		}
 
 
 		void IEntity.SaveInnerObjects(string propertyName, IRepositoryWriter writer, int version) {
 			Project.AssertSupportedVersion(true, version);
 			writer.BeginWriteInnerObjects();
-			foreach (LibraryData ld in libraries) {
+			foreach (LibraryData ld in _libraries) {
 				writer.BeginWriteInnerObject();
 				writer.WriteString(ld.Name);
 				writer.WriteString(ld.AssemblyName);
@@ -395,7 +395,7 @@ namespace Dataweb.NShape.Advanced
 				ld.Name = reader.ReadString();
 				ld.AssemblyName = reader.ReadString();
 				ld.RepositoryVersion = reader.ReadInt32();
-				libraries.Add(ld);
+				_libraries.Add(ld);
 				reader.EndReadInnerObject();
 			}
 			reader.EndReadInnerObjects();
@@ -432,7 +432,7 @@ namespace Dataweb.NShape.Advanced
 
 		private LibraryData FindLibraryData(string libraryName, bool throwIfNotFound) {
 			LibraryData result = null;
-			foreach (LibraryData ld in libraries)
+			foreach (LibraryData ld in _libraries)
 				if (ld.Name.Equals(libraryName, StringComparison.InvariantCultureIgnoreCase)) {
 					result = ld;
 					break;
@@ -444,14 +444,14 @@ namespace Dataweb.NShape.Advanced
 
 		#region Fields
 
-		private static string entityTypeName = "Core.Project";
-		private static string[] librariesAttrNames = new string[] { "Name", "AssemblyName", "RepositoryVersion" };
-		private static Type[] librariesAttrTypes = new Type[] { typeof(string), typeof(string), typeof(int) };
+		private static readonly string entityTypeName = "Core.Project";
+		private static readonly string[] librariesAttrNames = new string[] { "Name", "AssemblyName", "RepositoryVersion" };
+		private static readonly Type[] librariesAttrTypes = new Type[] { typeof(string), typeof(string), typeof(int) };
 
-		private object id;
-		private string description;
-		private DateTime lastSaved;
-		private List<LibraryData> libraries = new List<LibraryData>();
+		private object _id;
+		private string _description;
+		private DateTime _lastSaved;
+		private List<LibraryData> _libraries = new List<LibraryData>();
 
 		#endregion
 	}

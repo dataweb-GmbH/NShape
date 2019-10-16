@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -69,46 +69,46 @@ namespace Dataweb.NShape.WinFormsUI {
 		public static MouseEventArgsDg GetMouseEventArgs(Control source, MouseEventType eventType, MouseButtons mouseButtons, int clicks, int x, int y, int delta, Rectangle controlBounds) {
 			if (source == null) throw new ArgumentNullException("source");
 			DateTime utcNow = DateTime.UtcNow;
-			if (lastClickEventSource == source && (int)lastClickEventArgs.Buttons == (int)mouseButtons) {
-				if (lastClickEventArgs.EventType == eventType
-					&& lastClickEventArgs.Modifiers == GetModifiers()
-					&& lastClickEventArgs.Position.X == x
-					&& lastClickEventArgs.Position.Y == y
-					&& lastClickEventArgs.WheelDelta == delta)
-					return lastClickEventArgs;
-				else if ((utcNow - lastClickEventTimestamp).TotalMilliseconds < SystemInformation.DoubleClickTime
-					&& Math.Abs(lastClickEventArgs.Position.X - x) <= SystemInformation.DoubleClickSize.Width
-					&& Math.Abs(lastClickEventArgs.Position.Y - y) <= SystemInformation.DoubleClickSize.Height) {
+			if (_lastClickEventSource == source && (int)_lastClickEventArgs.Buttons == (int)mouseButtons) {
+				if (_lastClickEventArgs.EventType == eventType
+					&& _lastClickEventArgs.Modifiers == GetModifiers()
+					&& _lastClickEventArgs.Position.X == x
+					&& _lastClickEventArgs.Position.Y == y
+					&& _lastClickEventArgs.WheelDelta == delta)
+					return _lastClickEventArgs;
+				else if ((utcNow - _lastClickEventTimestamp).TotalMilliseconds < SystemInformation.DoubleClickTime
+					&& Math.Abs(_lastClickEventArgs.Position.X - x) <= SystemInformation.DoubleClickSize.Width
+					&& Math.Abs(_lastClickEventArgs.Position.Y - y) <= SystemInformation.DoubleClickSize.Height) {
 					// Manually increase the number of clicks in case of valid multi-clicks
-					if (lastClickEventArgs.EventType == MouseEventType.MouseUp && eventType == MouseEventType.MouseDown
-						&& clicks <= lastClickEventArgs.Clicks)
+					if (_lastClickEventArgs.EventType == MouseEventType.MouseUp && eventType == MouseEventType.MouseDown
+						&& clicks <= _lastClickEventArgs.Clicks)
 						// Increase clicks beyond 2 in order to enable multi click support in tools
 						++clicks;
-					else if (lastClickEventArgs.EventType == MouseEventType.MouseDown && eventType == MouseEventType.MouseUp)
+					else if (_lastClickEventArgs.EventType == MouseEventType.MouseDown && eventType == MouseEventType.MouseUp)
 						// In MouseUp events, clicks is always 1 (no idea why).
-						clicks = lastClickEventArgs.Clicks;
+						clicks = _lastClickEventArgs.Clicks;
 				}
 			}
 			
-			mouseEventArgs.SetButtons(mouseButtons);
-			mouseEventArgs.SetClicks(clicks);
-			mouseEventArgs.SetEventType(eventType);
+			_mouseEventArgs.SetButtons(mouseButtons);
+			_mouseEventArgs.SetClicks(clicks);
+			_mouseEventArgs.SetEventType(eventType);
 			if (Geometry.IsValid(controlBounds))
-				mouseEventArgs.SetPosition(
+				_mouseEventArgs.SetPosition(
 					Math.Min(Math.Max(controlBounds.Left, x), controlBounds.Right), 
 					Math.Min(Math.Max(controlBounds.Top, y), controlBounds.Bottom)
 				);
-			else mouseEventArgs.SetPosition(x, y);
-			mouseEventArgs.SetWheelDelta(delta);
-			mouseEventArgs.SetModifiers(GetModifiers());
+			else _mouseEventArgs.SetPosition(x, y);
+			_mouseEventArgs.SetWheelDelta(delta);
+			_mouseEventArgs.SetModifiers(GetModifiers());
 
 			if (eventType != MouseEventType.MouseMove) {
-				lastClickEventSource = source;
-				lastClickEventArgs.Assign(mouseEventArgs);
-				lastClickEventTimestamp = utcNow;
+				_lastClickEventSource = source;
+				_lastClickEventArgs.Assign(_mouseEventArgs);
+				_lastClickEventTimestamp = utcNow;
 			}
 
-			return mouseEventArgs;
+			return _mouseEventArgs;
 		}
 
 		#endregion
@@ -145,12 +145,12 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Returns KeyEventArgs built with the provided parameters
 		/// </summary>
 		public static KeyEventArgsDg GetKeyEventArgs(KeyEventType eventType, char keyChar, int keyData, bool handled, bool suppressKeyPress) {
-			keyEventArgs.SetEventType(eventType);
-			keyEventArgs.SetKeyChar(keyChar);
-			keyEventArgs.SetKeyData(keyData);
-			keyEventArgs.Handled = handled;
-			keyEventArgs.SuppressKeyPress = suppressKeyPress;
-			return keyEventArgs;
+			_keyEventArgs.SetEventType(eventType);
+			_keyEventArgs.SetKeyChar(keyChar);
+			_keyEventArgs.SetKeyData(keyData);
+			_keyEventArgs.Handled = handled;
+			_keyEventArgs.SuppressKeyPress = suppressKeyPress;
+			return _keyEventArgs;
 		}
 
 		#endregion
@@ -388,12 +388,12 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		#region [Private] Fields
 
-		private static HelperMouseEventArgs mouseEventArgs = new HelperMouseEventArgs();
-		private static HelperKeyEventArgs keyEventArgs = new HelperKeyEventArgs();
+		private static HelperMouseEventArgs _mouseEventArgs = new HelperMouseEventArgs();
+		private static HelperKeyEventArgs _keyEventArgs = new HelperKeyEventArgs();
 
-		private static DateTime lastClickEventTimestamp = DateTime.MinValue;
-		private static HelperMouseEventArgs lastClickEventArgs = new HelperMouseEventArgs();
-		private static Control lastClickEventSource = null;
+		private static DateTime _lastClickEventTimestamp = DateTime.MinValue;
+		private static HelperMouseEventArgs _lastClickEventArgs = new HelperMouseEventArgs();
+		private static Control _lastClickEventSource = null;
 		
 		#endregion
 	

@@ -216,7 +216,7 @@ namespace Dataweb.NShape.Advanced {
 			if (graphics == null) throw new ArgumentNullException("graphics");
 			UpdateDrawCache();
 			Pen pen = ToolCache.GetPen(LineStyle, null, null);
-			Brush brush = ToolCache.GetTransformedBrush(FillStyle, boundingRectangleUnrotated, Center, Angle);
+			Brush brush = ToolCache.GetTransformedBrush(FillStyle, BoundingRectangleUnrotated, Center, Angle);
 			//Brush brush = ToolCache.GetTransformedBrush(FillStyle, GetBoundingRectangle(true), Center, Angle);
 			graphics.FillPath(brush, Path);
 
@@ -1170,7 +1170,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void UpdateDrawCache() {
-			if (drawCacheIsInvalid) {
+			if (DrawCacheIsInvalid) {
 				_ch = CharacterStyle.Size + 4;
 				_caption.CalculatePath(-_width / 2, -_height / 2 + -_ch, _width, _ch, CharacterStyle, ParagraphStyle);
 				TransformDrawCache(_x, _y + _height, 0, _x, _y);

@@ -13,10 +13,10 @@
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				// Release managed resources
-				if (toolSetController != null) UnregisterToolBoxEventHandlers();
-				if (listView != null) UnregisterListViewEventHandlers();
-				smallImageList.Dispose();
-				largeImageList.Dispose();
+				if (_toolSetController != null) UnregisterToolBoxEventHandlers();
+				if (_listView != null) UnregisterListViewEventHandlers();
+				_smallImageList.Dispose();
+				_largeImageList.Dispose();
 				if (components != null) components.Dispose();
 			}
 			base.Dispose(disposing);

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -22,7 +22,7 @@ namespace Dataweb.NShape.Designer {
 		public TestDataGeneratorDialog(Project project) {
 			InitializeComponent();
 			if (project == null) throw new ArgumentNullException("project");
-			this.project = project;
+			this._project = project;
 
 			// ToDo: Check if all needed libraries are loaded 
 
@@ -40,7 +40,7 @@ namespace Dataweb.NShape.Designer {
 
 		private int GetDiagramCount() {
 			int diagramCnt = 0;
-			foreach (Diagram diagram in project.Repository.GetDiagrams())
+			foreach (Diagram diagram in _project.Repository.GetDiagrams())
 				++diagramCnt;
 			return diagramCnt;
 		}
@@ -56,7 +56,7 @@ namespace Dataweb.NShape.Designer {
 						diagramName = string.Format("Diagram {0}", GetDiagramCount() + 1);
 
 					// Create test diagram
-					TestDataGenerator.CreateDiagram(project,
+					TestDataGenerator.CreateDiagram(_project,
 						diagramName,
 						(int)shapeSizeUpDown.Value,
 						(int)shapesPerRowUpDown.Value,
@@ -78,7 +78,7 @@ namespace Dataweb.NShape.Designer {
 		}
 
 
-		private Project project = null;
+		private Project _project = null;
 	}
 
 }

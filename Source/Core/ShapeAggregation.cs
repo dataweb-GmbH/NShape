@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -50,7 +50,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		protected ShapeAggregation(Shape owner, IEnumerable<Shape> collection)
 			: base(collection) {
-			Construct(owner, shapes.Capacity);
+			Construct(owner, Shapes.Capacity);
 		}
 
 
@@ -80,7 +80,7 @@ namespace Dataweb.NShape.Advanced {
 				shapeClone.Parent = this.Owner;
 				shapeClone.DisplayService = this.Owner.DisplayService;
 
-				this.shapes.Add(shapeClone);
+				this.Shapes.Add(shapeClone);
 				this.AddShapeToIndex(shapeClone);
 			}
 
@@ -89,28 +89,28 @@ namespace Dataweb.NShape.Advanced {
 				this._aggregationAngle = src._aggregationAngle;
 				this._rotationCenter = src._rotationCenter;
 				//
-				int shapeCnt = shapes.Count;
+				int shapeCnt = Shapes.Count;
 				// Copy center points of the shapes
 				this.ShapePositions.Clear();
 				for (int i = 0; i < shapeCnt; ++i) {
-					Point shapePos = src.ShapePositions[src.shapes[i]];
-					this.ShapePositions.Add(shapes[i], shapePos);
+					Point shapePos = src.ShapePositions[src.Shapes[i]];
+					this.ShapePositions.Add(Shapes[i], shapePos);
 				}
 				// Copy relative positions of the children
 				RelativePointPositions.Clear();
 				for (int i = 0; i < shapeCnt; ++i) {
 					// Copy all items
-					PointPositions srcPtPositions = src.RelativePointPositions[src.shapes[i]];
+					PointPositions srcPtPositions = src.RelativePointPositions[src.Shapes[i]];
 					PointPositions dstPtPositions = new PointPositions();
 					foreach (KeyValuePair<ControlPointId, RelativePosition> item in srcPtPositions.Items)
 						dstPtPositions.Items.Add(item.Key, item.Value);
-					RelativePointPositions.Add(shapes[i], dstPtPositions);
+					RelativePointPositions.Add(Shapes[i], dstPtPositions);
 				}
 			} else {
 				// If the source ShapeCollection is not a ShapeAggregation, 
 				// store unrotated ShapePositions nevertheless
 				this.ShapePositions.Clear();
-				foreach (Shape shape in shapes) {
+				foreach (Shape shape in Shapes) {
 					Point shapePos = Point.Empty;
 					shapePos.Offset(shape.X, shape.Y);
 					this.ShapePositions.Add(shape, shapePos);
@@ -123,7 +123,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public void SetPreviewStyles(IStyleSet styleSet) {
 			if (styleSet == null) throw new ArgumentNullException("styleSet");
-			foreach (Shape shape in shapes)
+			foreach (Shape shape in Shapes)
 				shape.MakePreview(styleSet);
 		}
 
@@ -151,7 +151,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool NotifyStyleChanged(IStyle style) {
 			bool result = false;
-			foreach (Shape shape in shapes)
+			foreach (Shape shape in Shapes)
 				if (shape.NotifyStyleChanged(style)) result = true;
 			return result;
 		}
@@ -184,7 +184,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal void Invalidate() {
-			foreach (Shape shape in shapes)
+			foreach (Shape shape in Shapes)
 				shape.Invalidate();
 		}
 
@@ -201,7 +201,7 @@ namespace Dataweb.NShape.Advanced {
 		/// False if the child shapes cannot move as desired due to restrictions (such as connections).
 		/// </returns>
 		public virtual bool NotifyParentRotated(int angle, int rotationCenterX, int rotationCenterY) {
-			if (shapes.Count == 0) return false;
+			if (Shapes.Count == 0) return false;
 			else {
 				bool result = true;
 				try {
@@ -214,7 +214,7 @@ namespace Dataweb.NShape.Advanced {
 					_rotationCenter.Y = rotationCenterY;
 
 					// rotate child shapes around the parent's center
-					foreach (Shape shape in shapes) {
+					foreach (Shape shape in Shapes) {
 						// Get glue point states and handle connected glue points if there are any:
 						//   * Skip all shapes with connected glue points as they will move with their partner shape anyway
 						//   * Check all shapes *without* glue points whether shapes are connected and move control points 
@@ -254,13 +254,13 @@ namespace Dataweb.NShape.Advanced {
 		/// False if the child shapes cannot move as desired due to restrictions (such as connections).
 		/// </returns>
 		public virtual bool NotifyParentMoved(int deltaX, int deltaY) {
-			if (shapes.Count == 0) return true;
+			if (Shapes.Count == 0) return true;
 			else {
 				bool result = true;
 				try {
 					SuspendUpdate();
 					// move child shapes with parent
-					foreach (Shape shape in shapes) {
+					foreach (Shape shape in Shapes) {
 						// Update unrotated shape center - regardless wether the shape is moved or not (shapes with
 						// connected glue points will not be moved)
 						// Due to the fact that Point is a value Type, we have to overwrite the Point with a new Point.
@@ -365,7 +365,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void ClearCore() {
-			foreach (Shape shape in shapes) {
+			foreach (Shape shape in Shapes) {
 				shape.Invalidate();
 				shape.Parent = null;
 				shape.DisplayService = null;
@@ -592,7 +592,7 @@ namespace Dataweb.NShape.Advanced {
 	
 
 		private void RevertRotation() {
-			foreach (Shape shape in shapes) {
+			foreach (Shape shape in Shapes) {
 				Point unrotatedShapeCenter = ShapePositions[shape];
 				shape.Rotate(-_aggregationAngle, shape.X, shape.Y);
 				shape.MoveTo(unrotatedShapeCenter.X, unrotatedShapeCenter.Y);
@@ -1084,7 +1084,7 @@ namespace Dataweb.NShape.Advanced {
 				SuspendUpdate();
 				Rectangle ownerBounds = Owner.GetBoundingRectangle(true);
 				// Move children to their new absolute position calculated from relativePosition
-				foreach (Shape shape in shapes) {
+				foreach (Shape shape in Shapes) {
 					// Get the state of the shape's glue points
 					GluePointState gluePointState = GetGluePointState(shape);
 					if (gluePointState == GluePointState.AllConnected)

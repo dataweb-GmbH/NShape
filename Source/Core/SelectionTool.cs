@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -264,7 +264,7 @@ namespace Dataweb.NShape {
 					diagramPresenter.ResetTransformation();
 					try {
 						if (PendingToolActionsCount == 1) {
-							diagramPresenter.DrawAnglePreview(_rectBuffer.Location, CurrentMouseState.Position, cursors[ToolCursor.Rotate], 0, 0);
+							diagramPresenter.DrawAnglePreview(_rectBuffer.Location, CurrentMouseState.Position, _cursors[ToolCursor.Rotate], 0, 0);
 						} else {
 							// Get MouseState of the first click (on the rotation point)
 							MouseState initMouseState = GetPreviousMouseState();
@@ -276,7 +276,7 @@ namespace Dataweb.NShape {
 							_rectBuffer.Width = _rectBuffer.Height = (int)Math.Ceiling(Geometry.DistancePointPoint(_rectBuffer.Location, CurrentMouseState.Position));
 
 							diagramPresenter.DrawAnglePreview(_rectBuffer.Location, CurrentMouseState.Position,
-								cursors[ToolCursor.Rotate], startAngle, sweepAngle);
+								_cursors[ToolCursor.Rotate], startAngle, sweepAngle);
 						}
 					} finally { diagramPresenter.RestoreTransformation(); }
 					break;
@@ -1881,24 +1881,24 @@ namespace Dataweb.NShape {
 						// Check if cursor is over a caption and editing caption is feasible
 						if (IsEditCaptionFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
 							//return cursors[ToolCursor.EditCaption];
-							return cursors[ToolCursor.MoveShape];
+							return _cursors[ToolCursor.MoveShape];
 						// Check if cursor is over a control point and moving grips or rotating is feasible
 						if (_selectedShapeAtCursorInfo.IsCursorAtGrip) {
 							if (IsMoveHandleFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
-								return cursors[ToolCursor.MoveHandle];
+								return _cursors[ToolCursor.MoveHandle];
 							else if (IsRotatatingFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
-								return cursors[ToolCursor.Rotate];
-							else return cursors[ToolCursor.Default];
+								return _cursors[ToolCursor.Rotate];
+							else return _cursors[ToolCursor.Default];
 						}
 						// Check if cursor is inside the shape and move shape is feasible
 						if (IsMoveShapeFeasible(diagramPresenter, mouseState, _selectedShapeAtCursorInfo))
-							return cursors[ToolCursor.MoveShape];
+							return _cursors[ToolCursor.MoveShape];
 					}
-					return cursors[ToolCursor.Default];
+					return _cursors[ToolCursor.Default];
 
 				case Action.Select:
 				case Action.SelectWithFrame:
-					return cursors[ToolCursor.Default];
+					return _cursors[ToolCursor.Default];
 
 				case Action.EditCaption:
 #if DEBUG_DIAGNOSTICS
@@ -1908,8 +1908,8 @@ namespace Dataweb.NShape {
 					// If the cursor is outside the caption, return default cursor
 					int captionIndex = ((ICaptionedShape)_selectedShapeAtCursorInfo.Shape).FindCaptionFromPoint(mouseState.X, mouseState.Y);
 					if (captionIndex == _selectedShapeAtCursorInfo.CaptionIndex)
-						return cursors[ToolCursor.EditCaption];
-					else return cursors[ToolCursor.Default];
+						return _cursors[ToolCursor.EditCaption];
+					else return _cursors[ToolCursor.Default];
 
 				case Action.MoveHandle:
 #if DEBUG_DIAGNOSTICS
@@ -1927,16 +1927,16 @@ namespace Dataweb.NShape {
 							true,
 							false);
 						if (!shapeAtCursorInfo.IsEmpty && _selectedShapeAtCursorInfo.CanConnect(shapeAtCursorInfo))
-							return cursors[ToolCursor.Connect];
+							return _cursors[ToolCursor.Connect];
 					}
-					return cursors[ToolCursor.MoveHandle];
+					return _cursors[ToolCursor.MoveHandle];
 
 				case Action.MoveShape:
-					return cursors[ToolCursor.MoveShape];
+					return _cursors[ToolCursor.MoveShape];
 
 				case Action.PrepareRotate:
 				case Action.Rotate:
-					return cursors[ToolCursor.Rotate];
+					return _cursors[ToolCursor.Rotate];
 
 				default: throw new NShapeUnsupportedValueException(CurrentAction);
 			}
@@ -2130,17 +2130,17 @@ namespace Dataweb.NShape {
 		#region [Private] Construction
 
 		static SelectionTool() {
-			cursors = new Dictionary<ToolCursor, int>(8);
+			_cursors = new Dictionary<ToolCursor, int>(8);
 			// Register cursors
-			cursors.Add(ToolCursor.Default, CursorProvider.DefaultCursorID);
-			cursors.Add(ToolCursor.ActionDenied, CursorProvider.RegisterCursor(Properties.Resources.ActionDeniedCursor));
-			cursors.Add(ToolCursor.EditCaption, CursorProvider.RegisterCursor(Properties.Resources.EditTextCursor));
-			cursors.Add(ToolCursor.MoveShape, CursorProvider.RegisterCursor(Properties.Resources.MoveShapeCursor));
-			cursors.Add(ToolCursor.MoveHandle, CursorProvider.RegisterCursor(Properties.Resources.MovePointCursor));
-			cursors.Add(ToolCursor.Rotate, CursorProvider.RegisterCursor(Properties.Resources.RotateCursor));
+			_cursors.Add(ToolCursor.Default, CursorProvider.DefaultCursorID);
+			_cursors.Add(ToolCursor.ActionDenied, CursorProvider.RegisterCursor(Properties.Resources.ActionDeniedCursor));
+			_cursors.Add(ToolCursor.EditCaption, CursorProvider.RegisterCursor(Properties.Resources.EditTextCursor));
+			_cursors.Add(ToolCursor.MoveShape, CursorProvider.RegisterCursor(Properties.Resources.MoveShapeCursor));
+			_cursors.Add(ToolCursor.MoveHandle, CursorProvider.RegisterCursor(Properties.Resources.MovePointCursor));
+			_cursors.Add(ToolCursor.Rotate, CursorProvider.RegisterCursor(Properties.Resources.RotateCursor));
 			// ToDo: Create better Connect/Disconnect cursors
-			cursors.Add(ToolCursor.Connect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
-			cursors.Add(ToolCursor.Disconnect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
+			_cursors.Add(ToolCursor.Connect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
+			_cursors.Add(ToolCursor.Disconnect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
 		}
 
 
@@ -2210,7 +2210,7 @@ namespace Dataweb.NShape {
 		#region Fields
 
 		// --- Description of the tool ---
-		private static Dictionary<ToolCursor, int> cursors;
+		private static Dictionary<ToolCursor, int> _cursors;
 		//
 		private OverlappingShapesAction _overlappingShapesSelectionMode = OverlappingShapesAction.Cycle;
 		private bool _enableQuickRotate = false;

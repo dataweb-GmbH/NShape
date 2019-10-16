@@ -80,11 +80,13 @@ namespace Dataweb.NShape.Designer {
 			}
 		}
 
+
 		public string AssemblyVersion {
 			get {
 				return Assembly.GetExecutingAssembly().GetName().Version.ToString();
 			}
 		}
+
 
 		public string AssemblyDescription {
 			get {
@@ -94,6 +96,7 @@ namespace Dataweb.NShape.Designer {
 			}
 		}
 
+
 		public string AssemblyProduct {
 			get {
 				object[] attributes = Attribute.GetCustomAttributes(Assembly.GetExecutingAssembly(), typeof(AssemblyProductAttribute), false);
@@ -101,6 +104,7 @@ namespace Dataweb.NShape.Designer {
 				return ((AssemblyProductAttribute)attributes[0]).Product;
 			}
 		}
+
 
 		public string AssemblyCopyright {
 			get {
@@ -110,6 +114,7 @@ namespace Dataweb.NShape.Designer {
 			}
 		}
 
+
 		public string AssemblyCompany {
 			get {
 				object[] attributes = Attribute.GetCustomAttributes(Assembly.GetExecutingAssembly(), typeof(AssemblyCompanyAttribute), false);
@@ -117,6 +122,7 @@ namespace Dataweb.NShape.Designer {
 				return ((AssemblyCompanyAttribute)attributes[0]).Company;
 			}
 		}
+
 		#endregion
 
 	}

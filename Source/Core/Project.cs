@@ -1394,9 +1394,9 @@ namespace Dataweb.NShape {
 
 			public Library(Assembly assembly, bool unloadOnClose) {
 				if (assembly == null) throw new ArgumentNullException("assembly");
-				this.assembly = assembly;
-				this.name = null;
-				this.unloadOnClose = unloadOnClose;
+				this._assembly = assembly;
+				this._name = null;
+				this._unloadOnClose = unloadOnClose;
 			}
 
 
@@ -1404,8 +1404,8 @@ namespace Dataweb.NShape {
 			/// User-defined name to identify the library.
 			/// </summary>
 			public string Name {
-				get { return name; }
-				set { name = value; }
+				get { return _name; }
+				set { _name = value; }
 			}
 
 
@@ -1413,8 +1413,8 @@ namespace Dataweb.NShape {
 			/// Specifies the assembly used for the library.
 			/// </summary>
 			public Assembly Assembly {
-				get { return assembly; }
-				set { assembly = value; }
+				get { return _assembly; }
+				set { _assembly = value; }
 			}
 
 
@@ -1422,8 +1422,8 @@ namespace Dataweb.NShape {
 			/// Specifies the preferred repository version for the library.
 			/// </summary>
 			public int PreferredRepositoryVersion {
-				get { return preferredRepositoryVersion; }
-				set { preferredRepositoryVersion = value; }
+				get { return _preferredRepositoryVersion; }
+				set { _preferredRepositoryVersion = value; }
 			}
 
 
@@ -1431,16 +1431,16 @@ namespace Dataweb.NShape {
 			/// Specifies whether the library will be unloaded when the project is closed.
 			/// </summary>
 			public bool UnloadOnClose {
-				get { return unloadOnClose; }
+				get { return _unloadOnClose; }
 			}
 
 
 			#region Fields
 
-			private string name;
-			private Assembly assembly;
-			private int preferredRepositoryVersion;
-			private bool unloadOnClose = true;
+			private string _name;
+			private Assembly _assembly;
+			private int _preferredRepositoryVersion;
+			private bool _unloadOnClose = true;
 
 			#endregion
 		}

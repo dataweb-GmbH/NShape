@@ -47,12 +47,17 @@
 			this.showDynamicContextMenu = new System.Windows.Forms.CheckBox();
 			this.hideDeniedMenuItemsCheckBox = new System.Windows.Forms.CheckBox();
 			this.colorDialog = new System.Windows.Forms.ColorDialog();
+			this.groupBox4 = new System.Windows.Forms.GroupBox();
+			this.showSheetCheckBox = new System.Windows.Forms.CheckBox();
+			this.wheelZoomCheckBox = new System.Windows.Forms.CheckBox();
+			this.hideScrollBarsCheckBox = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.gridSizeUpDown)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.snapDistanceUpDown)).BeginInit();
 			this.groupBox1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pointSizeUpDown)).BeginInit();
 			this.groupBox3.SuspendLayout();
+			this.groupBox4.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// snapToGridCheckBox
@@ -118,7 +123,7 @@
 			// showGridCheckBox
 			// 
 			this.showGridCheckBox.AutoSize = true;
-			this.showGridCheckBox.Location = new System.Drawing.Point(6, 18);
+			this.showGridCheckBox.Location = new System.Drawing.Point(6, 19);
 			this.showGridCheckBox.Name = "showGridCheckBox";
 			this.showGridCheckBox.Size = new System.Drawing.Size(75, 17);
 			this.showGridCheckBox.TabIndex = 13;
@@ -129,7 +134,7 @@
 			// 
 			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelButton.Location = new System.Drawing.Point(227, 337);
+			this.cancelButton.Location = new System.Drawing.Point(227, 417);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
 			this.cancelButton.TabIndex = 14;
@@ -140,7 +145,7 @@
 			// okButton
 			// 
 			this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.okButton.Location = new System.Drawing.Point(146, 337);
+			this.okButton.Location = new System.Drawing.Point(146, 417);
 			this.okButton.Name = "okButton";
 			this.okButton.Size = new System.Drawing.Size(75, 23);
 			this.okButton.TabIndex = 15;
@@ -159,8 +164,8 @@
 			// 
 			// groupBox1
 			// 
-			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox1.Controls.Add(this.chooseGridColorButton);
 			this.groupBox1.Controls.Add(this.gridColorLabel);
 			this.groupBox1.Controls.Add(this.label6);
@@ -170,7 +175,7 @@
 			this.groupBox1.Controls.Add(this.snapDistanceUpDown);
 			this.groupBox1.Controls.Add(this.gridSizeUpDown);
 			this.groupBox1.Controls.Add(this.snapToGridCheckBox);
-			this.groupBox1.Location = new System.Drawing.Point(12, 12);
+			this.groupBox1.Location = new System.Drawing.Point(12, 106);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(289, 98);
 			this.groupBox1.TabIndex = 17;
@@ -207,15 +212,15 @@
 			// 
 			// groupBox2
 			// 
-			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox2.Controls.Add(this.pointSizeUpDown);
 			this.groupBox2.Controls.Add(this.connectionPointCombo);
 			this.groupBox2.Controls.Add(this.resizePointCombo);
 			this.groupBox2.Controls.Add(this.label5);
 			this.groupBox2.Controls.Add(this.label4);
 			this.groupBox2.Controls.Add(this.label3);
-			this.groupBox2.Location = new System.Drawing.Point(12, 116);
+			this.groupBox2.Location = new System.Drawing.Point(12, 210);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Size = new System.Drawing.Size(289, 100);
 			this.groupBox2.TabIndex = 18;
@@ -275,13 +280,13 @@
 			// 
 			// groupBox3
 			// 
-			this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox3.Controls.Add(this.showDynamicContextMenu);
 			this.groupBox3.Controls.Add(this.hideDeniedMenuItemsCheckBox);
-			this.groupBox3.Location = new System.Drawing.Point(12, 222);
+			this.groupBox3.Location = new System.Drawing.Point(12, 316);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(289, 100);
+			this.groupBox3.Size = new System.Drawing.Size(289, 85);
 			this.groupBox3.TabIndex = 19;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "Permissions";
@@ -298,8 +303,8 @@
 			// 
 			// hideDeniedMenuItemsCheckBox
 			// 
-			this.hideDeniedMenuItemsCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.hideDeniedMenuItemsCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.hideDeniedMenuItemsCheckBox.Location = new System.Drawing.Point(6, 19);
 			this.hideDeniedMenuItemsCheckBox.Name = "hideDeniedMenuItemsCheckBox";
 			this.hideDeniedMenuItemsCheckBox.Size = new System.Drawing.Size(277, 30);
@@ -312,6 +317,48 @@
 			this.colorDialog.AnyColor = true;
 			this.colorDialog.FullOpen = true;
 			// 
+			// groupBox4
+			// 
+			this.groupBox4.Controls.Add(this.hideScrollBarsCheckBox);
+			this.groupBox4.Controls.Add(this.wheelZoomCheckBox);
+			this.groupBox4.Controls.Add(this.showSheetCheckBox);
+			this.groupBox4.Location = new System.Drawing.Point(12, 12);
+			this.groupBox4.Name = "groupBox4";
+			this.groupBox4.Size = new System.Drawing.Size(289, 88);
+			this.groupBox4.TabIndex = 17;
+			this.groupBox4.TabStop = false;
+			this.groupBox4.Text = "Display Settings";
+			// 
+			// showSheetCheckBox
+			// 
+			this.showSheetCheckBox.AutoSize = true;
+			this.showSheetCheckBox.Location = new System.Drawing.Point(6, 65);
+			this.showSheetCheckBox.Name = "showSheetCheckBox";
+			this.showSheetCheckBox.Size = new System.Drawing.Size(126, 17);
+			this.showSheetCheckBox.TabIndex = 18;
+			this.showSheetCheckBox.Text = "Show Diagram Sheet";
+			this.showSheetCheckBox.UseVisualStyleBackColor = true;
+			// 
+			// wheelZoomCheckBox
+			// 
+			this.wheelZoomCheckBox.AutoSize = true;
+			this.wheelZoomCheckBox.Location = new System.Drawing.Point(6, 19);
+			this.wheelZoomCheckBox.Name = "wheelZoomCheckBox";
+			this.wheelZoomCheckBox.Size = new System.Drawing.Size(144, 17);
+			this.wheelZoomCheckBox.TabIndex = 19;
+			this.wheelZoomCheckBox.Text = "Zoom with Mouse Wheel";
+			this.wheelZoomCheckBox.UseVisualStyleBackColor = true;
+			// 
+			// hideScrollBarsCheckBox
+			// 
+			this.hideScrollBarsCheckBox.AutoSize = true;
+			this.hideScrollBarsCheckBox.Location = new System.Drawing.Point(6, 42);
+			this.hideScrollBarsCheckBox.Name = "hideScrollBarsCheckBox";
+			this.hideScrollBarsCheckBox.Size = new System.Drawing.Size(101, 17);
+			this.hideScrollBarsCheckBox.TabIndex = 20;
+			this.hideScrollBarsCheckBox.Text = "Hide Scroll Bars";
+			this.hideScrollBarsCheckBox.UseVisualStyleBackColor = true;
+			// 
 			// DisplaySettingsForm
 			// 
 			this.AcceptButton = this.okButton;
@@ -319,7 +366,8 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSize = true;
 			this.CancelButton = this.cancelButton;
-			this.ClientSize = new System.Drawing.Size(313, 372);
+			this.ClientSize = new System.Drawing.Size(313, 452);
+			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
@@ -339,6 +387,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.pointSizeUpDown)).EndInit();
 			this.groupBox3.ResumeLayout(false);
 			this.groupBox3.PerformLayout();
+			this.groupBox4.ResumeLayout(false);
+			this.groupBox4.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -368,5 +418,9 @@
 		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.ColorDialog colorDialog;
 		private System.Windows.Forms.Button chooseGridColorButton;
+		private System.Windows.Forms.GroupBox groupBox4;
+		private System.Windows.Forms.CheckBox hideScrollBarsCheckBox;
+		private System.Windows.Forms.CheckBox wheelZoomCheckBox;
+		private System.Windows.Forms.CheckBox showSheetCheckBox;
 	}
 }

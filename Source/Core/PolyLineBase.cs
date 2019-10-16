@@ -95,7 +95,7 @@ namespace Dataweb.NShape.Advanced {
 			// B = Angle between the line segment (A / next vertex of A) and the point
 			// C = Distance of the point from A in percentage of the line segment's length
 			Point result = Point.Empty;
-			if (drawCacheIsInvalid)
+			if (DrawCacheIsInvalid)
 				UpdateDrawCache();
 
 			ControlPointId ptIdA = relativePosition.A;
@@ -284,7 +284,7 @@ namespace Dataweb.NShape.Advanced {
 		public override void Draw(Graphics graphics) {
 			if (graphics == null) throw new ArgumentNullException("graphics");
 			UpdateDrawCache();
-			int lastIdx = shapePoints.Length - 1;
+			int lastIdx = ShapePoints.Length - 1;
 			if (lastIdx > 0) {
 				// GDI+ behaviour:
 				// If the two end caps of a line intersect within the range of the insets and the whole 
@@ -293,14 +293,14 @@ namespace Dataweb.NShape.Advanced {
 				// Workaround:
 				// We detect that condition and move the end points of the line farther away from each other such that 
 				// the caps do not intersect anymore.
-				Point startPoint = shapePoints[0];
-				Point endPoint = shapePoints[lastIdx];
+				Point startPoint = ShapePoints[0];
+				Point endPoint = ShapePoints[lastIdx];
 				Pen pen = ToolCache.GetPen(LineStyle, StartCapStyleInternal, EndCapStyleInternal);
 				try {
 					Point safeStartPoint, safeEndPoint;
-					if (ShapeUtils.LineHasInvalidCapIntersection(shapePoints, pen, out safeStartPoint, out safeEndPoint)) {
-						shapePoints[0] = safeStartPoint;
-						shapePoints[lastIdx] = safeEndPoint;
+					if (ShapeUtils.LineHasInvalidCapIntersection(ShapePoints, pen, out safeStartPoint, out safeEndPoint)) {
+						ShapePoints[0] = safeStartPoint;
+						ShapePoints[lastIdx] = safeEndPoint;
 					}
 					// Draw interior of line caps
 					DrawStartCapBackground(graphics, safeStartPoint.X, safeStartPoint.Y);
@@ -308,8 +308,8 @@ namespace Dataweb.NShape.Advanced {
 					// Draw line
 					DrawOutline(graphics, pen);
 				} finally {
-					shapePoints[0] = startPoint;
-					shapePoints[lastIdx] = endPoint;
+					ShapePoints[0] = startPoint;
+					ShapePoints[lastIdx] = endPoint;
 				}
 				// ToDo: If the line is connected to another line, draw a connection indicator (ein Bommel oder so)
 				// ToDo: Add a property for enabling/disabling this feature
@@ -322,7 +322,7 @@ namespace Dataweb.NShape.Advanced {
 		public override void DrawOutline(Graphics graphics, Pen pen) {
 			if (graphics == null) throw new ArgumentNullException("graphics");
 			if (pen == null) throw new ArgumentNullException("pen");
-			ShapeUtils.DrawLinesSafe(graphics, pen, shapePoints);
+			ShapeUtils.DrawLinesSafe(graphics, pen, ShapePoints);
 			base.DrawOutline(graphics, pen);
 		}
 
@@ -769,7 +769,7 @@ namespace Dataweb.NShape.Advanced {
 			// Recalc shapePoints
 			CalcShapePoints();
 			Pen pen = ToolCache.GetPen(LineStyle, StartCapStyleInternal, EndCapStyleInternal);
-			result = ShapeUtils.CalcLineCapAngle(shapePoints, pointId, pen);
+			result = ShapeUtils.CalcLineCapAngle(ShapePoints, pointId, pen);
 			return result;
 		}
 
@@ -837,15 +837,15 @@ namespace Dataweb.NShape.Advanced {
 
 		private void CalcShapePoints() {
 			// Calculate shape points (relative to origin of coordinates)
-			if (shapePoints.Length != VertexCount)
-				Array.Resize(ref shapePoints, VertexCount);
+			if (ShapePoints.Length != VertexCount)
+				Array.Resize(ref ShapePoints, VertexCount);
 			Point refPos = GetControlPointPosition(ControlPointId.Reference);
 			// Do not use GetLineSegments here because it will call RecalcDrawCache
 			for (int vIdx = VertexCount - 1, ptIdx = ControlPointCount - 1; ptIdx >= 0; --ptIdx) {
 				LineControlPoint ctrlPoint = GetControlPoint(ptIdx);
 				if (ctrlPoint is VertexControlPoint) {
-					shapePoints[vIdx] = ctrlPoint.GetPosition();
-					shapePoints[vIdx].Offset(-refPos.X, -refPos.Y);
+					ShapePoints[vIdx] = ctrlPoint.GetPosition();
+					ShapePoints[vIdx].Offset(-refPos.X, -refPos.Y);
 					--vIdx;
 				}
 			}

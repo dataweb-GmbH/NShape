@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -60,7 +60,7 @@ namespace Dataweb.NShape {
 		public override void NotifyChildMoving(Shape shape) {
 			base.NotifyChildMoving(shape);
 			CheckOwnerboundsUpdateNeeded(shape);
-			++shapeCounter;
+			++_suspendUpdateCounter;
 		}
 
 
@@ -70,8 +70,8 @@ namespace Dataweb.NShape {
 			RaiseShapeMovedEvent(shape);
 
 			CheckOwnerboundsUpdateNeeded(shape);
-			--shapeCounter;
-			if (shapeCounter == 0) DoUpdateOwnerBounds();
+			--_suspendUpdateCounter;
+			if (_suspendUpdateCounter == 0) DoUpdateOwnerBounds();
 		}
 
 
@@ -79,7 +79,7 @@ namespace Dataweb.NShape {
 		public override void NotifyChildResizing(Shape shape) {
 			base.NotifyChildResizing(shape);
 			CheckOwnerboundsUpdateNeeded(shape);
-			++shapeCounter;
+			++_suspendUpdateCounter;
 		}
 
 
@@ -89,8 +89,8 @@ namespace Dataweb.NShape {
 			RaiseShapeResizedEvent(shape);
 
 			CheckOwnerboundsUpdateNeeded(shape);
-			--shapeCounter;
-			if (shapeCounter == 0) DoUpdateOwnerBounds();
+			--_suspendUpdateCounter;
+			if (_suspendUpdateCounter == 0) DoUpdateOwnerBounds();
 		}
 
 
@@ -98,7 +98,7 @@ namespace Dataweb.NShape {
 		public override void NotifyChildRotating(Shape shape) {
 			base.NotifyChildRotating(shape);
 			CheckOwnerboundsUpdateNeeded(shape);
-			++shapeCounter;
+			++_suspendUpdateCounter;
 		}
 
 
@@ -108,8 +108,8 @@ namespace Dataweb.NShape {
 			RaiseShapeRotatedEvent(shape);
 
 			CheckOwnerboundsUpdateNeeded(shape);
-			--shapeCounter;
-			if (shapeCounter == 0) DoUpdateOwnerBounds();
+			--_suspendUpdateCounter;
+			if (_suspendUpdateCounter == 0) DoUpdateOwnerBounds();
 		}
 
 
@@ -121,7 +121,7 @@ namespace Dataweb.NShape {
 		internal DiagramShapeCollection(Diagram owner, int capacity)
 			: base(capacity) {
 			if (owner == null) throw new ArgumentNullException("owner");
-			this.owner = owner;
+			this._owner = owner;
 		}
 
 
@@ -132,30 +132,33 @@ namespace Dataweb.NShape {
 
 
 		internal Diagram Owner {
-			get { return owner; }
+			get { return _owner; }
 		}
 
 
 		/// <override></override>
 		protected override void AddRangeCore(IEnumerable<Shape> collection) {
-			if (collection is ICollection) shapeCounter = ((ICollection)collection).Count;
-			else foreach (Shape s in collection) ++shapeCounter;
+			Debug.Assert(_suspendUpdateCounter == 0);
+			if (collection is ICollection) _suspendUpdateCounter = ((ICollection)collection).Count;
+			else foreach (Shape s in collection) ++_suspendUpdateCounter;
 			base.AddRangeCore(collection);
 		}
 
 
 		/// <override></override>
 		protected override bool RemoveRangeCore(IEnumerable<Shape> collection) {
-			if (collection is ICollection) shapeCounter = ((ICollection)collection).Count;
-			else foreach (Shape s in collection) ++shapeCounter;
+			Debug.Assert(_suspendUpdateCounter == 0);
+			if (collection is ICollection) _suspendUpdateCounter = ((ICollection)collection).Count;
+			else foreach (Shape s in collection) ++_suspendUpdateCounter;
 			return base.RemoveRangeCore(collection);
 		}
 
 
 		/// <override></override>
 		protected override void ReplaceRangeCore(IEnumerable<Shape> oldShapes, IEnumerable<Shape> newShapes) {
-			if (oldShapes is ICollection) shapeCounter = ((ICollection)oldShapes).Count;
-			else foreach (Shape s in oldShapes) ++shapeCounter;
+			Debug.Assert(_suspendUpdateCounter == 0);
+			if (oldShapes is ICollection) _suspendUpdateCounter = ((ICollection)oldShapes).Count;
+			else foreach (Shape s in oldShapes) ++_suspendUpdateCounter;
 			base.ReplaceRangeCore(oldShapes, newShapes);
 		}
 
@@ -163,13 +166,13 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		protected override int InsertCore(int index, Shape shape) {
 			int result = base.InsertCore(index, shape);
-			shape.Diagram = owner;
-			shape.DisplayService = owner.DisplayService;
+			shape.Diagram = _owner;
+			shape.DisplayService = _owner.DisplayService;
 			shape.Invalidate();
 
 			CheckOwnerboundsUpdateNeeded(shape);
-			if (shapeCounter > 0) --shapeCounter;
-			if (shapeCounter == 0) DoUpdateOwnerBounds();
+			if (_suspendUpdateCounter > 0) --_suspendUpdateCounter;
+			if (_suspendUpdateCounter == 0) DoUpdateOwnerBounds();
 
 			return result;
 		}
@@ -181,14 +184,14 @@ namespace Dataweb.NShape {
 			oldShape.Diagram = null;
 			oldShape.Invalidate();
 			oldShape.DisplayService = null;
-			newShape.Diagram = owner;
-			newShape.DisplayService = owner.DisplayService;
+			newShape.Diagram = _owner;
+			newShape.DisplayService = _owner.DisplayService;
 			newShape.Invalidate();
 
 			CheckOwnerboundsUpdateNeeded(oldShape);
 			CheckOwnerboundsUpdateNeeded(newShape);
-			if (shapeCounter > 0) --shapeCounter;
-			if (shapeCounter == 0) DoUpdateOwnerBounds();
+			if (_suspendUpdateCounter > 0) --_suspendUpdateCounter;
+			if (_suspendUpdateCounter == 0) DoUpdateOwnerBounds();
 		}
 
 
@@ -200,8 +203,8 @@ namespace Dataweb.NShape {
 			shape.Diagram = null;
 
 			CheckOwnerboundsUpdateNeeded(shape);
-			if (shapeCounter > 0) --shapeCounter;
-			if (shapeCounter == 0) DoUpdateOwnerBounds();
+			if (_suspendUpdateCounter > 0) --_suspendUpdateCounter;
+			if (_suspendUpdateCounter == 0) DoUpdateOwnerBounds();
 
 			return result;
 		}
@@ -209,7 +212,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		protected override void ClearCore() {
-			foreach (Shape shape in shapes) {
+			foreach (Shape shape in Shapes) {
 				CheckOwnerboundsUpdateNeeded(shape);
 				shape.Invalidate();
 				shape.DisplayService = null;
@@ -220,47 +223,47 @@ namespace Dataweb.NShape {
 
 
 		private void CheckOwnerboundsUpdateNeeded(Shape shape) {
-			if (!ownerBoundsUpdateNeeded) {
+			if (!_ownerBoundsUpdateNeeded) {
 				Rectangle shapeBounds = shape.GetBoundingRectangle(true);
-				if (shapeBounds.Left < 0 || owner.Width < shapeBounds.Right
-					|| shapeBounds.Top < 0 || owner.Height < shapeBounds.Bottom)
-					ownerBoundsUpdateNeeded = true;
+				if (shapeBounds.Left < 0 || _owner.Width < shapeBounds.Right
+					|| shapeBounds.Top < 0 || _owner.Height < shapeBounds.Bottom)
+					_ownerBoundsUpdateNeeded = true;
 			}
 		}
 
 
 		private void DoUpdateOwnerBounds() {
-			Debug.Assert(shapeCounter == 0);
-			if (ownerBoundsUpdateNeeded) {
-				if (owner != null) owner.OnResized(EventArgs.Empty);
-				ownerBoundsUpdateNeeded = false;
+			Debug.Assert(_suspendUpdateCounter == 0);
+			if (_ownerBoundsUpdateNeeded) {
+				if (_owner != null) _owner.OnResized(EventArgs.Empty);
+				_ownerBoundsUpdateNeeded = false;
 			}
 		}
 
 
 		private void RaiseShapeMovedEvent(Shape shape) {
-			shapeEventArgs.SetShape(shape);
-			owner.OnShapeMoved(shapeEventArgs);
+			_shapeEventArgs.SetShape(shape);
+			_owner.OnShapeMoved(_shapeEventArgs);
 		}
 
 
 		private void RaiseShapeResizedEvent(Shape shape) {
-			shapeEventArgs.SetShape(shape);
-			owner.OnShapeResized(shapeEventArgs);
+			_shapeEventArgs.SetShape(shape);
+			_owner.OnShapeResized(_shapeEventArgs);
 		}
 
 
 		private void RaiseShapeRotatedEvent(Shape shape) {
-			shapeEventArgs.SetShape(shape);
-			owner.OnShapeRotated(shapeEventArgs);
+			_shapeEventArgs.SetShape(shape);
+			_owner.OnShapeRotated(_shapeEventArgs);
 		}
 
 
 		#region Fields
-		private Diagram owner = null;
-		private int shapeCounter = 0;
-		private bool ownerBoundsUpdateNeeded;
-		private ShapeEventArgs shapeEventArgs = new ShapeEventArgs();
+		private Diagram _owner = null;
+		private int _suspendUpdateCounter = 0;
+		private bool _ownerBoundsUpdateNeeded;
+		private ShapeEventArgs _shapeEventArgs = new ShapeEventArgs();
 		#endregion
 	}
 
@@ -591,6 +594,24 @@ namespace Dataweb.NShape {
 				_imageTransparentColor = value;
 				InvalidateDrawCache();
 				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
+			}
+		}
+
+
+		/// <summary>
+		/// Toggles the visibility of the diagram's background image
+		/// </summary>
+		[CategoryAppearance()]
+		[LocalizedDisplayName("PropName_Diagram_IsBackgroundImageVisible")]
+		[LocalizedDescription("PropDesc_Diagram_IsBackgroundImageVisible")]
+		[RequiredPermission(Permission.Present)]
+		public bool IsBackgroundImageVisible {
+			get { return _isBackgroundImageVisible; }
+			set {
+				if (_isBackgroundImageVisible != value) {
+					_isBackgroundImageVisible = value;
+					if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
+				}
 			}
 		}
 
@@ -1165,7 +1186,7 @@ namespace Dataweb.NShape {
 			graphics.FillRectangle(_colorBrush, bounds);
 
 			// draw diagram background image
-			if (!NamedImage.IsNullOrEmpty(_backImage)) {
+			if (_isBackgroundImageVisible && !NamedImage.IsNullOrEmpty(_backImage)) {
 				Rectangle diagramBounds = Rectangle.Empty;
 				diagramBounds.Width = Width;
 				diagramBounds.Height = Height;
@@ -1211,7 +1232,8 @@ namespace Dataweb.NShape {
 			
 			DrawShapes(graphics, visibleLayers, visibleHomeLayers, clipRectangle);
 		}
-			
+
+	
 		/// <summary>
 		/// Draws the diagram shapes.
 		/// </summary>
@@ -1575,6 +1597,7 @@ namespace Dataweb.NShape {
 		private Color _backColor = Color.WhiteSmoke;
 		private Color _targetColor = Color.White;
 		private bool _highQualityRendering = true;
+		private bool _isBackgroundImageVisible = true;
 		// Background image stuff
 		private NamedImage _backImage;
 		private Image _backImageLowRes;

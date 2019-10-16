@@ -655,6 +655,9 @@ namespace Dataweb.NShape.WinFormsUI {
 		public event EventHandler<LayersEventArgs> ActiveLayersChanged;
 
 		/// <override></override>
+		public event EventHandler ZoomChanging;
+
+		/// <override></override>
 		public event EventHandler ZoomChanged;
 
 		/// <override></override>
@@ -801,12 +804,16 @@ namespace Dataweb.NShape.WinFormsUI {
 		public Tool ActiveTool {
 			get { return (_diagramSetController == null) ? _privateTool : _diagramSetController.ActiveTool; }
 			set {
+				// Set active tool
 				if (_diagramSetController != null) _diagramSetController.ActiveTool = value;
 				else _privateTool = value;
-				if (ActiveTool.MinimumDragDistance != SystemInformation.DoubleClickSize)
-					ActiveTool.MinimumDragDistance = SystemInformation.DoubleClickSize;
-				if (ActiveTool.DoubleClickTime != SystemInformation.DoubleClickTime)
-					ActiveTool.DoubleClickTime = SystemInformation.DoubleClickTime;
+				// Set active tool's properties
+				if (ActiveTool != null) {
+					if (ActiveTool.MinimumDragDistance != SystemInformation.DoubleClickSize)
+						ActiveTool.MinimumDragDistance = SystemInformation.DoubleClickSize;
+					if (ActiveTool.DoubleClickTime != SystemInformation.DoubleClickTime)
+						ActiveTool.DoubleClickTime = SystemInformation.DoubleClickTime;
+				}
 			}
 		}
 
@@ -831,10 +838,12 @@ namespace Dataweb.NShape.WinFormsUI {
 			get {
 				if (!Geometry.IsValid(_drawBounds)) {
 					_drawBounds.X = _drawBounds.Y = 0;
-					if (VScrollBarVisible) _drawBounds.Width = Width - scrollBarV.Width;
-					else _drawBounds.Width = Width;
-					if (HScrollBarVisible) _drawBounds.Height = Height - scrollBarH.Height;
-					else _drawBounds.Height = Height;
+					//if (VScrollBarVisible) 
+						_drawBounds.Width = Width - scrollBarV.Width;
+					//else _drawBounds.Width = Width;
+					//if (HScrollBarVisible) 
+						_drawBounds.Height = Height - scrollBarH.Height;
+					//else _drawBounds.Height = Height;
 				}
 				return _drawBounds;
 			}
@@ -890,7 +899,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		[DefaultValue(Display.DefaultValueShowScrollBars)]
 		public bool ShowScrollBars {
 			get { return _showScrollBars; }
-			set { _showScrollBars = value; }
+			set { 
+				_showScrollBars = value;
+				HScrollBarVisible = value;
+				VScrollBarVisible = value;
+			}
 		}
 
 
@@ -953,6 +966,8 @@ namespace Dataweb.NShape.WinFormsUI {
 			set {
 				if (value < 0) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ValueHasToBeGreaterThanZero);
 				if (_zoomLevel != value) {
+					OnZoomChanging(EventArgs.Empty);
+
 					_zoomLevel = value;
 					_zoomfactor = Math.Max(value / 100f, 0.001f);
 
@@ -1039,6 +1054,19 @@ namespace Dataweb.NShape.WinFormsUI {
 			set {
 				_drawDiagramSheet = value;
 				Invalidate();
+			}
+		}
+
+
+		/// <summary>Specifies the margin around the diagram sheet in control coordinates.</summary>
+		[CategoryAppearance()]
+		[DefaultValue(true)]
+		public int DiagramMargin {
+			get { return _diagramMargin; }
+			set {
+				_diagramMargin = value;
+				UpdateScrollBars();
+				Refresh();
 			}
 		}
 
@@ -2029,29 +2057,29 @@ namespace Dataweb.NShape.WinFormsUI {
 			int ctrlX, ctrlY, ctrlMargin;
 			DiagramToControl(x, y, out ctrlX, out ctrlY);
 			DiagramToControl(margin, out ctrlMargin);
-			if (DrawBoundsContainsPoint(ctrlX, ctrlY, ctrlMargin)) {
+			if (!DrawBoundsContainsPoint(ctrlX, ctrlY, ctrlMargin)) {
 				Rectangle viewArea = Rectangle.Empty;
 				ControlToDiagram(DrawBounds, out viewArea);
 				viewArea.Inflate(-margin, -margin);
 
 				// scroll horizontally
 				int deltaX = 0, deltaY = 0;
-				if (HScrollBarVisible) {
+				//if (HScrollBarVisible) {
 					if (x < viewArea.Left)
 						// Scroll left
 						deltaX = x - viewArea.Left;
 					else if (viewArea.Right < x)
 						// Scroll right
 						deltaX = x - viewArea.Right;
-				}
-				if (VScrollBarVisible) {
+				//}
+				//if (VScrollBarVisible) {
 					if (y < viewArea.Top)
 						// Scroll left
 						deltaY = y - viewArea.Top;
 					else if (viewArea.Bottom < y)
 						// Scroll right
 						deltaY = y - viewArea.Bottom;
-				}
+				//}
 				ScrollTo(_scrollPosX + deltaX, _scrollPosY + deltaY);
 			}
 		}
@@ -2113,22 +2141,22 @@ namespace Dataweb.NShape.WinFormsUI {
 
 				// scroll horizontally
 				int deltaX = 0, deltaY = 0;
-				if (HScrollBarVisible) {
+				//if (HScrollBarVisible) {
 					if (viewAreaDiagram.Left < areaBoundsDiag.Left)
 						// Scroll left
 						deltaX = viewAreaDiagram.Left - areaBoundsDiag.Left;
 					else if (areaBoundsDiag.Right < viewAreaDiagram.Right)
 						// Scroll right
 						deltaX = viewAreaDiagram.Right - areaBoundsDiag.Right;
-				}
-				if (VScrollBarVisible) {
+				//}
+				//if (VScrollBarVisible) {
 					if (viewAreaDiagram.Top < areaBoundsDiag.Top)
 						// Scroll up
 						deltaY = viewAreaDiagram.Top - areaBoundsDiag.Top;
 					else if (areaBoundsDiag.Bottom < viewAreaDiagram.Bottom)
 						// Scroll down
 						deltaY = viewAreaDiagram.Bottom - areaBoundsDiag.Bottom;
-				}
+				//}
 				ScrollTo(_scrollPosX + deltaX, _scrollPosY + deltaY);
 			}
 		}
@@ -2516,6 +2544,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
+		protected virtual void OnZoomChanging(EventArgs eventArgs) {
+			if (ZoomChanging != null) ZoomChanging(this, eventArgs);
+		}
+
+		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void OnZoomChanged(EventArgs eventArgs) {
 			if (ZoomChanged != null) ZoomChanged(this, eventArgs);
 		}
@@ -2675,7 +2708,7 @@ namespace Dataweb.NShape.WinFormsUI {
 							_mouseEventWasHandled = true;
 						//Console.WriteLine("[{0}]\t Tool.ProcessMouseEvent finished", DateTime.Now.ToString("HH:mm:ss.ffff"));
 
-						if (ActiveTool.WantsAutoScroll && DrawBoundsContainsPoint(e.X, e.Y, autoScrollMargin)) {
+						if (ActiveTool.WantsAutoScroll && !DrawBoundsContainsPoint(e.X, e.Y, autoScrollMargin)) {
 							int x, y;
 							ControlToDiagram(e.X, e.Y, out x, out y);
 							int margin;
@@ -2807,21 +2840,21 @@ namespace Dataweb.NShape.WinFormsUI {
 							case Keys.Down:
 								if (SelectedShapes.Count == 0) {
 									int newHValue = scrollBarH.Value;
-									if (HScrollBarVisible) {
+									//if (HScrollBarVisible) {
 										int deltaH = (int)Math.Round(Math.Max((int)(e.Shift ? scrollBarH.LargeChange : scrollBarH.SmallChange) / 2f, 1));
 										if (e.KeyCode == Keys.Left)
 											newHValue -= deltaH;
 										else if (e.KeyCode == Keys.Right)
 											newHValue += deltaH;
-									}
+									//}
 									int newVValue = scrollBarV.Value;
-									if (VScrollBarVisible) {
+									//if (VScrollBarVisible) {
 										int deltaV = (int)Math.Round(Math.Max((int)(e.Shift ? scrollBarV.LargeChange : scrollBarV.SmallChange) / 2f, 1));
 										if (e.KeyCode == Keys.Up)
 											newVValue -= deltaV;
 										else if (e.KeyCode == Keys.Down)
 											newVValue += deltaV;
-									}
+									//}
 									ScrollTo(newHValue, newVValue);
 									e.Handled = true;
 								} else {
@@ -3468,7 +3501,11 @@ namespace Dataweb.NShape.WinFormsUI {
 				if (!Geometry.IsValid(_scrollAreaBounds)) {
 					Rectangle shapeBounds = Diagram.Shapes.GetBoundingRectangle(false);
 					_scrollAreaBounds = Geometry.UniteRectangles(0, 0, Diagram.Width, Diagram.Height, Geometry.IsValid(shapeBounds) ? shapeBounds : Rectangle.Empty);
-					_scrollAreaBounds.Inflate(scrollAreaMargin, scrollAreaMargin);
+					//if (_scrollAreaBounds.Width < DrawBounds.Width)
+					//    _scrollAreaBounds.X += (DrawBounds.Width - _scrollAreaBounds.Width) / 2;
+					//if (_scrollAreaBounds.Height < DrawBounds.Height)
+					//    _scrollAreaBounds.Y += ((DrawBounds.Height - _scrollAreaBounds.Height) / 2);
+					_scrollAreaBounds.Inflate(DiagramMargin, DiagramMargin);
 				}
 				return _scrollAreaBounds;
 			}
@@ -3481,7 +3518,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				_scrollBarHVisible = value;
 				scrollBarH.Visible = _scrollBarHVisible;
 				hScrollBarPanel.Visible = _scrollBarHVisible;
-				if (!_scrollBarHVisible) SetScrollPosX(0);
+				//if (!_scrollBarHVisible) SetScrollPosX(0);
 			}
 		}
 
@@ -3491,7 +3528,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			set {
 				_scrollBarVVisible = value;
 				scrollBarV.Visible = _scrollBarVVisible;
-				if (!_scrollBarVVisible) SetScrollPosY(0);
+				//if (!_scrollBarVVisible) SetScrollPosY(0);
 			}
 		}
 
@@ -3705,10 +3742,10 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods: Calculating and applying transformation
 
 		private void CalcDiagramPosition() {
-			float zoomedDiagramWidth = (ScrollAreaBounds.Width - (2 * scrollAreaMargin)) * _zoomfactor;
-			float zoomedDiagramHeight = (ScrollAreaBounds.Height - (2 * scrollAreaMargin)) * _zoomfactor;
-			float zoomedDiagramOffsetX = ((ScrollAreaBounds.X + scrollAreaMargin) * _zoomfactor);
-			float zoomedDiagramOffsetY = ((ScrollAreaBounds.Y + scrollAreaMargin) * _zoomfactor);
+			float zoomedDiagramWidth = (ScrollAreaBounds.Width - (2 * DiagramMargin)) * _zoomfactor;
+			float zoomedDiagramHeight = (ScrollAreaBounds.Height - (2 * DiagramMargin)) * _zoomfactor;
+			float zoomedDiagramOffsetX = ((ScrollAreaBounds.X + DiagramMargin) * _zoomfactor);
+			float zoomedDiagramOffsetY = ((ScrollAreaBounds.Y + DiagramMargin) * _zoomfactor);
 			float drawAreaCenterX = (DrawBounds.X + DrawBounds.Width) / 2f;
 			float drawAreaCenterY = (DrawBounds.Y + DrawBounds.Height) / 2f;
 			_diagramPosX = (int)Math.Round(-zoomedDiagramOffsetX + (drawAreaCenterX - (zoomedDiagramWidth / 2)));
@@ -3894,7 +3931,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		private void UpdateScrollBars() {
 			try {
 				//SuspendLayout();
-				if (_showScrollBars && Diagram != null) {
+				if (!_showScrollBars || Diagram == null) {
+					if (VScrollBarVisible) VScrollBarVisible = false;
+					if (HScrollBarVisible) HScrollBarVisible = false;
+				}
+				if (Diagram != null) {
 					// Update diagram offset and draw area
 					Rectangle drawBoundsDgrmCoords;
 					CalcDiagramPosition();
@@ -3903,13 +3944,14 @@ namespace Dataweb.NShape.WinFormsUI {
 					// Show/hide vertical scroll bar
 					if (ScrollAreaBounds.Height < drawBoundsDgrmCoords.Height) {
 						if (VScrollBarVisible) VScrollBarVisible = false;
-					} else if (!VScrollBarVisible && _showScrollBars) VScrollBarVisible = true;
+					} else if (!VScrollBarVisible && _showScrollBars) 
+						VScrollBarVisible = true;
 					// Show/hide horizontal scroll bar
 					if (ScrollAreaBounds.Width < drawBoundsDgrmCoords.Width) {
-						if (HScrollBarVisible) {
+						//if (HScrollBarVisible) {
 							HScrollBarVisible = false;
 							//Debug.Assert(hScrollBarPanel.Visible == false && scrollBarH.Visible == false);
-						}
+						//}
 					} else if (!HScrollBarVisible && _showScrollBars) {
 						HScrollBarVisible = true;
 						//Debug.Assert(hScrollBarPanel.Visible == true && scrollBarH.Visible == true);
@@ -3921,33 +3963,46 @@ namespace Dataweb.NShape.WinFormsUI {
 					// Update diagram offset and draw area
 					CalcDiagramPosition();
 					ControlToDiagram(DrawBounds, out drawBoundsDgrmCoords);
-					if (HScrollBarVisible || VScrollBarVisible) {
-						int zoomedDiagramPosX = (int)Math.Round(_diagramPosX / _zoomfactor);
-						int zoomedDiagramPosY = (int)Math.Round(_diagramPosY / _zoomfactor);
+					//if (HScrollBarVisible || VScrollBarVisible) 
+					{
+						int diagramPosXCtrlCoords = (int)Math.Round(_diagramPosX / _zoomfactor);
+						int diagramPosYCtrlCoords = (int)Math.Round(_diagramPosY / _zoomfactor);
 						int smallChange = 1;	// Math.Max(1, GridSize / 2);
 
 						// Set up vertical scrollbar
-						if (VScrollBarVisible) {
-							scrollBarV.SmallChange = smallChange;
-							scrollBarV.LargeChange = Math.Max(1, drawBoundsDgrmCoords.Height);
-							scrollBarV.Minimum = ScrollAreaBounds.Y + zoomedDiagramPosY;
-							scrollBarV.Maximum = ScrollAreaBounds.Height + scrollBarV.Minimum;
+						//if (VScrollBarVisible) 
+						{
+							if (scrollBarV.SmallChange != smallChange)
+								scrollBarV.SmallChange = smallChange;
+							int largeChange = Math.Max(1, drawBoundsDgrmCoords.Height);
+							if (scrollBarV.LargeChange != largeChange)
+								scrollBarV.LargeChange = largeChange;
+							int minimum = Math.Min(0, ScrollAreaBounds.Y + diagramPosYCtrlCoords);
+							if (scrollBarV.Minimum != minimum)
+								scrollBarV.Minimum = minimum;
+							int maximum = ScrollAreaBounds.Height + scrollBarV.Minimum;
+							if (scrollBarV.Maximum != maximum)
+								scrollBarV.Maximum = maximum;
 						}
-
 						// Set horizontal scrollBar position, size  and limits
-						if (HScrollBarVisible) {
-							scrollBarH.SmallChange = smallChange;
-							scrollBarH.LargeChange = Math.Max(1, drawBoundsDgrmCoords.Width);
-							scrollBarH.Minimum = ScrollAreaBounds.X + zoomedDiagramPosX;
-							scrollBarH.Maximum = ScrollAreaBounds.Width + scrollBarH.Minimum;
+						//if (HScrollBarVisible) 
+						{
+							if (scrollBarH.SmallChange != smallChange)
+								scrollBarH.SmallChange = smallChange;
+							int largeChange = Math.Max(1, drawBoundsDgrmCoords.Width);
+							if (scrollBarH.LargeChange != largeChange)
+								scrollBarH.LargeChange = largeChange;
+							int minimum = Math.Min(0, ScrollAreaBounds.X + diagramPosXCtrlCoords);
+							if (scrollBarH.Minimum != minimum)
+								scrollBarH.Minimum = minimum;
+							int maximum = ScrollAreaBounds.Width + scrollBarH.Minimum;
+							if (scrollBarH.Maximum != maximum)
+								scrollBarH.Maximum = maximum;
 						}
 
 						// Maintain scroll position when zooming out
 						ScrollTo(scrollBarH.Value, scrollBarV.Value);
 					}
-				} else {
-					if (VScrollBarVisible) VScrollBarVisible = false;
-					if (HScrollBarVisible) HScrollBarVisible = false;
 				}
 				_boundsChanged = false;
 			} finally {
@@ -4760,9 +4815,9 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private bool ScrollBarContainsPoint(int x, int y) {
-			if (HScrollBarVisible && Geometry.RectangleContainsPoint(hScrollBarPanel.Bounds, x, y))
+			if (/*HScrollBarVisible &&*/ Geometry.RectangleContainsPoint(hScrollBarPanel.Bounds, x, y))
 				return true;
-			if (VScrollBarVisible && Geometry.RectangleContainsPoint(scrollBarV.Bounds, x, y))
+			if (/*VScrollBarVisible &&*/ Geometry.RectangleContainsPoint(scrollBarV.Bounds, x, y))
 				return true;
 			return false;
 		}
@@ -4794,19 +4849,15 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void ScrollTo(int x, int y) {
-			if (HScrollBarVisible) {
-				if (x < scrollBarH.Minimum)
-					x = scrollBarH.Minimum;
-				else if (x > scrollBarH.Maximum - scrollBarH.LargeChange)
-					x = scrollBarH.Maximum - scrollBarH.LargeChange;
-			} else x = 0;
+			if (x < scrollBarH.Minimum)
+				x = scrollBarH.Minimum;
+			else if (x > scrollBarH.Maximum - scrollBarH.LargeChange)
+				x = scrollBarH.Maximum - scrollBarH.LargeChange;
 
-			if (VScrollBarVisible) {
-				if (y < scrollBarV.Minimum)
-					y = scrollBarV.Minimum;
-				else if (y > scrollBarV.Maximum - scrollBarV.LargeChange)
-					y = scrollBarV.Maximum - scrollBarV.LargeChange;
-			} else y = 0;
+			if (y < scrollBarV.Minimum)
+				y = scrollBarV.Minimum;
+			else if (y > scrollBarV.Maximum - scrollBarV.LargeChange)
+				y = scrollBarV.Maximum - scrollBarV.LargeChange;
 
 			if (x != _scrollPosX || y != _scrollPosY) {
 				// ToDo: Scroll InPlaceTextBox with along the rest of the display content
@@ -4821,36 +4872,32 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void SetScrollPosX(int newValue) {
-			if (HScrollBarVisible) {
-				if (newValue < scrollBarH.Minimum) newValue = scrollBarH.Minimum;
-				else if (newValue > scrollBarH.Maximum) newValue = scrollBarH.Maximum;
-			} else {
-				if (scrollBarH.Minimum != 0) scrollBarH.Minimum = 0;
-				if (scrollBarH.Maximum != ScrollAreaBounds.Width) scrollBarH.Maximum = ScrollAreaBounds.Width;
+			if (newValue < scrollBarH.Minimum) newValue = scrollBarH.Minimum;
+			else if (newValue > scrollBarH.Maximum) newValue = scrollBarH.Maximum;
+
+			if (scrollBarH.Value != newValue) {
+				ScrollEventArgs e = new ScrollEventArgs(ScrollEventType.ThumbPosition, scrollBarH.Value, newValue, ScrollOrientation.HorizontalScroll);
+
+				scrollBarH.Value = newValue;
+				_scrollPosX = newValue;
+
+				base.OnScroll(e);
 			}
-			ScrollEventArgs e = new ScrollEventArgs(ScrollEventType.ThumbPosition, scrollBarH.Value, newValue, ScrollOrientation.HorizontalScroll);
-
-			scrollBarH.Value = newValue;
-			_scrollPosX = newValue;
-
-			base.OnScroll(e);
 		}
 
 
 		private void SetScrollPosY(int newValue) {
-			if (VScrollBarVisible) {
-				if (newValue < scrollBarV.Minimum) newValue = scrollBarV.Minimum;
-				else if (newValue > scrollBarV.Maximum) newValue = scrollBarV.Maximum;
-			} else {
-				if (scrollBarV.Minimum != 0) scrollBarV.Minimum = 0;
-				if (scrollBarV.Maximum != ScrollAreaBounds.Height) scrollBarV.Maximum = ScrollAreaBounds.Height;
+			if (newValue < scrollBarV.Minimum) newValue = scrollBarV.Minimum;
+			else if (newValue > scrollBarV.Maximum) newValue = scrollBarV.Maximum;
+
+			if (scrollBarV.Value != newValue) {
+				ScrollEventArgs e = new ScrollEventArgs(ScrollEventType.ThumbPosition, scrollBarV.Value, newValue, ScrollOrientation.VerticalScroll);
+
+				scrollBarV.Value = newValue;
+				_scrollPosY = newValue;
+
+				base.OnScroll(e);
 			}
-			ScrollEventArgs e = new ScrollEventArgs(ScrollEventType.ThumbPosition, scrollBarV.Value, newValue, ScrollOrientation.VerticalScroll);
-
-			scrollBarV.Value = newValue;
-			_scrollPosY = newValue;
-
-			base.OnScroll(e);
 		}
 
 		#endregion
@@ -4859,11 +4906,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods: UniversalScroll implementation
 
 		/// <summary>
-		/// Returns truw if the given point (control coordinates) is inside the auto scroll area
+		/// Returns true if the given point (control coordinates) is inside the auto scroll area
 		/// </summary>
 		private bool DrawBoundsContainsPoint(int x, int y, int margin) {
-			return (x <= DrawBounds.Left + margin
-				|| y <= DrawBounds.Top + margin
+			return !(x < DrawBounds.Left + margin
+				|| y < DrawBounds.Top + margin
 				|| x > DrawBounds.Width - margin
 				|| y > DrawBounds.Height - margin);
 		}
@@ -5282,8 +5329,8 @@ namespace Dataweb.NShape.WinFormsUI {
 			bool isFeasible = _diagramSetController.CanGroupShapes(shapes);
 			string description = isFeasible ? string.Format(Properties.Resources.TooltipFmt_Group0Shapes, shapes.Count) : Properties.Resources.TooltipTxt_NotEnoughShapesSelected;
 
-			return new DelegateMenuItemDef(MenuItemNameGroupShapes, Properties.Resources.CaptionTxt_GroupShapes, 
-				Properties.Resources.GroupBtn, description, isFeasible, Permission.Insert, shapes,
+			return new DelegateMenuItemDef(MenuItemNameGroupShapes, Properties.Resources.CaptionTxt_GroupShapes,
+				Properties.Resources.GroupBtn, description, isFeasible, Permission.Layout, shapes,
 				(a, p) => PerformGroupShapes(diagram, shapes, activeHomeLayer, activeLayers));
 		}
 
@@ -5299,8 +5346,8 @@ namespace Dataweb.NShape.WinFormsUI {
 				else description = Properties.Resources.TooltipTxt_NoGroupSelected;
 			}
 
-			return new DelegateMenuItemDef(MenuItemNameUngroupShapes, Properties.Resources.CaptionTxt_UngroupShapes, 
-				Properties.Resources.UngroupBtn, description, isFeasible, Permission.Insert, shapes,
+			return new DelegateMenuItemDef(MenuItemNameUngroupShapes, Properties.Resources.CaptionTxt_UngroupShapes,
+				Properties.Resources.UngroupBtn, description, isFeasible, Permission.Layout, shapes,
 				(a, p) => PerformUngroupShapes(diagram, shapes.TopMost));
 		}
 
@@ -5315,8 +5362,8 @@ namespace Dataweb.NShape.WinFormsUI {
 				isFeasible = false;
 				description = Properties.Resources.TooltipTxt_LinearShapesMayNotBeTheBaseForACompositeShape;
 			}
-			return new DelegateMenuItemDef(MenuItemNameAggregateShapes, Properties.Resources.CaptionTxt_AggregateShapes, 
-				Properties.Resources.AggregateShapeBtn, description, isFeasible, Permission.Delete, shapes,
+			return new DelegateMenuItemDef(MenuItemNameAggregateShapes, Properties.Resources.CaptionTxt_AggregateShapes,
+				Properties.Resources.AggregateShapeBtn, description, isFeasible, Permission.Layout, shapes,
 				(a, p) => PerformAggregateCompositeShape(diagram, compositeShape, shapes, activeHomeLayer, activeLayers));
 		}
 
@@ -5332,8 +5379,8 @@ namespace Dataweb.NShape.WinFormsUI {
 					description = Properties.Resources.TooltipTxt_SelectedShapeIsNotACompositeShape;
 				else description = Properties.Resources.TooltipTxt_TooManyShapesSelected;
 			}
-			return new DelegateMenuItemDef(MenuItemNameDisaggregateShapes, Properties.Resources.CaptionTxt_DisaggregateShapes, 
-				Properties.Resources.SplitShapeAggregationBtn, description, isFeasible, Permission.Insert, shapes,
+			return new DelegateMenuItemDef(MenuItemNameDisaggregateShapes, Properties.Resources.CaptionTxt_DisaggregateShapes,
+				Properties.Resources.SplitShapeAggregationBtn, description, isFeasible, Permission.Layout, shapes,
 				(a, p) => PerformSplitCompositeShape(diagram, shapes.Bottom));
 		}
 
@@ -6258,7 +6305,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region Constants
 
 		private const int shadowSize = 20;
-		private const int scrollAreaMargin = 40;	// The distance between the diagram 'sheet' and the end of the scrollable area
+		private const int defaultDiagramMargin = 40;	// The distance between the diagram 'sheet' and the end of the scrollable area
 		private const int autoScrollMargin = 40;
 		private const byte inlaceTextBoxBackAlpha = 128;
 
@@ -6307,6 +6354,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		private int _gridSpace = DefaultValueGridSize;
 		private bool _gridVisible = DefaultValueShowGrid;
 		private Size _gridSize = Size.Empty;
+		private int _diagramMargin = defaultDiagramMargin;
 		private bool _scrollBarHVisible = true;
 		private bool _scrollBarVVisible = true;
 #if DEBUG_UI

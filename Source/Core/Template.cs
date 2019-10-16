@@ -150,9 +150,16 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Creates a new shape from this template.
 		/// </summary>
-		/// <returns></returns>
 		public Shape CreateShape() {
-			Shape result = _shape.Type.CreateInstance(this);
+			return CreateShape<Shape>();
+		}
+
+
+		/// <summary>
+		/// Creates a new shape from this template.
+		/// </summary>
+		public TShape CreateShape<TShape>() where TShape: Shape {
+			TShape result = (TShape)_shape.Type.CreateInstance(this);
 			if (_shape.ModelObject != null)
 				ShapeDuplicator.CloneModelObjectOnly(result);
 			return result;

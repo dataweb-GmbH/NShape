@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -44,7 +44,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 
 		#region Fields
-		Point[] shapeBuffer = new Point[4];
+		private Point[] _shapeBuffer = new Point[4];
 		#endregion
 	}
 
@@ -87,17 +87,17 @@ namespace Dataweb.NShape.FlowChartShapes {
 					int right = left + Width;
 					int bottom = top + Height;
 
-					pointBuffer[0].X = 0;
-					pointBuffer[0].Y = top;
-					pointBuffer[1].X = right;
-					pointBuffer[1].Y = 0;
-					pointBuffer[2].X = 0;
-					pointBuffer[2].Y = bottom;
-					pointBuffer[3].X = left;
-					pointBuffer[3].Y = 0;
+					ShapePoints[0].X = 0;
+					ShapePoints[0].Y = top;
+					ShapePoints[1].X = right;
+					ShapePoints[1].Y = 0;
+					ShapePoints[2].X = 0;
+					ShapePoints[2].Y = bottom;
+					ShapePoints[3].X = left;
+					ShapePoints[3].Y = 0;
 
 					Path.StartFigure();
-					Path.AddPolygon(pointBuffer);
+					Path.AddPolygon(ShapePoints);
 					Path.CloseFigure();
 
 					// refresh edge positions
@@ -164,13 +164,13 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		protected internal CommLinkSymbol(ShapeType shapeType, Template template)
 			: base(shapeType, template) {
-			pointBuffer = new Point[6];
+			ShapePoints = new Point[6];
 		}
 
 
 		protected internal CommLinkSymbol(ShapeType shapeType, IStyleSet styleSet)
 			: base(shapeType, styleSet) {
-			pointBuffer = new Point[6];
+			ShapePoints = new Point[6];
 		}
 
 
@@ -183,7 +183,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 		/// <override></override>
 		protected override void InitializeToDefault(IStyleSet styleSet) {
 			base.InitializeToDefault(styleSet);
-			pointBuffer = new Point[6];
+			ShapePoints = new Point[6];
 			Height = 60;
 			Width = 20;
 		}
@@ -234,7 +234,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 		protected override Rectangle CalculateBoundingRectangle(bool tight) {
 			Rectangle result;
 			CalculalteTranslatedShapePoints();
-			Geometry.CalcBoundingRectangle(pointBuffer, out result);
+			Geometry.CalcBoundingRectangle(ShapePoints, out result);
 			ShapeUtils.InflateBoundingRectangle(ref result, LineStyle);
 			return result;
 		}
@@ -243,7 +243,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 		/// <override></override>
 		protected override bool ContainsPointCore(int x, int y) {
 			CalculalteTranslatedShapePoints();
-			bool result = Geometry.PolygonContainsPoint(pointBuffer, x, y);
+			bool result = Geometry.PolygonContainsPoint(ShapePoints, x, y);
 			if (!result) {
 				pt.X = x;
 				pt.Y = y;
@@ -281,7 +281,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 				Path.Reset();
 				Path.StartFigure();
-				Path.AddPolygon(pointBuffer);
+				Path.AddPolygon(ShapePoints);
 				Path.CloseFigure();
 				return true;
 			}
@@ -297,18 +297,18 @@ namespace Dataweb.NShape.FlowChartShapes {
 			int w = (int)Math.Round(Width / 8f);
 			int h = (int)Math.Round(Height / 16f);
 
-			pointBuffer[0].X = 0;
-			pointBuffer[0].Y = top;
-			pointBuffer[1].X = right;
-			pointBuffer[1].Y = 0 + h;
-			pointBuffer[2].X = 0 - w;
-			pointBuffer[2].Y = 0 + (int)Math.Round(h / 2f);
-			pointBuffer[3].X = 0;
-			pointBuffer[3].Y = bottom;
-			pointBuffer[4].X = left;
-			pointBuffer[4].Y = 0 - h;
-			pointBuffer[5].X = 0 + w;
-			pointBuffer[5].Y = 0 - (int)Math.Round(h / 2f);
+			ShapePoints[0].X = 0;
+			ShapePoints[0].Y = top;
+			ShapePoints[1].X = right;
+			ShapePoints[1].Y = 0 + h;
+			ShapePoints[2].X = 0 - w;
+			ShapePoints[2].Y = 0 + (int)Math.Round(h / 2f);
+			ShapePoints[3].X = 0;
+			ShapePoints[3].Y = bottom;
+			ShapePoints[4].X = left;
+			ShapePoints[4].Y = 0 - h;
+			ShapePoints[5].X = 0 + w;
+			ShapePoints[5].Y = 0 - (int)Math.Round(h / 2f);
 		}
 
 
@@ -317,7 +317,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 			Matrix.Reset();
 			Matrix.Translate(X, Y, MatrixOrder.Prepend);
 			Matrix.RotateAt(Geometry.TenthsOfDegreeToDegrees(Angle), Center, MatrixOrder.Append);
-			Matrix.TransformPoints(pointBuffer);
+			Matrix.TransformPoints(ShapePoints);
 		}
 
 

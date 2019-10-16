@@ -1094,8 +1094,22 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Returns the MD5 hash of the given image as HEX string.
 		/// </summary>
-		public static string CalculateHashCode(Image image) {
-			return CalculateHashCode(GetImageData(image));
+		/// <remarks>
+		/// For bitmap images, the unencoded, uncompressed raw pixel data is used for calculating the hash, 
+		/// otherwise the data of the underlying memory stream.
+		/// </remarks>
+		public static string CalculateHashCode(Image image)
+		{
+			byte[] imageData = (image is Bitmap) ? GetRawImageData((Bitmap)image) : GetEncodedImageData(image);
+			return CalculateHashCode(imageData);
+		}
+
+
+		/// <summary>
+		/// Returns the MD5 hash of the given image as HEX string.
+		/// </summary>
+		public static string CalculateHashCode(Bitmap image) {
+			return CalculateHashCode(GetRawImageData(image));
 		}
 		
 
@@ -1108,27 +1122,46 @@ namespace Dataweb.NShape.Advanced {
 		
 
 		/// <summary>
-		/// Gets the image data as byte array.
+		/// Gets the uncompressed raw pixel data of the image as byte array.
 		/// </summary>
-		public static byte[] GetImageData(Image image) {
-			MemoryStream memStream = new MemoryStream();
-			GdiHelpers.SaveImage(image, memStream);
-			return memStream.GetBuffer();
+		public static byte[] GetRawImageData(Bitmap image) {
+			byte[] result = null;
+			BitmapData bmpData = null;
+			try {
+				bmpData = ((Bitmap)image).LockBits(Rectangle.FromLTRB(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, image.PixelFormat);
+				int byteCount = bmpData.Stride * image.Height;
+				result = new byte[byteCount];
+				System.Runtime.InteropServices.Marshal.Copy(bmpData.Scan0, result, 0, byteCount);
+			} finally {
+				if (bmpData != null)
+					((Bitmap)image).UnlockBits(bmpData);
+			}
+			return result;
 		}
 
 
-		public static void GetImageDataAndHashCode(Image image, out byte[] imageData, out string hashCode) {
-			imageData = GetImageData(image);
-			hashCode = CalculateHashCode(imageData);
+		/// <summary>
+		/// Gets the encoded image data as byte array.
+		/// </summary>
+		public static byte[] GetEncodedImageData(Image image)
+		{
+			byte[] result = null;
+			using (MemoryStream memStream = new MemoryStream()) {
+				GdiHelpers.SaveImage(image, memStream);
+				result = memStream.ToArray();
+			}
+			return result;
 		}
 
-		
+
 		/// <summary>
 		/// Returns true if the given Images are considered as equal.
 		/// For performance reasons, the images are compred by comparing the hash codes of the underlying image data.
 		/// </summary>
 		public static bool AreEqual(Image imgA, Image imgB) {
-			return CalculateHashCode(imgA) == CalculateHashCode(imgB);
+			byte[] imgDataA = (imgA is Bitmap) ? GetRawImageData((Bitmap)imgA) : GetEncodedImageData(imgA);
+			byte[] imgDataB = (imgB is Bitmap) ? GetRawImageData((Bitmap)imgB) : GetEncodedImageData(imgB);
+			return CalculateHashCode(imgDataA) == CalculateHashCode(imgDataB);
 		}
 
 
@@ -1148,7 +1181,7 @@ namespace Dataweb.NShape.Advanced {
 			int requiredLength = bytes.Length * 2;
 			System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder(requiredLength, requiredLength);
 			foreach (byte b in bytes)
-				stringBuilder.Append(_hexStrings[b]);
+				stringBuilder.Append(HexStrings[b]);
 			return stringBuilder.ToString();
 		}
 
@@ -1183,13 +1216,13 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void SaveImage(Image image, Stream stream) {
-			SaveImage(image, stream, GetImageFileFormat(image.RawFormat), 85);
+			SaveImage(image, stream, GetImageFileFormat(image.RawFormat), 100);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void SaveImage(Image image, Stream stream, ImageFileFormat imageFormat) {
-			SaveImage(image, stream, imageFormat, 85);
+			SaveImage(image, stream, imageFormat, 100);
 		}
 
 
@@ -1483,6 +1516,9 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Fields
 
+		// Mapping array for speeding up HEX string conversion: Contains a hex string for each byte value
+		private static readonly string[] HexStrings = { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1A", "1B", "1C", "1D", "1E", "1F", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2A", "2B", "2C", "2D", "2E", "2F", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3A", "3B", "3C", "3D", "3E", "3F", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4A", "4B", "4C", "4D", "4E", "4F", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "5A", "5B", "5C", "5D", "5E", "5F", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "6A", "6B", "6C", "6D", "6E", "6F", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "7A", "7B", "7C", "7D", "7E", "7F", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "8A", "8B", "8C", "8D", "8E", "8F", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "9A", "9B", "9C", "9D", "9E", "9F", "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "AA", "AB", "AC", "AD", "AE", "AF", "B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "BA", "BB", "BC", "BD", "BE", "BF", "C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "CA", "CB", "CC", "CD", "CE", "CF", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "DA", "DB", "DC", "DD", "DE", "DF", "E0", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "EA", "EB", "EC", "ED", "EE", "EF", "F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "FA", "FB", "FC", "FD", "FE", "FF" };
+
 		private static ImageAttributes _imageAttribs = new ImageAttributes();
 		private static ColorMap[] _colorMaps = new ColorMap[] { new ColorMap() };
 		private static ColorMatrix _colorMatrix = new ColorMatrix();
@@ -1500,9 +1536,6 @@ namespace Dataweb.NShape.Advanced {
 		//private const float luminanceFactorRed = 0.3f;
 		//private const float luminanceFactorGreen = 0.5f;
 		//private const float luminanceFactorBlue = 0.3f;
-
-		// Mapping array for speeding up HEX string conversion: Contains a hex string for each byte value
-		private static string[] _hexStrings = { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1A", "1B", "1C", "1D", "1E", "1F", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2A", "2B", "2C", "2D", "2E", "2F", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "3A", "3B", "3C", "3D", "3E", "3F", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4A", "4B", "4C", "4D", "4E", "4F", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "5A", "5B", "5C", "5D", "5E", "5F", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "6A", "6B", "6C", "6D", "6E", "6F", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "7A", "7B", "7C", "7D", "7E", "7F", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "8A", "8B", "8C", "8D", "8E", "8F", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "9A", "9B", "9C", "9D", "9E", "9F", "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "AA", "AB", "AC", "AD", "AE", "AF", "B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "BA", "BB", "BC", "BD", "BE", "BF", "C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "CA", "CB", "CC", "CD", "CE", "CF", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "DA", "DB", "DC", "DD", "DE", "DF", "E0", "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "EA", "EB", "EC", "ED", "EE", "EF", "F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "FA", "FB", "FC", "FD", "FE", "FF" };
 
 		#endregion
 	}
@@ -1593,21 +1626,22 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		/// <summary>
-		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.NamedImage" />.
-		/// </summary>
-		/// <remarks>The given image will be cloned.</remarks>
-		public NamedImage(Image image, string fileName, string name, string hash)
-			: this() {
-			if (image == null) throw new ArgumentNullException("image");
-			if (fileName == null) throw new ArgumentNullException("fileName");
-			if (name == null) throw new ArgumentNullException("name");
-			Name = name;
-			FilePath = fileName;
-			Image = (Image)image.Clone();
-			Debug.Assert(hash == GdiHelpers.CalculateHashCode(Image));
-			_hashCode = hash;
-		}
+		///// <summary>
+		///// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.NamedImage" />.
+		///// </summary>
+		///// <remarks>The given image will be cloned.</remarks>
+		//public NamedImage(Image image, string fileName, string name, string hash)
+		//	: this()
+		//{
+		//	if (image == null) throw new ArgumentNullException("image");
+		//	if (fileName == null) throw new ArgumentNullException("fileName");
+		//	if (name == null) throw new ArgumentNullException("name");
+		//	Name = name;
+		//	FilePath = fileName;
+		//	Image = (Image)image.Clone();
+		//	Debug.Assert(hash == GdiHelpers.CalculateHashCode(Image));
+		//	_hashCode = hash;
+		//}
 
 
 		/// <summary>
@@ -1670,10 +1704,13 @@ namespace Dataweb.NShape.Advanced {
 			}
 			set {
 				if (_image != value) {
-					if (_image != null)
+					if (_image != null) {
 						GdiHelpers.DisposeObject(ref _image);
+						GdiHelpers.DisposeObject(ref _memStream);
+					}
 					//canLoadFromFile = false;
 					//imageType = typeof(Image);
+					_hashCode = null;
 					_imageSize = Size.Empty;
 					_image = value;
 					if (_image != null) {
@@ -1724,10 +1761,8 @@ namespace Dataweb.NShape.Advanced {
 		public string ImageHash {
 			get {
 				if (string.IsNullOrEmpty(_hashCode) && Image != null) {
-					if (_memStream != null)
-						_hashCode = GdiHelpers.CalculateHashCode(_memStream.GetBuffer());
-					else 
-						_hashCode = GdiHelpers.CalculateHashCode(Image);
+					byte[] imgData = (Image is Bitmap) ? GdiHelpers.GetRawImageData((Bitmap)Image) : GetEncodedImageData();
+					_hashCode = GdiHelpers.CalculateHashCode(imgData);
 				}
 				return _hashCode;
 			}
@@ -1735,17 +1770,39 @@ namespace Dataweb.NShape.Advanced {
 
 
 		///// <summary>
-		///// Gets the image's underlying data as byte array.
+		///// Gets the image's uncompressed raw pixel data as byte array.
 		///// </summary>
-		//internal byte[] ImageData {
-		//    get {
-		//        if (_memStream == null && Image != null) {
-		//            _memStream = new MemoryStream();
-		//            GdiHelpers.SaveImage(Image, _memStream);
-		//        }
-		//        return _memStream.GetBuffer();
-		//    }
+		//internal byte[] GetRawImageData()
+		//{
+		//	byte[] result = null;
+		//	if (_memStream == null && Image != null) {
+		//		_memStream = new MemoryStream();
+		//		GdiHelpers.SaveImage(Image, _memStream);
+		//	}
+		//	if (Image is Bitmap) {
+		//		result = GdiHelpers.GetImageData(Image);
+		//	} else {
+		//		result = _memStream.ToArray();
+		//	}
+		//	return result;
 		//}
+
+
+		/// <summary>
+		/// Gets the image's encoded data as byte array.
+		/// </summary>
+		internal byte[] GetEncodedImageData()
+		{
+			byte[] result = null;
+			if (_memStream == null && Image != null) {
+				// Save image if it has not been saved yet!
+				_memStream = new MemoryStream();
+				GdiHelpers.SaveImage(Image, _memStream);
+			}
+			if (_memStream != null)
+				result = _memStream.ToArray();
+			return result;
+		}
 
 
 		/// <summary>
@@ -1816,14 +1873,16 @@ namespace Dataweb.NShape.Advanced {
 			byte[] buffer = File.ReadAllBytes(fileName);
 			_memStream = null;
 			try {
-				// Create the image from the read byte buffer (MemoryStream constructor does *not* copy the buffer)
+				// Create the image from the read byte buffer (MemoryStream constructor does *not* copy 
+				// the buffer and must not be disposed in the lifetime of the image)
+				// Do *not* calculate the hash code from the (compressed) bytes read from the file but from the 
+				// (uncompressed) data of the memory stream!
 				_memStream = new MemoryStream(buffer);
 				_image = Image.FromStream(_memStream, true, true);
 				_imageSize = _image.Size;
 				_imageType = _image.GetType();
 				if (!_canLoadFromFile) _canLoadFromFile = true;
 				if (_filePath != fileName) _filePath = fileName;
-				_hashCode = GdiHelpers.CalculateHashCode(buffer);
 			} catch (Exception) {
 				if (_image == null && _memStream != null)
 					GdiHelpers.DisposeObject(ref _memStream);

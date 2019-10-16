@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2018 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -222,7 +222,10 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>Raised when the active layers changed.</summary>
 		event EventHandler<LayersEventArgs> ActiveLayersChanged;
 
-		/// <summary>Raised when the zoom level changed.</summary>
+		/// <summary>Raised when the zoom level is going to be changed.</summary>
+		event EventHandler ZoomChanging;
+
+		/// <summary>Raised when the zoom level was changed.</summary>
 		event EventHandler ZoomChanged;
 
 		/// <summary>

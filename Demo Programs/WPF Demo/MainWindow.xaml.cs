@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2012 dataweb GmbH
+  Copyright 2009-2019 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -110,6 +110,7 @@ namespace NShape_WPF_Demo {
 			display.BackColor = System.Drawing.Color.FromKnownColor(System.Drawing.KnownColor.ControlDark);
 			display.BackColorGradient = System.Drawing.Color.FromKnownColor(System.Drawing.KnownColor.ControlLight);
 			display.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			display.Cursor = System.Windows.Forms.Cursors.Hand;
 			displayHost.Child = display;
 
 			// Set the grid as the content of a tab item

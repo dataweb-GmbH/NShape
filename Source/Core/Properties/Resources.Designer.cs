@@ -3195,6 +3195,15 @@ namespace Dataweb.NShape.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Toggles the visibility of the background image..
+        /// </summary>
+        public static string PropDesc_Diagram_IsBackgroundImageVisible {
+            get {
+                return ResourceManager.GetString("PropDesc_Diagram_IsBackgroundImageVisible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The name of the diagram..
         /// </summary>
         public static string PropDesc_Diagram_Name {
@@ -3861,6 +3870,15 @@ namespace Dataweb.NShape.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to IsBackgroundImageVisible.
+        /// </summary>
+        public static string PropName_Diagram_IsBackgroundImageVisible {
+            get {
+                return ResourceManager.GetString("PropName_Diagram_IsBackgroundImageVisible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
         public static string PropName_Diagram_Name {
@@ -4383,6 +4401,15 @@ namespace Dataweb.NShape.Properties {
             get {
                 object obj = ResourceManager.GetObject("SplitShapeAggregationBtn", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string String1 {
+            get {
+                return ResourceManager.GetString("String1", resourceCulture);
             }
         }
         

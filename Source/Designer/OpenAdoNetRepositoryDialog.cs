@@ -35,7 +35,7 @@ namespace Dataweb.NShape.Designer {
 
 		public OpenAdoNetRepositoryDialog(Form owner, string serverName, string databaseName, Mode mode)
 			: this(owner) {
-			this.mode = mode;
+			this._mode = mode;
 			providerNameComboBox.SelectedIndex = 0;
 			serverNameTextBox.Text = serverName;
 			databaseNameComboBox.Text = databaseName;
@@ -247,7 +247,7 @@ namespace Dataweb.NShape.Designer {
 										string projectname = reader.GetString(reader.GetOrdinal("Name"));
 										if (!string.IsNullOrEmpty(projectname)) {
 											projectNameComboBox.Items.Add(projectname);
-											if (mode == Mode.OpenProject
+											if (_mode == Mode.OpenProject
 												&& string.IsNullOrEmpty(projectNameComboBox.Text))
 												projectNameComboBox.Text = projectname;
 										}
@@ -323,7 +323,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void createDbButton_Click(object sender, EventArgs e) {
-			if (mode == Mode.CreateSchema) {
+			if (_mode == Mode.CreateSchema) {
 				if (CreateDatabase(ProviderName, ServerName, DatabaseName))
 					MessageBox.Show(this, "Database successfully created.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			} else MessageBox.Show(this, useDBGeneratorMsg, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -331,7 +331,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void dropDbButton_Click(object sender, EventArgs e) {
-			if (mode == Mode.CreateSchema) {
+			if (_mode == Mode.CreateSchema) {
 				if (DropDatabase(ProviderName, ServerName, DatabaseName))
 					MessageBox.Show(this, "Database successfully dropped.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			} else MessageBox.Show(this, useDBGeneratorMsg, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -362,9 +362,10 @@ namespace Dataweb.NShape.Designer {
 
 		#endregion
 
-
-		private Mode mode;
+		
 		private const string useDBGeneratorMsg = "Please use 'Tools / AdoNetStore.NET Database Generator' to drop or create a new database for the project.";
+
+		private Mode _mode;
 	}
 
 }
