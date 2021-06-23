@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -22,7 +22,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Dataweb.NShape;
 using Dataweb.NShape.Advanced;
-
+using System.Data.SqlClient;
 
 namespace NShapeTest {
 
@@ -30,46 +30,26 @@ namespace NShapeTest {
 	/// Summary description for UnitTest
 	/// </summary>
 	[TestClass]
-	public class RepositoryTest {
+	public class RepositoryTest : NShapeTestBase {
 
 		public RepositoryTest() {
 			// TODO: Add constructor logic here
 		}
 
 
-		/// <summary>
-		///Gets or sets the test context which provides
-		///information about and functionality for the current test run.
-		///</summary>
-		public TestContext TestContext {
-			get { return testContextInstance; }
-			set { testContextInstance = value; }
-		}
-
-
 		#region Additional test attributes
-
-		//
-		// You can use the following additional attributes as you write your tests:
-		//
-		// Use ClassInitialize to run code before running the first test in the class
-		//[ClassInitialize()]
-		//public static void MyClassInitialize(TestContext testContext) { }
-
-		// Use ClassCleanup to run code after all tests in a class have run
-		//[ClassCleanup()]
-		//public static void MyClassCleanup() { }
 
 		// Use TestInitialize to run code before running each test 
 		[TestInitialize()]
-		public void MyTestInitialize() {
-			TestContext.BeginTimer(TestContext.TestName + " Timer");
+		public override void TestInitialize() {
+			base.TestInitialize();
 		}
+
 
 		// Use TestCleanup to run code after each test has run
 		[TestCleanup()]
-		public void MyTestCleanup() {
-			TestContext.EndTimer(TestContext.TestName + " Timer");
+		public override void TestCleanup() {
+			base.TestCleanup();
 		}
 
 		#endregion
@@ -79,6 +59,9 @@ namespace NShapeTest {
 
 		[TestMethod]
 		public void XmlRepository_VersionCompatibility_Extended_Test() {
+			// Test strategy: 
+			// Compare stored repositories of older versions (one for each file version) 
+			// with repositories of the same file version produced by the current code.
 			string repositoriesDir = GetTestRepositoriesDirectory();
 			string libDir = Path.GetDirectoryName(typeof(Shape).Assembly.Location);
 
@@ -101,8 +84,8 @@ namespace NShapeTest {
 			foreach (string dirPath in Directory.GetDirectories(repositoriesDir)) {
 				foreach (string filePath in Directory.GetFiles(dirPath)) {
 					// Skip file types other than *.xml and *.nspj
-					if (!(filePath.EndsWith(".xml", StringComparison.InvariantCultureIgnoreCase) 
-						|| filePath.EndsWith(".nspj", StringComparison.InvariantCultureIgnoreCase))) 
+					if (!(filePath.EndsWith(".xml", StringComparison.InvariantCultureIgnoreCase)
+						|| filePath.EndsWith(XmlStore.DefaultProjectFileExtension, StringComparison.InvariantCultureIgnoreCase)))
 						continue;
 
 					XmlStore xmlStore = new XmlStore();
@@ -117,7 +100,7 @@ namespace NShapeTest {
 						}
 
 						// Ensure that there are no duplicate template names. Remove later!
-						Dictionary<string, Template> dic = new Dictionary<string,Template>();
+						Dictionary<string, Template> dic = new Dictionary<string, Template>();
 						foreach (Template t in project.Repository.GetTemplates())
 							dic.Add(t.Name, t);
 
@@ -175,9 +158,9 @@ namespace NShapeTest {
 			for (int version = Project.FirstSupportedSaveVersion; version <= Project.LastSupportedSaveVersion; ++version) {
 				// Test inserting, modifying and deleting objects from repository
 				string timerName = "XML Repository Version Compatibility Test Timer";
-				TestContext.BeginTimer(timerName);
+				BeginTimer(timerName);
 				RepositoryCompatibilityTestCore(RepositoryHelper.CreateXmlStore(), version);
-				TestContext.EndTimer(timerName);
+				EndTimer(timerName);
 			}
 		}
 
@@ -188,18 +171,28 @@ namespace NShapeTest {
 			RepositoryCompatibilityTest_CleanupDatabases();
 			RepositoryCompatibilityTest_ImportDatabases();
 
+			const string timerName = "SQL Repository Version Compatibility Test Timer";
+			List<string> warnings = new List<string>();
 			for (int version = Project.FirstSupportedSaveVersion; version <= Project.LastSupportedSaveVersion; ++version) {
-				string databaseName = string.Format("NShape_Repository_v{0}", version);
+				try {
+					BeginTimer(timerName);
 
-				// Test inserting, modifying and deleting objects from repository
-				string timerName = "SQL Repository Version Compatibility Test Timer";
-				TestContext.BeginTimer(timerName);
-				RepositoryCompatibilityTestCore(RepositoryHelper.CreateSqlStore(databaseName), version);
-				TestContext.EndTimer(timerName);
+					// Test inserting, modifying and deleting objects from repository
+					string databaseName = string.Format("NShape_Repository_v{0}", version);
+					RepositoryCompatibilityTestCore(RepositoryHelper.CreateSqlStore(databaseName), version);
+				} catch (Exception exc) {
+					warnings.Add(string.Format("SQL repositories version {0} are not compatible with version {1}: {2}", version, Project.LastSupportedSaveVersion, exc.Message));
+				} finally {
+					EndTimer(timerName);
+				}
 			}
 
-			// Clean up the created databases
+			// Clean up the created databases 
 			RepositoryCompatibilityTest_CleanupDatabases();
+
+			// Issue warnings
+			if (warnings.Count > 0)
+				Assert.Inconclusive(Environment.NewLine + string.Join(Environment.NewLine, warnings));
 		}
 
 
@@ -207,9 +200,9 @@ namespace NShapeTest {
 		public void XMLRepository_EditWithContents_Test() {
 			// Test inserting, modifying and deleting objects from repository
 			string timerName = "RepositoryTest XMLStore Timer (edit with contents)";
-			TestContext.BeginTimer(timerName);
+			BeginTimer(timerName);
 			RepositoryEditTestCore(RepositoryHelper.CreateXmlStore(), RepositoryHelper.CreateXmlStore(), true);
-			TestContext.EndTimer(timerName);
+			EndTimer(timerName);
 		}
 
 
@@ -217,41 +210,41 @@ namespace NShapeTest {
 		public void XMLRepository_EditWithoutContents_Test() {
 			// Test inserting, modifying and deleting objects from repository
 			string timerName = "RepositoryTest XMLStore Timer (edit without contents)";
-			TestContext.BeginTimer(timerName);
+			BeginTimer(timerName);
 			RepositoryEditTestCore(RepositoryHelper.CreateXmlStore(), RepositoryHelper.CreateXmlStore(), false);
-			TestContext.EndTimer(timerName);
+			EndTimer(timerName);
 		}
 
 
-		[TestMethod] 
+		[TestMethod]
 		public void XmlStore_FeatureSet_Test() {
 			// Test inserting, modifying and deleting objects from repository
 			string timerName = "RepositoryTest XMLStore Timer (Function set comparison test)";
 
 			List<String> shapeTypeNames = new List<String>(GeneralShapeTypeNames);
 			XmlStore basicFeatureStore = RepositoryHelper.CreateXmlStore(false, false, false);
-			
-			TestContext.BeginTimer(timerName);
+
+			BeginTimer(timerName);
 			// Test all features OFF
 			RepositoryFunctionSetTestCore(basicFeatureStore, RepositoryHelper.CreateXmlStore(false, false, false), shapeTypeNames);
-			
+
 			// Test each feature for its own: Lazy loading, embedded images, automatic backups
 			RepositoryFunctionSetTestCore(basicFeatureStore, RepositoryHelper.CreateXmlStore(true, false, false), shapeTypeNames);
 			RepositoryFunctionSetTestCore(basicFeatureStore, RepositoryHelper.CreateXmlStore(false, true, false), shapeTypeNames);
 			RepositoryFunctionSetTestCore(basicFeatureStore, RepositoryHelper.CreateXmlStore(false, false, true), shapeTypeNames);
-			
+
 			// Test lazy loading in combination with the other features
 			RepositoryFunctionSetTestCore(basicFeatureStore, RepositoryHelper.CreateXmlStore(true, true, false), shapeTypeNames);
 			RepositoryFunctionSetTestCore(basicFeatureStore, RepositoryHelper.CreateXmlStore(true, false, true), shapeTypeNames);
-			
+
 			// Test embedded images in combination with the other features
 			RepositoryFunctionSetTestCore(basicFeatureStore, RepositoryHelper.CreateXmlStore(false, true, true), shapeTypeNames);
 			// Lazy loading + embedded images: See above
 
 			// Test all features ON
 			RepositoryFunctionSetTestCore(basicFeatureStore, RepositoryHelper.CreateXmlStore(true, true, true), shapeTypeNames);
-			
-			TestContext.EndTimer(timerName);
+
+			EndTimer(timerName);
 		}
 
 
@@ -259,9 +252,9 @@ namespace NShapeTest {
 		public void XMLRepository_FunctionSetComparison_Test() {
 			// Test inserting, modifying and deleting objects from repository
 			string timerName = "RepositoryTest XMLStore Timer (Feature set comparison test)";
-			TestContext.BeginTimer(timerName);
+			BeginTimer(timerName);
 			RepositoryFunctionSetTestCore(RepositoryHelper.CreateXmlStore(), RepositoryHelper.CreateXmlStore());
-			TestContext.EndTimer(timerName);
+			EndTimer(timerName);
 		}
 
 
@@ -269,9 +262,9 @@ namespace NShapeTest {
 		public void XMLRepository_LargeDiagram_Test() {
 			// Test inserting large diagrams
 			string timerName = "LargeDiagramTest XMLStore Timer";
-			TestContext.BeginTimer(timerName);
+			BeginTimer(timerName);
 			LargeDiagramCore(RepositoryHelper.CreateXmlStore());
-			TestContext.EndTimer(timerName);
+			EndTimer(timerName);
 		}
 
 
@@ -281,24 +274,24 @@ namespace NShapeTest {
 				RepositoryHelper.SQLCreateDatabase();
 				// Test inserting, modifying and deleting objects from repository
 				string timerName = "RepositoryTest SqlStore Timer (edit with contents)";
-				TestContext.BeginTimer(timerName);
+				BeginTimer(timerName);
 				RepositoryEditTestCore(RepositoryHelper.CreateSqlStore(), RepositoryHelper.CreateSqlStore(), true);
-				TestContext.EndTimer(timerName);
+				EndTimer(timerName);
 			} finally {
 				RepositoryHelper.SQLDropDatabase();
 			}
 		}
 
-		
+
 		[TestMethod]
 		public void SQLRepository_EditWithoutContents_Test() {
 			try {
 				RepositoryHelper.SQLCreateDatabase();
 				// Test inserting, modifying and deleting objects from repository
 				string timerName = "RepositoryTest SqlStore Timer (edit without contents)";
-				TestContext.BeginTimer(timerName);
+				BeginTimer(timerName);
 				RepositoryEditTestCore(RepositoryHelper.CreateSqlStore(), RepositoryHelper.CreateSqlStore(), false);
-				TestContext.EndTimer(timerName);
+				EndTimer(timerName);
 			} finally {
 				RepositoryHelper.SQLDropDatabase();
 			}
@@ -311,24 +304,24 @@ namespace NShapeTest {
 				RepositoryHelper.SQLCreateDatabase();
 				// Test inserting, modifying and deleting objects from repository
 				string timerName = "RepositoryTest SqlStore Timer (Function set comparison test)";
-				TestContext.BeginTimer(timerName);
+				BeginTimer(timerName);
 				RepositoryFunctionSetTestCore(RepositoryHelper.CreateSqlStore(), RepositoryHelper.CreateSqlStore());
-				TestContext.EndTimer(timerName);
+				EndTimer(timerName);
 			} finally {
 				RepositoryHelper.SQLDropDatabase();
 			}
 		}
 
-		
+
 		[TestMethod]
 		public void SQLRepository_LargeDiagram_Test() {
 			try {
 				RepositoryHelper.SQLCreateDatabase();
 				// Test inserting large diagrams
 				string timerName = "LargeDiagramTest SqlStore Timer";
-				TestContext.BeginTimer(timerName);
+				BeginTimer(timerName);
 				LargeDiagramCore(RepositoryHelper.CreateSqlStore());
-				TestContext.EndTimer(timerName);
+				EndTimer(timerName);
 			} finally {
 				RepositoryHelper.SQLDropDatabase();
 			}
@@ -393,7 +386,7 @@ namespace NShapeTest {
 				project2.Open();
 				RepositoryComparer.Compare(project1, project2);
 				project2.Close();
-				
+
 				// If the store is a XML store, check files and file names
 				if (store1 is XmlStore) {
 					XmlStore xmlStore = (XmlStore)store1;
@@ -593,27 +586,28 @@ namespace NShapeTest {
 
 
 		private void RepositoryCompatibilityTest_ImportDatabases() {
+			// Get temporary database directory and delete it (if it does exists)
+			string sqlRepositoriesDir = GetSQLRepositoriesDirectory();
+			string workDir = Path.Combine(GetCommonTempDir(), Path.GetFileName(sqlRepositoriesDir));
+			if (Directory.Exists(workDir))
+				Directory.Delete(workDir, true);
+
 			// Restore SQL databases for each repository level
-			string repositoriesDir = GetTestRepositoriesDirectory();
-			string commonTempDir = GetCommonTempDir();
-			foreach (string srcDirPath in Directory.GetDirectories(repositoriesDir)) {
-				foreach (string srcFilePath in Directory.GetFiles(srcDirPath)) {
-					// Skip all files that are not SQL server database files.
-					if (!srcFilePath.EndsWith(".mdf", StringComparison.InvariantCultureIgnoreCase))
-						continue;
+			foreach (string srcFilePath in Directory.GetFiles(sqlRepositoriesDir)) {
+				// Skip all files that are not SQL server database files.
+				if (!srcFilePath.EndsWith(".mdf", StringComparison.InvariantCultureIgnoreCase))
+					continue;
 
-					// Copy SQL server database file
-					//string workDir = Path.Combine(Environment.ExpandEnvironmentVariables("%TEMP%"), Path.GetFileName(srcDirPath));
-					string workDir = Path.Combine(commonTempDir, Path.GetFileName(srcDirPath));
-					string workFilePath = Path.Combine(workDir, Path.GetFileName(srcFilePath));
-					string databaseName = Path.GetFileNameWithoutExtension(srcFilePath);
-					if (!Directory.Exists(workDir))
-						Directory.CreateDirectory(workDir);
-					File.Copy(srcFilePath, workFilePath);
+				// Copy SQL server database file
+				string workFilePath = Path.Combine(workDir, Path.GetFileName(srcFilePath));
+				string databaseName = Path.GetFileNameWithoutExtension(srcFilePath);
+				if (!Directory.Exists(workDir))
+					Directory.CreateDirectory(workDir);
+				File.Copy(srcFilePath, workFilePath, true);
 
-					// Attach SQL server database file to SQL server
-					string serverName = Environment.MachineName + RepositoryHelper.SqlServerName;
-					string connectionString = string.Format("server={0};Integrated Security=True", serverName);
+				// Attach SQL server database file to SQL server
+				string connectionString = string.Format("server={0};Integrated Security=True", RepositoryHelper.GetSqlServerName());
+				try {
 					using (System.Data.SqlClient.SqlConnection conn = new System.Data.SqlClient.SqlConnection(connectionString)) {
 						conn.Open();
 						using (System.Data.SqlClient.SqlCommand cmd = conn.CreateCommand()) {
@@ -621,51 +615,40 @@ namespace NShapeTest {
 							cmd.ExecuteNonQuery();
 						}
 					}
+				} catch (SqlException exc) {
+					if (exc.ErrorCode != RepositoryHelper.SqlErrorNewLogFileCreated)
+						throw;
 				}
 			}
 		}
 
 
 		private void RepositoryCompatibilityTest_CleanupDatabases() {
-			string repositoriesDir = GetTestRepositoriesDirectory();
-			string commonTempDir = GetCommonTempDir();
-			foreach (string srcDirPath in Directory.GetDirectories(repositoriesDir)) {
-				foreach (string srcFilePath in Directory.GetFiles(srcDirPath)) {
-					// Skip all files that are not SQL server database files.
-					if (!srcFilePath.EndsWith(".mdf", StringComparison.InvariantCultureIgnoreCase))
-						continue;
+			string sqlRepositoriesDir = GetSQLRepositoriesDirectory();
+			foreach (string srcFilePath in Directory.GetFiles(sqlRepositoriesDir)) {
+				// Skip all files that are not SQL server database files.
+				if (!srcFilePath.EndsWith(".mdf", StringComparison.InvariantCultureIgnoreCase))
+					continue;
 
-					// Copy SQL server database file
-					//string workDir = Path.Combine(Environment.ExpandEnvironmentVariables("%TEMP%"), Path.GetFileName(srcDirPath));
-					string workDir = Path.Combine(commonTempDir, Path.GetFileName(srcDirPath));
-					string workFilePath = Path.Combine(workDir, Path.GetFileName(srcFilePath));
-					string databaseName = Path.GetFileNameWithoutExtension(srcFilePath);
-
-					// Drop database
+				// Drop database
+				string databaseName = Path.GetFileNameWithoutExtension(srcFilePath);
+				try {
+					RepositoryHelper.SQLDropDatabase(databaseName);
+				} catch (Exception) {
 					try {
-						RepositoryHelper.SQLDropDatabase(databaseName);
-					} catch (Exception) {
-						try {
-							string serverName = Environment.MachineName + RepositoryHelper.SqlServerName;
-							string connectionString = string.Format("server={0};Integrated Security=True", serverName);
-							using (System.Data.SqlClient.SqlConnection conn = new System.Data.SqlClient.SqlConnection(connectionString)) {
-								conn.Open();
-								using (System.Data.SqlClient.SqlCommand cmd = conn.CreateCommand()) {
-									cmd.CommandText = string.Format("DROP DATABASE [{0}]", databaseName);
-									cmd.ExecuteNonQuery();
-								}
+						string serverName = Environment.MachineName + RepositoryHelper.SqlServerName;
+						string connectionString = string.Format("server={0};Integrated Security=True", serverName);
+						using (System.Data.SqlClient.SqlConnection conn = new System.Data.SqlClient.SqlConnection(connectionString)) {
+							conn.Open();
+							using (System.Data.SqlClient.SqlCommand cmd = conn.CreateCommand()) {
+								cmd.CommandText = string.Format("DROP DATABASE [{0}]", databaseName);
+								cmd.ExecuteNonQuery();
 							}
+						}
 
-						} catch (System.Data.SqlClient.SqlException) { }
-					}
-					// Delete database file and directory
-					if (File.Exists(workFilePath))
-						File.Delete(workFilePath);
+					} catch (System.Data.SqlClient.SqlException) { }
 				}
 			}
-			// We cannot delete the common TEMP directory because it is's a system directory!
-			//if (Directory.Exists(commonTempDir)) 
-			//    Directory.Delete(commonTempDir, true);
 		}
 
 
@@ -675,10 +658,15 @@ namespace NShapeTest {
 
 
 		private string GetTestRepositoriesDirectory() {
-			return Path.Combine(new string[] { GetSourceDirectory(), "Test", "Properties", "Repositories" });
+			return Path.Combine(new string[] { GetSourceDirectory(), "Test", "Resources", "Repositories" });
 		}
 
-		
+
+		private string GetSQLRepositoriesDirectory() {
+			return Path.Combine(GetTestRepositoriesDirectory(), "SQL Repositories");
+		}
+
+
 		private string GetCommonTempDir() {
 			return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Temp");
 		}
@@ -1126,7 +1114,7 @@ namespace NShapeTest {
 			template.Shape.Children.Add(newChildShape);
 			if (template.Shape.ModelObject != null) {
 				// ToDo: ModelObjects of child shapes and child model objects are not supported in the current version
-				
+
 				//newShape.ModelObject = template.Shape.ModelObject.Clone();
 				//newShape.ModelObject.Parent = template.Shape.ModelObject;
 				//repository.InsertModelObject(newShape.ModelObject);
@@ -1134,7 +1122,7 @@ namespace NShapeTest {
 
 			// Modify property mappings
 			foreach (IModelMapping modelMapping in template.GetPropertyMappings())
-			    ModifyModelMapping(modelMapping, repository.GetDesign(null));
+				ModifyModelMapping(modelMapping, repository.GetDesign(null));
 
 			// Modify terminal mappings
 			if (template.Shape.ModelObject != null) {
@@ -1168,9 +1156,9 @@ namespace NShapeTest {
 			//if (withContent) {
 			//    repository.UpdateAll(template);
 			//} else {
-				repository.Insert(newChildShape, template.Shape);
-				repository.Update(template);
-				repository.Update(template.GetPropertyMappings());
+			repository.Insert(newChildShape, template.Shape);
+			repository.Update(template);
+			repository.Update(template.GetPropertyMappings());
 			//}
 		}
 
@@ -1269,7 +1257,7 @@ namespace NShapeTest {
 			//        repository.UpdateOwner(child, modelObject);
 			//    }
 			//}
-			
+
 			// Update repository
 			// ToDo: Implement ModelObjectWithContents methods in Repository
 			repository.Update(modelObject);
@@ -1285,25 +1273,25 @@ namespace NShapeTest {
 
 		private void ModifyAndUpdateShape(Shape shape, IRepository repository, bool withContent) {
 			Design design = repository.GetDesign(null);
-			
+
 			Shape childShape = shape.Clone();
 			shape.Children.Add(childShape);
 			shape.LineStyle = GetNextValue(design.LineStyles, shape.LineStyle);
 			shape.MoveBy(100, 100);
 			shape.SecurityDomainName = (char)(((int)shape.SecurityDomainName) + 1);
-			if (shape is ILinearShape) 
+			if (shape is ILinearShape)
 				ModifyAndUpdateShape((ILinearShape)shape, design);
-			else if (shape is IPlanarShape) 
+			else if (shape is IPlanarShape)
 				ModifyAndUpdateShape((IPlanarShape)shape, design);
-			else if (shape is ICaptionedShape) 
+			else if (shape is ICaptionedShape)
 				ModifyAndUpdateShape((ICaptionedShape)shape, design);
-			
+
 			// Update repository
 			//if (withContent)
 			//    repository.UpdateAll(shape);
 			//else {
-				repository.Insert(childShape, shape);
-				repository.Update(shape);
+			repository.Insert(childShape, shape);
+			repository.Update(shape);
 			//}
 		}
 
@@ -1533,7 +1521,7 @@ namespace NShapeTest {
 			List<ShapeConnectionInfo> connections = new List<ShapeConnectionInfo>(shape.GetConnectionInfos(ControlPointId.Any, null));
 			foreach (ShapeConnectionInfo ci in connections) {
 				Assert.IsFalse(ci == ShapeConnectionInfo.Empty);
-				if (ci.OtherShape.Diagram == null) continue;	// Skip connections to shapes that are already deleted
+				if (ci.OtherShape.Diagram == null) continue;    // Skip connections to shapes that are already deleted
 				if (shape.HasControlPointCapability(ci.OwnPointId, ControlPointCapabilities.Glue)) {
 					repository.DeleteConnection(shape, ci.OwnPointId, ci.OtherShape, ci.OtherPointId);
 					shape.Disconnect(ci.OwnPointId);
@@ -1554,7 +1542,7 @@ namespace NShapeTest {
 				DetachModelObjects(shape);
 				repository.Delete(shape);
 			}
-			
+
 			// Disconnect shapes
 			foreach (ShapeConnectionInfo ci in connections) {
 				if (shape.HasControlPointCapability(ci.OwnPointId, ControlPointCapabilities.Glue))
@@ -1587,7 +1575,7 @@ namespace NShapeTest {
 			((CachedRepository)project.Repository).Store = store;
 
 			// Delete the current project (if it exists)
-			if (project.Repository.Exists()) 
+			if (project.Repository.Exists())
 				project.Repository.Erase();
 			project.Create();
 			project.AddLibrary(typeof(Dataweb.NShape.GeneralShapes.Circle).Assembly, true);
@@ -1603,7 +1591,7 @@ namespace NShapeTest {
 		}
 
 
-		private T GetNextValue<T>(IEnumerable<T> collection, T currentValue) where T: class {
+		private T GetNextValue<T>(IEnumerable<T> collection, T currentValue) where T : class {
 			return GetNextValue(collection, currentValue, null);
 		}
 
@@ -1673,14 +1661,12 @@ namespace NShapeTest {
 		#endregion
 
 
-		private TestContext testContextInstance;
-
 		private enum EditContentMode { Insert, Modify };
 
 		private String[] GeneralShapeTypeNames = new String[] {
 			"Polyline", 
 			//"RectangularLine", // Causes arithmetic overflow while MapInsert, ending up in an endless loop!
-			"CircularArc", "Text", "Label", "RegularPolygone", "FreeTriangle", "IsoscelesTriangle", 
+			"CircularArc", "Text", "Label", "RegularPolygone", "FreeTriangle", "IsoscelesTriangle",
 			"Circle", "Ellipse", "Square", "Box", "RoundedBox", "Diamond", "ThickArrow", "Picture"
 		};
 

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -65,10 +65,10 @@ namespace Dataweb.NShape {
 			this._name = source._name;
 			this._title = source._title;
 			this._description = source._description;
-			
+
 			// Clone or copy shape
-			if (this._shape == null)	this._shape = ShapeDuplicator.CloneShapeAndModelObject(source._shape);
-			else this._shape.CopyFrom(source._shape);	// Template will be copied although this is not desirable
+			if (this._shape == null) this._shape = ShapeDuplicator.CloneShapeAndModelObject(source._shape);
+			else this._shape.CopyFrom(source._shape);   // Template will be copied although this is not desirable
 
 			// copy connection point mapping
 			this._connectionPointMappings.Clear();
@@ -89,8 +89,8 @@ namespace Dataweb.NShape {
 			get { return _tag; }
 			set { _tag = value; }
 		}
-		
-		
+
+
 		/// <summary>
 		/// Specifies the culture independent name.
 		/// </summary>
@@ -131,16 +131,16 @@ namespace Dataweb.NShape {
 			get { return _shape; }
 			set {
 				if (_shape != null) {
-				    if (_shape.ModelObject != null && value != null && value.ModelObject != null) {
-				        // If both shapes have ModelObejct instances assigned, 
-				        // try to keep as many mappings as possible
-				        // ToDo: try to copy property mappings
-				        CopyTerminalMappings(_shape.ModelObject, value.ModelObject);
-				    } else {
-				        // Delete all mappings to restore default behavior
-				        UnmapAllProperties();
-				        UnmapAllTerminals();
-				    }
+					if (_shape.ModelObject != null && value != null && value.ModelObject != null) {
+						// If both shapes have ModelObejct instances assigned, 
+						// try to keep as many mappings as possible
+						// ToDo: try to copy property mappings
+						CopyTerminalMappings(_shape.ModelObject, value.ModelObject);
+					} else {
+						// Delete all mappings to restore default behavior
+						UnmapAllProperties();
+						UnmapAllTerminals();
+					}
 				}
 				_shape = value;
 			}
@@ -158,8 +158,8 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Creates a new shape from this template.
 		/// </summary>
-		public TShape CreateShape<TShape>() where TShape: Shape {
-			TShape result = (TShape)_shape.Type.CreateInstance(this);
+		public TShape CreateShape<TShape>() where TShape : Shape {
+			TShape result = _shape.Type.CreateInstance<TShape>(this);
 			if (_shape.ModelObject != null)
 				ShapeDuplicator.CloneModelObjectOnly(result);
 			return result;
@@ -444,9 +444,9 @@ namespace Dataweb.NShape {
 
 		private static string _entityTypeName = "Core.Template";
 		private static string _connectionPtMappingName = "ConnectionPointMapping";
-		
+
 		private static string[] _connectionPtMappingAttrNames = new string[] { "PointId", "TerminalId" };
-		private static Type[] _connectionPtMappingAttrTypes = new Type[] { typeof(int), typeof(int) };		
+		private static Type[] _connectionPtMappingAttrTypes = new Type[] { typeof(int), typeof(int) };
 
 		private const string _deactivatedTag = "Deactivated";
 		private const string _activatedTag = "Activated";
@@ -457,10 +457,10 @@ namespace Dataweb.NShape {
 		private string _description;
 		private Shape _shape;
 		private object _tag;
-		
+
 		private Dictionary<ControlPointId, TerminalId> _connectionPointMappings = new Dictionary<ControlPointId, TerminalId>();
 		private SortedList<int, IModelMapping> _propertyMappings = new SortedList<int, IModelMapping>();
-		
+
 		#endregion
 	}
 

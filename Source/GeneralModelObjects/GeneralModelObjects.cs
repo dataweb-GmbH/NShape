@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -120,10 +120,15 @@ namespace Dataweb.NShape.GeneralModelObjects {
 		public static void Initialize(IRegistrar registrar) {
 			// Register library
 			registrar.RegisterLibrary(namespaceName, preferredRepositoryVersion);
-			// Register model object types
+			
+			// Register model object type(s)
 			TerminalId maxTerminalId = 2;
 			registrar.RegisterModelObjectType(new GenericModelObjectType("ValueDevice", namespaceName, categoryTitle,
 				ValueDevice.CreateInstance, ValueDevice.GetPropertyDefinitions, maxTerminalId));
+
+			// Register diagram model object type(s)
+			registrar.RegisterDiagramModelObjectType(new GenericDiagramModelObjectType("DiagramModel", namespaceName, categoryTitle,
+				GenericDiagramModelObject.CreateInstance, GenericDiagramModelObject.GetPropertyDefinitions));
 		}
 
 

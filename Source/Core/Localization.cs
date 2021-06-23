@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2018 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -93,6 +93,7 @@ namespace Dataweb.NShape.Advanced {
 				string resourceKey = string.Concat(assembly.FullName, " | ", resourceName);
 				if (!_resourceManagers.TryGetValue(resourceKey, out resourceManager) || resourceManager == null) {
 					resourceManager = new ResourceManager(resourceName, assembly);
+					Debug.Assert(_resourceManagers.ContainsKey(resourceKey) == false);
 					_resourceManagers[resourceKey] = resourceManager;
 				}
 			}

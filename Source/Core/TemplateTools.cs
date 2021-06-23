@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -166,12 +166,13 @@ namespace Dataweb.NShape {
 						// MouseDown starts drag-based actions
 						// ToDo: Implement these features: Adding Segments to existing Lines, Move existing Lines and their ControlPoints
 						if (e.Clicks > 1) result = ProcessDoubleClick(diagramPresenter, newMouseState);
-						else result = ProcessMouseClick(diagramPresenter, newMouseState);
+						else result = ProcessMouseDown(diagramPresenter, newMouseState);
 						break;
 
 					case MouseEventType.MouseUp:
 						// MouseUp finishes drag-actions. Click-based actions are handled by the MouseClick event
 						// ToDo: Implement these features: Adding Segments to existing Lines, Move existing Lines and their ControlPoints
+						result = ProcessMouseUp(diagramPresenter, newMouseState);
 						break;
 
 					default: throw new NShapeUnsupportedValueException(e.EventType);
@@ -334,8 +335,8 @@ namespace Dataweb.NShape {
 		}
 
 
-		private bool ProcessMouseClick(IDiagramPresenter diagramPresenter, MouseState mouseState) {
-			Debug.Print("ProcessMouseClick");
+		private bool ProcessMouseDown(IDiagramPresenter diagramPresenter, MouseState mouseState) {
+			Debug.Print("ProcessMouseDown");
 			bool result = false;
 			switch (CurrentAction) {
 				case Action.None:
@@ -357,9 +358,6 @@ namespace Dataweb.NShape {
 								result = true;
 							}
 						}
-					} else if (mouseState.IsButtonDown(MouseButtonsDg.Right)) {
-						Cancel();
-						result = true;
 					}
 					break;
 
@@ -388,7 +386,32 @@ namespace Dataweb.NShape {
 								EndToolAction();
 							OnToolExecuted(ExecutedEventArgs);
 						}
-					} else if (mouseState.IsButtonDown(MouseButtonsDg.Right)) {
+					}
+					result = true;
+					break;
+
+				default: throw new NShapeUnsupportedValueException(CurrentAction);
+			}
+			Invalidate(diagramPresenter);
+			return result;
+		}
+
+
+		private bool ProcessMouseUp(IDiagramPresenter diagramPresenter, MouseState mouseState)
+		{
+			Debug.Print("ProcessMouseClick");
+			bool result = false;
+			switch (CurrentAction) {
+				case Action.None:
+					if (mouseState.IsButtonDown(MouseButtonsDg.Right)) {
+						Cancel();
+						result = true;
+					}
+					break;
+
+				case Action.CreateLine:
+				case Action.ExtendLine:
+					if (mouseState.IsButtonDown(MouseButtonsDg.Right)) {
 #if DEBUG_DIAGNOSTICS
 						Assert(PreviewShape != null);
 #endif

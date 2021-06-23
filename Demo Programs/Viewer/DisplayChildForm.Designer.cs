@@ -193,6 +193,7 @@
 			this.display.Location = new System.Drawing.Point(0, 0);
 			this.display.MinRotateRange = 30;
 			this.display.Name = "display";
+			this.display.PanMouseButton = System.Windows.Forms.MouseButtons.Middle | System.Windows.Forms.MouseButtons.Right;
 			this.display.PropertyController = null;
 			this.display.RenderingQualityHighQuality = Dataweb.NShape.Advanced.RenderingQuality.HighQuality;
 			this.display.RenderingQualityLowQuality = Dataweb.NShape.Advanced.RenderingQuality.DefaultQuality;
@@ -203,7 +204,7 @@
 			this.display.SelectionNormalColor = System.Drawing.Color.DarkGreen;
 			this.display.ShowDefaultContextMenu = false;
 			this.display.IsGridVisible = false;
-			this.display.ShowScrollBars = true;
+			this.display.ScrollBarsVisible = true;
 			this.display.Size = new System.Drawing.Size(862, 620);
 			this.display.SnapDistance = 5;
 			this.display.SnapToGrid = true;

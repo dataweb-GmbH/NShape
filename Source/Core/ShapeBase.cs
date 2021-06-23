@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -153,9 +153,11 @@ namespace Dataweb.NShape.Advanced {
 			get { return _modelObject; }
 			set {
 				if (_modelObject != value) {
-					IModelObject currModelObj = _modelObject;
+					// Store model object reference for calling Detach() *after* the property value was applied
+					// because the ModelObject's Detach() will also set the shape's ModelObject property to null.
+					IModelObject oldModelObj = _modelObject;
 					_modelObject = value;
-					if (currModelObj != null) currModelObj.DetachShape(this);
+					if (oldModelObj != null) oldModelObj.DetachShape(this);
 					if (_modelObject != null) _modelObject.AttachShape(this);
 				}
 			}

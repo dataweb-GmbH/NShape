@@ -185,6 +185,7 @@
 			this.statusStrip.SuspendLayout();
 			this.mainMenuStrip.SuspendLayout();
 			this.toolboxPropsPanel.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
@@ -238,7 +239,7 @@
 			this.statusLabelMessage.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.statusLabelMessage.Name = "statusLabelMessage";
 			this.statusLabelMessage.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
-			this.statusLabelMessage.Size = new System.Drawing.Size(355, 19);
+			this.statusLabelMessage.Size = new System.Drawing.Size(357, 19);
 			this.statusLabelMessage.Spring = true;
 			this.statusLabelMessage.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
@@ -308,7 +309,7 @@
 			this.statusLabelTopLeft.ImageTransparentColor = System.Drawing.Color.Fuchsia;
 			this.statusLabelTopLeft.Name = "statusLabelTopLeft";
 			this.statusLabelTopLeft.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
-			this.statusLabelTopLeft.Size = new System.Drawing.Size(70, 19);
+			this.statusLabelTopLeft.Size = new System.Drawing.Size(68, 19);
 			this.statusLabelTopLeft.Text = "TopLeft";
 			// 
 			// statusLabelBottomRight
@@ -890,45 +891,45 @@
             this.toolStripMenuItem12,
             this.nShapeEventMonitorToolStripMenuItem});
 			this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-			this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+			this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
 			this.toolsToolStripMenuItem.Text = "Tools";
 			// 
 			// resetToolbarsToolStripMenuItem
 			// 
 			this.resetToolbarsToolStripMenuItem.Name = "resetToolbarsToolStripMenuItem";
-			this.resetToolbarsToolStripMenuItem.Size = new System.Drawing.Size(230, 22);
+			this.resetToolbarsToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
 			this.resetToolbarsToolStripMenuItem.Text = "Reset Toolbar Layout";
 			this.resetToolbarsToolStripMenuItem.Click += new System.EventHandler(this.resetToolbarsToolStripMenuItem_Click);
 			// 
 			// toolStripMenuItem11
 			// 
 			this.toolStripMenuItem11.Name = "toolStripMenuItem11";
-			this.toolStripMenuItem11.Size = new System.Drawing.Size(227, 6);
+			this.toolStripMenuItem11.Size = new System.Drawing.Size(226, 6);
 			// 
 			// adoNetDatabaseGeneratorToolStripMenuItem
 			// 
 			this.adoNetDatabaseGeneratorToolStripMenuItem.Name = "adoNetDatabaseGeneratorToolStripMenuItem";
-			this.adoNetDatabaseGeneratorToolStripMenuItem.Size = new System.Drawing.Size(230, 22);
+			this.adoNetDatabaseGeneratorToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
 			this.adoNetDatabaseGeneratorToolStripMenuItem.Text = "ADO.NET Database Generator";
 			this.adoNetDatabaseGeneratorToolStripMenuItem.Click += new System.EventHandler(this.adoNetDatabaseGeneratorToolStripMenuItem_Click);
 			// 
 			// testDataGeneratorToolStripMenuItem
 			// 
 			this.testDataGeneratorToolStripMenuItem.Name = "testDataGeneratorToolStripMenuItem";
-			this.testDataGeneratorToolStripMenuItem.Size = new System.Drawing.Size(230, 22);
+			this.testDataGeneratorToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
 			this.testDataGeneratorToolStripMenuItem.Text = "Test Data Generator";
 			this.testDataGeneratorToolStripMenuItem.Click += new System.EventHandler(this.testDataGeneratorToolStripMenuItem_Click);
 			// 
 			// toolStripMenuItem12
 			// 
 			this.toolStripMenuItem12.Name = "toolStripMenuItem12";
-			this.toolStripMenuItem12.Size = new System.Drawing.Size(227, 6);
+			this.toolStripMenuItem12.Size = new System.Drawing.Size(226, 6);
 			// 
 			// nShapeEventMonitorToolStripMenuItem
 			// 
 			this.nShapeEventMonitorToolStripMenuItem.CheckOnClick = true;
 			this.nShapeEventMonitorToolStripMenuItem.Name = "nShapeEventMonitorToolStripMenuItem";
-			this.nShapeEventMonitorToolStripMenuItem.Size = new System.Drawing.Size(230, 22);
+			this.nShapeEventMonitorToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
 			this.nShapeEventMonitorToolStripMenuItem.Text = "NShape Event Monitor";
 			this.nShapeEventMonitorToolStripMenuItem.Click += new System.EventHandler(this.nShapeEventMonitorToolStripMenuItem_Click);
 			// 
@@ -945,14 +946,14 @@
 			// 
 			this.viewHelpToolStripMenuItem.Name = "viewHelpToolStripMenuItem";
 			this.viewHelpToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-			this.viewHelpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.viewHelpToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.viewHelpToolStripMenuItem.Text = "View Help";
 			this.viewHelpToolStripMenuItem.Click += new System.EventHandler(this.viewHelpToolStripMenuItem_Click);
 			// 
 			// aboutToolStripMenuItem
 			// 
 			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
 			this.aboutToolStripMenuItem.Text = "About...";
 			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
 			// 
@@ -1587,7 +1588,7 @@
 			// 
 			this.project.Description = null;
 			this.project.LibrarySearchPaths = ((System.Collections.Generic.IList<string>)(resources.GetObject("project.LibrarySearchPaths")));
-			this.project.Name = string.Empty;
+			this.project.Name = "";
 			this.project.Repository = this.cachedRepository;
 			roleBasedSecurityManager1.CurrentRole = Dataweb.NShape.StandardRole.Administrator;
 			roleBasedSecurityManager1.CurrentRoleName = "Administrator";
@@ -1598,7 +1599,7 @@
 			// 
 			// cachedRepository
 			// 
-			this.cachedRepository.ProjectName = string.Empty;
+			this.cachedRepository.ProjectName = "";
 			this.cachedRepository.Store = null;
 			this.cachedRepository.Version = 0;
 			// 
@@ -1670,6 +1671,7 @@
 			this.toolboxPropsPanel.ResumeLayout(false);
 			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
 			this.toolboxContextMenuStrip.ResumeLayout(false);
 			this.propertyWindowTabControl.ResumeLayout(false);

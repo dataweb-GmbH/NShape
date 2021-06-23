@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -36,6 +36,9 @@ namespace Dataweb.NShape {
 	[ToolboxItem(true)]
 	[ToolboxBitmap(typeof(XmlStore), "XmlStore.bmp")]
 	public class XmlStore : Store {
+
+		/// <summary>Defines the default extension of NShape XML project files.</summary>
+		public const string DefaultProjectFileExtension = ".nspj";
 
 		/// <summary>Defines the default extension of the backup file created when setting BackupFileGenerationMode to "BakFile".</summary>
 		public const string DefaultBackupFileExtension = ".bak";
@@ -270,7 +273,9 @@ namespace Dataweb.NShape {
 		}
 
 
-		/// <override></override>
+		/// <summary>
+		/// Returns true if the store's medium (file or stream) exists, otherwise false.
+		/// </summary>
 		public override bool Exists() {
 			return File.Exists(ProjectFilePath) || Stream != null;
 		}
@@ -315,7 +320,9 @@ namespace Dataweb.NShape {
 		}
 
 
-		/// <override></override>
+		/// <summary>
+		/// Deletes the project file and (if exists) the image directory.
+		/// </summary>
 		public override void Erase() {
 			if (BackupGenerationMode != BackupFileGenerationMode.None)
 				CreateBackupFiles(ProjectFilePath);
@@ -424,6 +431,13 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadChildModelObjects(IStoreCache cache, object parentModelObjectId) {
+			if (_isOpen) OpenComplete(cache);
+		}
+
+
+		/// <override></override>
+		public override void LoadDiagramModelObjects(IStoreCache cache, object projectId)
+		{
 			if (_isOpen) OpenComplete(cache);
 		}
 
@@ -647,10 +661,13 @@ namespace Dataweb.NShape {
 		/// Create a path with slashes ('/') instead of back slashes ('\') as path delimiter in order to ensure that xml repositories can be loaded from both, Windows and Linux operating systems.
 		/// </summary>
 		protected string UnifyPath(string path) {
-			Uri resultUri;
-			if (Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out resultUri))
-				return Uri.UnescapeDataString(resultUri.AbsolutePath);
-			return path;
+			// We don't use URI's functions any longer because URI class will convert all paths to "file://"
+			// which can't be used with System.IO.Path class' functions, e.g. Path.CreateDirectory for example
+			// and removing the "file:" prefix makes the URI relative which causes problems with UNC paths.
+			// Instead, we simply exchange the path delimiter because all file related functions accept '/' as
+			// path delimiter even on windows machines.
+			string absPath = Path.GetFullPath(path);
+			return absPath.Replace('\\', '/');
 		}
 
 
@@ -1865,6 +1882,9 @@ namespace Dataweb.NShape {
 					// Global models are stored with parent id DBNull
 					cache.LoadedModels.Add(new EntityBucket<Model>(model, null, ItemState.Original));
 
+					// Load all diagram model objects
+					if (Version >= 7) ReadDiagramModelObjects(cache, xmlReader, model);
+					// Load all model objects
 					ReadModelObjects(cache, xmlReader, model);
 				}
 			}
@@ -1877,6 +1897,16 @@ namespace Dataweb.NShape {
 				while (xmlReader.NodeType != XmlNodeType.EndElement)
 					ReadModelObject(cache, _repositoryReader, owner);
 				XmlSkipEndElement(modelObjectsTag);
+			}
+		}
+
+
+		private void ReadDiagramModelObjects(IStoreCache cache, XmlReader xmlReader, IEntity owner)
+		{
+			if (XmlSkipStartElement(diagramModelObjectsTag)) {
+				while (xmlReader.NodeType != XmlNodeType.EndElement)
+					ReadDiagramModelObject(cache, _repositoryReader, owner);
+				XmlSkipEndElement(diagramModelObjectsTag);
 			}
 		}
 
@@ -2092,6 +2122,39 @@ namespace Dataweb.NShape {
 			cache.LoadedModelObjects.Add(new EntityBucket<IModelObject>(modelObject, owner, ItemState.Original));
 
 			return modelObject;
+		}
+
+
+		private IDiagramModelObject ReadDiagramModelObject(IStoreCache cache, XmlStoreReader reader, IEntity owner) {
+			Debug.Assert(_xmlReader.NodeType == XmlNodeType.Element);
+			string diagramModelObjectTag = _xmlReader.Name;
+			IEntityType entityType = cache.FindEntityTypeByElementName(diagramModelObjectTag);
+			if (entityType == null)
+				throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_NoModelObjectTypeFoundForTag0, diagramModelObjectTag);
+			XmlSkipStartElement(diagramModelObjectTag);
+			IDiagramModelObject diagramModelObject = (IDiagramModelObject)entityType.CreateInstanceForLoading();
+			reader.ResetFieldReading(entityType.PropertyDefinitions);
+			reader.DoBeginObject();
+			diagramModelObject.AssignId(reader.ReadId());
+			diagramModelObject.LoadFields(reader, entityType.RepositoryVersion);
+			_xmlReader.Read(); // Reads out of attributes
+			foreach (EntityPropertyDefinition pi in entityType.PropertyDefinitions)
+				if (pi is EntityInnerObjectsDefinition)
+					diagramModelObject.LoadInnerObjects(pi.Name, reader, entityType.RepositoryVersion);
+			// Read the child ModelObjects
+			if (_xmlReader.NodeType == XmlNodeType.Element) {
+				do {
+					IModelObject m = ReadModelObject(cache, reader, diagramModelObject);
+				} while (_xmlReader.Name != childrenTag && _xmlReader.NodeType != XmlNodeType.EndElement);
+				if (_xmlReader.Name != childrenTag) throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageTxt_ModelObjectChildrenAreInvalidInXMLDocument);
+				XmlReadEndElement(childrenTag);
+			}
+			// Reads the model object's end element
+			XmlReadEndElement(diagramModelObjectTag);
+			// Insert entity into cache
+			cache.LoadedDiagramModelObjects.Add(new EntityBucket<IDiagramModelObject>(diagramModelObject, owner, ItemState.Original));
+
+			return diagramModelObject;
 		}
 
 		#endregion
@@ -2442,8 +2505,11 @@ namespace Dataweb.NShape {
 					if (pi is EntityInnerObjectsDefinition)
 						((IEntity)model).SaveInnerObjects(pi.Name, _repositoryWriter, modelEntityType.RepositoryVersion);
 
+				// Write all diagram model objects
+				if (Version >= 7) WriteDiagramModelObjects(cache, model);
 				// Write all model objects
 				WriteModelObjects(cache, model);
+
 				XmlCloseElement();
 			}
 		}
@@ -2480,6 +2546,37 @@ namespace Dataweb.NShape {
 				foreach (IModelObject child in ((IRepository)cache).GetModelObjects(modelObject))
 					WriteModelObject(cache, child, writer);
 			} else throw new NotImplementedException();
+			XmlCloseElement();
+		}
+
+
+		private void WriteDiagramModelObjects(IStoreCache cache, Model model)
+		{
+			XmlOpenElement(diagramModelObjectsTag);
+			// We do not want to write template model objects here.
+			foreach (IDiagramModelObject diagramModelObject in GetLoadedDiagramModelObjects(cache, model))
+				WriteDiagramModelObject(cache, diagramModelObject, _repositoryWriter);
+			foreach (IDiagramModelObject diagramModelObject in GetNewDiagramModelObjects(cache, model)) {
+				AssignId(diagramModelObject);
+				WriteDiagramModelObject(cache, diagramModelObject, _repositoryWriter);
+			}
+			XmlCloseElement();
+		}
+
+
+		private void WriteDiagramModelObject(IStoreCache cache, IDiagramModelObject diagramModelObject, RepositoryWriter writer) {
+			IEntityType diagramModelObjectEntityType = cache.FindEntityTypeByName(diagramModelObject.Type.FullName);
+			string diagramModelObjectTag = GetElementTag(diagramModelObjectEntityType);
+			XmlOpenElement(diagramModelObjectTag);
+			writer.Reset(diagramModelObjectEntityType.PropertyDefinitions);
+			writer.Prepare(diagramModelObject);
+			if (diagramModelObject.Id == null) diagramModelObject.AssignId(Guid.NewGuid());
+			writer.WriteId(diagramModelObject.Id);
+			diagramModelObject.SaveFields(writer, diagramModelObjectEntityType.RepositoryVersion);
+			foreach (EntityPropertyDefinition pi in diagramModelObjectEntityType.PropertyDefinitions)
+				if (pi is EntityInnerObjectsDefinition)
+					((IEntity)diagramModelObject).SaveInnerObjects(pi.Name, writer, diagramModelObjectEntityType.RepositoryVersion);
+			writer.Finish();
 			XmlCloseElement();
 		}
 
@@ -2654,7 +2751,7 @@ namespace Dataweb.NShape {
 			foreach (IModelMapping m in GetNewModelMappings(cache, owner)) yield return m;
 		}
 
-				
+
 		private IEnumerable<IModelObject> GetLoadedModelObjects(IStoreCache cache, Model owner) {
 			// Original condition for retrieving loaded model objects:
 			// if (mob.Owner == model || mob.Owner is IModelObject)
@@ -2672,7 +2769,23 @@ namespace Dataweb.NShape {
 			foreach (IModelObject m in GetNewModelObjects(cache, owner)) yield return m;
 		}
 
+
+		private IEnumerable<IDiagramModelObject> GetLoadedDiagramModelObjects(IStoreCache cache, Model owner)
+		{
+			return GetEntities<IDiagramModelObject>(cache.LoadedDiagramModelObjects, owner);
+		}
+
+		private IEnumerable<IDiagramModelObject> GetNewDiagramModelObjects(IStoreCache cache, Model owner)
+		{
+			return GetEntities<IDiagramModelObject>(cache.NewDiagramModelObjects, owner);
+		}
 		
+		private IEnumerable<IDiagramModelObject> GetAllDiagramModelObjects(IStoreCache cache, Model owner) {
+			foreach (IDiagramModelObject m in GetLoadedDiagramModelObjects(cache, owner)) yield return m;
+			foreach (IDiagramModelObject m in GetNewDiagramModelObjects(cache, owner)) yield return m;
+		}
+
+
 		private IEnumerable<Model> GetLoadedModels(IStoreCache cache) {
 			return GetEntities<Model>(cache.LoadedModels, null);
 		}
@@ -2868,6 +2981,7 @@ namespace Dataweb.NShape {
 		private const string hashCodeTag = "hash";
 		private const string shapesTag = "shapes";
 		private const string modelObjectsTag = "model_objects";
+		private const string diagramModelObjectsTag = "diagram_model_objects";
 		private const string rootTag = "dataweb_nshape";
 		private const string templateTag = "template";
 		private const string modelmappingsTag = "model_mappings";
@@ -2888,7 +3002,7 @@ namespace Dataweb.NShape {
 		private string _directoryName = string.Empty;
 		// Name of the project. Always != null
 		private string _projectName = string.Empty;
-		// File extension of project file. Maybe null.
+		// File extension of project file. May be null.
 		private string _fileExtension = DefaultFileExtension;
 		private string _backupFileExtension = DefaultBackupFileExtension;
 		// Specifies whether a backup file should be created when saving the contents to file.

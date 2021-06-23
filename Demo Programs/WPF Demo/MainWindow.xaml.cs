@@ -38,8 +38,7 @@ namespace NShape_WPF_Demo {
 			InitializeComponent();
 			Title = appTitle;
 
-			// Enable XP-Style for WinForms controls
-			System.Windows.Forms.Application.EnableVisualStyles();
+			// Enable WinForms' visual styles: See Application 'App's static constructor
 
 			// Initialize WinForms ListView
 			winFormsListView.View = System.Windows.Forms.View.Details;
@@ -109,8 +108,10 @@ namespace NShape_WPF_Demo {
 			// Setup display properties
 			display.BackColor = System.Drawing.Color.FromKnownColor(System.Drawing.KnownColor.ControlDark);
 			display.BackColorGradient = System.Drawing.Color.FromKnownColor(System.Drawing.KnownColor.ControlLight);
-			display.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			display.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			display.Cursor = System.Windows.Forms.Cursors.Hand;
+			display.ZoomWithMouseWheel = true;
+			display.PanMouseButton = System.Windows.Forms.MouseButtons.Middle | System.Windows.Forms.MouseButtons.Right;
 			displayHost.Child = display;
 
 			// Set the grid as the content of a tab item

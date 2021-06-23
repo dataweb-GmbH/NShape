@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -49,13 +49,13 @@ namespace Dataweb.NShape.Designer {
 				switch (mode) {
 					case Mode.CreateSchema:
 						projectNameComboBox.Visible =
-							projectNameLabel.Visible = false;
+						projectNameLabel.Visible = false;
 						Text = "Select Database";
 						break;
 					case Mode.CreateProject:
 					case Mode.OpenProject:
 						projectNameComboBox.Visible =
-							projectNameLabel.Visible = true;
+						projectNameLabel.Visible = true;
 						Text = "Select Project";
 						break;
 				}
@@ -124,6 +124,7 @@ namespace Dataweb.NShape.Designer {
 			if (!DatabaseExists(providerName, serverName, databaseName))
 				MessageBox.Show(this, "Database does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			else {
+				Cursor = Cursors.WaitCursor;
 				using (DbConnection connection = GetConnection(providerName, serverName, null)) {
 					if (connection != null) {
 						connection.Open();
@@ -140,6 +141,7 @@ namespace Dataweb.NShape.Designer {
 						}
 					}
 				}
+				Cursor = Cursors.Arrow;
 			}
 			return result;
 		}
@@ -323,46 +325,59 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void createDbButton_Click(object sender, EventArgs e) {
-			if (_mode == Mode.CreateSchema) {
-				if (CreateDatabase(ProviderName, ServerName, DatabaseName))
-					MessageBox.Show(this, "Database successfully created.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-			} else MessageBox.Show(this, useDBGeneratorMsg, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			try {
+				if (_mode == Mode.CreateSchema) {
+					if (CreateDatabase(ProviderName, ServerName, DatabaseName))
+						MessageBox.Show(this, "Database successfully created.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				} else MessageBox.Show(this, useDBGeneratorMsg, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			} catch (Exception exc) {
+				MessageBox.Show(this, exc.Message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 
 
 		private void dropDbButton_Click(object sender, EventArgs e) {
-			if (_mode == Mode.CreateSchema) {
-				if (DropDatabase(ProviderName, ServerName, DatabaseName))
-					MessageBox.Show(this, "Database successfully dropped.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-			} else MessageBox.Show(this, useDBGeneratorMsg, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			try {
+				if (_mode == Mode.CreateSchema) {
+					if (DropDatabase(ProviderName, ServerName, DatabaseName))
+						MessageBox.Show(this, "Database successfully dropped.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				} else MessageBox.Show(this, useDBGeneratorMsg, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+		} catch (Exception exc) {
+				MessageBox.Show(this, exc.Message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
+	}
 
 
-		private void okButton_Click(object sender, EventArgs e) {
-			if (DatabaseExists(ProviderName, ServerName, DatabaseName))
-				DialogResult = DialogResult.OK;
-			else {
-				DialogResult result = MessageBox.Show(
-					string.Format("Database '{0}' does not exist. Do you ant to create the database?", DatabaseName),
-					"Create Database", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-				switch (result) {
-					case DialogResult.Cancel:
-						DialogResult = DialogResult.None;
-						break;
-					case DialogResult.Yes:
-						CreateDatabase(ProviderName, ServerName, DatabaseName);
-						DialogResult = DialogResult.OK;
-						break;
-					case DialogResult.No:
-						DialogResult = DialogResult.OK;
-						break;
+	private void okButton_Click(object sender, EventArgs e) {
+			try {
+				if (DatabaseExists(ProviderName, ServerName, DatabaseName))
+					DialogResult = DialogResult.OK;
+				else {
+					DialogResult result = MessageBox.Show(
+						string.Format("Database '{0}' does not exist. Do you want to create the database?", DatabaseName),
+						"Create Database", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+					switch (result) {
+						case DialogResult.Cancel:
+							DialogResult = DialogResult.None;
+							break;
+						case DialogResult.Yes:
+							CreateDatabase(ProviderName, ServerName, DatabaseName);
+							DialogResult = DialogResult.OK;
+							break;
+						case DialogResult.No:
+							DialogResult = DialogResult.OK;
+							break;
+					}
 				}
+			} catch (Exception exc) {
+				MessageBox.Show(this, exc.Message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
+
 		}
 
 		#endregion
 
-		
+
 		private const string useDBGeneratorMsg = "Please use 'Tools / AdoNetStore.NET Database Generator' to drop or create a new database for the project.";
 
 		private Mode _mode;

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2018 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -317,6 +317,18 @@ namespace Dataweb.NShape.Advanced {
 	public static class EnumerationHelper {
 
 		/// <summary>
+		/// Checks whether item is contained in the collection.
+		/// </summary>
+		public static Boolean Contains<T>(IEnumerable<T> items, T item)
+		{
+			foreach (T currItem in items)
+				if (currItem.Equals(item))
+					return true;
+			return false;
+		}
+
+
+		/// <summary>
 		/// Iterates over the given objects without creating new collections.
 		/// </summary>
 		public static IEnumerable<T> Enumerate<T>(T item) {
@@ -425,13 +437,13 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <summary>
-		/// Counts the number of items.
+		/// Returns the first item of the collection of the default value of T.
 		/// </summary>
-		public static Int32 Count<T>(IEnumerable<T> items) {
-			if (items == null) throw new ArgumentNullException("items");
-			Int32 result = 0;
-			foreach (T item in items) ++result;
-			return result;
+		public static T First<T>(IEnumerable<T> items)
+		{
+			foreach (T item in items)
+				return item;
+			return default(T);
 		}
 
 
@@ -448,14 +460,28 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <summary>
-		/// Checks whether item is contained in the collection.
+		/// Returns the number of items in the collection.
 		/// </summary>
-		public static Boolean Contains<T>(IEnumerable<T> items, T item) {
-			foreach (T currItem in items)
-				if (currItem.Equals(item))
-					return true;
-			return false;
+		public static int Count<T>(IEnumerable<T> items)
+		{
+			if (items is ICollection collection)
+				return collection.Count;
+			else if (items is ICollection<T> collectionT)
+				return collectionT.Count;
+			else if (items is IList list)
+				return list.Count;
+			else if (items is IList<T> listT)
+				return listT.Count;
+			else if (items is T[] array)
+				return array.Length;
+			else {
+				int result = 0;
+				foreach (T item in items)
+					++result;
+				return result;
+			}
 		}
+
 	}
 
 }

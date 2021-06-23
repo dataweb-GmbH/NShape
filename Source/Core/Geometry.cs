@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -41,6 +41,38 @@ namespace Dataweb.NShape.Advanced {
 
 
 		#region Calculations with Rectangles
+
+		/// <summary>
+		/// Returns the center point of the rectangle.
+		/// </summary>
+		public static Point GetCenter(this Rectangle rect) {
+			Point result = Point.Empty;
+			result.Offset((int)Math.Round(rect.X + rect.Width / 2f), (int)Math.Round(rect.X + rect.Height / 2f));
+			return result;
+		}
+
+
+		/// <summary>
+		/// Returns the center point of the rectangle.
+		/// </summary>
+		public static PointF GetCenter(this RectangleF rect) {
+			PointF result = PointF.Empty;
+			result.X = rect.X + rect.Width / 2f;
+			result.Y = rect.X + rect.Height / 2f;
+			return result;
+		}
+
+
+		/// <summary>
+		/// Returns the center point of the rectangle.
+		/// </summary>
+		public static PointF GetCenterF(this Rectangle rect) {
+			PointF result = PointF.Empty;
+			result.X = rect.X + rect.Width / 2f;
+			result.Y = rect.X + rect.Height / 2f;
+			return result;
+		}
+
 
 		/// <summary>
 		/// Merges two rectangles to a new rectangle that contains all the points of the two.
@@ -184,7 +216,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="sin">Sinus value of the given angle</param>
 		/// <param name="cos">Cosinus value of the given angle</param>
 		[Obsolete("Use the other version of TransformMouseMovement in conjunction with AlignMovement instead.")]
-		public static bool TransformMouseMovement(int deltaX, int deltaY, int angleTenthsOfDeg, ResizeModifiers modifiers, int divFactorX, int divFactorY, 
+		public static bool TransformMouseMovement(int deltaX, int deltaY, int angleTenthsOfDeg, ResizeModifiers modifiers, int divFactorX, int divFactorY,
 			out float transformedDeltaX, out float transformedDeltaY, out float sin, out float cos) {
 			TransformMouseMovement(deltaX, deltaY, angleTenthsOfDeg, out transformedDeltaX, out transformedDeltaY, out sin, out cos);
 			return AlignMovement(modifiers, divFactorX, divFactorY, ref transformedDeltaX, ref transformedDeltaY);
@@ -210,7 +242,7 @@ namespace Dataweb.NShape.Advanced {
 			transformedDeltaY = (float)((deltaY * cos) - (deltaX * sin));
 		}
 
-		
+
 		/// <summary>
 		/// Aligns the (transformed) movement to pixels in order to ensure that the shape or its control points are moved to full integer coordinates.
 		/// Returns false if the movement was modified.
@@ -304,12 +336,12 @@ namespace Dataweb.NShape.Advanced {
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because 
 		/// of movement restrictions</returns>
-		public static bool MoveRectangleTopLeft(int width, int height, float deltaX, float deltaY, 
-			float cosAngle, float sinAngle, ResizeModifiers modifiers, out int centerOffsetX, 
+		public static bool MoveRectangleTopLeft(int width, int height, float deltaX, float deltaY,
+			float cosAngle, float sinAngle, ResizeModifiers modifiers, out int centerOffsetX,
 			out int centerOffsetY, out int newWidth, out int newHeight) {
-			int minWidth=0, minHeight=0;
+			int minWidth = 0, minHeight = 0;
 			GetMinValues(width, height, modifiers, out minWidth, out minHeight);
-			return MoveRectangleTopLeft(width, height, minWidth, minHeight, 0.5f, 0.5f, 2, 2, deltaX, 
+			return MoveRectangleTopLeft(width, height, minWidth, minHeight, 0.5f, 0.5f, 2, 2, deltaX,
 				deltaY, cosAngle, sinAngle, modifiers, out centerOffsetX, out centerOffsetY, out newWidth, out newHeight);
 		}
 
@@ -337,8 +369,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
 		public static bool MoveRectangleTopLeft(int width, int height, int minValueX, int minValueY,
-			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY, 
-			float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers, 
+			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY,
+			float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			bool result = true;
 			centerOffsetX = centerOffsetY = 0;
@@ -401,7 +433,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleTop(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleTop(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			int minWidth = 0, minHeight = 0;
 			GetMinValues(width, height, modifiers, out minWidth, out minHeight);
@@ -430,9 +462,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleTop(int width, int height, int minValueY, 
-			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY, 
-			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleTop(int width, int height, int minValueY,
+			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY,
+			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			bool result = true;
 			centerOffsetX = centerOffsetY = 0;
@@ -487,7 +519,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleTopRight(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleTopRight(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			int minWidth = 0, minHeight = 0;
 			GetMinValues(width, height, modifiers, out minWidth, out minHeight);
@@ -517,8 +549,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleTopRight(int width, int height, int minValueX, int minValueY, 
-			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY, 
+		public static bool MoveRectangleTopRight(int width, int height, int minValueX, int minValueY,
+			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY,
 			float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			bool result = true;
@@ -583,11 +615,11 @@ namespace Dataweb.NShape.Advanced {
 		/// <returns>Returns true if the movement could be performed as desired. Returns 
 		/// false if the movement could not be performed completely because of movement 
 		/// restrictions</returns>
-		public static bool MoveRectangleLeft(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleLeft(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			int minWidth = 0, minHeight = 0;
 			GetMinValues(width, height, modifiers, out minWidth, out minHeight);
-			return MoveRectangleLeft(width, height, minWidth, 0.5f, 0.5f, 2, 2, deltaX, deltaY, 
+			return MoveRectangleLeft(width, height, minWidth, 0.5f, 0.5f, 2, 2, deltaX, deltaY,
 				cosAngle, sinAngle, modifiers, out centerOffsetX, out centerOffsetY, out newWidth, out newHeight);
 		}
 
@@ -613,9 +645,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleLeft(int width, int height, int minValueX, 
-			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY, 
-			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleLeft(int width, int height, int minValueX,
+			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY,
+			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			bool result = true;
 			centerOffsetX = centerOffsetY = 0;
@@ -670,7 +702,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleRight(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleRight(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			int minWidth = 0, minHeight = 0;
 			GetMinValues(width, height, modifiers, out minWidth, out minHeight);
@@ -699,9 +731,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleRight(int width, int height, int minValueX, 
-			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY, 
-			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleRight(int width, int height, int minValueX,
+			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY,
+			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			bool result = true;
 			centerOffsetX = centerOffsetY = 0;
@@ -715,7 +747,7 @@ namespace Dataweb.NShape.Advanced {
 			}
 			// Align to integer coordinates
 			Geometry.AlignMovement(modifiers, divFactorX, divFactorY, ref deltaX, ref deltaY);
-			
+
 			if ((modifiers & ResizeModifiers.MirroredResize) != 0) {
 				if (newWidth + deltaX + deltaX >= minValueX)
 					newWidth += (int)Math.Round(deltaX + deltaX);
@@ -723,8 +755,7 @@ namespace Dataweb.NShape.Advanced {
 					newWidth = minValueX;
 					result = false;
 				}
-			}
-			else {
+			} else {
 				if (newWidth + deltaX >= minValueX)
 					newWidth += (int)Math.Round(deltaX);
 				else {
@@ -757,7 +788,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleBottomLeft(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleBottomLeft(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			int minWidth = 0, minHeight = 0;
 			GetMinValues(width, height, modifiers, out minWidth, out minHeight);
@@ -787,21 +818,21 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleBottomLeft(int width, int height, int minValueX, int minValueY, 
-			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY, 
-			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleBottomLeft(int width, int height, int minValueX, int minValueY,
+			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY,
+			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			bool result = true;
 			centerOffsetX = centerOffsetY = 0;
 			newWidth = width;
 			newHeight = height;
-			
+
 			// Aspect maintainence can be combined with both MirroredResizing and normal resizing
 			if ((modifiers & ResizeModifiers.MaintainAspect) != 0)
 				MaintainAspectRatio(newWidth, newHeight, -1, 1, ref deltaX, ref deltaY);
 			// Align to integer coordinates
 			Geometry.AlignMovement(modifiers, divFactorX, divFactorY, ref deltaX, ref deltaY);
-			
+
 			if ((modifiers & ResizeModifiers.MirroredResize) != 0) {
 				if (newWidth - deltaX - deltaX >= minValueX)
 					newWidth -= (int)Math.Round(deltaX + deltaX);
@@ -815,20 +846,17 @@ namespace Dataweb.NShape.Advanced {
 					newHeight = minValueY;
 					result = false;
 				}
-			}
-			else {
+			} else {
 				if (newWidth - deltaX >= minValueX) {
 					newWidth -= (int)Math.Round(deltaX);
-				}
-				else {
+				} else {
 					deltaX = newWidth;
 					newWidth = minValueX;
 					result = false;
 				}
 				if (newHeight + deltaY >= minValueY) {
 					newHeight += (int)Math.Round(deltaY);
-				}
-				else {
+				} else {
 					deltaY = -newHeight;
 					newHeight = minValueY;
 					result = false;
@@ -856,7 +884,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleBottom(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers, out int centerOffsetX, 
+		public static bool MoveRectangleBottom(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers, out int centerOffsetX,
 			out int centerOffsetY, out int newWidth, out int newHeight) {
 			int minWidth = 0, minHeight = 0;
 			GetMinValues(width, height, modifiers, out minWidth, out minHeight);
@@ -885,8 +913,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleBottom(int width, int height, int minValueY, 
-			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY, 
+		public static bool MoveRectangleBottom(int width, int height, int minValueY,
+			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY,
 			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			bool result = true;
@@ -910,8 +938,7 @@ namespace Dataweb.NShape.Advanced {
 					newHeight = minValueY;
 					result = false;
 				}
-			}
-			else {
+			} else {
 				if (newHeight + deltaY >= minValueY)
 					newHeight += (int)Math.Round(deltaY);
 				else {
@@ -944,14 +971,14 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleBottomRight(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleBottomRight(int width, int height, float deltaX, float deltaY, float cosAngle, float sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			int minWidth = 0, minHeight = 0;
 			GetMinValues(width, height, modifiers, out minWidth, out minHeight);
 			return MoveRectangleBottomRight(width, height, minWidth, minHeight, 0.5f, 0.5f, 2, 2, deltaX, deltaY, cosAngle, sinAngle, modifiers, out centerOffsetX, out centerOffsetY, out newWidth, out newHeight);
 		}
 
-	
+
 		/// <summary>
 		/// Moves the BottomRight corner of a (rotated) rectangle in order to resize it
 		/// </summary>
@@ -974,9 +1001,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="newHeight">New height of the rectangle</param>
 		/// <returns>Returns true if the movement could be performed as desired. 
 		/// Returns false if the movement could not be performed completely because of movement restrictions</returns>
-		public static bool MoveRectangleBottomRight(int width, int height, int minValueX, int minValueY, 
-			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY, 
-			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers, 
+		public static bool MoveRectangleBottomRight(int width, int height, int minValueX, int minValueY,
+			float centerPosFactorX, float centerPosFactorY, int divFactorX, int divFactorY,
+			float deltaX, float deltaY, double cosAngle, double sinAngle, ResizeModifiers modifiers,
 			out int centerOffsetX, out int centerOffsetY, out int newWidth, out int newHeight) {
 			bool result = true;
 			centerOffsetX = centerOffsetY = 0;
@@ -1002,8 +1029,7 @@ namespace Dataweb.NShape.Advanced {
 					newHeight = minValueY;
 					result = false;
 				}
-			}
-			else {
+			} else {
 				if (newWidth + deltaX >= minValueX)
 					newWidth += (int)Math.Round(deltaX);
 				else {
@@ -1036,7 +1062,7 @@ namespace Dataweb.NShape.Advanced {
 			// calculate new position of moved point
 			Point newPtPos = movedPtPos;
 			newPtPos.Offset(untransformedDeltaX, untransformedDeltaY);
-			
+
 			// calculate new shape location
 			PointF newCenter = VectorLinearInterpolation((float)fixedPtPos.X, (float)fixedPtPos.Y, (float)newPtPos.X, (float)newPtPos.Y, centerPosFactorX);
 			centerOffsetX = (int)Math.Round(newCenter.X - center.X);
@@ -1652,7 +1678,7 @@ namespace Dataweb.NShape.Advanced {
 			for (int i = 0; i < maxIdx; ++i) {
 				a = points[i];
 				b = points[i + 1];
-				if (VectorCrossProduct((int)Math.Round(a.X), (int)Math.Round(a.Y), (int)Math.Round(b.X), (int)Math.Round(b.Y), x, y) < 0 != z) 
+				if (VectorCrossProduct((int)Math.Round(a.X), (int)Math.Round(a.Y), (int)Math.Round(b.X), (int)Math.Round(b.Y), x, y) < 0 != z)
 					return false;
 			}
 			return true;
@@ -1868,7 +1894,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="x">The x-coordinate of the point to test</param>
 		/// <param name="y">The y-coordinate of the point to test</param>
 		public static bool LineContainsPoint(float p1x, float p1y, float p2x, float p2y, bool isSegment, float x, float y) {
-			if (p2x == p1x) 
+			if (p2x == p1x)
 				return (p1x == x);
 			// check if point is inside the bounds of the line segment
 			if (isSegment) {
@@ -1882,7 +1908,7 @@ namespace Dataweb.NShape.Advanced {
 			return (c1 == c);
 		}
 
-		
+
 		/// <summary>
 		/// Determines if the point is on the line (segment).
 		/// </summary>
@@ -1917,9 +1943,9 @@ namespace Dataweb.NShape.Advanced {
 		public static bool RectangleContainsRectangle(Rectangle rect1, Rectangle rect2) {
 			AssertIsValid(rect1);
 			AssertIsValid(rect2);
-			return rect2.Left >= rect1.Left 
-				&& rect2.Top >= rect1.Top 
-				&& rect2.Right <= rect1.Right 
+			return rect2.Left >= rect1.Left
+				&& rect2.Top >= rect1.Top
+				&& rect2.Right <= rect1.Right
 				&& rect2.Bottom <= rect1.Bottom;
 		}
 
@@ -1940,9 +1966,9 @@ namespace Dataweb.NShape.Advanced {
 		public static bool RectangleContainsRectangle(Rectangle rectangle, int x, int y, int width, int height) {
 			AssertIsValid(x, y, width, height);
 			AssertIsValid(rectangle);
-			return x >= rectangle.Left 
-				&& y >= rectangle.Top 
-				&& x + width <= rectangle.Right 
+			return x >= rectangle.Left
+				&& y >= rectangle.Top
+				&& x + width <= rectangle.Right
 				&& y + height <= rectangle.Bottom;
 		}
 
@@ -1955,9 +1981,9 @@ namespace Dataweb.NShape.Advanced {
 			if (rect1Height < 0) throw new ArgumentException(string.Format("{0} is not a valid value.", rect1Height), "rect1Height");
 			if (rect2Width < 0) throw new ArgumentException(string.Format("{0} is not a valid value.", rect2Width), "rect2Width");
 			if (rect2Height < 0) throw new ArgumentException(string.Format("{0} is not a valid value.", rect2Height), "rect2Height");
-			return rect2X >= rect1X 
-				&& rect2Y >= rect1Y 
-				&& rect2X + rect2Width <= rect1X + rect1Width 
+			return rect2X >= rect1X
+				&& rect2Y >= rect1Y
+				&& rect2X + rect2Width <= rect1X + rect1Width
 				&& rect2Y + rect2Height <= rect1Y + rect1Height;
 		}
 
@@ -2130,7 +2156,7 @@ namespace Dataweb.NShape.Advanced {
 			return ArcContainsPoint(startPointX, startPointY, radiusPointX, radiusPointY, endPointX, endPointY, center.X, center.Y, radius, pointX, pointY, delta);
 		}
 
-		
+
 		/// <summary>
 		/// Determines if an arc contains a point
 		/// </summary>
@@ -2224,7 +2250,7 @@ namespace Dataweb.NShape.Advanced {
 			}
 			return false;
 		}
-		
+
 		#endregion
 
 
@@ -2336,10 +2362,10 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public static bool LineIntersectsWithLine(int line1StartX, int line1StartY, int line1EndX, int line1EndY, int line2StartX, int line2StartY, int line2EndX, int line2EndY) {
 			// Richtungsvectoren der beiden Geraden berechnen			
-			Point line1Vec = Point.Empty;				// Richtungsvektor Linie1
+			Point line1Vec = Point.Empty;               // Richtungsvektor Linie1
 			line1Vec.X = line1EndX - line1StartX;
 			line1Vec.Y = line1EndY - line1StartY;
-			Point line2Vec = Point.Empty;				// Richtungsvector Linie2
+			Point line2Vec = Point.Empty;               // Richtungsvector Linie2
 			line2Vec.X = line2EndX - line2StartX;
 			line2Vec.Y = line2EndY - line2StartY;
 
@@ -2389,10 +2415,10 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public static bool LineIntersectsWithLine(float line1StartX, float line1StartY, float line1EndX, float line1EndY, float line2StartX, float line2StartY, float line2EndX, float line2EndY) {
 			// Richtungsvectoren der beiden Geraden berechnen			
-			PointF line1Vec = Point.Empty;				// Richtungsvektor Linie1
+			PointF line1Vec = Point.Empty;              // Richtungsvektor Linie1
 			line1Vec.X = line1EndX - line1StartX;
 			line1Vec.Y = line1EndY - line1StartY;
-			PointF line2Vec = Point.Empty;				// Richtungsvector Linie2
+			PointF line2Vec = Point.Empty;              // Richtungsvector Linie2
 			line2Vec.X = line2EndX - line2StartX;
 			line2Vec.Y = line2EndY - line2StartY;
 
@@ -2513,9 +2539,9 @@ namespace Dataweb.NShape.Advanced {
 				return true;
 			else {
 				// sind beide Punkte der Strecke auf einer Seite des Rechtecks kann es keinen Schnittpunkt geben
-				if (isSegment && ((pt1X < rectangle.Left && pt2X < rectangle.Left) 
-					|| (pt1X > rectangle.Right && pt2X > rectangle.Right) 
-					|| (pt1Y < rectangle.Top && pt2Y < rectangle.Top) 
+				if (isSegment && ((pt1X < rectangle.Left && pt2X < rectangle.Left)
+					|| (pt1X > rectangle.Right && pt2X > rectangle.Right)
+					|| (pt1Y < rectangle.Top && pt2Y < rectangle.Top)
 					|| (pt1Y > rectangle.Bottom && pt2Y > rectangle.Bottom)))
 					return false;
 				else {
@@ -2554,9 +2580,9 @@ namespace Dataweb.NShape.Advanced {
 				return true;
 			else {
 				// sind beide Punkte der Strecke auf einer Seite des Rectecks kann es keinen Schnittpunkt geben
-				if (isSegment && ((pt1X < rectangle.Left && pt2X < rectangle.Left) 
-					|| (pt1X > rectangle.Right && pt2X > rectangle.Right) 
-					|| (pt1Y < rectangle.Top && pt2Y < rectangle.Top) 
+				if (isSegment && ((pt1X < rectangle.Left && pt2X < rectangle.Left)
+					|| (pt1X > rectangle.Right && pt2X > rectangle.Right)
+					|| (pt1Y < rectangle.Top && pt2Y < rectangle.Top)
 					|| (pt1Y > rectangle.Bottom && pt2Y > rectangle.Bottom)))
 					return false;
 				else {
@@ -2678,8 +2704,8 @@ namespace Dataweb.NShape.Advanced {
 				return true;
 			return false;
 		}
-		
-		
+
+
 		/// <summary>
 		/// Checks if an arc defined, by three points, intersects with a rectangle.
 		/// </summary>
@@ -2804,7 +2830,7 @@ namespace Dataweb.NShape.Advanced {
 				else if (top > 0)
 					return ((right * right + top * top) < radiusSq);
 				// rect due West of circle
-				else 
+				else
 					return (Math.Abs(right) < radius);
 			}
 			// rect to right of circle center
@@ -2823,13 +2849,13 @@ namespace Dataweb.NShape.Advanced {
 			else
 				// rect due South of circle
 				if (bottom < 0)
-					return (Math.Abs(bottom) < radius);
-				// rect due North of circle
-				else if (top > 0)
-					return (top < radius);
-				// rect contains circle centerpoint
-				else
-					return true;
+				return (Math.Abs(bottom) < radius);
+			// rect due North of circle
+			else if (top > 0)
+				return (top < radius);
+			// rect contains circle centerpoint
+			else
+				return true;
 		}
 
 
@@ -2877,13 +2903,13 @@ namespace Dataweb.NShape.Advanced {
 			else
 				// rect due South of circle
 				if (bottom < 0)
-					return (Math.Abs(bottom) < radius);
-				// rect due North of circle
-				else if (top > 0)
-					return (top < radius);
-				// rect contains circle centerpoint
-				else
-					return true;
+				return (Math.Abs(bottom) < radius);
+			// rect due North of circle
+			else if (top > 0)
+				return (top < radius);
+			// rect contains circle centerpoint
+			else
+				return true;
 		}
 
 
@@ -2948,9 +2974,8 @@ namespace Dataweb.NShape.Advanced {
 					double u1 = (-b - rd) / a;
 					double u2 = (-b + rd) / a;
 					return ((0 <= u1 && u1 <= 1) || (0 <= u2 && u2 <= 1));
-				}
-				else return true;
-			}		
+				} else return true;
+			}
 		}
 
 
@@ -3064,14 +3089,14 @@ namespace Dataweb.NShape.Advanced {
 
 			int maxIdx = polygon.Length - 1;
 			for (int i = 0; i < maxIdx; ++i) {
-				PointF a = polygon[i]; 
+				PointF a = polygon[i];
 				PointF b = polygon[i + 1];
 				if (EllipseIntersectsWithLine(ellipseCenterX, ellipseCenterY, ellipseWidth, ellipseHeight, a.X, a.Y, b.X, b.Y, true))
 					return true;
 			}
 			if (EllipseIntersectsWithLine(ellipseCenterX, ellipseCenterY, ellipseWidth, ellipseHeight, polygon[0].X, polygon[0].Y, polygon[maxIdx].X, polygon[maxIdx].Y, true))
 				return true;
-			
+
 			return false;
 		}
 
@@ -3087,7 +3112,7 @@ namespace Dataweb.NShape.Advanced {
 
 			int maxIdx = polygon.Length - 1;
 			for (int i = 0; i < maxIdx; ++i) {
-				PointF a = polygon[i]; 
+				PointF a = polygon[i];
 				PointF b = polygon[i + 1];
 				if (EllipseIntersectsWithLine(ellipseCenterX, ellipseCenterY, ellipseWidth, ellipseHeight, a.X, a.Y, b.X, b.Y, true))
 					return true;
@@ -3100,7 +3125,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static bool RectangleIntersectsWithRectangle(Rectangle rect1, Rectangle rect2) {
-			 return ((((rect2.X <= rect1.Right) && (rect1.X <= rect2.Right)) && (rect2.Y <= rect1.Bottom)) && (rect1.Y <= rect2.Bottom));
+			return ((((rect2.X <= rect1.Right) && (rect1.X <= rect2.Right)) && (rect2.Y <= rect1.Bottom)) && (rect1.Y <= rect2.Bottom));
 		}
 
 
@@ -3188,7 +3213,7 @@ namespace Dataweb.NShape.Advanced {
 			int x, y, aSegment, bSegment, cSegment;
 			CalcLine(p1.X, p1.Y, p2.X, p2.Y, out aSegment, out bSegment, out cSegment);
 			if (IntersectLines(aLine, bLine, cLine, aSegment, bSegment, cSegment, out x, out y)) {
-				if (Math.Min(p1.X, p2.X) <= x && x <= Math.Max(p1.X, p2.X) 
+				if (Math.Min(p1.X, p2.X) <= x && x <= Math.Max(p1.X, p2.X)
 					&& Math.Min(p1.Y, p2.Y) <= y && y <= Math.Max(p1.Y, p2.Y)) {
 					result.X = x;
 					result.Y = y;
@@ -3306,7 +3331,7 @@ namespace Dataweb.NShape.Advanced {
 			CalcLine(lineSegmentStartX, lineSegmentStartY, lineSegmentEndX, lineSegmentEndY, out a2, out b2, out c2);
 			float x, y;
 			if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
-				if (Math.Min(lineSegmentStartX, lineSegmentEndX) <= x && x <= Math.Max(lineSegmentStartX, lineSegmentEndX) 
+				if (Math.Min(lineSegmentStartX, lineSegmentEndX) <= x && x <= Math.Max(lineSegmentStartX, lineSegmentEndX)
 					&& Math.Min(lineSegmentStartY, lineSegmentEndY) <= y && y <= Math.Max(lineSegmentStartY, lineSegmentEndY)) {
 					result.X = (int)Math.Round(x);
 					result.Y = (int)Math.Round(y);
@@ -3325,7 +3350,7 @@ namespace Dataweb.NShape.Advanced {
 			float x, y;
 			//if (SolveLinear22System(a1, b1, a2, b2, c1, c2, out x, out y)) {
 			if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
-				if (Math.Min(lineSegmentStartX, lineSegmentEndX) <= x && x <= Math.Max(lineSegmentStartX, lineSegmentEndX) 
+				if (Math.Min(lineSegmentStartX, lineSegmentEndX) <= x && x <= Math.Max(lineSegmentStartX, lineSegmentEndX)
 					&& Math.Min(lineSegmentStartY, lineSegmentEndY) <= y && y <= Math.Max(lineSegmentStartY, lineSegmentEndY)) {
 					result.X = x;
 					result.Y = y;
@@ -3474,20 +3499,20 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public static Point IntersectLineWithRectangle(int lineX1, int lineY1, int lineX2, int lineY2, int rectX1, int rectY1, int rectX2, int rectY2) {
 			Point result = InvalidPoint;
-			if (lineX1 == lineX2 && lineY1 == lineY2) 
+			if (lineX1 == lineX2 && lineY1 == lineY2)
 				return result;
 
 			if (lineY1 <= rectY1) {
 				if (lineY2 > rectY1) {
-					if (lineX1 <= rectX1) { 
+					if (lineX1 <= rectX1) {
 						// links oben
 						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX1, rectY2);
-						if (!IsValid(result)) 
+						if (!IsValid(result))
 							result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX2, rectY1);
-					} else if (lineX1 >= rectX2) { 
+					} else if (lineX1 >= rectX2) {
 						// rechts oben
 						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX2, rectY1, rectX2, rectY2);
-						if (!IsValid(result)) 
+						if (!IsValid(result))
 							result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX2, rectY1);
 					} else { // Mitte oben
 						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX2, rectY1);
@@ -3497,11 +3522,11 @@ namespace Dataweb.NShape.Advanced {
 				if (lineY2 < rectY2) {
 					if (lineX1 <= rectX1) { // links unten
 						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX1, rectY2);
-						if (!IsValid(result)) 
+						if (!IsValid(result))
 							result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY2, rectX2, rectY2);
 					} else if (lineX1 >= rectX2) { // rechts unten
 						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY2, rectX2, rectY2);
-						if (!IsValid(result)) 
+						if (!IsValid(result))
 							result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX2, rectY1, rectX2, rectY2);
 					} else { // Mitte unten
 						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY2, rectX2, rectY2);
@@ -3619,7 +3644,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static IEnumerable<PointF> GetAllCircleLineIntersections(float centerX, float centerY, float radius, float x1, float y1, float x2, float y2, bool isSegment) {
-			PointF result = PointF.Empty; 
+			PointF result = PointF.Empty;
 			double rr = radius * radius;
 			float x21 = x2 - x1;
 			float y21 = y2 - y1;
@@ -3659,16 +3684,16 @@ namespace Dataweb.NShape.Advanced {
 				yield return Point.Round(p);
 		}
 
-		
+
 		/// <ToBeCompleted></ToBeCompleted>
 		public static IEnumerable<PointF> IntersectCircles(int center1X, int center1Y, int radius1, int center2X, int center2Y, int radius2) {
 			PointF result = Point.Empty;
-			double a1, a2, b1, b2, c1, c2, d, e, f;			
+			double a1, a2, b1, b2, c1, c2, d, e, f;
 
 			a1 = 2 * center1X;
 			b1 = 2 * center1Y;
 			c1 = (radius1 * radius1) - (center1X * center1X) - (center1Y * center1Y);
-			
+
 			a2 = 2 * center2X;
 			b2 = 2 * center2Y;
 			c2 = (radius2 * radius2) - (center2X * center2X) - (center2Y * center2Y);
@@ -3681,12 +3706,11 @@ namespace Dataweb.NShape.Advanced {
 				result.Y = (float)Math.Round(Math.Sqrt((f * f) - (((d * d) - (a1 * d) - c1) / ((e * e) + 1))) - f, 6);
 				result.X = (float)Math.Round(d + e * result.Y, 6);
 				yield return result;
-				
+
 				result.Y = (float)Math.Round(-Math.Sqrt((f * f) - (((d * d) - (a1 * d) - c1) / ((e * e) + 1))) - f, 6);
 				result.X = (float)Math.Round(d + e * result.Y);
 				yield return result;
-			}
-			else {
+			} else {
 				d = (c1 - c2) / (b2 - b1);
 				e = (a1 - a2) / (b2 - b1);
 				f = ((2 * d * e) - a1 - (b1 * e)) / (2 * (e * e) + 2);
@@ -3727,8 +3751,7 @@ namespace Dataweb.NShape.Advanced {
 				result.Y = (float)(-Math.Sqrt((f * f) - (((d * d) - (a1 * d) - c1) / ((e * e) + 1))) - f);
 				result.X = (float)(d + e * result.Y);
 				yield return result;
-			}
-			else {
+			} else {
 				d = (c1 - c2) / (b2 - b1);
 				e = (a1 - a2) / (b2 - b1);
 				f = ((2 * d * e) - a1 - (b1 * e)) / (2 * (e * e) + 2);
@@ -3838,7 +3861,7 @@ namespace Dataweb.NShape.Advanced {
 				polyPt1 = points[i];
 				polyPt2 = points[i + 1];
 				if (isSegment ?
-					LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y) 
+					LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y)
 					: LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y)) {
 					CalcLine(polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y, out a, out b, out c);
 					int x, y;
@@ -4183,14 +4206,13 @@ namespace Dataweb.NShape.Advanced {
 			if (dx < dy) {
 				min = dx;
 				max = dy;
-			}
-			else {
+			} else {
 				min = dy;
 				max = dx;
 			}
 			// coefficients equivalent to ( 123/128 * max ) and ( 51/128 * min )
 			int result = (((max << 8) + (max << 3) - (max << 4) - (max << 1) +
-			         (min << 7) - (min << 5) + (min << 3) - (min << 1)) >> 8);
+					 (min << 7) - (min << 5) + (min << 3) - (min << 1)) >> 8);
 			return result;
 		}
 
@@ -4215,8 +4237,7 @@ namespace Dataweb.NShape.Advanced {
 			if (dx < dy) {
 				min = dx;
 				max = dy;
-			}
-			else {
+			} else {
 				min = dy;
 				max = dx;
 			}
@@ -4381,7 +4402,7 @@ namespace Dataweb.NShape.Advanced {
 			return (float)(Math.Atan2(x1 - x0, y1 - y0) - Math.Atan2(x2 - x0, y2 - y0));
 		}
 
-		
+
 		/// <summary>
 		/// Berechnet den Winkel zwischen x1,y1 und x2,y2 mit Scheitel x0,y0 in Radians
 		/// </summary>
@@ -4394,7 +4415,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Berechnet den Winkel (in Radians) von linePt1 zum Scheitelpunkt center.
 		/// </summary>
 		public static float Angle(Point p0, Point p1) {
-			return (float) Math.Atan2(p1.Y - p0.Y, p1.X - p0.X);
+			return (float)Math.Atan2(p1.Y - p0.Y, p1.X - p0.X);
 		}
 
 
@@ -4418,7 +4439,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates the angle (in radians) between p1 and the center point p0.
 		/// </summary>
 		public static float Angle(int p0x, int p0y, int p1x, int p1y) {
-			return (float) Math.Atan2(p1y - p0y, p1x - p0x);
+			return (float)Math.Atan2(p1y - p0y, p1x - p0x);
 		}
 
 
@@ -4426,7 +4447,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates the angle (in radians) between p1 and the center point p0.
 		/// </summary>
 		public static float Angle(float p0x, float p0y, float p1x, float p1y) {
-		   return (float)Math.Atan2(p1y - p0y, p1x - p0x);
+			return (float)Math.Atan2(p1y - p0y, p1x - p0x);
 		}
 
 
@@ -4633,7 +4654,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="topRight">Transformed top right corner of the given caption bounds.</param>
 		/// <param name="bottomRight">Transformed bottom right corner of the given caption bounds.</param>
 		/// <param name="bottomLeft">Transformed bottom left corner of the given caption bounds.</param>
-		public static void TransformRectangle(Point captionCenter, int angle, Rectangle captionBounds, 
+		public static void TransformRectangle(Point captionCenter, int angle, Rectangle captionBounds,
 			out Point topLeft, out Point topRight, out Point bottomRight, out Point bottomLeft) {
 			// translate text bounds
 			captionBounds.Offset(captionCenter.X, captionCenter.Y);
@@ -4655,7 +4676,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="topRight">Transformed top right corner of the given caption bounds.</param>
 		/// <param name="bottomRight">Transformed bottom right corner of the given caption bounds.</param>
 		/// <param name="bottomLeft">Transformed bottom left corner of the given caption bounds.</param>
-		public static void TransformRectangle(Point captionCenter, Point rotationCenter, int angle, Rectangle captionBounds, 
+		public static void TransformRectangle(Point captionCenter, Point rotationCenter, int angle, Rectangle captionBounds,
 			out Point topLeft, out Point topRight, out Point bottomRight, out Point bottomLeft) {
 			// translate text bounds
 			captionBounds.Offset(captionCenter.X, captionCenter.Y);
@@ -4748,7 +4769,7 @@ namespace Dataweb.NShape.Advanced {
 			return (int)Math.Round(angle * 10);
 		}
 
-		
+
 		/// <summary>
 		/// Converts and angle measured in radians to an angle measured in degrees.
 		/// </summary>
@@ -4948,8 +4969,8 @@ namespace Dataweb.NShape.Advanced {
 			rectangle.Width = right - left;
 			rectangle.Height = bottom - top;
 		}
-	
-		
+
+
 		/// <summary>
 		/// Returns the bounding rectangle of a point array.
 		/// </summary>
@@ -5149,8 +5170,8 @@ namespace Dataweb.NShape.Advanced {
 			if (dist == 0) return new PointF(startX, startY);
 			return VectorLinearInterpolation(startX, startY, endX, endY, distanceFromStart / dist);
 		}
-		
-		
+
+
 		/// <summary>
 		/// Calculates the parameters a, b and c of the line formula ax + by + c = 0 from two given points
 		/// </summary>
@@ -5189,7 +5210,7 @@ namespace Dataweb.NShape.Advanced {
 			a = y2 - y1;
 			b = x2 - x1;
 			c = a * x1 - b * y1;
-			if (c > 0) { b = -b; c = -c; } else a = -a; 
+			if (c > 0) { b = -b; c = -c; } else a = -a;
 		}
 
 
@@ -5304,9 +5325,10 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		// Berechnet die Lotrechte durch den Punkt x1/y1 
-		// Das Ergebnis ist die Normalform der Geraden ax + by + c = 0
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Berechnet die Lotrechte durch den Punkt x1/y1 
+		/// Das Ergebnis ist die Normalform der Geraden ax + by + c = 0
+		/// </summary>
 		public static void CalcPerpendicularLine(int x1, int y1, int x2, int y2, out int a, out int b, out int c) {
 			// Steigung
 			a = x1 - x2;
@@ -5316,7 +5338,10 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>
+		/// Berechnet die Lotrechte durch den Punkt x1/y1 
+		/// Das Ergebnis ist die Normalform der Geraden ax + by + c = 0
+		/// </summary>
 		public static void CalcPerpendicularLine(float x1, float y1, float x2, float y2, out float a, out float b, out float c) {
 			// Steigung
 			a = x1 - x2;
@@ -5436,21 +5461,18 @@ namespace Dataweb.NShape.Advanced {
 						result.X = startPtX;
 						result.Y = startPtY;
 						yield return result;
-					}
-					else if (endPtDist < startPtDist) {
+					} else if (endPtDist < startPtDist) {
 						result.X = endPtX;
 						result.Y = endPtY;
 						yield return result;
-					}
-					else {
+					} else {
 						startPtDist = DistancePointLine(startPtX, startPtY, pT.X, pT.Y, ptX, ptY, true);
 						endPtDist = DistancePointLine(endPtX, endPtY, pT.X, pT.Y, ptX, ptY, true);
 						if (startPtDist < endPtDist) {
 							result.X = startPtX;
 							result.Y = startPtY;
 							yield return result;
-						}
-						else if (endPtDist < startPtDist) {
+						} else if (endPtDist < startPtDist) {
 							result.X = endPtX;
 							result.Y = endPtY;
 							yield return result;
@@ -5479,21 +5501,18 @@ namespace Dataweb.NShape.Advanced {
 						result.X = startPtX;
 						result.Y = startPtY;
 						yield return result;
-					}
-					else if (endPtDist < startPtDist) {
+					} else if (endPtDist < startPtDist) {
 						result.X = endPtX;
 						result.Y = endPtY;
 						yield return result;
-					}
-					else {
+					} else {
 						startPtDist = DistancePointLine(startPtX, startPtY, pT.X, pT.Y, ptX, ptY, true);
 						endPtDist = DistancePointLine(endPtX, endPtY, pT.X, pT.Y, ptX, ptY, true);
 						if (startPtDist < endPtDist) {
 							result.X = startPtX;
 							result.Y = startPtY;
 							yield return result;
-						}
-						else if (endPtDist < startPtDist) {
+						} else if (endPtDist < startPtDist) {
 							result.X = endPtX;
 							result.Y = endPtY;
 							yield return result;
@@ -5586,9 +5605,9 @@ namespace Dataweb.NShape.Advanced {
 				result = 3;
 			else if (point.Y - origin.Y < 0 && point.X - origin.X >= 0)
 				result = 4;
-			else { 
-				Debug.Fail("Geometry.CalcRelativeQuadrant"); 
-				result = 0; 
+			else {
+				Debug.Fail("Geometry.CalcRelativeQuadrant");
+				result = 0;
 			}
 			return result;
 		}
@@ -5614,7 +5633,7 @@ namespace Dataweb.NShape.Advanced {
 			//// VectorCrossProduct liefert leider manchmal abweichende Ergebnisse...
 			//int d1 = Math.Abs(VectorCrossProduct(pX, pY, p1X, p1Y));
 			//int d2 = Math.Abs(VectorCrossProduct(pX, pY, p2X, p2Y));
-			
+
 			float d1 = DistancePointPoint(pX, pY, p1X, p1Y);
 			float d2 = DistancePointPoint(pX, pY, p2X, p2Y);
 			if (d1 <= d2) {
@@ -5726,8 +5745,7 @@ namespace Dataweb.NShape.Advanced {
 			if (d1 >= d2) {
 				result.X = p1X;
 				result.Y = p1Y;
-			}
-			else {
+			} else {
 				result.X = p2X;
 				result.Y = p2Y;
 			}
@@ -5753,8 +5771,7 @@ namespace Dataweb.NShape.Advanced {
 			if (d1 >= d2) {
 				result.X = p1X;
 				result.Y = p1Y;
-			}
-			else {
+			} else {
 				result.X = p2X;
 				result.Y = p2Y;
 			}
@@ -5773,8 +5790,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="pY"></param>
 		/// <param name="nX"></param>
 		/// <param name="nY"></param>
-		public static void CalcNearestPointOfLineSegment(int aX, int aY, int bX, int bY, int pX, int pY, out int nX, out int nY)
-		{
+		public static void CalcNearestPointOfLineSegment(int aX, int aY, int bX, int bY, int pX, int pY, out int nX, out int nY) {
 			CalcDroppedPerpendicularFoot(pX, pY, aX, aY, bX, bY, out nX, out nY);
 			if (Math.Sign(nX - aX) != Math.Sign(bX - aX)) {
 				// Point is on the other side of A
@@ -5899,94 +5915,94 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		/// <summary>
-		/// Tests if the given point has valid coordinates. 
-		/// The parameter will not be changed, ref is used for improved performance only.
-		/// </summary>
-		public static bool IsValid(ref Point p) {
-			return IsValidCoordinate(p.X) && IsValidCoordinate(p.Y);
-		}
+		///// <summary>
+		///// Tests if the given point has valid coordinates. 
+		///// The parameter will not be changed, ref is used for improved performance only.
+		///// </summary>
+		//public static bool IsValid(ref Point p) {
+		//	return IsValidCoordinate(p.X) && IsValidCoordinate(p.Y);
+		//}
 
 
-		/// <summary>
-		/// Tests if the given point has valid coordinates.
-		/// The parameter will not be changed, ref is used for improved performance only.
-		/// </summary>
-		public static bool IsValid(ref PointF p) {
-			return IsValidCoordinate(p.X) && IsValidCoordinate(p.Y);
-		}
+		///// <summary>
+		///// Tests if the given point has valid coordinates.
+		///// The parameter will not be changed, ref is used for improved performance only.
+		///// </summary>
+		//public static bool IsValid(ref PointF p) {
+		//	return IsValidCoordinate(p.X) && IsValidCoordinate(p.Y);
+		//}
 
 
-		/// <summary>
-		/// Tests if the given coordinates are considered as valid.
-		/// The parameter will not be changed, ref is used for improved performance only.
-		/// </summary>
-		public static bool IsValid(ref int x, ref int y) {
-			return IsValidCoordinate(ref x) && IsValidCoordinate(ref y);
-		}
+		///// <summary>
+		///// Tests if the given coordinates are considered as valid.
+		///// The parameter will not be changed, ref is used for improved performance only.
+		///// </summary>
+		//public static bool IsValid(ref int x, ref int y) {
+		//	return IsValidCoordinate(ref x) && IsValidCoordinate(ref y);
+		//}
 
 
-		/// <summary>
-		/// Tests if the given coordinates are considered as valid.
-		/// The parameter will not be changed, ref is used for improved performance only.
-		/// </summary>
-		public static bool IsValid(ref float x, ref float y) {
-			return IsValidCoordinate(ref x) && IsValidCoordinate(ref y);
-		}
+		///// <summary>
+		///// Tests if the given coordinates are considered as valid.
+		///// The parameter will not be changed, ref is used for improved performance only.
+		///// </summary>
+		//public static bool IsValid(ref float x, ref float y) {
+		//	return IsValidCoordinate(ref x) && IsValidCoordinate(ref y);
+		//}
 
 
-		/// <summary>
-		/// Tests if the given rectangle has valid coordinates and a valid size.
-		/// The parameter will not be changed, ref is used for improved performance only.
-		/// </summary>
-		public static bool IsValid(ref Rectangle r) {
-			return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
-		}
+		///// <summary>
+		///// Tests if the given rectangle has valid coordinates and a valid size.
+		///// The parameter will not be changed, ref is used for improved performance only.
+		///// </summary>
+		//public static bool IsValid(ref Rectangle r) {
+		//	return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
+		//}
 
 
-		/// <summary>
-		/// Tests if the given rectangle has valid coordinates and a valid size.
-		/// The parameter will not be changed, ref is used for improved performance only.
-		/// </summary>
-		public static bool IsValid(ref RectangleF r) {
-			return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
-		}
+		///// <summary>
+		///// Tests if the given rectangle has valid coordinates and a valid size.
+		///// The parameter will not be changed, ref is used for improved performance only.
+		///// </summary>
+		//public static bool IsValid(ref RectangleF r) {
+		//	return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
+		//}
 
 
-		/// <summary>
-		/// Tests if the given rectangle has valid coordinates and a valid size.
-		/// The parameter will not be changed, ref is used for improved performance only.
-		/// </summary>
-		public static bool IsValid(ref int x, ref int y, ref int width, ref int height) {
-			return IsValidCoordinate(ref x) && IsValidCoordinate(ref y) && IsValidSize(ref width) && IsValidSize(ref height);
-		}
+		///// <summary>
+		///// Tests if the given rectangle has valid coordinates and a valid size.
+		///// The parameter will not be changed, ref is used for improved performance only.
+		///// </summary>
+		//public static bool IsValid(ref int x, ref int y, ref int width, ref int height) {
+		//	return IsValidCoordinate(ref x) && IsValidCoordinate(ref y) && IsValidSize(ref width) && IsValidSize(ref height);
+		//}
 
 
-		/// <summary>
-		/// Tests if the given rectangle has valid coordinates and a valid size.
-		/// The parameter will not be changed, ref is used for improved performance only.
-		/// </summary>
-		public static bool IsValid(ref float x, ref float y, ref float width, ref float height) {
-			return IsValidCoordinate(ref x) && IsValidCoordinate(ref y) && IsValidSize(ref width) && IsValidSize(ref height);
-		}
+		///// <summary>
+		///// Tests if the given rectangle has valid coordinates and a valid size.
+		///// The parameter will not be changed, ref is used for improved performance only.
+		///// </summary>
+		//public static bool IsValid(ref float x, ref float y, ref float width, ref float height) {
+		//	return IsValidCoordinate(ref x) && IsValidCoordinate(ref y) && IsValidSize(ref width) && IsValidSize(ref height);
+		//}
 
 
-		/// <summary>
-		/// Tests if the given size is considered as valid.
-		/// The parameter will not be changed, ref is used for improved performance only.
-		/// </summary>
-		public static bool IsValid(ref Size s) {
-			return IsValidSize(s.Width) && IsValidSize(s.Height);
-		}
+		///// <summary>
+		///// Tests if the given size is considered as valid.
+		///// The parameter will not be changed, ref is used for improved performance only.
+		///// </summary>
+		//public static bool IsValid(ref Size s) {
+		//	return IsValidSize(s.Width) && IsValidSize(s.Height);
+		//}
 
 
-		/// <summary>
-		/// Tests if the given size is considered as valid.
-		/// </summary>
-		public static bool IsValid(ref SizeF s) {
-			return IsValidSize(s.Width) && IsValidSize(s.Height);
-		}
-		
+		///// <summary>
+		///// Tests if the given size is considered as valid.
+		///// </summary>
+		//public static bool IsValid(ref SizeF s) {
+		//	return IsValidSize(s.Width) && IsValidSize(s.Height);
+		//}
+
 		#endregion
 
 
@@ -6112,7 +6128,7 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 		#endregion
-		
+
 
 		#region Definitions for invalid geometric structs
 
@@ -6272,7 +6288,7 @@ namespace Dataweb.NShape.Advanced {
 
 		private const int InvalidCoordinateValue = int.MinValue;
 		private const int InvalidSizeValue = int.MinValue;
-		private const double RadiansFactor = 0.017453292519943295769236907684886d;	// = Math.PI / 180
+		private const double RadiansFactor = 0.017453292519943295769236907684886d;  // = Math.PI / 180
 		private const double EqualityDeltaDouble = 0.000001d;
 		private const float EqualityDeltaFloat = 0.000001f;
 		private const sbyte signumNegative = -1;

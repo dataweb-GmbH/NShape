@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -32,50 +32,14 @@ namespace NShapeTest {
 	/// Summary description for UnitTest1
 	/// </summary>
 	[TestClass]
-	public class DiagramBaseTest {
+	public class DiagramBaseTest : NShapeTestBase
+	{
 
 		public DiagramBaseTest() {
 			//
 			// TODO: Add constructor logic here
 			//
 		}
-
-		/// <summary>
-		///Gets or sets the test context which provides
-		///information about and functionality for the current test run.
-		///</summary>
-		public TestContext TestContext {
-			get { return testContextInstance; }
-			set { testContextInstance = value; }
-		}
-
-
-		#region Additional test attributes
-
-		//
-		// You can use the following additional attributes as you write your tests:
-		//
-		// Use ClassInitialize to run code before running the first test in the class
-		//[ClassInitialize()]
-		//public static void MyClassInitialize(TestContext testContext) { }
-
-		// Use ClassCleanup to run code after all tests in a class have run
-		//[ClassCleanup()]
-		//public static void MyClassCleanup() { }
-
-		// Use TestInitialize to run code before running each test 
-		[TestInitialize()]
-		public void MyTestInitialize() {
-			TestContext.BeginTimer(TestContext.TestName + " Timer");
-		}
-
-		// Use TestCleanup to run code after each test has run
-		[TestCleanup()]
-		public void MyTestCleanup() {
-			TestContext.EndTimer(TestContext.TestName + " Timer");
-		}
-
-		#endregion
 
 
 		#region Test methods
@@ -1280,8 +1244,6 @@ namespace NShapeTest {
 		
 		#endregion
 
-
-		private TestContext testContextInstance;
 
 		private double MaxDistanceOnePixel = Math.Sqrt(2);
 

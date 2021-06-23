@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -13,18 +13,15 @@
 ******************************************************************************/
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
-using System.Threading;
 
 using Dataweb.NShape.Advanced;
-using Dataweb.Utilities;
 
 
-namespace Dataweb.NShape {
+namespace Dataweb.NShape
+{
 
 	/// <summary>
 	/// Interface for all graphical objects.

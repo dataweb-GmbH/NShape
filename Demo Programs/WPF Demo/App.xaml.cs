@@ -15,11 +15,20 @@
 using System.Windows;
 
 namespace NShape_WPF_Demo {
-	
+
 	/// <summary>
 	/// Interaction logic for App.xaml
 	/// </summary>
-	public partial class App : Application {
+	public partial class App : Application
+	{
+
+		static App()
+		{
+			// Enable XP-Style for WinForms controls
+			System.Windows.Forms.Application.EnableVisualStyles();
+		}
+
 	}
+
 
 }

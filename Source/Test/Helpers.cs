@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -20,10 +20,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Dataweb.NShape;
 using Dataweb.NShape.Advanced;
-using Dataweb.NShape.FlowChartShapes;
 using Dataweb.NShape.GeneralModelObjects;
-using Dataweb.NShape.GeneralShapes;
-
+using System.Diagnostics;
 
 namespace NShapeTest {
 
@@ -283,19 +281,31 @@ namespace NShapeTest {
 	
 	public static class RepositoryHelper {
 
+		public const string SqlServerName = "\\SQLEXPRESS";
+		public const string DatabaseName = "NShapeSQLTest";
+
+		public const int SqlErrDatabaseExists = -2146232060;
+		public const int SqlErrorNewLogFileCreated = -2146232060;
+
+
+		public static string GetSqlServerName()
+		{
+			return Environment.MachineName + SqlServerName;
+		}
+
+
 		public static SqlStore CreateSqlStore() {
 			return CreateSqlStore(DatabaseName);
 		}
 
 
 		public static SqlStore CreateSqlStore(string databaseName) {
-			string server = Environment.MachineName + SqlServerName;
-			return new SqlStore(server, databaseName);
+			return new SqlStore(GetSqlServerName(), databaseName);
 		}
 
 
 		public static XmlStore CreateXmlStore() {
-			return new XmlStore(Path.GetTempPath(), ".nspj");
+			return new XmlStore(Path.GetTempPath(), XmlStore.DefaultProjectFileExtension);
 		}
 
 
@@ -304,6 +314,33 @@ namespace NShapeTest {
 			result.LazyLoading = lazyLoading;
 			result.BackupGenerationMode = automaticBackup ? XmlStore.BackupFileGenerationMode.BakFile : XmlStore.BackupFileGenerationMode.None;
 			result.ImageLocation = embeddedImages ? XmlStore.ImageFileLocation.Embedded : XmlStore.ImageFileLocation.Directory;
+			return result;
+		}
+
+
+		private static bool SQLDatabaseExists(string databaseName)
+		{
+			bool result = false;
+			string connectionString = string.Format("server={0};Integrated Security=True", GetSqlServerName());
+			using (SqlConnection conn = new SqlConnection(connectionString)) {
+				conn.Open();
+				try {
+					using (SqlCommand command = conn.CreateCommand()) {
+						command.CommandText = string.Format("SELECT database_id FROM sys.databases WHERE Name = @DatabaseName");
+						command.Parameters.Add("DatabaseName", System.Data.SqlDbType.VarChar);
+						command.Parameters[0].Value = databaseName;
+						//
+						object resObj = command.ExecuteScalar();
+						if (resObj != null) {
+							if (long.TryParse(resObj.ToString(), out long databaseId))
+								result = databaseId > 0;
+						}
+					}
+				} catch (SqlException exc) {
+					// Ignore "Database already exists" error
+					if (exc.ErrorCode != SqlErrDatabaseExists) throw exc;
+				}
+			}
 			return result;
 		}
 
@@ -318,9 +355,9 @@ namespace NShapeTest {
 
 
 		public static void SQLCreateDatabase(string databaseName, int version, IEnumerable<string> libraryNames) {
-			using (SqlStore sqlStore = CreateSqlStore(databaseName)) {
-				// Create database
-				string connectionString = string.Format("server={0};Integrated Security=True", sqlStore.ServerName);
+			// Create database
+			if (!SQLDatabaseExists(databaseName)) {
+				string connectionString = string.Format("server={0};Integrated Security=True", GetSqlServerName());
 				using (SqlConnection conn = new SqlConnection(connectionString)) {
 					conn.Open();
 					try {
@@ -329,11 +366,12 @@ namespace NShapeTest {
 						command.ExecuteNonQuery();
 					} catch (SqlException exc) {
 						// Ignore "Database already exists" error
-						if (exc.ErrorCode != sqlErrDatabaseExists) throw exc;
+						if (exc.ErrorCode != SqlErrDatabaseExists) throw exc;
 					}
 				}
-
-				// Create Repository
+			}
+			// Create Repository
+			using (SqlStore sqlStore = CreateSqlStore(databaseName)) {
 				CachedRepository repository = new CachedRepository();
 				repository.Version = version;
 				repository.Store = CreateSqlStore(databaseName);
@@ -367,20 +405,25 @@ namespace NShapeTest {
 
 
 		public static void SQLDropDatabase(string databaseName) {
-			string connectionString = string.Empty;
-			using (SqlStore sqlStore = CreateSqlStore(databaseName)) {
-				connectionString = string.Format("server={0};Integrated Security=True", sqlStore.ServerName);
-				try {
-					sqlStore.DropDbSchema();
-				} finally {
-					// Drop all connections of the connection pool created by the store's connection
-					using (SqlConnection conn = new SqlConnection(sqlStore.ConnectionString))
-						SqlConnection.ClearPool(conn);
+			if (!SQLDatabaseExists(databaseName))
+				return;
+			// Drop all tables
+			try {
+				using (SqlStore sqlStore = CreateSqlStore(databaseName)) {
+					try {
+						sqlStore.DropDbSchema();
+					} finally {
+						// Drop all connections of the connection pool created by the store's connection
+						using (SqlConnection conn = new SqlConnection(sqlStore.ConnectionString))
+							SqlConnection.ClearPool(conn);
+					}
 				}
+			} catch (SqlException exc) {
+				Trace.TraceWarning("Dropping SQL database: " + exc.Message);
 			}
-
 			// Drop database
-			if (!string.IsNullOrEmpty(connectionString)) {
+			try {
+				string connectionString = string.Format("server={0};Integrated Security=True", GetSqlServerName());
 				using (SqlConnection conn = new SqlConnection(connectionString)) {
 					conn.Open();
 					try {
@@ -389,16 +432,14 @@ namespace NShapeTest {
 							command.ExecuteNonQuery();
 						}
 					} catch (SqlException exc) {
-						if (exc.ErrorCode != sqlErrDatabaseExists) throw exc;
+						if (exc.ErrorCode != SqlErrDatabaseExists) throw exc;
 					}
 				}
+			} catch (Exception) {
+				throw;
 			}
 		}
 
-
-		private const int sqlErrDatabaseExists = -2146232060;
-		public const string SqlServerName = "\\SQLEXPRESS";
-		public const string DatabaseName = "NShapeSQLTest";
 	}
 
 

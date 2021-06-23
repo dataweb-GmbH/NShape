@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -392,10 +392,10 @@ namespace Dataweb.NShape.Commands {
 					continue;
 				if (shape.HasControlPointCapability(sci.OwnPointId, ControlPointCapabilities.Glue)) {
 					shape.Disconnect(sci.OwnPointId);
-					Repository.DeleteConnection(shape, sci.OwnPointId, sci.OtherShape, sci.OtherPointId);
+					if (Repository != null) Repository.DeleteConnection(shape, sci.OwnPointId, sci.OtherShape, sci.OtherPointId);
 				} else {
 					sci.OtherShape.Disconnect(sci.OtherPointId);
-					Repository.DeleteConnection(sci.OtherShape, sci.OtherPointId, shape, sci.OwnPointId);
+					if (Repository != null) Repository.DeleteConnection(sci.OtherShape, sci.OtherPointId, shape, sci.OwnPointId);
 				}
 				sci.OtherShape.Invalidate();
 			}
@@ -674,7 +674,8 @@ namespace Dataweb.NShape.Commands {
 			if (Repository != null) {
 				if (CanUndeleteEntities(ModelObjects.Keys))
 					Repository.Undelete(ModelObjects.Keys);
-				else Repository.Insert(ModelObjects.Keys);
+				else 
+					Repository.Insert(ModelObjects.Keys);
 				foreach (KeyValuePair<IModelObject, AttachedObjects> item in ModelObjects)
 					InsertAndAttachObjects(item.Key, item.Value, Repository, insertShapes);
 			}
@@ -718,7 +719,8 @@ namespace Dataweb.NShape.Commands {
 			// Insert model objects
 			if (CanUndeleteEntities(attachedObjects.Children.Keys))
 				repository.Undelete(attachedObjects.Children.Keys);
-			else repository.Insert(attachedObjects.Children.Keys);
+			else 
+				repository.Insert(attachedObjects.Children.Keys);
 			foreach (KeyValuePair<IModelObject, AttachedObjects> child in attachedObjects.Children) {
 				InsertAndAttachObjects(child.Key, child.Value, repository, insertShapes);
 				child.Key.Parent = modelObject;
@@ -1000,7 +1002,7 @@ namespace Dataweb.NShape.Commands {
 
 			string modelString = string.Empty;
 			if (withModelObjects && modelCnt > 0)
-				modelString = string.Format(WithModelsFormatStr, modelCnt.ToString() + " ", modelCnt > 1 ? Dataweb.NShape.Properties.Resources.Text_PluralEndingModel : string.Empty);
+				modelString = string.Format(WithModelsFormatStr, modelCnt.ToString() + " ", modelCnt > 1 ? Properties.Resources.Text_PluralEndingModel : string.Empty);
 			return string.Format(DescriptionFormatStr,
 				GetDescTypeText(descType),
 				shapeCnt,
@@ -1011,10 +1013,10 @@ namespace Dataweb.NShape.Commands {
 
 		private string GetDescTypeText(DescriptionType descType) {
 			switch (descType) {
-				case DescriptionType.Insert: return "Create";
-				case DescriptionType.Delete: return "Delete";
-				case DescriptionType.Cut: return "Cut";
-				case DescriptionType.Paste: return "Paste";
+				case DescriptionType.Insert: return Properties.Resources.Text_Create;
+				case DescriptionType.Delete: return Properties.Resources.Text_Delete;
+				case DescriptionType.Cut: return Properties.Resources.Text_Cut;
+				case DescriptionType.Paste: return Properties.Resources.Text_Paste;
 				default:
 					Debug.Fail("Unhandled switch case!");
 					return descType.ToString();
@@ -1057,7 +1059,8 @@ namespace Dataweb.NShape.Commands {
 				}
 				if (CanUndeleteEntities(_modelsAndObjects.Keys))
 					Repository.Undelete(_modelsAndObjects.Keys);
-				else Repository.Insert(_modelsAndObjects.Keys);
+				else 
+					Repository.Insert(_modelsAndObjects.Keys);
 			}
 			// Insert shapes afterwards
 			if (useOriginalLayers) 
@@ -1279,7 +1282,8 @@ namespace Dataweb.NShape.Commands {
 				if (!AggregationShapeOwnedByDiagram) {
 					if (CanUndeleteEntity(AggregationShape))
 						Repository.UndeleteAll(AggregationShape, Diagram);
-					else Repository.InsertAll(AggregationShape, Diagram);
+					else 
+						Repository.InsertAll(AggregationShape, Diagram);
 				}
 			}
 
@@ -1337,7 +1341,8 @@ namespace Dataweb.NShape.Commands {
 				if (!AggregationShapeOwnedByDiagram)
 					// Shape aggregations are deleted with all their children
 					Repository.DeleteAll(AggregationShape);
-				else Repository.Update(AggregationShape);
+				else 
+					Repository.Update(AggregationShape);
 			}
 		}
 
@@ -3080,14 +3085,16 @@ namespace Dataweb.NShape.Commands {
 		/// <override></override>
 		public override void Execute() {
 			ConnectorShape.Disconnect(GluePointId);
-			Repository.DeleteConnection(ConnectorShape, GluePointId, _connectionInfo.OtherShape, _connectionInfo.OtherPointId);
+			if (Repository != null)
+				Repository.DeleteConnection(ConnectorShape, GluePointId, _connectionInfo.OtherShape, _connectionInfo.OtherPointId);
 		}
 
 
 		/// <override></override>
 		public override void Revert() {
 			ConnectorShape.Connect(GluePointId, _connectionInfo.OtherShape, _connectionInfo.OtherPointId);
-			Repository.InsertConnection(ConnectorShape, GluePointId, _connectionInfo.OtherShape, _connectionInfo.OtherPointId);
+			if (Repository != null)
+				Repository.InsertConnection(ConnectorShape, GluePointId, _connectionInfo.OtherShape, _connectionInfo.OtherPointId);
 		}
 
 
@@ -4012,13 +4019,15 @@ namespace Dataweb.NShape.Commands {
 						// Insert / undelete model object if has been replaced
 						if (CanUndeleteEntity(originalTemplate.Shape.ModelObject))
 							Repository.Undelete(originalTemplate.Shape.ModelObject);
-						else Repository.Insert(originalTemplate.Shape.ModelObject, originalTemplate);
+						else 
+							Repository.Insert(originalTemplate.Shape.ModelObject, originalTemplate);
 					}
 				}
 				// Insert/undelete template shape
 				if (CanUndeleteEntity(originalTemplate.Shape))
 					Repository.Undelete(originalTemplate.Shape, originalTemplate);
-				else Repository.Insert(originalTemplate.Shape, originalTemplate);
+				else 
+					Repository.Insert(originalTemplate.Shape, originalTemplate);
 				// Insert template shape's children (CopyFrom() creates new children)
 				if (originalTemplate.Shape.Children.Count > 0)
 					Repository.InsertAll(originalTemplate.Shape.Children, originalTemplate.Shape);
@@ -4028,7 +4037,8 @@ namespace Dataweb.NShape.Commands {
 				foreach (IModelMapping modelMapping in originalTemplate.GetPropertyMappings()) {
 					if (CanUndeleteEntity(modelMapping))
 						Repository.Undelete(modelMapping, originalTemplate);
-					else Repository.Insert(modelMapping, originalTemplate);
+					else 
+						Repository.Insert(modelMapping, originalTemplate);
 				}
 			}
 			InvalidateShapesOfTemplate(originalTemplate);
@@ -4127,7 +4137,8 @@ namespace Dataweb.NShape.Commands {
 			if (Repository != null) {
 				if (CanUndeleteEntity(Template))
 					Repository.UndeleteAll(Template);
-				else Repository.InsertAll(Template);
+				else 
+					Repository.InsertAll(Template);
 			}
 		}
 
@@ -4180,7 +4191,8 @@ namespace Dataweb.NShape.Commands {
 			if (Repository != null) {
 				if (CanUndeleteEntity(Template))
 					Repository.UndeleteAll(Template);
-				else Repository.InsertAll(Template);
+				else 
+					Repository.InsertAll(Template);
 			}
 		}
 
@@ -4430,7 +4442,8 @@ namespace Dataweb.NShape.Commands {
 			if (Repository != null) {
 				if (CanUndeleteEntity(Design))
 					Repository.UndeleteAll(Design);
-				else Repository.InsertAll(Design);
+				else 
+					Repository.InsertAll(Design);
 			}
 		}
 
@@ -4473,7 +4486,8 @@ namespace Dataweb.NShape.Commands {
 			if (Repository != null) {
 				if (CanUndeleteEntity(Design))
 					Repository.UndeleteAll(Design);
-				else Repository.InsertAll(Design);
+				else 
+					Repository.InsertAll(Design);
 			}
 		}
 
@@ -4510,7 +4524,8 @@ namespace Dataweb.NShape.Commands {
 					Repository.Undelete(d, _style);
 				if (CanUndeleteEntity(_style))
 					Repository.Undelete(d, _style);
-				else Repository.Insert(d, _style);
+				else 
+					Repository.Insert(d, _style);
 				Repository.Update(d);
 			}
 		}
@@ -4570,7 +4585,8 @@ namespace Dataweb.NShape.Commands {
 			if (Repository != null) {
 				if (CanUndeleteEntity(_style))
 					Repository.Undelete(d, _style);
-				else Repository.Insert(d, _style);
+				else 
+					Repository.Insert(d, _style);
 				Repository.Update(d);
 			}
 		}
@@ -4898,7 +4914,8 @@ namespace Dataweb.NShape.Commands {
 			if (Repository != null) {
 				if (CanUndeleteEntity(Diagram))
 					Repository.UndeleteAll(Diagram);
-				else Repository.InsertAll(Diagram);
+				else 
+					Repository.InsertAll(Diagram);
 			}
 		}
 
@@ -4947,7 +4964,8 @@ namespace Dataweb.NShape.Commands {
 					Diagram.Shapes.AddRange(_shapes);
 				if (CanUndeleteEntity(Diagram))
 					Repository.UndeleteAll(Diagram);
-				else Repository.InsertAll(Diagram);
+				else 
+					Repository.InsertAll(Diagram);
 			}
 		}
 
@@ -5595,6 +5613,94 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		public override void Revert() {
+			base.Revert();
+			if (Repository != null) {
+				if (ModifiedObjects.Count == 1) Repository.Update(ModifiedObjects[0]);
+				else Repository.Update(ModifiedObjects);
+			}
+		}
+
+
+		/// <override></override>
+		public override Permission RequiredPermission {
+			get { return (RequiredPermissions != Permission.None) ? RequiredPermissions : Permission.Data; }
+		}
+
+
+		//public override bool IsAllowed(ISecurityManager securityManager) {
+		//    if (securityManager == null) throw new ArgumentNullException("securityManager");
+		//    for (int i = modifiedObjects.Count - 1; i >= 0; --i) {
+		//        if (!securityManager.IsGranted(RequiredPermission, modifiedObjects[i].Shapes))
+		//            return false;
+		//    }
+		//    return true;
+		//}
+
+	}
+
+
+	/// <summary>
+	/// Command for setting property values of a model object.
+	/// </summary>
+	public class DiagramModelObjectPropertySetCommand : PropertySetCommand<IDiagramModelObject>
+	{
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public DiagramModelObjectPropertySetCommand(IEnumerable<IDiagramModelObject> modifiedDiagramModelObjects, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
+			: base(modifiedDiagramModelObjects, propertyInfo, oldValues, newValues)
+		{
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public DiagramModelObjectPropertySetCommand(IRepository repository, IEnumerable<IDiagramModelObject> modifiedDiagramModelObjects, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
+			: base(repository, modifiedDiagramModelObjects, propertyInfo, oldValues, newValues)
+		{
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public DiagramModelObjectPropertySetCommand(IEnumerable<IDiagramModelObject> modifiedDiagramModelObjects, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
+			: base(modifiedDiagramModelObjects, propertyInfo, oldValues, newValue)
+		{
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public DiagramModelObjectPropertySetCommand(IRepository repository, IEnumerable<IDiagramModelObject> modifiedDiagramModelObjects, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
+			: base(repository, modifiedDiagramModelObjects, propertyInfo, oldValues, newValue)
+		{
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public DiagramModelObjectPropertySetCommand(IDiagramModelObject modifiedDiagramModelObject, PropertyInfo propertyInfo, object oldValue, object newValue)
+			: base(modifiedDiagramModelObject, propertyInfo, oldValue, newValue)
+		{
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public DiagramModelObjectPropertySetCommand(IRepository repository, IDiagramModelObject modifiedDiagramModelObject, PropertyInfo propertyInfo, object oldValue, object newValue)
+			: base(repository, modifiedDiagramModelObject, propertyInfo, oldValue, newValue)
+		{
+		}
+
+
+		/// <override></override>
+		public override void Execute()
+		{
+			base.Execute();
+			if (Repository != null) {
+				if (ModifiedObjects.Count == 1) Repository.Update(ModifiedObjects[0]);
+				else Repository.Update(ModifiedObjects);
+			}
+		}
+
+
+		/// <override></override>
+		public override void Revert()
+		{
 			base.Revert();
 			if (Repository != null) {
 				if (ModifiedObjects.Count == 1) Repository.Update(ModifiedObjects[0]);

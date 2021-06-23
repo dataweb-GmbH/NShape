@@ -13,7 +13,8 @@ using Dataweb.NShape.SoftwareArchitectureShapes;
 namespace NShapeTest {
 
 	[TestClass]
-	public class ShapeClassesTest {
+	public class ShapeClassesTest : NShapeTestBase
+	{
 
 		[TestMethod]
 		public void ControlPointConstantsTest() {

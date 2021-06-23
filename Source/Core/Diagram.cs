@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -611,6 +611,28 @@ namespace Dataweb.NShape {
 				if (_isBackgroundImageVisible != value) {
 					_isBackgroundImageVisible = value;
 					if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
+				}
+			}
+		}
+
+
+		/// <summary>
+		/// Indicates the diagram model object displayed by this diagram. May be null.
+		/// </summary>
+		[Browsable(false)]
+		[RequiredPermission(Permission.Data)]
+		public IDiagramModelObject ModelObject {
+			get { return _modelObject; }
+			set {
+				if (_modelObject != value) {
+					if (_modelObject != value) {
+						// Store model object reference for calling Detach() *after* the property value was applied
+						// because the DiagramModelObject's Detach() will also set the diagram's ModelObject property to null.
+						IDiagramModelObject oldModelObj = _modelObject;
+						_modelObject = value;
+						if (oldModelObj != null) oldModelObj.DetachDiagram();
+						if (_modelObject != null) _modelObject.AttachDiagram(this);
+					}
 				}
 			}
 		}
@@ -1329,6 +1351,8 @@ namespace Dataweb.NShape {
 			yield return new EntityFieldDefinition("ImageTransparency", typeof(byte));
 			yield return new EntityFieldDefinition("ImageGrayScale", typeof(bool));
 			yield return new EntityFieldDefinition("ImageTransparentColor", typeof(int));
+			if (version >= 7) 
+				yield return new EntityFieldDefinition("ModelObject", typeof(object));
 
 			yield return new EntityInnerObjectsDefinition("Layers", "Core.Layer",
 				new string[] { "Id", "Name", "Title", "LowerVisibilityThreshold", "UpperVisibilityThreshold" },
@@ -1368,6 +1392,10 @@ namespace Dataweb.NShape {
 			_imageTransparency = reader.ReadByte();
 			_imageGrayScale = reader.ReadBool();
 			_imageTransparentColor = Color.FromArgb(reader.ReadInt32());
+			if (version >= 7) {
+				_modelObject = reader.ReadDiagramModelObject();
+				if (_modelObject != null) _modelObject.AttachDiagram(this);
+			}
 		}
 
 
@@ -1416,6 +1444,8 @@ namespace Dataweb.NShape {
 			writer.WriteByte(_imageTransparency);
 			writer.WriteBool(_imageGrayScale);
 			writer.WriteInt32(_imageTransparentColor.ToArgb());
+			if (version >= 7)
+				writer.WriteDiagramModelObject(ModelObject);
 		}
 
 
@@ -1587,6 +1617,7 @@ namespace Dataweb.NShape {
 		private object _id;
 		private string _title;
 		private string _name;
+		private IDiagramModelObject _modelObject;
 		private IDisplayService _displayService;
 		private LayerCollection _layers = null;
 		private DiagramShapeCollection _diagramShapes = null;

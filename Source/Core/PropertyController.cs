@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -58,6 +58,12 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public event EventHandler<PropertyControllerEventArgs> ObjectsSet;
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public event EventHandler<PropertyControllerEventArgs> SelectedObjectsChanging;
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public event EventHandler<PropertyControllerEventArgs> SelectedObjectsChanged;
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public event EventHandler<PropertyControllerPropertyChangedEventArgs> PropertyChanged;
@@ -135,6 +141,8 @@ namespace Dataweb.NShape.Controllers {
 							_propertySetBuffer = new PropertySetInfo<Shape>(propertyInfo, newValue);
 						else if (obj is IModelObject)
 							_propertySetBuffer = new PropertySetInfo<IModelObject>(propertyInfo, newValue);
+						else if (obj is IDiagramModelObject)
+							_propertySetBuffer = new PropertySetInfo<IDiagramModelObject>(propertyInfo, newValue);
 						else if (obj is Diagram)
 							_propertySetBuffer = new PropertySetInfo<Diagram>(propertyInfo, newValue);
 						else if (obj is Layer)
@@ -143,7 +151,8 @@ namespace Dataweb.NShape.Controllers {
 							_propertySetBuffer = new PropertySetInfo<Design>(propertyInfo, newValue);
 						else if (obj is Style)
 							_propertySetBuffer = new PropertySetInfo<Style>(propertyInfo, newValue);
-						else throw new NotSupportedException();
+						else
+							throw new NotSupportedException(string.Format("PropertyController does not support objects of type '{0}'", obj.GetType().Name));
 					}
 					_propertySetBuffer.Objects.Add(obj);
 					_propertySetBuffer.OldValues.Add(oldValue);
@@ -192,6 +201,12 @@ namespace Dataweb.NShape.Controllers {
 							_propertySetBuffer.PropertyInfo,
 							_propertySetBuffer.OldValues,
 							_propertySetBuffer.NewValue);
+					} else if (IsOfType(_propertySetBuffer.ObjectType, typeof(IDiagramModelObject))) {
+						command = new DiagramModelObjectPropertySetCommand(
+							ConvertEnumerator<IDiagramModelObject>.Create(_propertySetBuffer.Objects),
+								_propertySetBuffer.PropertyInfo,
+								_propertySetBuffer.OldValues,
+								_propertySetBuffer.NewValue);
 					} else if (IsOfType(_propertySetBuffer.ObjectType, typeof(Diagram))) {
 						command = new DiagramPropertySetCommand(
 							ConvertEnumerator<Diagram>.Create(_propertySetBuffer.Objects),
@@ -287,6 +302,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		public void SetObject(int pageIndex, object selectedObject, bool isPersistent) {
 			AssertProjectExists();
+			OnSelectedObjectsChanging(pageIndex, selectedObject);
 
 			Hashtable selectedObjectsList;
 			GetSelectedObjectList(pageIndex, out selectedObjectsList);
@@ -294,11 +310,7 @@ namespace Dataweb.NShape.Controllers {
 			_updateRepository = isPersistent;
 			if (selectedObject != null) selectedObjectsList.Add(selectedObject, null);
 
-			if (ObjectsSet != null) {
-				_propertyControllerEventArgs.PageIndex = pageIndex;
-				_propertyControllerEventArgs.SetObject(selectedObject);
-				ObjectsSet(this, _propertyControllerEventArgs);
-			}
+			OnSelectedObjectsChanged(pageIndex, selectedObject);
 		}
 
 
@@ -313,6 +325,7 @@ namespace Dataweb.NShape.Controllers {
 		public void SetObjects(int pageIndex, IEnumerable selectedObjects, bool arePersistent) {
 			if (selectedObjects == null) throw new ArgumentNullException("selectedObjects");
 			AssertProjectExists();
+			OnSelectedObjectsChanging(pageIndex, selectedObjects);
 
 			Hashtable selectedObjectsList;
 			GetSelectedObjectList(pageIndex, out selectedObjectsList);
@@ -324,11 +337,7 @@ namespace Dataweb.NShape.Controllers {
 					selectedObjectsList.Add(o, null);
 			}
 
-			if (ObjectsSet != null) {
-				_propertyControllerEventArgs.PageIndex = pageIndex;
-				_propertyControllerEventArgs.SetObjects(selectedObjects);
-				ObjectsSet(this, _propertyControllerEventArgs);
-			}
+			OnSelectedObjectsChanged(pageIndex, selectedObjects);
 		}
 
 
@@ -366,6 +375,42 @@ namespace Dataweb.NShape.Controllers {
 		#endregion
 
 
+		#region [Protected] Methods
+
+		/// <summary>Raises the SelectedObjectsChanging event.</summary>
+		protected virtual void OnSelectedObjectsChanging(int pageIndex, object selectedObject)
+		{
+			if (SelectedObjectsChanging != null) SelectedObjectsChanging(this, new PropertyControllerEventArgs(pageIndex, selectedObject));
+		}
+
+
+		/// <summary>Raises the SelectedObjectsChanging event.</summary>
+		protected virtual void OnSelectedObjectsChanging(int pageIndex, IEnumerable selectedObjects)
+		{
+			if (SelectedObjectsChanging != null) SelectedObjectsChanging(this, new PropertyControllerEventArgs(pageIndex, selectedObjects));
+		}
+
+
+		/// <summary>Raises the SelectedObjectsChanged event.</summary>
+		/// <remarks>At the moment, this method also raises the obsolete ObjectsSet event.</remarks>
+		protected virtual void OnSelectedObjectsChanged(int pageIndex, object selectedObject)
+		{
+			if (SelectedObjectsChanged != null) SelectedObjectsChanged(this, new PropertyControllerEventArgs(pageIndex, selectedObject));
+			// ToDo: Remove in future versions
+			if (ObjectsSet != null) ObjectsSet(this, new PropertyControllerEventArgs(pageIndex, selectedObject));
+		}
+
+
+		/// <summary>Raises the SelectedObjectsChanged event.</summary>
+		/// <remarks>At the moment, this method also raises the obsolete ObjectsSet event.</remarks>
+		protected virtual void OnSelectedObjectsChanged(int pageIndex, IEnumerable selectedObjects)
+		{
+			if (SelectedObjectsChanged != null) SelectedObjectsChanged(this, new PropertyControllerEventArgs(pageIndex, selectedObjects));
+			// ToDo: Remove in future versions
+			if (ObjectsSet != null) ObjectsSet(this, new PropertyControllerEventArgs(pageIndex, selectedObjects));
+		}
+
+
 		/// <summary> 
 		/// Clean up any resources being used.
 		/// </summary>
@@ -375,6 +420,8 @@ namespace Dataweb.NShape.Controllers {
 				UnregisterRepositoryEvents();
 			base.Dispose(disposing);
 		}
+
+		#endregion
 
 
 		#region [Private] Methods: Registering for events
@@ -544,11 +591,10 @@ namespace Dataweb.NShape.Controllers {
 				int pageIndex;
 				Hashtable selectedObjectsList;
 				GetSelectedObjectList(objs, out pageIndex, out selectedObjectsList);
-				if (pageIndex >= 0) {
-					_propertyControllerEventArgs.PageIndex = pageIndex;
-					_propertyControllerEventArgs.SetObjects(selectedObjectsList.Keys);
-					ObjectsModified(this, _propertyControllerEventArgs);
-				}
+				if (pageIndex < 0 || selectedObjectsList.Count == 0)
+					return;
+
+				ObjectsModified(this, new PropertyControllerEventArgs(pageIndex, selectedObjectsList.Keys));
 			}
 		}
 
@@ -558,11 +604,10 @@ namespace Dataweb.NShape.Controllers {
 				int pageIndex;
 				Hashtable selectedObjectsList;
 				GetSelectedObjectList(obj, out pageIndex, out selectedObjectsList);
-				if (pageIndex >= 0) {
-					_propertyControllerEventArgs.PageIndex = pageIndex;
-					_propertyControllerEventArgs.SetObjects(selectedObjectsList.Keys);
-					ObjectsModified(this, _propertyControllerEventArgs);
-				}
+				if (pageIndex < 0 || selectedObjectsList.Count == 0)
+					return;
+
+				ObjectsModified(this, new PropertyControllerEventArgs(pageIndex, selectedObjectsList.Keys));
 			}
 		}
 
@@ -572,19 +617,15 @@ namespace Dataweb.NShape.Controllers {
 				int pageIndex;
 				Hashtable selectedObjectsList;
 				GetSelectedObjectList(objs, out pageIndex, out selectedObjectsList);
-				if (pageIndex >= 0) {
-					// Remove all deleted objects and set the rest as new selection
-					foreach (object o in objs) {
-						if (selectedObjectsList.Contains(o))
-							selectedObjectsList.Remove(o);
-					}
-					_propertyControllerEventArgs.PageIndex = pageIndex;
-					if (selectedObjectsList.Count > 0)
-						_propertyControllerEventArgs.SetObjects(selectedObjectsList);
-					else _propertyControllerEventArgs.SetObject(null);
+				if (pageIndex < 0 || selectedObjectsList.Count == 0)
+					return;
 
-					ObjectsSet(this, _propertyControllerEventArgs);
+				// Remove all deleted objects and set the rest as new selection
+				foreach (object o in objs) {
+					if (selectedObjectsList.Contains(o))
+						selectedObjectsList.Remove(o);
 				}
+				SetObjects(pageIndex, selectedObjectsList);
 			}
 		}
 
@@ -594,14 +635,13 @@ namespace Dataweb.NShape.Controllers {
 				int pageIndex;
 				Hashtable selectedObjectsList;
 				GetSelectedObjectList(obj, out pageIndex, out selectedObjectsList);
-				if (pageIndex >= 0 && selectedObjectsList.Contains(obj)) {
-					selectedObjectsList.Remove(obj);
-					_propertyControllerEventArgs.PageIndex = pageIndex;
-					if (selectedObjectsList.Count > 0)
-						_propertyControllerEventArgs.SetObjects(selectedObjectsList);
-					else _propertyControllerEventArgs.SetObject(null);
+				if (pageIndex < 0 || selectedObjectsList.Count == 0)
+					return;
 
-					ObjectsSet(this, _propertyControllerEventArgs);
+				if (selectedObjectsList.Contains(obj)) {
+					selectedObjectsList.Remove(obj);
+
+					ObjectsSet(this, new PropertyControllerEventArgs(pageIndex, selectedObjectsList));
 				}
 			}
 		}
@@ -675,7 +715,6 @@ namespace Dataweb.NShape.Controllers {
 		private bool _updateRepository;
 		private Hashtable _selectedPrimaryObjects = new Hashtable();
 		private Hashtable _selectedSecondaryObjects = new Hashtable();
-		private PropertyControllerEventArgs _propertyControllerEventArgs = new PropertyControllerEventArgs();
 		private PropertySetInfo _propertySetBuffer;
 		private NonEditableDisplayMode _propertyDisplayMode = NonEditableDisplayMode.ReadOnly;
 		
@@ -699,11 +738,19 @@ namespace Dataweb.NShape.Controllers {
 
 	/// <ToBeCompleted></ToBeCompleted>
 	public interface IPropertyController {
-		
+
 		#region Events
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Raised after an object was set for editing.</summary>
+		[Obsolete("Use SelectedObjectsChanged instead.")]
 		event EventHandler<PropertyControllerEventArgs> ObjectsSet;
+
+		/// <summary>Raised before objects are set for editing.</summary>
+		event EventHandler<PropertyControllerEventArgs> SelectedObjectsChanging;
+
+		/// <summary>Raised after objects were set for editing.</summary>
+		event EventHandler<PropertyControllerEventArgs> SelectedObjectsChanged;
+
 
 		/// <ToBeCompleted></ToBeCompleted>
 		event EventHandler<PropertyControllerPropertyChangedEventArgs> PropertyChanged;
@@ -755,8 +802,15 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public PropertyControllerEventArgs(int pageIndex, IEnumerable objects) {
-			if (objects == null) throw new ArgumentNullException("objects");
 			SetObjects(objects);
+			this._pageIndex = pageIndex;
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public PropertyControllerEventArgs(int pageIndex, object obj)
+		{
+			SetObjects(SingleInstanceEnumerator<object>.Create(obj));
 			this._pageIndex = pageIndex;
 		}
 
@@ -795,8 +849,10 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal void SetObjects(IEnumerable objects) {
 			this._objects.Clear();
-			foreach (object obj in objects)
-				this._objects.Add(obj);
+			foreach (object obj in objects) {
+				if (obj != null)
+					_objects.Add(obj);
+			}
 			SetCommonType();
 		}
 

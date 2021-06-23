@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -85,7 +85,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				using (Font font = new Font(e.Value.ToString(), e.Bounds.Height, FontStyle.Regular, GraphicsUnit.Pixel))
 					e.Graphics.DrawString(e.Value.ToString(), font, Brushes.Black, (RectangleF)e.Bounds, formatter);
 				GdiHelpers.ApplyGraphicsSettings(e.Graphics, RenderingQuality.DefaultQuality);
-				
+
 				base.PaintValue(e);
 			}
 		}
@@ -97,6 +97,109 @@ namespace Dataweb.NShape.WinFormsUI {
 		}
 
 		StringFormat formatter = new StringFormat();
+	}
+
+
+	/// <summary>
+	/// NShape UI type editor for editing flagable enums.
+	/// </summary>
+	public class FlagEnumUITypeEditor : UITypeEditor {
+
+		/// <override></override>
+		public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value) {
+			if (provider != null) {
+				IWindowsFormsEditorService edSvc = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+				if (edSvc != null && context.Instance != null) {
+					using (CheckedListBox checkedListBox = new CheckedListBox()) {
+						checkedListBox.BorderStyle = BorderStyle.None;
+						checkedListBox.IntegralHeight = false;
+						checkedListBox.CheckOnClick = true;
+						checkedListBox.SelectionMode = SelectionMode.One;
+						checkedListBox.SelectedIndexChanged += CheckedListBox_SelectedIndexChanged;
+						checkedListBox.ItemCheck += CheckedListBox_ItemCheck;
+
+						// Add existing layers and check shape's layers
+						int intValue = (int)value;
+						Type enumType = context.PropertyDescriptor.PropertyType;
+						Array enumValues = Enum.GetValues(enumType);
+						for (int i = 0; i < enumValues.Length; ++i) {
+							int enumVal = (int)enumValues.GetValue(i);
+							if (checkedListBox.Items.Count < enumValues.Length)
+								checkedListBox.Items.Insert(i, EnumDisplayItem.Create(enumVal, Enum.GetName(enumType, enumVal)));
+							EnumDisplayItem item = (EnumDisplayItem)checkedListBox.Items[i];
+							bool isChecked = ((item.EnumValue & intValue) == item.EnumValue) && item.EnumValue != 0;
+							checkedListBox.SetItemChecked(i, isChecked);
+						}
+
+						edSvc.DropDownControl(checkedListBox);
+						// Get selected enum flags
+						intValue = 0;
+						foreach (EnumDisplayItem item in checkedListBox.CheckedItems)
+							intValue |= item.EnumValue;
+						// Update property value
+						value = intValue;
+					}
+				}
+			}
+			return value;
+		}
+
+
+		private void CheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e) {
+			//throw new NotImplementedException();
+		}
+
+
+		/// <override></override>
+		public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) {
+			if (context != null && context.Instance != null)
+				return UITypeEditorEditStyle.DropDown;
+			return base.GetEditStyle(context);
+		}
+
+
+		/// <override></override>
+		public override bool GetPaintValueSupported(ITypeDescriptorContext context) {
+			return false;
+		}
+
+
+		/// <override></override>
+		public override bool IsDropDownResizable {
+			get { return true; }
+		}
+
+
+		private void CheckedListBox_SelectedIndexChanged(object sender, EventArgs e) {
+			if (sender is CheckedListBox checkedListBox) {
+				//int idx = checkedListBox.SelectedIndex;
+				//for (int i = checkedListBox.Items.Count - 1; i >= 0; --i)
+				//	if (i != idx && checkedListBox.GetItemChecked(i)) {
+				//		checkedListBox.SetItemChecked(i, false);
+				//	}
+			}
+		}
+
+
+		private class EnumDisplayItem {
+
+			public static EnumDisplayItem Create(int enumValue, string enumTitle) {
+				EnumDisplayItem result = new EnumDisplayItem();
+				result.EnumValue = enumValue;
+				result.EnumTitle = enumTitle;
+				return result;
+			}
+
+			public override string ToString() {
+				return EnumTitle;
+			}
+
+			public int EnumValue { get; set; }
+
+			public string EnumTitle { get; set; }
+
+		}
+
 	}
 
 
@@ -161,7 +264,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			return value;
 		}
 
-		
+
 		/// <override></override>
 		public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) {
 			if (context != null && context.Instance != null)
@@ -198,7 +301,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private struct LayerDisplayItem {
-			
+
 			public static readonly LayerDisplayItem Empty;
 
 			public static LayerDisplayItem Create(int layerId, string layerTitle) {
@@ -572,9 +675,9 @@ namespace Dataweb.NShape.WinFormsUI {
 				// Set new GraphicsModes
 				Matrix origTransform = e.Graphics.Transform;
 				GdiHelpers.ApplyGraphicsSettings(e.Graphics, RenderingQuality.HighQuality);
-				
+
 				// Draw value
-				if (e.Value is ICapStyle) 
+				if (e.Value is ICapStyle)
 					DrawStyleItem(e.Graphics, previewRect, (ICapStyle)e.Value);
 				else if (e.Value is ICharacterStyle)
 					DrawStyleItem(e.Graphics, previewRect, (ICharacterStyle)e.Value);
@@ -632,7 +735,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			layoutRect.Y = 0;
 			layoutRect.Width = (float)previewBounds.Width / scale;
 			layoutRect.Height = (float)previewBounds.Height / scale;
-			gfx.DrawString(string.Format("{0} {1} pt", charStyle.FontName, charStyle.SizeInPoints), 
+			gfx.DrawString(string.Format("{0} {1} pt", charStyle.FontName, charStyle.SizeInPoints),
 				font, fontBrush, layoutRect, _formatter);
 		}
 

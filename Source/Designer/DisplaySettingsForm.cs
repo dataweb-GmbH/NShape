@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -48,8 +48,8 @@ namespace Dataweb.NShape.Designer {
 			get { return wheelZoomCheckBox.Checked; }
 			set { wheelZoomCheckBox.Checked = value; }
 		}
-		
-		
+
+
 		public bool ShowScrollBars {
 			get { return !hideScrollBarsCheckBox.Checked; }
 			set { hideScrollBarsCheckBox.Checked = !value; }
@@ -111,7 +111,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		public bool HideDeniedMenuItems {
-			get { return hideDeniedMenuItemsCheckBox.Checked;}
+			get { return hideDeniedMenuItemsCheckBox.Checked; }
 			set { hideDeniedMenuItemsCheckBox.Checked = value; }
 		}
 
@@ -151,7 +151,7 @@ namespace Dataweb.NShape.Designer {
 			return (int)(((uint)((((color.R << 0x10) | (color.G << 8)) | color.B)) & uint.MaxValue));
 		}
 
-	
+
 		private void cancelButton_Click(object sender, EventArgs e) {
 			this.DialogResult = DialogResult.Cancel;
 		}

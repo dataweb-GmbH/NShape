@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -81,7 +81,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool ProcessMouseEvent(IDiagramPresenter diagramPresenter, MouseEventArgsDg e) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			bool result = false;
 			// get new mouse state
 			MouseState newMouseState = MouseState.Empty;
@@ -123,7 +123,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool ProcessKeyEvent(IDiagramPresenter diagramPresenter, KeyEventArgsDg e) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			// if the keyPress was not handled by the base class, try to handle it here
 			bool result = false;
 			switch (e.EventType) {
@@ -174,7 +174,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override IEnumerable<MenuItemDef> GetMenuItemDefs(IDiagramPresenter diagramPresenter) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			int mouseX = CurrentMouseState.X;
 			int mouseY = CurrentMouseState.Y;
 
@@ -211,7 +211,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void Draw(IDiagramPresenter diagramPresenter) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			switch (CurrentAction) {
 				case Action.Select:
 					// nothing to do
@@ -288,7 +288,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void Invalidate(IDiagramPresenter diagramPresenter) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			switch (CurrentAction) {
 				case Action.None:
 				case Action.Select:
@@ -335,7 +335,7 @@ namespace Dataweb.NShape {
 		/// Returns the preview shape clone that is currently used to represent the preview of the current tool action for the given shape.
 		/// </summary>
 		public Shape FindPreviewOfShape(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 #if DEBUG_DIAGNOSTICS
 			Assert(_previewShapes.ContainsKey(shape), string.Format("No preview found for '{0}' shape.", shape.Type.Name));
 #endif
@@ -347,7 +347,7 @@ namespace Dataweb.NShape {
 		/// Returns the original shape the given preview shape clone was created from.
 		/// </summary>
 		public Shape FindShapeOfPreview(Shape previewShape) {
-			if (previewShape == null) throw new ArgumentNullException("previewShape");
+			if (previewShape == null) throw new ArgumentNullException(nameof(previewShape));
 #if DEBUG_DIAGNOSTICS
 			Assert(_originalShapes.ContainsKey(previewShape), string.Format("No original shape found for '{0}' preview shape.", previewShape.Type.Name));
 #endif
@@ -986,7 +986,7 @@ namespace Dataweb.NShape {
 						if (diagramPresenter.SelectedShapes.Contains(shapeToSelect.Parent))
 							shapeToSelect = shapeToSelect.Parent;
 				}
-			} else if (_selectedShapeAtCursorInfo.IsEmpty) {
+			} else if (_selectedShapeAtCursorInfo.IsEmpty || _selectedShapeAtCursorInfo.Shape.HitTest(mouseState.X, mouseState.Y, ControlPointCapabilities.All, 0) == ControlPointId.None) {
 				// if there was no other shape to select and none of the selected shapes is under the cursor,
 				// clear selection
 				if (!multiSelect) {
@@ -1367,8 +1367,8 @@ namespace Dataweb.NShape {
 
 
 		private bool IsMinRotateRangeExceeded(IDiagramPresenter diagramPresenter, MouseState mouseState) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
-			if (mouseState == MouseState.Empty) throw new ArgumentException("mouseState");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
+			if (mouseState == MouseState.Empty) throw new ArgumentException(nameof(mouseState));
 			Point p;
 			if (PendingToolActionsCount <= 1) p = ActionStartMouseState.Position;
 			else {
@@ -1948,7 +1948,7 @@ namespace Dataweb.NShape {
 		/// These previews are connected to all the shapes the original shapes are connected to.
 		/// </summary>
 		private void CreatePreviewShapes(IDiagramPresenter diagramPresenter) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			if (Previews.Count == 0 && diagramPresenter.SelectedShapes.Count > 0) {
 				// first, clone all selected shapes...
 				foreach (Shape shape in diagramPresenter.SelectedShapes) {
@@ -2141,6 +2141,8 @@ namespace Dataweb.NShape {
 			// ToDo: Create better Connect/Disconnect cursors
 			_cursors.Add(ToolCursor.Connect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
 			_cursors.Add(ToolCursor.Disconnect, CursorProvider.RegisterCursor(Properties.Resources.HandCursor));
+			_cursors.Add(ToolCursor.Pan, CursorProvider.RegisterCursor(Properties.Resources.HandOpenCursor));
+			_cursors.Add(ToolCursor.PanActive, CursorProvider.RegisterCursor(Properties.Resources.HandGrabCursor));
 		}
 
 
@@ -2170,7 +2172,9 @@ namespace Dataweb.NShape {
 			ActionDenied,
 			EditCaption,
 			Connect,
-			Disconnect
+			Disconnect,
+			Pan,
+			PanActive
 		}
 
 

@@ -106,25 +106,30 @@
 			this.display.BackColorGradient = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
 			this.display.BackgroundGradientAngle = 0;
 			this.display.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.display.DiagramMargin = 40;
 			this.display.DiagramSetController = this.diagramSetController;
 			this.display.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.display.GridAlpha = ((byte)(128));
 			this.display.GridColor = System.Drawing.Color.White;
+			this.display.GridSize = 19;
 			this.display.HideDeniedMenuItems = true;
 			this.display.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+			this.display.IsGridVisible = false;
 			this.display.Location = new System.Drawing.Point(0, 0);
 			this.display.Name = "display";
+			this.display.PanMouseButton = ((System.Windows.Forms.MouseButtons)((System.Windows.Forms.MouseButtons.Right | System.Windows.Forms.MouseButtons.Middle)));
 			this.display.PropertyController = this.propertyController;
 			this.display.SelectionHilightColor = System.Drawing.Color.Firebrick;
 			this.display.SelectionInactiveColor = System.Drawing.Color.Gray;
 			this.display.SelectionInteriorColor = System.Drawing.Color.WhiteSmoke;
 			this.display.SelectionNormalColor = System.Drawing.Color.DarkGreen;
-			this.display.IsGridVisible = false;
+			this.display.ScrollBarsVisible = true;
 			this.display.Size = new System.Drawing.Size(884, 515);
 			this.display.SnapToGrid = false;
 			this.display.TabIndex = 4;
 			this.display.ToolPreviewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(119)))), ((int)(((byte)(136)))), ((int)(((byte)(153)))));
 			this.display.ToolPreviewColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(70)))), ((int)(((byte)(130)))), ((int)(((byte)(180)))));
+			this.display.ZoomWithMouseWheel = true;
 			this.display.ShapesSelected += new System.EventHandler(this.display_ShapesSelected);
 			this.display.ZoomChanged += new System.EventHandler(this.display_ZoomChanged);
 			// 
@@ -136,6 +141,7 @@
 			// project
 			// 
 			this.project.AutoGenerateTemplates = false;
+			this.project.Description = null;
 			this.project.LibrarySearchPaths = ((System.Collections.Generic.IList<string>)(resources.GetObject("project.LibrarySearchPaths")));
 			this.project.Name = null;
 			this.project.Repository = this.cachedRepository;
@@ -154,6 +160,8 @@
 			this.xmlStore.DesignFileName = "";
 			this.xmlStore.DirectoryName = "";
 			this.xmlStore.FileExtension = ".xml";
+			this.xmlStore.ImageLocation = Dataweb.NShape.XmlStore.ImageFileLocation.Directory;
+			this.xmlStore.ProjectFilePath = ".xml";
 			this.xmlStore.ProjectName = "";
 			// 
 			// propertyController
@@ -189,7 +197,7 @@
             this.zoomLabel});
 			this.toolStrip.Location = new System.Drawing.Point(3, 0);
 			this.toolStrip.Name = "toolStrip";
-			this.toolStrip.Size = new System.Drawing.Size(745, 25);
+			this.toolStrip.Size = new System.Drawing.Size(744, 25);
 			this.toolStrip.TabIndex = 0;
 			// 
 			// clearButton
@@ -312,7 +320,7 @@
 			this.toolBoxButton.Image = ((System.Drawing.Image)(resources.GetObject("toolBoxButton.Image")));
 			this.toolBoxButton.ImageTransparentColor = System.Drawing.Color.Fuchsia;
 			this.toolBoxButton.Name = "toolBoxButton";
-			this.toolBoxButton.Size = new System.Drawing.Size(70, 22);
+			this.toolBoxButton.Size = new System.Drawing.Size(69, 22);
 			this.toolBoxButton.Text = "Toolbox";
 			this.toolBoxButton.Click += new System.EventHandler(this.toolBoxButton_Click);
 			// 

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -74,7 +74,7 @@ namespace Dataweb.NShape {
 		/// Reads the version number of the project from the persistent store.
 		/// </summary>
 		void ReadVersion();
-		
+
 		/// <summary>
 		/// Creates and opens a new project in the repository.
 		/// </summary>
@@ -406,7 +406,64 @@ namespace Dataweb.NShape {
 		#endregion
 
 
-		# region Templates
+		#region DiagramModelObjects
+
+		/// <summary>
+		/// Checks whether the given diagram model object is referenced by any diagram.
+		/// If the repository's store supports partial loading, the store performs the same checks without loading the corresponding objects.
+		/// </summary>
+		bool IsDiagramModelObjectInUse(IDiagramModelObject diagramModelObject);
+
+		/// <summary>
+		/// Fetches a single object from the repository.
+		/// </summary>
+		/// <param name="id">Id of object to fetch</param>
+		/// <returns>Reference to object or null, if object was not found.</returns>
+		IDiagramModelObject GetDiagramModelObject(object id);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Insert(IDiagramModelObject diagramModelObject);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Insert(IEnumerable<IDiagramModelObject> diagramModelObjects);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Update(IDiagramModelObject diagramModelObject);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Update(IEnumerable<IDiagramModelObject> diagramModelObjects);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Delete(IDiagramModelObject diagramModelObject);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Delete(IEnumerable<IDiagramModelObject> diagramModelObjects);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Undelete(IDiagramModelObject diagramModelObject);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Undelete(IEnumerable<IDiagramModelObject> diagramModelObjects);
+
+		/// <summary>
+		/// Removes the given diagram model objects from the repository.
+		/// </summary>
+		/// <param name="diagramModelObjects"></param>
+		void Unload(IEnumerable<IDiagramModelObject> diagramModelObjects);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		event EventHandler<RepositoryDiagramModelObjectsEventArgs> DiagramModelObjectsInserted;
+
+		/// <ToBeCompleted></ToBeCompleted>
+		event EventHandler<RepositoryDiagramModelObjectsEventArgs> DiagramModelObjectsUpdated;
+
+		/// <ToBeCompleted></ToBeCompleted>
+		event EventHandler<RepositoryDiagramModelObjectsEventArgs> DiagramModelObjectsDeleted;
+
+		#endregion
+
+
+		#region Templates
 
 		/// <summary>
 		/// Checks whether the given template is referenced by any shape in any diagram of the project.
@@ -426,7 +483,7 @@ namespace Dataweb.NShape {
 		/// <param name="id">Id of object to fetch</param>
 		/// <returns>Reference to object or null, if object was not found.</returns>
 		Template GetTemplate(object id);
-		
+
 		/// <summary>
 		/// Fetches a single template given its name.
 		/// </summary>
@@ -540,35 +597,35 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <param name="id">Id of object to fetch</param>
 		/// <returns>Reference to object or null, if object was not found.</returns>
-        /// <remarks>
+		/// <remarks>
 		/// If the store supports partial loading, the diagram shapes are not loaded. 
-        /// Use GetDiagramShapes for loading the diagram's content.
+		/// Use GetDiagramShapes for loading the diagram's content.
 		/// </remarks>
-        Diagram GetDiagram(object id);
+		Diagram GetDiagram(object id);
 
 		/// <summary>
 		/// Fetches a single diagram identified by its name.
 		/// </summary>
-        /// <remarks>
+		/// <remarks>
 		/// If the store supports partial loading, the diagram shapes are not loaded. 
-        /// Use GetDiagramShapes for loading the diagram's content.
+		/// Use GetDiagramShapes for loading the diagram's content.
 		/// </remarks>
-        Diagram GetDiagram(string name);
+		Diagram GetDiagram(string name);
 
 		/// <summary>
 		/// Returns all the diagrams of this project.
 		/// </summary>
-        /// <remarks>
+		/// <remarks>
 		/// If the store supports partial loading, the diagram shapes are not loaded. 
-        /// Use GetDiagramShapes for loading the diagram's content.
+		/// Use GetDiagramShapes for loading the diagram's content.
 		/// </remarks>
-        IEnumerable<Diagram> GetDiagrams();
+		IEnumerable<Diagram> GetDiagrams();
 
 		/// <summary>
 		/// Inserts the given diagram into the repository.
 		/// </summary>
 		void Insert(Diagram diagram);
-		
+
 		/// <summary>
 		/// Inserts the given diagram and all its shapes (including shape connections) into the repository.
 		/// </summary>
@@ -619,7 +676,7 @@ namespace Dataweb.NShape {
 		/// of the given rectangles are loaded.
 		/// </summary>
 		/// <remarks>Partial loading via rectangles parameter is not supported yet. Currently alle 
-        /// shapes of the diagram are loaded.</remarks>
+		/// shapes of the diagram are loaded.</remarks>
 		void GetDiagramShapes(Diagram diagram, params Rectangle[] rectangles);
 
 		/// <ToBeCompleted></ToBeCompleted>
@@ -630,6 +687,15 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		void Insert(Shape shape, Template owningTemplate);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Insert<TShape>(TShape shape, Diagram diagram) where TShape : Shape;
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Insert<TShape>(TShape shape, Shape parentShape) where TShape : Shape;
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Insert<TShape>(TShape shape, Template owningTemplate) where TShape : Shape;
 
 		/// <ToBeCompleted></ToBeCompleted>
 		void Insert(IEnumerable<Shape> shapes, Diagram diagram);
@@ -669,6 +735,9 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		void Update(Shape shape);
+
+		/// <ToBeCompleted></ToBeCompleted>
+		void Update<TShape>(TShape shape) where TShape : Shape;
 
 		///// <ToBeCompleted></ToBeCompleted>
 		//void UpdateAll(Shape shape);
@@ -945,39 +1014,6 @@ namespace Dataweb.NShape {
 	/// <summary>
 	/// Encapsulates parameters for a shape-related respository event.
 	/// </summary>
-	public class RepositoryShapeEventArgs : EventArgs {
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public RepositoryShapeEventArgs(Shape shape, Diagram diagram) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			this._shape = shape;
-			this._diagram = diagram;
-		}
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public Shape Shape {
-			get { return _shape; }
-			internal set { _shape = value; }
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public Diagram Diagram {
-			get { return Diagram; }
-		}
-
-
-		internal RepositoryShapeEventArgs() { }
-
-
-		private Shape _shape = null;
-		private Diagram _diagram = null;
-	}
-
-
-	/// <summary>
-	/// Encapsulates parameters for a shape-related respository event.
-	/// </summary>
 	public class RepositoryShapesEventArgs : EventArgs {
 
 		/// <ToBeCompleted></ToBeCompleted>
@@ -1024,8 +1060,8 @@ namespace Dataweb.NShape {
 		internal void Clear() {
 			_shapes.Clear();
 		}
-		
-		
+
+
 		internal void AddShape(Shape shape, Diagram diagram) {
 			_shapes.Add(shape, diagram);
 		}
@@ -1043,30 +1079,7 @@ namespace Dataweb.NShape {
 		}
 
 
-		private Dictionary<Shape, Diagram> _shapes = new Dictionary<Shape,Diagram>();
-	}
-
-
-	/// <summary>
-	/// Encapsulates parameters for a modelobject-related respository event.
-	/// </summary>
-	public class RepositoryModelObjectEventArgs : EventArgs {
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public RepositoryModelObjectEventArgs(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
-			this._modelObject = modelObject;
-		}
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public IModelObject ModelObject {
-			get { return _modelObject; }
-			internal set { _modelObject = value; }
-		}
-
-		internal RepositoryModelObjectEventArgs() { }
-
-		private IModelObject _modelObject = null;
+		private Dictionary<Shape, Diagram> _shapes = new Dictionary<Shape, Diagram>();
 	}
 
 
@@ -1116,6 +1129,51 @@ namespace Dataweb.NShape {
 
 
 	/// <summary>
+	/// Encapsulates parameters for a modelobject-related respository event.
+	/// </summary>
+	public class RepositoryDiagramModelObjectsEventArgs : EventArgs {
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public RepositoryDiagramModelObjectsEventArgs(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			this._diagramModelObjects.AddRange(diagramModelObjects);
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public IEnumerable<IDiagramModelObject> DiagramModelObjects {
+			get { return _diagramModelObjects; }
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public int Count {
+			get { return _diagramModelObjects.Count; }
+		}
+
+
+		internal RepositoryDiagramModelObjectsEventArgs() {
+			_diagramModelObjects.Clear();
+		}
+
+
+		internal void SetModelObjects(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			this._diagramModelObjects.Clear();
+			this._diagramModelObjects.AddRange(diagramModelObjects);
+		}
+
+
+		internal void SetModelObject(IDiagramModelObject diagramModelObject) {
+			_diagramModelObjects.Clear();
+			_diagramModelObjects.Add(diagramModelObject);
+		}
+
+
+		private List<IDiagramModelObject> _diagramModelObjects = new List<IDiagramModelObject>();
+	}
+
+
+	/// <summary>
 	/// Encapsulates parameters for a shape connection related respository event.
 	/// </summary>
 	public class RepositoryShapeConnectionEventArgs : EventArgs {
@@ -1142,7 +1200,7 @@ namespace Dataweb.NShape {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected internal RepositoryShapeConnectionEventArgs(ShapeConnection shapeConnection) 
+		protected internal RepositoryShapeConnectionEventArgs(ShapeConnection shapeConnection)
 			: this(shapeConnection.ConnectorShape, shapeConnection.GluePointId, shapeConnection.TargetShape, shapeConnection.TargetPointId) {
 		}
 
@@ -1180,8 +1238,8 @@ namespace Dataweb.NShape {
 		internal void Clear() {
 			_connection = ShapeConnection.Empty;
 		}
-		
-		
+
+
 		internal void SetShapeConnection(ShapeConnection connection) {
 			System.Diagnostics.Debug.Assert(connection != ShapeConnection.Empty);
 			this._connection = connection;

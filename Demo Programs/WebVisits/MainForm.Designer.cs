@@ -23,7 +23,6 @@
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			Dataweb.NShape.RoleBasedSecurityManager roleBasedSecurityManager1 = new Dataweb.NShape.RoleBasedSecurityManager();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -37,11 +36,11 @@
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
 			this.display = new Dataweb.NShape.WinFormsUI.Display();
 			this.diagramSetController = new Dataweb.NShape.Controllers.DiagramSetController();
-			this.project = new Dataweb.NShape.Project(this.components);
+			this.project = new Dataweb.NShape.Project();
 			this.cachedRepository = new Dataweb.NShape.Advanced.CachedRepository();
 			this.xmlStore = new Dataweb.NShape.XmlStore();
 			this.toolbox = new System.Windows.Forms.ListView();
-			this.toolBoxAdapter = new Dataweb.NShape.WinFormsUI.ToolSetListViewPresenter(this.components);
+			this.toolBoxAdapter = new Dataweb.NShape.WinFormsUI.ToolSetListViewPresenter();
 			this.toolSetController = new Dataweb.NShape.Controllers.ToolSetController();
 			this.mainMenuStrip.SuspendLayout();
 			this.SuspendLayout();
@@ -120,22 +119,27 @@
 			this.display.AutoScroll = true;
 			this.display.BackColor = System.Drawing.SystemColors.Control;
 			this.display.BackColorGradient = System.Drawing.SystemColors.ControlLightLight;
+			this.display.DiagramMargin = 40;
 			this.display.DiagramSetController = this.diagramSetController;
 			this.display.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.display.GridColor = System.Drawing.Color.Gainsboro;
+			this.display.GridSize = 19;
 			this.display.ImeMode = System.Windows.Forms.ImeMode.NoControl;
 			this.display.Location = new System.Drawing.Point(0, 0);
 			this.display.Name = "display";
+			this.display.PanMouseButton = System.Windows.Forms.MouseButtons.None;
 			this.display.PropertyController = null;
 			this.display.RenderingQualityHighQuality = Dataweb.NShape.Advanced.RenderingQuality.MaximumQuality;
 			this.display.SelectionHilightColor = System.Drawing.Color.Firebrick;
 			this.display.SelectionInactiveColor = System.Drawing.Color.Gray;
 			this.display.SelectionInteriorColor = System.Drawing.Color.WhiteSmoke;
 			this.display.SelectionNormalColor = System.Drawing.Color.DarkGreen;
+			this.display.ScrollBarsVisible = true;
 			this.display.Size = new System.Drawing.Size(996, 708);
 			this.display.TabIndex = 0;
 			this.display.ToolPreviewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(119)))), ((int)(((byte)(136)))), ((int)(((byte)(153)))));
 			this.display.ToolPreviewColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(70)))), ((int)(((byte)(130)))), ((int)(((byte)(180)))));
+			this.display.ZoomWithMouseWheel = true;
 			// 
 			// diagramSetController
 			// 
@@ -145,6 +149,7 @@
 			// project
 			// 
 			this.project.AutoGenerateTemplates = false;
+			this.project.Description = null;
 			this.project.LibrarySearchPaths = ((System.Collections.Generic.IList<string>)(resources.GetObject("project.LibrarySearchPaths")));
 			this.project.Name = null;
 			this.project.Repository = this.cachedRepository;
@@ -160,10 +165,11 @@
 			// 
 			// xmlStore
 			// 
-			this.xmlStore.BackupGenerationMode = Dataweb.NShape.XmlStore.BackupFileGenerationMode.BakFile;
 			this.xmlStore.DesignFileName = "";
 			this.xmlStore.DirectoryName = "";
 			this.xmlStore.FileExtension = ".nspj";
+			this.xmlStore.ImageLocation = Dataweb.NShape.XmlStore.ImageFileLocation.Directory;
+			this.xmlStore.ProjectFilePath = ".nspj";
 			this.xmlStore.ProjectName = "";
 			// 
 			// toolbox

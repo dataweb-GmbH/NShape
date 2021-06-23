@@ -24,7 +24,7 @@ Partial Class MainForm
 	Private Sub InitializeComponent()
 		Me.components = New System.ComponentModel.Container()
 		Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(MainForm))
-		Dim RoleBasedSecurityManager2 As Dataweb.NShape.RoleBasedSecurityManager = New Dataweb.NShape.RoleBasedSecurityManager()
+		Dim RoleBasedSecurityManager3 As Dataweb.NShape.RoleBasedSecurityManager = New Dataweb.NShape.RoleBasedSecurityManager()
 		Me.DiagramSetController = New Dataweb.NShape.Controllers.DiagramSetController()
 		Me.Project = New Dataweb.NShape.Project(Me.components)
 		Me.CachedRepository = New Dataweb.NShape.Advanced.CachedRepository()
@@ -50,13 +50,13 @@ Partial Class MainForm
 		'
 		'Project
 		'
-		Me.Project.AutoGenerateTemplates = True
+		Me.Project.Description = Nothing
 		Me.Project.LibrarySearchPaths = CType(resources.GetObject("Project.LibrarySearchPaths"), System.Collections.Generic.IList(Of String))
 		Me.Project.Name = ""
 		Me.Project.Repository = Me.CachedRepository
-		RoleBasedSecurityManager2.CurrentRole = Dataweb.NShape.StandardRole.Administrator
-		RoleBasedSecurityManager2.CurrentRoleName = "Administrator"
-		Me.Project.SecurityManager = RoleBasedSecurityManager2
+		RoleBasedSecurityManager3.CurrentRole = Dataweb.NShape.StandardRole.Administrator
+		RoleBasedSecurityManager3.CurrentRoleName = "Administrator"
+		Me.Project.SecurityManager = RoleBasedSecurityManager3
 		'
 		'CachedRepository
 		'
@@ -85,22 +85,30 @@ Partial Class MainForm
 		'Display
 		'
 		Me.Display.AllowDrop = True
-		Me.Display.AutoScroll = True
+		Me.Display.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+			Or System.Windows.Forms.AnchorStyles.Left) _
+			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.Display.AutoSize = True
 		Me.Display.BackColorGradient = System.Drawing.SystemColors.Control
+		Me.Display.BackgroundImage = Global.NShape_Shuffle_Game.My.Resources.Resources.Background
+		Me.Display.DiagramMargin = 40
 		Me.Display.DiagramSetController = Me.DiagramSetController
-		Me.Display.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.Display.GridColor = System.Drawing.Color.White
+		Me.Display.GridSize = 19
 		Me.Display.ImeMode = System.Windows.Forms.ImeMode.NoControl
+		Me.Display.IsGridVisible = False
+		Me.Display.IsSheetVisible = False
 		Me.Display.Location = New System.Drawing.Point(0, 0)
 		Me.Display.Name = "Display"
+		Me.Display.PanMouseButton = System.Windows.Forms.MouseButtons.None
 		Me.Display.PropertyController = Nothing
+		Me.Display.ScrollBarsVisible = False
 		Me.Display.SelectionHilightColor = System.Drawing.Color.Firebrick
 		Me.Display.SelectionInactiveColor = System.Drawing.Color.Gray
 		Me.Display.SelectionInteriorColor = System.Drawing.Color.WhiteSmoke
 		Me.Display.SelectionNormalColor = System.Drawing.Color.DarkGreen
 		Me.Display.ShowDefaultContextMenu = False
-		Me.Display.IsGridVisible = False
-		Me.Display.ShowScrollBars = False
+		Me.Display.ScrollBarsVisible = False
 		Me.Display.Size = New System.Drawing.Size(412, 412)
 		Me.Display.SnapToGrid = False
 		Me.Display.TabIndex = 0
@@ -139,7 +147,7 @@ Partial Class MainForm
 		'
 		Me.MaximumQualityToolStripMenuItem.CheckOnClick = True
 		Me.MaximumQualityToolStripMenuItem.Name = "MaximumQualityToolStripMenuItem"
-		Me.MaximumQualityToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
+		Me.MaximumQualityToolStripMenuItem.Size = New System.Drawing.Size(129, 22)
 		Me.MaximumQualityToolStripMenuItem.Text = "Maximum"
 		'
 		'HighQualityToolStripMenuItem
@@ -148,21 +156,21 @@ Partial Class MainForm
 		Me.HighQualityToolStripMenuItem.CheckOnClick = True
 		Me.HighQualityToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked
 		Me.HighQualityToolStripMenuItem.Name = "HighQualityToolStripMenuItem"
-		Me.HighQualityToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
+		Me.HighQualityToolStripMenuItem.Size = New System.Drawing.Size(129, 22)
 		Me.HighQualityToolStripMenuItem.Text = "High"
 		'
 		'MediumQualityToolStripMenuItem
 		'
 		Me.MediumQualityToolStripMenuItem.CheckOnClick = True
 		Me.MediumQualityToolStripMenuItem.Name = "MediumQualityToolStripMenuItem"
-		Me.MediumQualityToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
+		Me.MediumQualityToolStripMenuItem.Size = New System.Drawing.Size(129, 22)
 		Me.MediumQualityToolStripMenuItem.Text = "Medium"
 		'
 		'LowQualityToolStripMenuItem
 		'
 		Me.LowQualityToolStripMenuItem.CheckOnClick = True
 		Me.LowQualityToolStripMenuItem.Name = "LowQualityToolStripMenuItem"
-		Me.LowQualityToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
+		Me.LowQualityToolStripMenuItem.Size = New System.Drawing.Size(129, 22)
 		Me.LowQualityToolStripMenuItem.Text = "Low"
 		'
 		'MainForm
@@ -174,6 +182,7 @@ Partial Class MainForm
 		Me.Name = "MainForm"
 		Me.Text = "NShape Simple Shuffle Game"
 		Me.ToolStripContainer1.ContentPanel.ResumeLayout(False)
+		Me.ToolStripContainer1.ContentPanel.PerformLayout()
 		Me.ToolStripContainer1.TopToolStripPanel.ResumeLayout(False)
 		Me.ToolStripContainer1.TopToolStripPanel.PerformLayout()
 		Me.ToolStripContainer1.ResumeLayout(False)

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -33,7 +33,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.WinFormsUI.ToolSetListViewPresenter" />.
 		/// </summary>
 		public ToolSetListViewPresenter() {
-			InitializeObjects();
+			InitializeImageLists();
 			InitializeComponent();
 		}
 
@@ -43,7 +43,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public ToolSetListViewPresenter(IContainer container) {
 			container.Add(this);
-			InitializeObjects();
+			InitializeImageLists();
 			InitializeComponent();
 		}
 
@@ -148,8 +148,67 @@ namespace Dataweb.NShape.WinFormsUI {
 			get { return presenterPrivateContextMenu; }
 		}
 
+
+		/// <summary>
+		/// Gets the selected ListViewItem if the presenter's ListView.
+		/// </summary>
+		[Browsable(false)]
+		public ListViewItem SelectedItem {
+			get {
+				ListViewItem result = null;
+				if (_listView != null && _listView.SelectedItems.Count > 0)
+					result = _listView.SelectedItems[0];
+				return result;
+			}
+		}
+
 		#endregion
 
+
+		#region [Public] Methods
+
+		/// <summary>
+		/// Returns the ListViewItem associated with the given tool or null if no such item exists.
+		/// </summary>
+		public ListViewItem FindItem(Tool tool)
+		{
+			ListViewItem result = null;
+			if (tool != null) {
+				foreach (ListViewItem lvi in _listView.Items)
+					if (lvi.Tag == tool) {
+						result = lvi;
+						break;
+					}
+			}
+			return result;
+		}
+
+
+		/// <summary>
+		/// Create and return a ListViewItem for the given tool.
+		/// </summary>
+		public ListViewItem CreateListViewItem(Tool tool)
+		{
+			if (tool == null) throw new ArgumentNullException("tool");
+			ListViewItem item = new ListViewItem(tool.Title, tool.Name);
+			item.ToolTipText = tool.ToolTipText;
+			item.Tag = tool;
+
+			int imgIdx = _smallImageList.Images.IndexOfKey(tool.Name);
+			if (imgIdx < 0) {
+				_smallImageList.Images.Add(tool.Name, tool.SmallIcon);
+				_largeImageList.Images.Add(tool.Name, tool.LargeIcon);
+				imgIdx = _smallImageList.Images.IndexOfKey(tool.Name);
+			}
+			item.ImageIndex = imgIdx;
+
+			if (ListView.Groups.Count > 0)
+				item.Group = FindGroup(tool.Category);
+			
+			return item;
+		}
+
+		#endregion
 
 		#region [Private] Methods: (Un)Registering for events
 
@@ -208,7 +267,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		}
 
 
-		private void InitializeObjects() {
+		private void InitializeImageLists() {
 			_smallImageList = new ImageList();
 			_smallImageList.ColorDepth = ColorDepth.Depth32Bit;
 			_smallImageList.ImageSize = new Size(smallImageSize, smallImageSize);
@@ -243,40 +302,18 @@ namespace Dataweb.NShape.WinFormsUI {
 		}
 
 
-		private ListViewItem FindItem(Tool tool) {
-			ListViewItem result = null;
-			foreach (ListViewItem lvi in _listView.Items)
-				if (lvi.Tag == tool) {
-					result = lvi;
-					break;
+		private ListViewGroup FindGroup(string groupName)
+		{
+			ListViewGroup result = null;
+			if (ListView != null && ListView.Groups.Count > 0) {
+				foreach (ListViewGroup group in ListView.Groups) {
+					if (group.Name == groupName) {
+						result = group;
+						break;
+					}
 				}
+			}
 			return result;
-		}
-
-
-		private ListViewItem CreateItem(Tool tool) {
-			ListViewItem item = new ListViewItem(tool.Title, tool.Name);
-			item.ToolTipText = tool.ToolTipText;
-			item.Tag = tool;
-
-			int imgIdx = _smallImageList.Images.IndexOfKey(tool.Name);
-			if (imgIdx < 0) {
-				_smallImageList.Images.Add(tool.Name, tool.SmallIcon);
-				_largeImageList.Images.Add(tool.Name, tool.LargeIcon);
-				imgIdx = _smallImageList.Images.IndexOfKey(tool.Name);
-			}
-			item.ImageIndex = imgIdx;
-			return item;
-		}
-
-
-		private ListViewItem SelectedItem {
-			get {
-				ListViewItem result = null;
-				if (_listView != null && _listView.SelectedItems.Count > 0)
-					result = _listView.SelectedItems[0];
-				return result;
-			}
 		}
 
 		#endregion
@@ -313,7 +350,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 			if (FindItem(e.Tool) != null)
 				throw new NShapeException(string.Format("Tool {0} already exists.", e.Tool.Title));
-			ListViewItem item = CreateItem(e.Tool);
+			ListViewItem item = CreateListViewItem(e.Tool);
 			// Put the tool into the right group
 			if (!string.IsNullOrEmpty(e.Tool.Category)) {
 				foreach (ListViewGroup group in _listView.Groups) {

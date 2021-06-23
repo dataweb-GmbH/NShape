@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -39,7 +39,6 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Checks whether a name is a valid identifier for NShape.
 		/// </summary>
-		/// <param name="name"></param>
 		public static bool IsValidName(string name) {
 			if (name == null) return false;
 			foreach (char c in name) {
@@ -195,6 +194,15 @@ namespace Dataweb.NShape {
 		public bool AutoLoadLibraries {
 			get { return _autoLoadLibraries; }
 			set { _autoLoadLibraries = value; }
+		}
+
+
+		/// <summary>
+		/// Provides access to the registered diagra model object types.
+		/// </summary>
+		[Browsable(false)]
+		public IReadOnlyDiagramModelObjectTypeCollection DiagramModelObjectTypes {
+			get { return _diagramModelObjectTypes; }
 		}
 
 
@@ -451,6 +459,7 @@ namespace Dataweb.NShape {
 			AssertClosed();
 			_shapeTypes.Clear();
 			_modelObjectTypes.Clear();
+			_diagramModelObjectTypes.Clear();
 			_libraries.Clear();
 		}
 
@@ -573,6 +582,7 @@ namespace Dataweb.NShape {
 			try {
 				// Create and initialize a temporary XML store
 				tmpStore = new XmlStore(stream);
+				tmpStore.LazyLoading = false;
 				tmpStore.ImageLocation = XmlStore.ImageFileLocation.Embedded;
 
 				// Create a new CachedRepository and assign the store
@@ -580,9 +590,13 @@ namespace Dataweb.NShape {
 				cachedRepository.Store = tmpStore;
 
 				// Now open the project
-				this._repository = cachedRepository;
-				this._repository.ProjectName = Name;
-				this.Open();
+				_repository = cachedRepository;
+				_repository.ProjectName = Name;
+				Open();
+				
+				// Iterate diagram objects in order to make sure everything is loaded before 
+				// disposing the temporary XML store
+				foreach (Diagram d in _repository.GetDiagrams()) { }
 
 				// Todo: Find a solution for the following problems:
 				// * When loading the entities from stream, the referenced Id's won't match the Id's of 
@@ -699,6 +713,30 @@ namespace Dataweb.NShape {
 			}
 		}
 
+
+		/// <override></override>
+		void IRegistrar.RegisterDiagramModelObjectType(DiagramModelObjectType diagramModelObjectType)
+		{
+			if (_initializingLibrary == null)
+				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_RegisterDiagramModelObjectTypeCanOnlyBeCalledWhileALibraryIsInitializing);
+			if (string.IsNullOrEmpty(_initializingLibrary.Name))
+				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_RegisterLibraryHasNotBeenCalledOrTheLibraryHasAnEmptyLibraryName);
+			if (diagramModelObjectType == null) throw new ArgumentNullException("diagramModelObjectType");
+			if (!Project.IsValidName(diagramModelObjectType.Name))
+				throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidModelObjectTypeName, diagramModelObjectType.Name);
+			if (diagramModelObjectType.LibraryName != _initializingLibrary.Name)
+				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_AllModelObjectsOfARegisteringLibraryMustHaveTheLibrarySLibraryName);
+			if (diagramModelObjectType.LibraryName != _initializingLibrary.Name)
+				throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_TheLibraryNameOfModelObjectType0Is1InsteadOf2, diagramModelObjectType.GetType().Name, diagramModelObjectType.LibraryName, _initializingLibrary.Name));
+			//
+			_diagramModelObjectTypes.Add(diagramModelObjectType);
+			// Create a delegate that adds required parameters to the CreateModelObjectDelegate 
+			// of the shape when called
+			if (_repository != null && _repository.IsOpen) {
+				RegisterDiagramModelObjectEntityType(diagramModelObjectType, _addingLibrary);
+			}
+		}
+
 		#endregion
 
 
@@ -791,18 +829,28 @@ namespace Dataweb.NShape {
 		}
 
 
-		private void RegisterShapeEntityType(ShapeType shapeType, bool create) {
-			int version = FindLibraryVersion(shapeType.LibraryName, create);
-			IEntityType entityType = new EntityType(shapeType.FullName, EntityCategory.Shape,
-				version, () => shapeType.CreateInstanceForLoading(), shapeType.GetPropertyDefinitions(version));
+		private void RegisterDiagramModelObjectEntityType(DiagramModelObjectType diagramModelObjectType, bool create)
+		{
+			int version = FindLibraryVersion(diagramModelObjectType.LibraryName, create);
+			IEntityType entityType = new EntityType(diagramModelObjectType.FullName, EntityCategory.ModelObject,
+				version, () => diagramModelObjectType.CreateInstance(), diagramModelObjectType.GetPropertyDefinitions(version));
 			_repository.AddEntityType(entityType);
 		}
 
 
-		private void RegisterModelObjectEntityType(ModelObjectType modelObjectType, bool create) {
+		private void RegisterModelObjectEntityType(ModelObjectType modelObjectType, bool create)
+		{
 			int version = FindLibraryVersion(modelObjectType.LibraryName, create);
 			IEntityType entityType = new EntityType(modelObjectType.FullName, EntityCategory.ModelObject,
 				version, () => modelObjectType.CreateInstance(), modelObjectType.GetPropertyDefinitions(version));
+			_repository.AddEntityType(entityType);
+		}
+
+
+		private void RegisterShapeEntityType(ShapeType shapeType, bool create) {
+			int version = FindLibraryVersion(shapeType.LibraryName, create);
+			IEntityType entityType = new EntityType(shapeType.FullName, EntityCategory.Shape,
+				version, () => shapeType.CreateInstanceForLoading(), shapeType.GetPropertyDefinitions(version));
 			_repository.AddEntityType(entityType);
 		}
 
@@ -863,6 +911,7 @@ namespace Dataweb.NShape {
 				_repository.Close();
 				_repository.RemoveAllEntityTypes();
 			}
+			_diagramModelObjectTypes.Clear();
 			_modelObjectTypes.Clear();
 			_shapeTypes.Clear();
 			if (create) {
@@ -941,6 +990,10 @@ namespace Dataweb.NShape {
 			foreach (Library l in _libraries)
 				DoRegisterLibrary(l, true);
 
+			// Register static diagram model entity types
+			foreach (DiagramModelObjectType dmot in _diagramModelObjectTypes)
+				if (!dmot.LibraryName.Equals(CoreLibraryName, StringComparison.InvariantCultureIgnoreCase))
+					RegisterDiagramModelObjectEntityType(dmot, create);
 			// Register static model entity types
 			foreach (ModelObjectType mot in _modelObjectTypes)
 				if (!mot.LibraryName.Equals(CoreLibraryName, StringComparison.InvariantCultureIgnoreCase))
@@ -973,6 +1026,8 @@ namespace Dataweb.NShape {
 			// Register the framework's mandatory core library model object types
 			foreach (ModelObjectType modelObjectType in CreateCoreLibraryModelObjectTypes())
 				registrar.RegisterModelObjectType(modelObjectType);
+			foreach (DiagramModelObjectType diagramModelObjectType in CreateCoreLibraryDiagramModelObjectTypes())
+				registrar.RegisterDiagramModelObjectType(diagramModelObjectType);
 			_initializingLibrary = null;
 			//
 			// Register the framework's mandatory core shape and model object entity types
@@ -1071,6 +1126,16 @@ namespace Dataweb.NShape {
 
 
 		/// <summary>
+		/// Creates model object types for all mandatory framework model objects such as GenericModelObject.
+		/// </summary>
+		private IEnumerable<DiagramModelObjectType> CreateCoreLibraryDiagramModelObjectTypes()
+		{
+			yield return new GenericDiagramModelObjectType(GenericModelObjectName, CoreLibraryName, CoreLibraryName,
+				GenericDiagramModelObject.CreateInstance, GenericModelObject.GetPropertyDefinitions);
+		}
+
+
+		/// <summary>
 		/// Creates entity types for all mandatory framework model object entities such as GenericModelObject.
 		/// </summary>
 		private IEnumerable<IEntityType> CreateCoreLibraryModelObjectEntityTypes(int version) {
@@ -1122,6 +1187,7 @@ namespace Dataweb.NShape {
 			if (library == null) throw new ArgumentNullException("library");
 			List<ShapeType> registeredShapeTypes = new List<ShapeType>(GetRegisteredShapeTypes(library));
 			List<ModelObjectType> registeredModelObjectTypes = new List<ModelObjectType>(GetRegisteredModelObjectTypes(library));
+			List<DiagramModelObjectType> registeredDiagramModelObjectType = new List<DiagramModelObjectType>(GetRegisteredDiagramModelObjectTypes(library));
 			List<Template> registeredShapeTypeTemplates = new List<Template>();
 			bool canRemove = true;
 			// Get and check all corresponding templates if they are referenced by shapes.
@@ -1211,6 +1277,23 @@ namespace Dataweb.NShape {
 				foreach (Library library in libraries) {
 					if (modelObjectType.LibraryName == library.Name)
 						yield return modelObjectType;
+				}
+			}
+		}
+
+
+		private IEnumerable<DiagramModelObjectType> GetRegisteredDiagramModelObjectTypes(Library library)
+		{
+			return GetRegisteredDiagramModelObjectTypes(SingleInstanceEnumerator<Library>.Create(library));
+		}
+
+
+		private IEnumerable<DiagramModelObjectType> GetRegisteredDiagramModelObjectTypes(IEnumerable<Library> libraries)
+		{
+			foreach (DiagramModelObjectType diagramModelObjectType in _diagramModelObjectTypes) {
+				foreach (Library library in libraries) {
+					if (diagramModelObjectType.LibraryName == library.Name)
+						yield return diagramModelObjectType;
 				}
 			}
 		}
@@ -1454,8 +1537,8 @@ namespace Dataweb.NShape {
 		public const string InitializeMethodName = "Initialize";
 
 		// Supported repository versions of the Core library:
-		internal const int LastSupportedSaveVersion = 6;
-		internal const int LastSupportedLoadVersion = 6;
+		internal const int LastSupportedSaveVersion = 7;
+		internal const int LastSupportedLoadVersion = 7;
 		// NShape 1.0.0 was released using repository version 2.
 		internal const int FirstSupportedSaveVersion = 2;
 		internal const int FirstSupportedLoadVersion = 2;
@@ -1473,6 +1556,7 @@ namespace Dataweb.NShape {
 		// -- Constituting Sub-Objects --
 		private ShapeTypeCollection _shapeTypes = new ShapeTypeCollection();
 		private ModelObjectTypeCollection _modelObjectTypes = new ModelObjectTypeCollection();
+		private DiagramModelObjectTypeCollection _diagramModelObjectTypes = new DiagramModelObjectTypeCollection();
 		private IRepository _repository = null;
 		private History _history = null;
 		private ISecurityManager _security = new RoleBasedSecurityManager();

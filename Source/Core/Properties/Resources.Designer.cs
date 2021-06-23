@@ -19,7 +19,7 @@ namespace Dataweb.NShape.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -610,6 +610,26 @@ namespace Dataweb.NShape.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] HandGrabCursor {
+            get {
+                object obj = ResourceManager.GetObject("HandGrabCursor", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] HandOpenCursor {
+            get {
+                object obj = ResourceManager.GetObject("HandOpenCursor", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         public static System.Drawing.Bitmap Invisible {
@@ -667,11 +687,29 @@ namespace Dataweb.NShape.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} &apos;{1}&apos; is already attached to a diagram..
+        /// </summary>
+        public static string MessageFmt_01IsAlreadyAttachedToADiagram {
+            get {
+                return ResourceManager.GetString("MessageFmt_01IsAlreadyAttachedToADiagram", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} &apos;{1}&apos; is already attached to this shape..
         /// </summary>
         public static string MessageFmt_01IsAlreadyAttachedToThisShape {
             get {
                 return ResourceManager.GetString("MessageFmt_01IsAlreadyAttachedToThisShape", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} &apos;{1}&apos; is not attached to a diagram..
+        /// </summary>
+        public static string MessageFmt_01IsNotAttachedToADiagram {
+            get {
+                return ResourceManager.GetString("MessageFmt_01IsNotAttachedToADiagram", resourceCulture);
             }
         }
         
@@ -2188,6 +2226,15 @@ namespace Dataweb.NShape.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Diagram model object is in use..
+        /// </summary>
+        public static string MessageTxt_DiagramModelObjectIsInUse {
+            get {
+                return ResourceManager.GetString("MessageTxt_DiagramModelObjectIsInUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Diagram not found in repository..
         /// </summary>
         public static string MessageTxt_DiagramNotFoundInRepository {
@@ -2607,6 +2654,16 @@ namespace Dataweb.NShape.Properties {
         public static string MessageTxt_PropertyProjectIsNotSet {
             get {
                 return ResourceManager.GetString("MessageTxt_PropertyProjectIsNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;RegisterDiagramModelObjectType&apos; can only be called while a library is initializing..
+        /// </summary>
+        public static string MessageTxt_RegisterDiagramModelObjectTypeCanOnlyBeCalledWhileALibraryIsInitializing {
+            get {
+                return ResourceManager.GetString("MessageTxt_RegisterDiagramModelObjectTypeCanOnlyBeCalledWhileALibraryIsInitializi" +
+                        "ng", resourceCulture);
             }
         }
         
@@ -4405,15 +4462,6 @@ namespace Dataweb.NShape.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
-        public static string String1 {
-            get {
-                return ResourceManager.GetString("String1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to General.
         /// </summary>
         public static string Text_CategoryGeneral {
@@ -4441,6 +4489,33 @@ namespace Dataweb.NShape.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Create.
+        /// </summary>
+        public static string Text_Create {
+            get {
+                return ResourceManager.GetString("Text_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cut.
+        /// </summary>
+        public static string Text_Cut {
+            get {
+                return ResourceManager.GetString("Text_Cut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string Text_Delete {
+            get {
+                return ResourceManager.GetString("Text_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to layer.
         /// </summary>
         public static string Text_Layer {
@@ -4455,6 +4530,15 @@ namespace Dataweb.NShape.Properties {
         public static string Text_Layers {
             get {
                 return ResourceManager.GetString("Text_Layers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paste.
+        /// </summary>
+        public static string Text_Paste {
+            get {
+                return ResourceManager.GetString("Text_Paste", resourceCulture);
             }
         }
         

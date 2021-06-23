@@ -25,7 +25,7 @@
 		private void InitializeComponent() {
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-			Dataweb.NShape.RoleBasedSecurityManager roleBasedSecurityManager3 = new Dataweb.NShape.RoleBasedSecurityManager();
+			Dataweb.NShape.RoleBasedSecurityManager roleBasedSecurityManager1 = new Dataweb.NShape.RoleBasedSecurityManager();
 			this.diagramSetController = new Dataweb.NShape.Controllers.DiagramSetController();
 			this.project = new Dataweb.NShape.Project(this.components);
 			this.cachedRepository = new Dataweb.NShape.Advanced.CachedRepository();
@@ -124,12 +124,13 @@
 			// project
 			// 
 			this.project.AutoLoadLibraries = true;
+			this.project.Description = null;
 			this.project.LibrarySearchPaths = ((System.Collections.Generic.IList<string>)(resources.GetObject("project.LibrarySearchPaths")));
 			this.project.Name = null;
 			this.project.Repository = this.cachedRepository;
-			roleBasedSecurityManager3.CurrentRole = Dataweb.NShape.StandardRole.Administrator;
-			roleBasedSecurityManager3.CurrentRoleName = "Administrator";
-			this.project.SecurityManager = roleBasedSecurityManager3;
+			roleBasedSecurityManager1.CurrentRole = Dataweb.NShape.StandardRole.Administrator;
+			roleBasedSecurityManager1.CurrentRoleName = "Administrator";
+			this.project.SecurityManager = roleBasedSecurityManager1;
 			// 
 			// cachedRepository
 			// 
@@ -142,6 +143,8 @@
 			this.xmlStore.DesignFileName = "";
 			this.xmlStore.DirectoryName = "";
 			this.xmlStore.FileExtension = ".xml";
+			this.xmlStore.ImageLocation = Dataweb.NShape.XmlStore.ImageFileLocation.Directory;
+			this.xmlStore.ProjectFilePath = ".xml";
 			this.xmlStore.ProjectName = "";
 			// 
 			// propertyController
@@ -205,6 +208,7 @@
 			this.display1.AllowDrop = true;
 			this.display1.BackColorGradient = System.Drawing.SystemColors.Control;
 			this.display1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.display1.DiagramMargin = 40;
 			this.display1.DiagramSetController = this.diagramSetController;
 			this.display1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.display1.GridColor = System.Drawing.Color.Gainsboro;
@@ -212,15 +216,18 @@
 			this.display1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
 			this.display1.Location = new System.Drawing.Point(0, 0);
 			this.display1.Name = "display1";
+			this.display1.PanMouseButton = ((System.Windows.Forms.MouseButtons)((System.Windows.Forms.MouseButtons.Right | System.Windows.Forms.MouseButtons.Middle)));
 			this.display1.PropertyController = this.propertyController;
 			this.display1.SelectionHilightColor = System.Drawing.Color.Firebrick;
 			this.display1.SelectionInactiveColor = System.Drawing.Color.Gray;
 			this.display1.SelectionInteriorColor = System.Drawing.Color.WhiteSmoke;
 			this.display1.SelectionNormalColor = System.Drawing.Color.DarkGreen;
+			this.display1.ScrollBarsVisible = true;
 			this.display1.Size = new System.Drawing.Size(748, 682);
 			this.display1.TabIndex = 0;
 			this.display1.ToolPreviewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(119)))), ((int)(((byte)(136)))), ((int)(((byte)(153)))));
 			this.display1.ToolPreviewColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(70)))), ((int)(((byte)(130)))), ((int)(((byte)(180)))));
+			this.display1.ZoomWithMouseWheel = true;
 			// 
 			// splitContainer3
 			// 

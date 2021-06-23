@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -33,7 +33,7 @@ namespace Dataweb.NShape.GeneralShapes {
 			registrar.RegisterShapeType(new ShapeType("CircularArc", namespaceName, namespaceName,
 				"With only two points, it behaves like a straight line, with all three points, it behaves like a circular arc.",
 				CircularArc.CreateInstance, CircularArc.GetPropertyDefinitions));
-			
+
 			// Register text shapes
 			registrar.RegisterShapeType(new ShapeType("Text", namespaceName, namespaceName,
 				"Supports automatic sizing to its text.",
@@ -79,7 +79,7 @@ namespace Dataweb.NShape.GeneralShapes {
 
 			// Register other shapes
 			registrar.RegisterShapeType(new ShapeType("ThickArrow", namespaceName, namespaceName,
-				delegate(ShapeType shapeType, Template t) { return (Shape)new ThickArrow(shapeType, t); },
+				delegate (ShapeType shapeType, Template t) { return new ThickArrow(shapeType, t); },
 				ThickArrow.GetPropertyDefinitions));
 			registrar.RegisterShapeType(new ShapeType("Picture", namespaceName, namespaceName,
 				Picture.CreateInstance, Picture.GetPropertyDefinitions,

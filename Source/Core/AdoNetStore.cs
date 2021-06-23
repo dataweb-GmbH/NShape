@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -47,6 +47,8 @@ namespace Dataweb.NShape {
 		InsertModelModelObject,
 		/// <summary>Inserts a model object or a child model object of a parent model object.</summary>
 		InsertChildModelObject,
+		/// <summary>Inserts a single diagram model object.</summary>
+		InsertDiagramModelObject,
 		/// <summary>Updates an entity of the given type.</summary>
 		Update,
 		/// <summary>Sets the owner of a shape to the given diagram.</summary>
@@ -79,6 +81,8 @@ namespace Dataweb.NShape {
 		SelectModelModelObjects,
 		/// <summary>Selects model objects with a given parent model object.</summary>
 		SelectChildModelObjects,
+		/// <summary>Selects diagram model objects.</summary>
+		SelectDiagramModelObjects,
 		/// <summary>Checks whether the template with the given id is used in shapes that are currently not loaded.</summary>
 		CheckTemplateInUse,
 		/// <summary>Checks whether the style with the given id is used in shapes that are currently not loaded.</summary>
@@ -164,7 +168,7 @@ namespace Dataweb.NShape {
 			: base(MessageFmt_CommandForLoadingEntitiesDoesNotExist, entityTypeName, filterEntityTypeName) {
 		}
 
-		
+
 		private const string MessageFmt_NotAllRequiredCommandsExist = "Not all required commands exist for loading and/or saving entities of type '{0}'.";
 		private const string MessageFmt_CommandFor0EntitiesOfType1DoesNotExist = "Command for {0} entities of type '{1}' does not exist.";
 		private const string MessageFmt_CommandForLoadingEntitiesDoesNotExist = "Command for loading entities of type '{1}' filtered by Id of '{1}' does not exist.";
@@ -290,7 +294,7 @@ namespace Dataweb.NShape {
 				((DbParameter)cmd.Parameters[0]).Value = _projectName;
 				cmd.ExecuteNonQuery();
 			} finally {
-				_commands.Clear();	// Unload all commands
+				_commands.Clear();  // Unload all commands
 				if (dataSourceOpened) EnsureDataSourceClosed();
 			}
 		}
@@ -329,12 +333,12 @@ namespace Dataweb.NShape {
 				// Children first, owners afterwards
 				foreach (EntityType et in cache.EntityTypes)
 					if (et.Category == EntityCategory.ModelObject)
-						DeleteEntities<IModelObject>(cache, et, cache.LoadedModelObjects, delegate(IModelObject s, IEntity o) { return s.Type.FullName == et.FullName; });
+						DeleteEntities<IModelObject>(cache, et, cache.LoadedModelObjects, delegate (IModelObject s, IEntity o) { return s.Type.FullName == et.FullName; });
 				DeleteEntities<Model>(cache, cache.FindEntityTypeByName(Model.EntityTypeName), cache.LoadedModels, null);
 				DeleteShapeConnections(cache);
 				foreach (EntityType et in cache.EntityTypes)
 					if (et.Category == EntityCategory.Shape)
-						DeleteEntities<Shape>(cache, et, cache.LoadedShapes, delegate(Shape s, IEntity o) { return s.Type.FullName == et.FullName; });
+						DeleteEntities<Shape>(cache, et, cache.LoadedShapes, delegate (Shape s, IEntity o) { return s.Type.FullName == et.FullName; });
 				DeleteEntities<Diagram>(cache, cache.FindEntityTypeByName(Diagram.EntityTypeName), cache.LoadedDiagrams, null);
 				DeleteEntities<IModelMapping>(cache, cache.FindEntityTypeByName(NumericModelMapping.EntityTypeName), cache.LoadedModelMappings, (s, o) => s is NumericModelMapping);
 				DeleteEntities<IModelMapping>(cache, cache.FindEntityTypeByName(FormatModelMapping.EntityTypeName), cache.LoadedModelMappings, (s, o) => s is FormatModelMapping);
@@ -383,7 +387,7 @@ namespace Dataweb.NShape {
 				// Flush model
 				InsertEntities<Model>(cache, cache.FindEntityTypeByName(Model.EntityTypeName), cache.NewModels, null);
 				// Flush model objects
-				foreach (EntityType et in cache.EntityTypes)
+				foreach (EntityType et in cache.EntityTypes) {
 					if (et.Category == EntityCategory.ModelObject) {
 						// Flush parents first, then children
 						InsertEntities<IModelObject>(cache, et, cache.NewModelObjects, GetCommand(et.FullName, RepositoryCommandType.InsertModelModelObject),
@@ -391,6 +395,15 @@ namespace Dataweb.NShape {
 						InsertEntities<IModelObject>(cache, et, cache.NewModelObjects, GetCommand(et.FullName, RepositoryCommandType.InsertModelModelObject),
 							(m, o) => (m.Parent != null && m.Type.FullName == et.FullName && !(o is Template)));
 					}
+				}
+				// Flush diagram model objects
+				if (Version >= 7) {
+					foreach (EntityType et in cache.EntityTypes) {
+						if (et.Category == EntityCategory.DiagramModelObject)
+							InsertEntities<IDiagramModelObject>(cache, et, cache.NewDiagramModelObjects, GetCommand(et.FullName, RepositoryCommandType.InsertDiagramModelObject),
+								(m, o) => m.Type.FullName == et.FullName);
+					}
+				}
 				// Flush diagrams and their shapes
 				InsertEntities<Diagram>(cache, cache.FindEntityTypeByName(Diagram.EntityTypeName), cache.NewDiagrams, null);
 				foreach (EntityType et in cache.EntityTypes)
@@ -408,7 +421,7 @@ namespace Dataweb.NShape {
 					foreach (EntityType et in cache.EntityTypes)
 						if (et.Category == EntityCategory.Shape)
 							InsertEntities<Shape>(cache, et, cache.NewShapes, GetCommand(et.FullName, RepositoryCommandType.InsertChildShape),
-								delegate(Shape s, IEntity o) { if (((IEntity)s).Id != null) return false; else { allInserted = false; return s.Type.FullName == et.FullName && ((IEntity)s.Parent).Id != null; } });
+								delegate (Shape s, IEntity o) { if (((IEntity)s).Id != null) return false; else { allInserted = false; return s.Type.FullName == et.FullName && ((IEntity)s.Parent).Id != null; } });
 				} while (!allInserted);
 				InsertShapeConnections(cache);
 				UpdateShapeOwners(cache);
@@ -426,7 +439,7 @@ namespace Dataweb.NShape {
 				UpdateEntities<Model>(cache, cache.FindEntityTypeByName(Model.EntityTypeName), cache.LoadedModels, null);
 				foreach (EntityType et in cache.EntityTypes)
 					if (et.Category == EntityCategory.ModelObject)
-						UpdateEntities<IModelObject>(cache, et, cache.LoadedModelObjects, delegate(IModelObject s, IEntity o) { return s.Type.FullName == et.FullName; });
+						UpdateEntities<IModelObject>(cache, et, cache.LoadedModelObjects, delegate (IModelObject s, IEntity o) { return s.Type.FullName == et.FullName; });
 				UpdateEntities<Template>(cache, cache.FindEntityTypeByName(Template.EntityTypeName), cache.LoadedTemplates, null);
 				UpdateEntities<IModelMapping>(cache, cache.FindEntityTypeByName(NumericModelMapping.EntityTypeName), cache.LoadedModelMappings, (s, o) => s is NumericModelMapping);
 				UpdateEntities<IModelMapping>(cache, cache.FindEntityTypeByName(FormatModelMapping.EntityTypeName), cache.LoadedModelMappings, (s, o) => s is FormatModelMapping);
@@ -434,7 +447,7 @@ namespace Dataweb.NShape {
 				UpdateEntities<Diagram>(cache, cache.FindEntityTypeByName(Diagram.EntityTypeName), cache.LoadedDiagrams, null);
 				foreach (EntityType et in cache.EntityTypes)
 					if (et.Category == EntityCategory.Shape)
-						UpdateEntities<Shape>(cache, et, cache.LoadedShapes, delegate(Shape s, IEntity o) { return s.Type.FullName == et.FullName; });
+						UpdateEntities<Shape>(cache, et, cache.LoadedShapes, delegate (Shape s, IEntity o) { return s.Type.FullName == et.FullName; });
 				if (transactional) _transaction.Commit();
 			} catch (Exception exc) {
 				Debug.Print(exc.Message);
@@ -701,6 +714,29 @@ namespace Dataweb.NShape {
 
 
 		/// <override></override>
+		public override void LoadDiagramModelObjects(IStoreCache cache, object modelId) {
+			if (cache == null) throw new ArgumentNullException("cache");
+			if (modelId == null) throw new ArgumentNullException("modelId");
+			bool dataSourceOpened = EnsureDataSourceOpen();
+			try {
+				if (Version >= 7) {
+					// Load all root model objects of the model
+					foreach (EntityType et in cache.EntityTypes) {
+						if (et.Category == EntityCategory.DiagramModelObject) {
+							foreach (EntityBucket<IDiagramModelObject> mb in LoadEntities<IDiagramModelObject>(cache, et, id => !cache.LoadedDiagramModelObjects.Contains(id),
+								id => cache.Project, RepositoryCommandType.SelectDiagramModelObjects, modelId)) {
+								cache.LoadedDiagramModelObjects.Add(mb);
+							}
+						}
+					}
+				}
+			} finally {
+				if (dataSourceOpened) EnsureDataSourceClosed();
+			}
+		}
+
+
+		/// <override></override>
 		public override bool CheckTemplateInUse(IStoreCache cache, object templateId) {
 			if (cache == null) throw new ArgumentNullException("cache");
 			if (templateId == null) throw new ArgumentNullException("styleId");
@@ -711,11 +747,11 @@ namespace Dataweb.NShape {
 				command.Prepare();
 				// We have to check all shapes in all diagrams of the project that are *not* loaded
 				// because the already loaded diagrams may have been modified, deleted, etc.
-				
+
 				foreach (Diagram diagram in ((IRepository)cache).GetDiagrams()) {
 					EntityBucket<Diagram> diagramBucket = cache.LoadedDiagrams[((IEntity)diagram).Id];
 					if (!(diagramBucket.State == ItemState.Original && diagramBucket.ObjectRef.Shapes.Count == 0))
-						continue;	// As long as partial diagram loading is not supported, this check is sufficient
+						continue;   // As long as partial diagram loading is not supported, this check is sufficient
 					command.Parameters["Project"].Value = cache.ProjectId;
 					command.Parameters["Diagram"].Value = ((IEntity)diagram).Id;
 					command.Parameters["Template"].Value = templateId;
@@ -744,7 +780,7 @@ namespace Dataweb.NShape {
 				foreach (Diagram diagram in ((IRepository)cache).GetDiagrams()) {
 					EntityBucket<Diagram> diagramBucket = cache.LoadedDiagrams[((IEntity)diagram).Id];
 					if (!(diagramBucket.State == ItemState.Original && diagramBucket.ObjectRef.Shapes.Count == 0))
-						continue;	// As long as partial diagram loading is not supported, this check is sufficient
+						continue;   // As long as partial diagram loading is not supported, this check is sufficient
 					command.Parameters["Project"].Value = cache.ProjectId;
 					command.Parameters["Diagram"].Value = ((IEntity)diagram).Id;
 					command.Parameters["ModelObject"].Value = modelObjectId;
@@ -772,7 +808,7 @@ namespace Dataweb.NShape {
 				foreach (Diagram diagram in ((IRepository)cache).GetDiagrams()) {
 					EntityBucket<Diagram> diagramBucket = cache.LoadedDiagrams[((IEntity)diagram).Id];
 					if (!(diagramBucket.State == ItemState.Original && diagramBucket.ObjectRef.Shapes.Count == 0))
-						continue;	// As long as partial diagram loading is not supported, this check is sufficient
+						continue;   // As long as partial diagram loading is not supported, this check is sufficient
 					command.Parameters["Project"].Value = cache.ProjectId;
 					command.Parameters["Diagram"].Value = ((IEntity)diagram).Id;
 					command.Parameters["Style"].Value = styleId;
@@ -851,7 +887,20 @@ namespace Dataweb.NShape {
 		#region [Public] Methods: Obtaining Commands
 
 		/// <summary>
-		/// Retrieves a command text for inserting a command into the database.
+		/// Retrieves a command text for checking whether the 'SysCommand' table exists.
+		/// </summary>
+		public virtual IDbCommand GetSysCommandTableExistsCommand() {
+			IDbCommand result = CreateCommand(
+				"IF EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'SysCommand') " +
+				"	SELECT 1 AS res ELSE SELECT 0 AS res");
+			result.Connection = Connection;
+			return result;
+		}
+
+
+		/// <summary>
+		/// Retrieves a command text for creating sys commands entries.
+		/// Table SysCommand contains all SQL commands for loading/saving the repository from/to the database.
 		/// </summary>
 		public virtual IDbCommand GetInsertSysCommandCommand() {
 			IDbCommand result = CreateCommand(
@@ -1118,18 +1167,24 @@ namespace Dataweb.NShape {
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
 				try {
-					LoadSysCommands();
+					bool sysCommandsTableExists;
+					using (IDbCommand command = GetSysCommandTableExistsCommand())
+						sysCommandsTableExists = Convert.ToInt64(command.ExecuteScalar()) == 1;
+
+					if (sysCommandsTableExists) {
+						LoadSysCommands();
+
+						IDbCommand dropCommand = GetCommand("All", RepositoryCommandType.Delete);
+						dropCommand.Connection = _connection;
+						dropCommand.ExecuteNonQuery();
+					}
 				} catch (DbException exc) {
 					if (exc.ErrorCode == -2146232060) {
 						// Assumption: No SysCommand table available, i.e. no NShape tables present
-						Debug.Print(exc.Message);
+						Trace.TraceWarning(exc.Message);
 						return;
 					} else throw exc;
 				}
-				IDbCommand dropCommand = GetCommand("All", RepositoryCommandType.Delete);
-				dropCommand.Connection = _connection;
-				dropCommand.ExecuteNonQuery();
-
 			} finally {
 				ClearCommands();
 				if (dataSourceOpened) EnsureDataSourceClosed();
@@ -1161,7 +1216,13 @@ namespace Dataweb.NShape {
 									(DbType)Enum.Parse(typeof(DbType), paramReader.GetString(1))));
 							}
 						}
-						_commands.Add(ck, command);
+						if (command.CommandText.Contains("@") && command.Parameters.Count == 0) {
+							// Skip command if command text contains parameters but no parameters were found in the parameters table
+							Debug.Print(string.Format("No command parameters found for entity type '{0}'", ck.EntityTypeName));
+						} else {
+							// Add command
+							_commands.Add(ck, command);
+						}
 					} // while loop
 				} // using commandReader
 			} finally {
@@ -1271,7 +1332,7 @@ namespace Dataweb.NShape {
 						if (idFilter(id)) {
 							// Read the fields
 							object parentId = repositoryReader.ReadId();
-							TEntity entity = (TEntity)entityType.CreateInstanceForLoading();
+							TEntity entity = entityType.CreateInstanceForLoading<TEntity>();
 							entity.AssignId(id);
 							entity.LoadFields(repositoryReader, version);
 							int pix = 0;
@@ -1448,7 +1509,7 @@ namespace Dataweb.NShape {
 						break;
 					case ItemState.Deleted:
 					case ItemState.Original:
-						continue;	// nothing to do
+						continue;   // nothing to do
 					default:
 						throw new NShapeUnsupportedValueException(ei.State.GetType(), ei.State);
 				}
@@ -2103,7 +2164,7 @@ namespace Dataweb.NShape {
 			protected override void DoBeginWriteInnerObjects() {
 				++PropertyIndex;
 				ValidateInnerObjectsIndex();
-				if (!(PropertyInfos[PropertyIndex] is EntityInnerObjectsDefinition)) 
+				if (!(PropertyInfos[PropertyIndex] is EntityInnerObjectsDefinition))
 					throw new AdoNetStoreException(ResourceStrings.MessageTxt_PropertyIsNotAnInnerObjectsProperty);
 				//
 				EntityInnerObjectsDefinition innerInfo = (EntityInnerObjectsDefinition)PropertyInfos[PropertyIndex];
@@ -2647,8 +2708,7 @@ namespace Dataweb.NShape {
 		private void LoadChildShapes(IStoreCache cache, Shape s) {
 			foreach (EntityType et in cache.EntityTypes) {
 				if (et.Category == EntityCategory.Shape) {
-					foreach (EntityBucket<Shape> sb
-						in LoadEntities<Shape>(cache, et, id => true, pid => s, RepositoryCommandType.SelectChildShapes, ((IEntity)s).Id)) {
+					foreach (EntityBucket<Shape> sb in LoadEntities<Shape>(cache, et, id => true, pid => s, RepositoryCommandType.SelectChildShapes, ((IEntity)s).Id)) {
 						cache.LoadedShapes.Add(sb);
 						s.Children.Add(sb.ObjectRef);
 					}

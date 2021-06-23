@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -111,6 +111,9 @@ namespace Dataweb.NShape.Advanced {
 		IModelObject GetModelObject(object id);
 
 		/// <ToBeCompleted></ToBeCompleted>
+		IDiagramModelObject GetDiagramModelObject(object id);
+
+		/// <ToBeCompleted></ToBeCompleted>
 		Design GetDesign(object id);
 
 		//---------
@@ -175,8 +178,14 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		IEnumerable<KeyValuePair<IModelObject, IEntity>> NewModelObjects { get; }
 
+		/// <ToBeCompleted></ToBeCompleted>
+		ICacheCollection<IDiagramModelObject> LoadedDiagramModelObjects { get; }
+
+		/// <ToBeCompleted></ToBeCompleted>
+		IEnumerable<KeyValuePair<IDiagramModelObject, IEntity>> NewDiagramModelObjects { get; }
+
 	}
-	
+
 	#endregion
 
 
@@ -333,6 +342,15 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="cache">Store cache associated with this store.</param>
 		/// <param name="parentModelObjectId">Id of the parent model object.</param>
 		public abstract void LoadChildModelObjects(IStoreCache cache, object parentModelObjectId);
+
+
+		/// <summary>
+		/// Loads all diagram model objects of the given project into the given store cache.
+		/// </summary>
+		/// <remarks>
+		/// If the project's dagram model ojects have already been loaded, this method does nothing.
+		/// </remarks>
+		public abstract void LoadDiagramModelObjects(IStoreCache cache, object projectId);
 
 
 		/// <summary>

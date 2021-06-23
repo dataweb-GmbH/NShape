@@ -48,9 +48,9 @@
 			this.hideDeniedMenuItemsCheckBox = new System.Windows.Forms.CheckBox();
 			this.colorDialog = new System.Windows.Forms.ColorDialog();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
-			this.showSheetCheckBox = new System.Windows.Forms.CheckBox();
-			this.wheelZoomCheckBox = new System.Windows.Forms.CheckBox();
 			this.hideScrollBarsCheckBox = new System.Windows.Forms.CheckBox();
+			this.wheelZoomCheckBox = new System.Windows.Forms.CheckBox();
+			this.showSheetCheckBox = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.gridSizeUpDown)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.snapDistanceUpDown)).BeginInit();
 			this.groupBox1.SuspendLayout();
@@ -329,15 +329,15 @@
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "Display Settings";
 			// 
-			// showSheetCheckBox
+			// hideScrollBarsCheckBox
 			// 
-			this.showSheetCheckBox.AutoSize = true;
-			this.showSheetCheckBox.Location = new System.Drawing.Point(6, 65);
-			this.showSheetCheckBox.Name = "showSheetCheckBox";
-			this.showSheetCheckBox.Size = new System.Drawing.Size(126, 17);
-			this.showSheetCheckBox.TabIndex = 18;
-			this.showSheetCheckBox.Text = "Show Diagram Sheet";
-			this.showSheetCheckBox.UseVisualStyleBackColor = true;
+			this.hideScrollBarsCheckBox.AutoSize = true;
+			this.hideScrollBarsCheckBox.Location = new System.Drawing.Point(6, 42);
+			this.hideScrollBarsCheckBox.Name = "hideScrollBarsCheckBox";
+			this.hideScrollBarsCheckBox.Size = new System.Drawing.Size(101, 17);
+			this.hideScrollBarsCheckBox.TabIndex = 20;
+			this.hideScrollBarsCheckBox.Text = "Hide Scroll Bars";
+			this.hideScrollBarsCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// wheelZoomCheckBox
 			// 
@@ -349,15 +349,15 @@
 			this.wheelZoomCheckBox.Text = "Zoom with Mouse Wheel";
 			this.wheelZoomCheckBox.UseVisualStyleBackColor = true;
 			// 
-			// hideScrollBarsCheckBox
+			// showSheetCheckBox
 			// 
-			this.hideScrollBarsCheckBox.AutoSize = true;
-			this.hideScrollBarsCheckBox.Location = new System.Drawing.Point(6, 42);
-			this.hideScrollBarsCheckBox.Name = "hideScrollBarsCheckBox";
-			this.hideScrollBarsCheckBox.Size = new System.Drawing.Size(101, 17);
-			this.hideScrollBarsCheckBox.TabIndex = 20;
-			this.hideScrollBarsCheckBox.Text = "Hide Scroll Bars";
-			this.hideScrollBarsCheckBox.UseVisualStyleBackColor = true;
+			this.showSheetCheckBox.AutoSize = true;
+			this.showSheetCheckBox.Location = new System.Drawing.Point(6, 65);
+			this.showSheetCheckBox.Name = "showSheetCheckBox";
+			this.showSheetCheckBox.Size = new System.Drawing.Size(126, 17);
+			this.showSheetCheckBox.TabIndex = 18;
+			this.showSheetCheckBox.Text = "Show Diagram Sheet";
+			this.showSheetCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// DisplaySettingsForm
 			// 

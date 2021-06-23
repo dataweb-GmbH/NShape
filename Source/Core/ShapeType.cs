@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -86,9 +86,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Constructs a shape type.
 		/// </summary>
-		public ShapeType(string name, string libraryName, 
+		public ShapeType(string name, string libraryName,
 			ResourceString categoryTitle,
-			CreateShapeDelegate createShapeDelegate, 
+			CreateShapeDelegate createShapeDelegate,
 			GetPropertyDefinitionsDelegate getPropertyDefinitionsDelegate,
 			Bitmap freehandReferenceImage)
 			: this(name, libraryName, categoryTitle, string.Empty, createShapeDelegate, getPropertyDefinitionsDelegate, freehandReferenceImage, true) {
@@ -155,8 +155,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Name of shape type, used to identify a shape type for creating shapes.
 		/// </summary>
-		public string Name { 
-			get { return _name; } 
+		public string Name {
+			get { return _name; }
 		}
 
 
@@ -179,8 +179,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Indicates the default culture depending name for the toolbox category.
 		/// </summary>
-		public string DefaultCategoryTitle { 
-			get { return _categoryTitle.Value; } 
+		public string DefaultCategoryTitle {
+			get { return _categoryTitle.Value; }
 		}
 
 
@@ -224,13 +224,29 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <summary>
+		/// Create a completely new shape instance which will be initialized with the standard styles.
+		/// </summary>
+		public TShape CreateInstance<TShape>() where TShape : Shape {
+			return (TShape)CreateInstance();
+		}
+
+
+		/// <summary>
 		/// Create a new shape based on a template. The shape will use the template's styles.
 		/// </summary>
 		public Shape CreateInstance(Template template) {
 			if (template == null) throw new ArgumentNullException("template");
 			Shape result = _createShapeDelegate(this, template);
-			result.CopyFrom(template.Shape);	// Template will not be copied
+			result.CopyFrom(template.Shape);    // Template will not be copied
 			return result;
+		}
+
+
+		/// <summary>
+		/// Create a new shape based on a template. The shape will use the template's styles.
+		/// </summary>
+		public TShape CreateInstance<TShape>(Template template) where TShape : Shape {
+			return (TShape)CreateInstance(template);
 		}
 
 
@@ -243,6 +259,14 @@ namespace Dataweb.NShape.Advanced {
 			Debug.Assert(shape.ModelObject == null || shape.ModelObject != result.ModelObject);
 			result.MakePreview(_styleSetProvider.StyleSet);
 			return result;
+		}
+
+
+		/// <summary>
+		/// Creates an exact clone of the given shape that uses preview styles.
+		/// </summary>
+		public TShape CreatePreviewInstance<TShape>(TShape shape) where TShape : Shape {
+			return CreatePreviewInstance(shape);
 		}
 
 

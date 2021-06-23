@@ -44,8 +44,6 @@
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 49.98792F));
 			this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.01208F));
 			this.tableLayoutPanel.Controls.Add(this.linkLabel4, 0, 5);
-			this.tableLayoutPanel.Controls.Add(this.linkLabel3, 0, 9);
-			this.tableLayoutPanel.Controls.Add(this.linkLabel2, 0, 8);
 			this.tableLayoutPanel.Controls.Add(this.okButton, 1, 10);
 			this.tableLayoutPanel.Controls.Add(this.labelProductName, 0, 1);
 			this.tableLayoutPanel.Controls.Add(this.labelVersion, 0, 2);
@@ -54,6 +52,8 @@
 			this.tableLayoutPanel.Controls.Add(this.logoPictureBox, 0, 0);
 			this.tableLayoutPanel.Controls.Add(this.linkLabel1, 0, 4);
 			this.tableLayoutPanel.Controls.Add(this.label1, 0, 7);
+			this.tableLayoutPanel.Controls.Add(this.linkLabel2, 0, 9);
+			this.tableLayoutPanel.Controls.Add(this.linkLabel3, 0, 8);
 			this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel.Location = new System.Drawing.Point(9, 9);
 			this.tableLayoutPanel.Name = "tableLayoutPanel";
@@ -86,23 +86,23 @@
 			// linkLabel3
 			// 
 			this.linkLabel3.AutoSize = true;
-			this.linkLabel3.Location = new System.Drawing.Point(3, 386);
+			this.linkLabel3.Location = new System.Drawing.Point(3, 373);
 			this.linkLabel3.Name = "linkLabel3";
-			this.linkLabel3.Size = new System.Drawing.Size(124, 13);
+			this.linkLabel3.Size = new System.Drawing.Size(97, 13);
 			this.linkLabel3.TabIndex = 29;
 			this.linkLabel3.TabStop = true;
-			this.linkLabel3.Text = "nshape.googlecode.com";
+			this.linkLabel3.Text = "NShape on GitHub";
 			this.linkLabel3.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel3_LinkClicked);
 			// 
 			// linkLabel2
 			// 
 			this.linkLabel2.AutoSize = true;
-			this.linkLabel2.Location = new System.Drawing.Point(3, 373);
+			this.linkLabel2.Location = new System.Drawing.Point(3, 386);
 			this.linkLabel2.Name = "linkLabel2";
-			this.linkLabel2.Size = new System.Drawing.Size(111, 13);
+			this.linkLabel2.Size = new System.Drawing.Size(163, 13);
 			this.linkLabel2.TabIndex = 27;
 			this.linkLabel2.TabStop = true;
-			this.linkLabel2.Text = "nshape.codeplex.com";
+			this.linkLabel2.Text = "nshape.codeplex.com (read only)";
 			this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
 			// 
 			// okButton

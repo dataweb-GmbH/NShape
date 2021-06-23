@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Dataweb.NShape.WinFormsUI</RootNamespace>
     <AssemblyName>Dataweb.NShape.WinFormsUI</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>..\Dataweb.NShape.ico</ApplicationIcon>
     <SignAssembly>true</SignAssembly>
@@ -19,6 +19,7 @@
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -355,12 +356,6 @@
     <None Include="Resources\Information.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\NShape.csproj">
-      <Project>{9EFE1059-E2DC-4576-B9E3-4AE3F998CB28}</Project>
-      <Name>NShape</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Checked.bmp" />
   </ItemGroup>
   <ItemGroup>
@@ -374,6 +369,12 @@
     <EmbeddedResource Include="LayerEditor.bmp" />
     <EmbeddedResource Include="LayerListView.bmp" />
     <EmbeddedResource Include="TemplatePresenter.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\NShape.csproj">
+      <Project>{9efe1059-e2dc-4576-b9e3-4ae3f998cb28}</Project>
+      <Name>NShape</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

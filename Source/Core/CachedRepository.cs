@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -13,7 +13,6 @@
 ******************************************************************************/
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -287,12 +286,23 @@ namespace Dataweb.NShape.Advanced {
 		public bool IsModelObjectTypeInUse(IEnumerable<ModelObjectType> modelObjectTypes) {
 			if (modelObjectTypes == null) throw new ArgumentNullException("modelObjectTypes");
 			AssertOpen();
-			// Store shape types in a hash list for better performance when searching huge amounts of shapes
+			// Store model object types in a hash list for better performance when searching
 			HashCollection<ModelObjectType> modelObjTypeSet = new HashCollection<ModelObjectType>();
 			foreach (ModelObjectType modelObjectType in modelObjectTypes)
 				modelObjTypeSet.Add(modelObjectType);
 			if (modelObjTypeSet.Count == 0) return false;
 
+			// Check all new model objects if one of the model object types is used
+			foreach (KeyValuePair<IModelObject, IEntity> keyValuePair in _newTemplateModelObjects) {
+				if (modelObjTypeSet.Contains(keyValuePair.Key.Type))
+					return true;
+			}
+			// Check all loaded model objects if one of the model object types is used
+			foreach (EntityBucket<IModelObject> entityBucket in _loadedTemplateModelObjects) {
+				if (entityBucket.State == ItemState.Deleted) continue;
+				if (modelObjTypeSet.Contains(entityBucket.ObjectRef.Type))
+					return true;
+			}
 			// Check all new model objects if one of the model object types is used
 			foreach (KeyValuePair<IModelObject, IEntity> keyValuePair in _newModelObjects) {
 				if (modelObjTypeSet.Contains(keyValuePair.Key.Type))
@@ -304,7 +314,39 @@ namespace Dataweb.NShape.Advanced {
 				if (modelObjTypeSet.Contains(entityBucket.ObjectRef.Type))
 					return true;
 			}
-			// A check on the database is not necessary here because models are always loaded completly.
+			// A check on the database is not necessary here because models are always loaded completely (by design).
+			return false;
+		}
+
+
+		/// <override></override>
+		public bool IsDiagramModelObjectTypeInUse(DiagramModelObjectType diagramModelObjectType) {
+			return IsDiagramModelObjectTypeInUse(SingleInstanceEnumerator<DiagramModelObjectType>.Create(diagramModelObjectType));
+		}
+
+
+		/// <override></override>
+		public bool IsDiagramModelObjectTypeInUse(IEnumerable<DiagramModelObjectType> diagramModelObjectTypes) {
+			if (diagramModelObjectTypes == null) throw new ArgumentNullException("diagramModelObjectTypes");
+			AssertOpen();
+			// Store model object types in a hash list for better performance when searching
+			HashCollection<DiagramModelObjectType> diagramModelObjTypeSet = new HashCollection<DiagramModelObjectType>();
+			foreach (DiagramModelObjectType diagramModelObjectType in diagramModelObjectTypes)
+				diagramModelObjTypeSet.Add(diagramModelObjectType);
+			if (diagramModelObjTypeSet.Count == 0) return false;
+
+			// Check all new model objects if one of the model object types is used
+			foreach (KeyValuePair<IDiagramModelObject, IEntity> keyValuePair in _newDiagramModelObjects) {
+				if (diagramModelObjTypeSet.Contains(keyValuePair.Key.Type))
+					return true;
+			}
+			// Check all loaded model objects if one of the model object types is used
+			foreach (EntityBucket<IDiagramModelObject> entityBucket in _loadedDiagramModelObjects) {
+				if (entityBucket.State == ItemState.Deleted) continue;
+				if (diagramModelObjTypeSet.Contains(entityBucket.ObjectRef.Type))
+					return true;
+			}
+			// A check on the database is not necessary here because models are always loaded completely (by design).
 			return false;
 		}
 
@@ -345,11 +387,20 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Designs
 
+		private void EnsureDesignsAreLoaded() {
+			// Load instances from store if...
+			// - there is a store,
+			// - there are no loaded objects at all and 
+			// - if the current project has an id (otherwise the project was not saved yet and there is nothing to load).
+			if (_store != null && IsProjectLoaded && _loadedDesigns.Count <= 0)
+				_store.LoadDesigns(this, null);
+		}
+
+
 		/// <override></override>
 		public IEnumerable<Design> GetDesigns() {
 			AssertOpen();
-			if (_store != null && ((IEntity)_settings).Id != null && _loadedDesigns.Count <= 0)
-				_store.LoadDesigns(this, null);
+			EnsureDesignsAreLoaded();
 			return GetCachedEntities(_loadedDesigns, _newDesigns);
 		}
 
@@ -362,12 +413,11 @@ namespace Dataweb.NShape.Advanced {
 				// Return the project design
 				result = _projectDesign;
 			} else {
+				EnsureDesignsAreLoaded();
 				EntityBucket<Design> designBucket;
-				if (_store != null && _loadedDesigns.Count <= 0)
-					_store.LoadDesigns(this, null);
 				if (!_loadedDesigns.TryGetValue(id, out designBucket))
 					throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1NotFoundInRepository, ResourceStrings.Text_Design, id);
-				if (designBucket.State == ItemState.Deleted) 
+				if (designBucket.State == ItemState.Deleted)
 					throw new NShapeException(ResourceStrings.MessageFmt_Entity01WasDeleted, ResourceStrings.Text_Design, designBucket.ObjectRef);
 				result = designBucket.ObjectRef;
 			}
@@ -378,11 +428,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public Design GetDesign(string name) {
 			AssertOpen();
-			if (string.IsNullOrEmpty(name)) 
+			if (string.IsNullOrEmpty(name))
 				return _projectDesign;
 			else {
-				if (_store != null && _loadedDesigns.Count <= 0)
-					_store.LoadDesigns(this, null);
+				EnsureDesignsAreLoaded();
 				foreach (Design d in GetCachedEntities<Design>(_loadedDesigns, _newDesigns))
 					if (d.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
 						return d;
@@ -422,7 +471,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public void Delete(Design design) {
 			if (design == null) throw new ArgumentNullException("design");
-			if (design == _projectDesign) 
+			if (design == _projectDesign)
 				throw new InvalidOperationException(ResourceStrings.MessageTxt_CurrentProjectDesignCannotBeDeleted);
 			AssertOpen();
 			DoDeleteDesign(design, false);
@@ -433,7 +482,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public void DeleteAll(Design design) {
 			if (design == null) throw new ArgumentNullException("design");
-			if (design == _projectDesign) 
+			if (design == _projectDesign)
 				throw new InvalidOperationException(ResourceStrings.MessageTxt_CurrentProjectDesignCannotBeDeleted);
 			AssertOpen();
 			DoDeleteDesign(design, true);
@@ -597,6 +646,48 @@ namespace Dataweb.NShape.Advanced {
 
 		#region ModelObjects
 
+		private void EnsureModelObjectsAreLoaded(Model model) {
+			// Load instances from store if...
+			// - there is a store,
+			// - there are no loaded objects at all and 
+			// - if the current project has an id (otherwise the project was not saved yet and there is nothing to load).
+
+			// TemplateModelObjects are stored in LoadedModelObjects, too.Due to this fact, we cannot simply test on _loadedModelObjects.Count <= 0...
+			bool hasModelModelObjects = false;
+			foreach (EntityBucket<IModelObject> mob in _loadedModelObjects) {
+				if (mob.Owner is Template || mob.State != ItemState.Deleted) continue;
+				hasModelModelObjects = true;
+				break;
+			}
+			//
+			if (_store != null && model != null && !hasModelModelObjects && model.Id != null) {
+				// Load parent model objects
+				_store.LoadModelModelObjects(this, model.Id);
+				// Load child model objects
+				// Caution: This recursive implementation is slow! Store implementation should load all model objects at once and do nothing in LoadChildModelObject!
+				foreach (EntityBucket<IModelObject> mob in _loadedModelObjects)
+					EnsureChildModelObjectsAreLoaded(mob.ObjectRef.Id);
+			}
+		}
+
+
+		private void EnsureChildModelObjectsAreLoaded(object parentModelObjectId) {
+			// Load instances from store if...
+			// - there is a store,
+			// - there are no loaded objects at all and 
+			// - if the parent object has an id (otherwise the parent was not saved yet and there is nothing to load).
+			if (_store != null && parentModelObjectId != null) {
+				_store.LoadChildModelObjects(this, parentModelObjectId);
+
+				// Load child model objects
+				// Caution: This recursive implementation is slow! Store implementation should load all model objects at once and do nothing in LoadChildModelObject!
+				EntityBucket<IModelObject> parent = _loadedModelObjects[parentModelObjectId];
+				foreach (IModelObject childModelObject in GetModelObjects(parent.ObjectRef))
+					EnsureChildModelObjectsAreLoaded(childModelObject.Id);
+			}
+		}
+
+
 		/// <summary>
 		/// Checks whether the given model object is still referenced by any object.
 		/// </summary>
@@ -610,6 +701,8 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		private bool IsModelObjectInUse(IModelObject modelObject, IEnumerable<IModelObject> modelObjectsToDelete) {
 			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			EnsureModelIsLoaded();
+
 			// Check if there are child model objects
 			foreach (IModelObject m in GetModelObjects(modelObject)) {
 				if (!Contains(modelObjectsToDelete, modelObject))
@@ -653,20 +746,50 @@ namespace Dataweb.NShape.Advanced {
 			return result;
 		}
 
+		//public IModelObject GetModelObject(object id) {
+		//	if (id == null) throw new ArgumentNullException("id");
+		//	AssertOpen();
+		//	if (TryGetModel(out Model model))
+		//		EnsureModelObjectsAreLoaded(model);
+
+		//	IModelObject result = null;
+		//	EntityBucket<IModelObject> bucket;
+		//	if (!_loadedModelObjects.TryGetValue(id, out bucket))
+		//		throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1NotFoundInRepository, ResourceStrings.Text_ModelObject, id);
+		//	if (bucket.State == ItemState.Deleted)
+		//		throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1WasDeleted, ResourceStrings.Text_ModelObject, id);
+		//	result = bucket.ObjectRef;
+		//	return result;
+		//}
+
 
 		/// <override></override>
 		public IEnumerable<IModelObject> GetModelObjects(IModelObject parent) {
 			AssertOpen();
-			if (_store != null && ((IEntity)_settings).Id != null) {
-				if (parent == null) {
-					if (_loadedModels.Count == 0) {
-						Model model;
-						if (TryGetModel(out model))
-							_store.LoadModelModelObjects(this, model.Id);
-					}
-				} else if (parent.Id != null)
-					_store.LoadChildModelObjects(this, ((IEntity)parent).Id);
-			}
+
+			//// Original version
+			//if (_store != null && IsProjectLoaded) {
+			//	if (parent == null) {
+			//		if (_loadedModels.Count == 0) {
+			//			Model model;
+			//			if (TryGetModel(out model))
+			//				_store.LoadModelModelObjects(this, model.Id);
+			//		}
+			//	} else if (parent.Id != null)
+			//		_store.LoadChildModelObjects(this, ((IEntity)parent).Id);
+			//}
+
+			EnsureModelIsLoaded();
+
+			//// Model is loaded completely!
+			////if (parent == null) {
+			////	Model model;
+			////	if (TryGetModel(out model))
+			////		EnsureModelObjectsAreLoaded(model);
+			////} else if (parent.Id != null) {
+			////	EnsureChildModelObjectsAreLoaded(parent.Id);
+			////}
+
 			foreach (EntityBucket<IModelObject> mob in _loadedModelObjects) {
 				if (mob.State == ItemState.Deleted) continue;
 				if (mob.ObjectRef.Parent == parent) {
@@ -822,7 +945,177 @@ namespace Dataweb.NShape.Advanced {
 		#endregion
 
 
+		#region DiagramModelObjects
+
+		private void EnsureDiagramModelObjectsAreLoaded(Model model) {
+			// Load instances from store if...
+			// - there is a store,
+			// - there are no loaded objects at all and 
+			// - if the current project has an id (otherwise the project was not saved yet and there is nothing to load).
+			if (_store != null && _loadedDiagramModelObjects.Count <= 0 && model != null && model.Id != null)
+				_store.LoadDiagramModelObjects(this, model.Id);
+		}
+
+
+		/// <summary>
+		/// Checks whether the given diagram model object is still referenced by any object.
+		/// </summary>
+		public bool IsDiagramModelObjectInUse(IDiagramModelObject diagramModelObject) {
+			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			AssertOpen();
+			Model model;
+			if (TryGetModel(out model))
+				EnsureDiagramModelObjectsAreLoaded(model);
+
+			// Check if diagram model object is used by diagrams
+			foreach (KeyValuePair<Diagram, IEntity> item in _newDiagrams)
+				if (item.Key.ModelObject == diagramModelObject)
+					return true;
+			foreach (EntityBucket<Diagram> item in _loadedDiagrams) {
+				if (item.State == ItemState.Deleted) continue;
+				if (item.ObjectRef.ModelObject == diagramModelObject)
+					return true;
+			}
+			// No need to check the database for objects that are not yet loaded because the diagram instances 
+			// (along with their model objects) are loaded all at once.
+			return false;
+		}
+
+
+		/// <override></override>
+		public IDiagramModelObject GetDiagramModelObject(object diagramModelObjectid) {
+			if (diagramModelObjectid == null) throw new ArgumentNullException("diagramModelObjectid");
+			AssertOpen();
+			Model model;
+			if (TryGetModel(out model))
+				EnsureDiagramModelObjectsAreLoaded(model);
+
+			IDiagramModelObject result = null;
+			EntityBucket<IDiagramModelObject> bucket;
+			if (!_loadedDiagramModelObjects.TryGetValue(diagramModelObjectid, out bucket))
+				throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1NotFoundInRepository, ResourceStrings.Text_DiagramModelObject, diagramModelObjectid);
+			if (bucket.State == ItemState.Deleted)
+				throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1WasDeleted, ResourceStrings.Text_DiagramModelObject, diagramModelObjectid);
+			result = bucket.ObjectRef;
+			return result;
+		}
+
+
+		/// <override></override>
+		public void Insert(IDiagramModelObject diagramModelObject) {
+			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			AssertOpen();
+			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObject);
+			DoInsertDiagramModelObjects(SingleInstanceEnumerator<IDiagramModelObject>.Create(diagramModelObject));
+			if (DiagramModelObjectsInserted != null) DiagramModelObjectsInserted(this, e);
+		}
+
+
+		/// <override></override>
+		public void Insert(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			AssertOpen();
+			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObjects);
+			DoInsertDiagramModelObjects(diagramModelObjects);
+			if (DiagramModelObjectsInserted != null) DiagramModelObjectsInserted(this, e);
+		}
+
+
+		/// <override></override>
+		public void Update(IDiagramModelObject diagramModelObject) {
+			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			AssertOpen();
+			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObject);
+			DoUpdateDiagramModelObject(diagramModelObject);
+			if (DiagramModelObjectsUpdated != null) DiagramModelObjectsUpdated(this, e);
+		}
+
+
+		/// <override></override>
+		public void Update(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			AssertOpen();
+			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObjects);
+			DoUpdateDiagramModelObjects(diagramModelObjects);
+			if (DiagramModelObjectsUpdated != null) DiagramModelObjectsUpdated(this, e);
+		}
+
+
+		/// <override></override>
+		public void Delete(IDiagramModelObject diagramModelObject) {
+			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			AssertOpen();
+			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObject);
+			DoDeleteDiagramModelObject(diagramModelObject);
+			if (DiagramModelObjectsDeleted != null) DiagramModelObjectsDeleted(this, e);
+		}
+
+
+		/// <override></override>
+		public void Delete(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			AssertOpen();
+			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObjects);
+			DoDeleteDiagramModelObjects(diagramModelObjects);
+			if (DiagramModelObjectsDeleted != null) DiagramModelObjectsDeleted(this, e);
+		}
+
+
+		/// <override></override>
+		public void Undelete(IDiagramModelObject diagramModelObject) {
+			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			AssertOpen();
+			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObject);
+			DoUndeleteDiagramModelObjects(SingleInstanceEnumerator<IDiagramModelObject>.Create(diagramModelObject));
+			if (DiagramModelObjectsInserted != null) DiagramModelObjectsInserted(this, e);
+		}
+
+
+		/// <override></override>
+		public void Undelete(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			AssertOpen();
+			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObjects);
+			DoUndeleteDiagramModelObjects(diagramModelObjects);
+			if (DiagramModelObjectsInserted != null) DiagramModelObjectsInserted(this, e);
+		}
+
+
+		/// <override></override>
+		public void Unload(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			AssertOpen();
+			foreach (IDiagramModelObject mo in diagramModelObjects) {
+				// TODO 2: Should we allow to remove from new diagram model objects?
+				if (mo.Id == null) _newDiagramModelObjects.Remove(mo);
+				else _loadedDiagramModelObjects.Remove(mo.Id);
+			}
+		}
+
+
+		/// <override></override>
+		public event EventHandler<RepositoryDiagramModelObjectsEventArgs> DiagramModelObjectsInserted;
+
+		/// <override></override>
+		public event EventHandler<RepositoryDiagramModelObjectsEventArgs> DiagramModelObjectsUpdated;
+
+		/// <override></override>
+		public event EventHandler<RepositoryDiagramModelObjectsEventArgs> DiagramModelObjectsDeleted;
+
+		#endregion
+
+
 		#region Templates
+
+		private void EnsureTemplatesAreLoaded() {
+			// Load instances from store if...
+			// - there is a store,
+			// - there are no loaded objects at all and 
+			// - if the current project has an id (otherwise the project was not saved yet and there is nothing to load).
+			if (_store != null && IsProjectLoaded && _loadedTemplates.Count <= 0)
+				_store.LoadTemplates(this, ProjectId);
+		}
+
 
 		/// <override></override>
 		public bool IsTemplateInUse(Template template) {
@@ -870,8 +1163,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public IEnumerable<Template> GetTemplates() {
 			AssertOpen();
-			if (_store != null && ((IEntity)_settings).Id != null && _loadedTemplates.Count <= 0)
-				_store.LoadTemplates(this, ((IEntity)_settings).Id);
+			EnsureTemplatesAreLoaded();
+
 			return GetCachedEntities(_loadedTemplates, _newTemplates);
 		}
 
@@ -879,16 +1172,14 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public Template GetTemplate(object id) {
 			if (id == null) throw new ArgumentNullException("id");
-			EntityBucket<Template> result = null;
 			AssertOpen();
-			if (!_loadedTemplates.TryGetValue(id, out result)) {
-				AssertStoreExists();
-				_store.LoadTemplates(this, ((IEntity)_settings).Id);
-				if (!_loadedTemplates.TryGetValue(id, out result))
-					throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1NotFoundInRepository, ResourceStrings.Text_Template, id);
-				if (result.State == ItemState.Deleted)
-					throw new NShapeException(ResourceStrings.MessageFmt_Entity01WasDeleted, ResourceStrings.Text_Template, result.ObjectRef);
-			}
+			EnsureTemplatesAreLoaded();
+
+			EntityBucket<Template> result = null;
+			if (!_loadedTemplates.TryGetValue(id, out result))
+				throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1NotFoundInRepository, ResourceStrings.Text_Template, id);
+			if (result.State == ItemState.Deleted)
+				throw new NShapeException(ResourceStrings.MessageFmt_Entity01WasDeleted, ResourceStrings.Text_Template, result.ObjectRef);
 			return result.ObjectRef;
 		}
 
@@ -897,8 +1188,8 @@ namespace Dataweb.NShape.Advanced {
 		public Template GetTemplate(string name) {
 			if (name == null) throw new ArgumentNullException("name");
 			AssertOpen();
-			if (_store != null && _loadedTemplates.Count <= 0)
-				_store.LoadTemplates(this, ((IEntity)_settings).Id);
+			EnsureTemplatesAreLoaded();
+
 			foreach (Template t in GetCachedEntities<Template>(_loadedTemplates, _newTemplates))
 				if (t.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
 					return t;
@@ -950,7 +1241,7 @@ namespace Dataweb.NShape.Advanced {
 			if (oldShape.ModelObject != null) oldShape.ModelObject.DetachShape(oldShape);
 			DoDeleteShapes(SingleInstanceEnumerator<Shape>.Create(oldShape), true);
 
-			if (TemplateShapeReplaced != null) TemplateShapeReplaced(this, GetTemplateShapeExchangedEventArgs(template, oldShape, newShape));
+			if (TemplateShapeReplaced != null) TemplateShapeReplaced(this, new RepositoryTemplateShapeReplacedEventArgs(template, oldShape, newShape));
 		}
 
 
@@ -1107,11 +1398,17 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Diagrams
 
+		private void EnsureDiagramsAreLoaded() {
+			if (_store != null && IsProjectLoaded && _loadedDiagrams.Count <= 0)
+				_store.LoadDiagrams(this, ProjectId);
+		}
+
+
 		/// <override></override>
 		public IEnumerable<Diagram> GetDiagrams() {
 			AssertOpen();
-			if (_store != null && _loadedDiagrams.Count <= 0 && ((IEntity)_settings).Id != null)
-				_store.LoadDiagrams(this, ((IEntity)_settings).Id);
+			EnsureDiagramsAreLoaded();
+
 			return GetCachedEntities(_loadedDiagrams, _newDiagrams);
 		}
 
@@ -1119,16 +1416,14 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public Diagram GetDiagram(object id) {
 			if (id == null) throw new ArgumentNullException("id");
-			EntityBucket<Diagram> result = null;
 			AssertOpen();
-			if (!_loadedDiagrams.TryGetValue(id, out result)) {
-				AssertStoreExists();
-				_store.LoadDiagrams(this, ((IEntity)_settings).Id);
-				if (!_loadedDiagrams.TryGetValue(id, out result))
-					throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1NotFoundInRepository, ResourceStrings.Text_Diagram, id);
-				if (result.State == ItemState.Deleted) 
-					throw new NShapeException(ResourceStrings.MessageFmt_Entity01WasDeleted, ResourceStrings.Text_Diagram, result.ObjectRef);
-			}
+			EnsureDiagramsAreLoaded();
+
+			EntityBucket<Diagram> result = null;
+			if (!_loadedDiagrams.TryGetValue(id, out result))
+				throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1NotFoundInRepository, ResourceStrings.Text_Diagram, id);
+			if (result.State == ItemState.Deleted)
+				throw new NShapeException(ResourceStrings.MessageFmt_Entity01WasDeleted, ResourceStrings.Text_Diagram, result.ObjectRef);
 			// Do *NOT* load diagram shapes here. The diagramController is responsible for 
 			// loading the diagram shapes. Otherwise partial (per diagram) loading does not work.
 			//store.LoadDiagramShapes(this, result.ObjectRef);
@@ -1140,9 +1435,8 @@ namespace Dataweb.NShape.Advanced {
 		public Diagram GetDiagram(string name) {
 			if (name == null) throw new ArgumentNullException("name");
 			AssertOpen();
-			// If there is a diagram, we assume we have already loaded them all.
-			if (_store != null && _loadedDiagrams.Count <= 0 && ((IEntity)_settings).Id != null)
-				_store.LoadDiagrams(this, ((IEntity)_settings).Id);
+			EnsureDiagramsAreLoaded();
+
 			foreach (Diagram diagram in GetCachedEntities(_loadedDiagrams, _newDiagrams))
 				if (string.Compare(diagram.Name, name, Comparison) == 0) {
 					// Do *NOT* load diagram shapes here. The diagramController is responsible for 
@@ -1237,10 +1531,12 @@ namespace Dataweb.NShape.Advanced {
 			if (diagram == null) throw new ArgumentNullException("diagram");
 			if (((IEntity)diagram).Id == null) return;
 			AssertOpen();
-			// For the time being a diagram is either loaded or not. No partial diagram loading yet.
-			if (diagram.Shapes.Count > 0) return;
-			// Load missing shapes
-			if (_store != null) _store.LoadDiagramShapes(this, diagram);
+			// For the time being, a diagram is either loaded or not. No partial diagram loading yet.
+			if (diagram.Shapes.Count <= 0) {
+				// Load missing shapes
+				if (_store != null)
+					_store.LoadDiagramShapes(this, diagram);
+			}
 		}
 
 
@@ -1254,6 +1550,12 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
+		public void Insert<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
+			Insert<Shape>(shape, diagram);
+		}
+
+
+		/// <override></override>
 		public void Insert(Shape shape, Shape parentShape) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			AssertOpen();
@@ -1263,11 +1565,23 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
+		public void Insert<TShape>(TShape shape, Shape parentShape) where TShape : Shape {
+			Insert<Shape>(shape, parentShape);
+		}
+
+
+		/// <override></override>
 		public void Insert(Shape shape, Template template) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			AssertOpen();
 			DoInsertShapes(shape, template, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
+		}
+
+
+		/// <override></override>
+		public void Insert<TShape>(TShape shape, Template template) where TShape : Shape {
+			Insert<Shape>(shape, template);
 		}
 
 
@@ -1302,6 +1616,12 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
+		public void InsertAll<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
+			InsertAll<Shape>(shape, diagram);
+		}
+
+
+		/// <override></override>
 		public void InsertAll(Shape shape, Shape parentShape) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			if (parentShape == null) throw new ArgumentNullException("parentShape");
@@ -1312,12 +1632,24 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
+		public void InsertAll<TShape>(TShape shape, Shape parentShape) where TShape : Shape {
+			InsertAll<Shape>(shape, parentShape);
+		}
+
+
+		/// <override></override>
 		public void InsertAll(Shape shape, Template template) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			if (template == null) throw new ArgumentNullException("template");
 			AssertOpen();
 			DoInsertShapes(shape, template, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
+		}
+
+
+		/// <override></override>
+		public void InsertAll<TShape>(TShape shape, Template template) where TShape : Shape {
+			InsertAll<Shape>(shape, template);
 		}
 
 
@@ -1347,6 +1679,12 @@ namespace Dataweb.NShape.Advanced {
 			AssertOpen();
 			DoUpdateShapes(SingleInstanceEnumerator<Shape>.Create(shape));
 			if (ShapesUpdated != null) ShapesUpdated(this, GetShapesEventArgs(shape));
+		}
+
+
+		/// <override></override>
+		public void Update<TShape>(TShape shape) where TShape : Shape {
+			Update<Shape>(shape);
 		}
 
 
@@ -1395,6 +1733,12 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
+		public void Delete<TShape>(TShape shape) where TShape : Shape {
+			Delete<Shape>(shape);
+		}
+
+
+		/// <override></override>
 		public void DeleteAll(Shape shape) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			AssertOpen();
@@ -1403,6 +1747,12 @@ namespace Dataweb.NShape.Advanced {
 			RepositoryShapesEventArgs e = GetShapesEventArgs(shape);
 			DoDeleteShapes(SingleInstanceEnumerator<Shape>.Create(shape), true);
 			if (ShapesDeleted != null) ShapesDeleted(this, e);
+		}
+
+
+		/// <override></override>
+		public void DeleteAll<TShape>(TShape shape) where TShape : Shape {
+			DeleteAll<Shape>(shape);
 		}
 
 
@@ -1434,6 +1784,12 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
+		public void Undelete<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
+			Undelete<Shape>(shape, diagram);
+		}
+
+
+		/// <override></override>
 		public void UndeleteAll(Shape shape, Diagram diagram) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			AssertOpen();
@@ -1442,20 +1798,10 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		///// <override></override>
-		//private void UndeleteShape(Shape shape, Template template) {
-		//    if (shape == null) throw new ArgumentNullException("shape");
-		//    AssertOpen();
-		//    DoUndeleteShapes(shape, template, false);
-		//}
-
-
-		///// <override></override>
-		//private void UndeleteShapeWithContent(Shape shape, Template template) {
-		//    if (shape == null) throw new ArgumentNullException("shape");
-		//    AssertOpen();
-		//    DoUndeleteShapes(shape, template, true);
-		//}
+		/// <override></override>
+		public void UndeleteAll<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
+			UndeleteAll<Shape>(shape, diagram);
+		}
 
 
 		/// <override></override>
@@ -1465,6 +1811,12 @@ namespace Dataweb.NShape.Advanced {
 			AssertOpen();
 			DoUndeleteShapes(shape, parent, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
+		}
+
+
+		/// <override></override>
+		public void Undelete<TShape>(TShape shape, Shape parent) where TShape : Shape {
+			Undelete<Shape>(shape, parent);
 		}
 
 
@@ -1479,6 +1831,12 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
+		public void UndeleteAll<TShape>(TShape shape, Shape parent) where TShape : Shape {
+			UndeleteAll<Shape>(shape, parent);
+		}
+
+
+		/// <override></override>
 		public void Undelete(Shape shape, Template template) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			if (template == null) throw new ArgumentNullException("parentShape");
@@ -1489,12 +1847,24 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
+		public void Undelete<TShape>(TShape shape, Template template) where TShape : Shape {
+			Undelete<Shape>(shape, template);
+		}
+
+
+		/// <override></override>
 		public void UndeleteAll(Shape shape, Template template) {
 			if (shape == null) throw new ArgumentNullException("shape");
 			if (template == null) throw new ArgumentNullException("parentShape");
 			AssertOpen();
 			DoUndeleteShapes(shape, template, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
+		}
+
+
+		/// <override></override>
+		public void UndeleteAll<TShape>(TShape shape, Template template) where TShape : Shape {
+			UndeleteAll<Shape>(shape, template);
 		}
 
 
@@ -1642,7 +2012,6 @@ namespace Dataweb.NShape.Advanced {
 
 		#region [Explicit] IStoreCache Members Implementation
 
-
 		ProjectSettings IStoreCache.Project {
 			get { return _settings; }
 		}
@@ -1659,7 +2028,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		object IStoreCache.ProjectId {
-			get { return ((IEntity)_settings).Id; }
+			get { return ProjectId; }
 		}
 
 
@@ -1684,7 +2053,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		IEntityType IStoreCache.FindEntityTypeByElementName(string elementName) {
-			if (!_entityTypes.ContainsKey(elementName)) 
+			if (!_entityTypes.ContainsKey(elementName))
 				throw new ArgumentException(string.Format(ResourceStrings.MessageFmt_EntityTypeWithElementName0IsNotRegistered, elementName));
 			return _entityTypes[elementName];
 		}
@@ -1797,6 +2166,16 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
+		ICacheCollection<IDiagramModelObject> IStoreCache.LoadedDiagramModelObjects {
+			get { return _loadedDiagramModelObjects; }
+		}
+
+
+		IEnumerable<KeyValuePair<IDiagramModelObject, IEntity>> IStoreCache.NewDiagramModelObjects {
+			get { return _newDiagramModelObjects; }
+		}
+
+
 		IEnumerable<ShapeConnection> IStoreCache.NewShapeConnections {
 			get { return _newShapeConnections; }
 		}
@@ -1851,7 +2230,7 @@ namespace Dataweb.NShape.Advanced {
 			if (projectEnumerator.MoveNext())
 				throw new NShapeException(ResourceStrings.MessageFmt_TwoProjectsNamed0FoundInRepository, _projectName);
 			// Load the design, there must be exactly one returned
-			_store.LoadDesigns(this, ((IEntity)_settings).Id);
+			_store.LoadDesigns(this, ProjectId);
 			IEnumerator<EntityBucket<Design>> designEnumerator = _loadedDesigns.Values.GetEnumerator();
 			if (!designEnumerator.MoveNext())
 				throw new NShapeException(ResourceStrings.MessageTxt_ProjectStylesNotFound);
@@ -1864,15 +2243,16 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void AcceptAll() {
-			AcceptEntities<ProjectSettings>(_loadedProjects, _newProjects);
-			AcceptEntities<Design>(_loadedDesigns, _newDesigns);
-			AcceptEntities<IStyle>(_loadedStyles, _newStyles);
-			AcceptEntities<Template>(_loadedTemplates, _newTemplates);
-			AcceptEntities<IModelMapping>(_loadedModelMappings, _newModelMappings);
-			AcceptEntities<IModelObject>(_loadedModelObjects, _newModelObjects);
-			AcceptEntities<Model>(_loadedModels, _newModels);
-			AcceptEntities<Diagram>(_loadedDiagrams, _newDiagrams);
-			AcceptEntities<Shape>(_loadedShapes, _newShapes);
+			AcceptEntities(_loadedProjects, _newProjects);
+			AcceptEntities(_loadedDesigns, _newDesigns);
+			AcceptEntities(_loadedStyles, _newStyles);
+			AcceptEntities(_loadedTemplates, _newTemplates);
+			AcceptEntities(_loadedModelMappings, _newModelMappings);
+			AcceptEntities(_loadedModelObjects, _newModelObjects);
+			AcceptEntities(_loadedDiagramModelObjects, _newDiagramModelObjects);
+			AcceptEntities(_loadedModels, _newModels);
+			AcceptEntities(_loadedDiagrams, _newDiagrams);
+			AcceptEntities(_loadedShapes, _newShapes);
 			_newShapeConnections.Clear();
 			_deletedShapeConnections.Clear();
 			_isModified = false;
@@ -1890,6 +2270,7 @@ namespace Dataweb.NShape.Advanced {
 			ClearNewEntitiesBuffer(_newShapes);
 			ClearNewEntitiesBuffer(_newModels);
 			ClearNewEntitiesBuffer(_newModelObjects);
+			ClearNewEntitiesBuffer(_newDiagramModelObjects);
 			ClearNewEntitiesBuffer(_newModelMappings);
 
 			ClearLoadedEntitiesBuffer(_loadedProjects);
@@ -1900,6 +2281,7 @@ namespace Dataweb.NShape.Advanced {
 			ClearLoadedEntitiesBuffer(_loadedShapes);
 			ClearLoadedEntitiesBuffer(_loadedModels);
 			ClearLoadedEntitiesBuffer(_loadedModelObjects);
+			ClearLoadedEntitiesBuffer(_loadedDiagramModelObjects);
 			ClearLoadedEntitiesBuffer(_loadedModelMappings);
 		}
 
@@ -2027,7 +2409,7 @@ namespace Dataweb.NShape.Advanced {
 				EntityBucket<TEntity> item;
 				if (!loadedEntities.TryGetValue(entity.Id, out item))
 					throw new NShapeException(ResourceStrings.MessageTxt_EntityNotFoundInRepository);
-				if (item.State == ItemState.Deleted) 
+				if (item.State == ItemState.Deleted)
 					throw new NShapeException(ResourceStrings.MessageTxt_EntityWasDeletedUndeleteBeforeModifying);
 				item.State = ItemState.Modified;
 			}
@@ -2049,7 +2431,7 @@ namespace Dataweb.NShape.Advanced {
 				EntityBucket<TEntity> item;
 				if (!loadedEntities.TryGetValue(entity.Id, out item))
 					throw new NShapeException(ResourceStrings.MessageTxt_EntityNotFoundInRepository);
-				if (item.State == ItemState.Deleted) 
+				if (item.State == ItemState.Deleted)
 					throw new NShapeException(ResourceStrings.MessageTxt_EntityIsAlreadyDeleted);
 				item.State = ItemState.Deleted;
 			}
@@ -2059,13 +2441,13 @@ namespace Dataweb.NShape.Advanced {
 
 		private void UndeleteEntity<TEntity>(Dictionary<object, EntityBucket<TEntity>> loadedEntities,
 			TEntity entity) where TEntity : IEntity {
-			if (entity.Id == null) 
+			if (entity.Id == null)
 				throw new NShapeException(ResourceStrings.MessageTxt_AnEntityWithoutIdCannotBeUndeleted);
 			else {
 				EntityBucket<TEntity> item;
 				if (!loadedEntities.TryGetValue(entity.Id, out item))
 					throw new NShapeException(ResourceStrings.MessageTxt_EntityNotFoundInRepository);
-				if (item.State != ItemState.Deleted) 
+				if (item.State != ItemState.Deleted)
 					throw new NShapeException(ResourceStrings.MessageFmt_EntityWasNotDeletedBefore);
 				item.State = ItemState.Modified;
 			}
@@ -2075,14 +2457,14 @@ namespace Dataweb.NShape.Advanced {
 
 		private void UndeleteEntity<TEntity>(Dictionary<object, EntityBucket<TEntity>> loadedEntities,
 			TEntity entity, IEntity owner) where TEntity : IEntity {
-			if (entity.Id == null) 
+			if (entity.Id == null)
 				throw new NShapeException(ResourceStrings.MessageTxt_AnEntityWithoutIdCannotBeUndeleted);
 			else {
 				EntityBucket<TEntity> item;
 				if (!loadedEntities.TryGetValue(entity.Id, out item))
 					loadedEntities.Add(entity.Id, new EntityBucket<TEntity>(entity, owner, ItemState.New));
 				else {
-					if (item.State != ItemState.Deleted) 
+					if (item.State != ItemState.Deleted)
 						throw new NShapeException(ResourceStrings.MessageFmt_EntityWasNotDeletedBefore);
 					item.State = ItemState.Modified;
 					Debug.Assert(item.Owner == owner);
@@ -2254,7 +2636,7 @@ namespace Dataweb.NShape.Advanced {
 			EntityBucket<IStyle> styleItem;
 			if (!_loadedStyles.TryGetValue(id, out styleItem))
 				throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1NotFoundInRepository, ResourceStrings.Text_Style, id);
-			if (styleItem.State == ItemState.Deleted) 
+			if (styleItem.State == ItemState.Deleted)
 				throw new NShapeException(ResourceStrings.MessageFmt_Entity01WasDeleted, ResourceStrings.Text_Style, styleItem.ObjectRef);
 			return styleItem.ObjectRef;
 		}
@@ -2459,6 +2841,10 @@ namespace Dataweb.NShape.Advanced {
 
 			InsertEntity<Diagram>(_newDiagrams, diagram, GetProject());
 			if (withContent) {
+				if (diagram.ModelObject != null) {
+					AssertCanInsert(diagram.ModelObject);
+					DoInsertDiagramModelObject(diagram.ModelObject);
+				}
 				AssertCanInsert(diagram.Shapes, diagram);
 				DoInsertShapes(diagram.Shapes, diagram, withContent);
 			}
@@ -2467,6 +2853,10 @@ namespace Dataweb.NShape.Advanced {
 
 		private void DoDeleteDiagram(Diagram diagram, bool withContent) {
 			if (withContent) {
+				if (diagram.ModelObject != null) {
+					AssertCanDelete(diagram.ModelObject);
+
+				}
 				AssertCanDelete(diagram.Shapes);
 				// First, delete all shapes with their connections
 				DoDeleteShapes(diagram.Shapes, withContent);
@@ -2496,7 +2886,7 @@ namespace Dataweb.NShape.Advanced {
 			DoInsertShapesCore(shapes, parentShape, withContent);
 		}
 
-		
+
 		private void DoInsertShapes(IEnumerable<Shape> shapes, Diagram diagram, bool withContent) {
 			if (shapes == null) throw new ArgumentNullException("shapes");
 			if (diagram == null) throw new ArgumentNullException("diagram");
@@ -2643,7 +3033,7 @@ namespace Dataweb.NShape.Advanced {
 			// If the inserted connection is not in the list of deleted connections, it's a new 
 			// connection and has to be added to the list of new connections.
 			if (!_deletedShapeConnections.Remove(connection)) {
-				Debug.Assert(!_newShapeConnections.Contains(connection), 
+				Debug.Assert(!_newShapeConnections.Contains(connection),
 					string.Format(ResourceStrings.MessageFmt_0AlreadyExistsInRepository, ResourceStrings.Text_Connection));
 				_newShapeConnections.Add(connection);
 			}
@@ -2681,7 +3071,7 @@ namespace Dataweb.NShape.Advanced {
 		private bool IsShapeInRepository(Shape shape) {
 			Debug.Assert(shape != null);
 			IEntity shapeEntity = (IEntity)shape;
-			if (shapeEntity.Id == null) 
+			if (shapeEntity.Id == null)
 				return _newShapes.ContainsKey(shape);
 			else return _loadedShapes.ContainsKey(shapeEntity.Id);
 		}
@@ -2710,13 +3100,32 @@ namespace Dataweb.NShape.Advanced {
 		#endregion
 
 
-		#region [Private] Implementation - Model and ModelObjects
+		#region [Private] Implementation - Model and IModelObjects
+
+		private void EnsureModelIsLoaded() {
+			// Load instances from store if...
+			// - there is a store,
+			// - there are no loaded objects at all and 
+			// - if the current project has an id (otherwise the project was not saved yet and there is nothing to load).
+			if (_store != null && IsProjectLoaded && _loadedModels.Count <= 0) {
+				_store.LoadModel(this, ProjectId);
+
+				// Get loaded model
+				Model model = null;
+				foreach (Model m in GetCachedEntities(_loadedModels, _newModels))
+					model = m;
+				Debug.Assert(model != null);
+
+				// Load *all* model objects (including their child model objects!				 
+				EnsureModelObjectsAreLoaded(model);
+			}
+		}
+
 
 		private bool TryGetModel(out Model model) {
 			AssertOpen();
+			EnsureModelIsLoaded();
 			model = null;
-			if (_store != null && _loadedModels.Count <= 0 && ((IEntity)_settings).Id != null)
-				_store.LoadModel(this, ((IEntity)_settings).Id);
 			foreach (Model m in GetCachedEntities(_loadedModels, _newModels)) {
 				model = m;
 				return true;
@@ -2736,10 +3145,9 @@ namespace Dataweb.NShape.Advanced {
 
 		private void DoInsertModelObjects(IEnumerable<IModelObject> modelObjects) {
 			AssertCanInsert(modelObjects);
-			IEntity owner;
+			IEntity model = GetModel();
 			foreach (IModelObject modelObject in modelObjects) {
-				if (modelObject.Parent != null) owner = modelObject.Parent;
-				else owner = GetModel();
+				IEntity owner = (modelObject.Parent != null) ? modelObject.Parent : model;
 				InsertEntity<IModelObject>(_newModelObjects, modelObject, owner);
 			}
 		}
@@ -2802,6 +3210,68 @@ namespace Dataweb.NShape.Advanced {
 			AssertCanUndelete(modelObjects);
 			foreach (IModelObject modelObject in modelObjects)
 				UndeleteEntity<IModelObject>(_loadedModelObjects, modelObject);
+		}
+
+		#endregion
+
+
+		#region [Private] Implementation - DiagramModelObjects
+
+		private EntityBucket<IDiagramModelObject> GetDiagramModelObjectItem(object id) {
+			if (id == null) throw new NShapeException(ResourceStrings.MessageFmt_Entity0HasNoId, ResourceStrings.Text_DiagramModelObject);
+			EntityBucket<IDiagramModelObject> item;
+			if (!_loadedDiagramModelObjects.TryGetValue(id, out item))
+				throw new NShapeException(ResourceStrings.MessageFmt_Entity0WithId1NotFoundInRepository, ResourceStrings.Text_DiagramModelObject, id);
+			return item;
+		}
+
+
+		private void DoInsertDiagramModelObject(IDiagramModelObject diagramModelObject) {
+			DoInsertDiagramModelObjects(SingleInstanceEnumerator<IDiagramModelObject>.Create(diagramModelObject));
+		}
+
+
+		private void DoInsertDiagramModelObjects(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			AssertCanInsert(diagramModelObjects);
+			Model model = GetModel();
+			foreach (IDiagramModelObject diagramModelObject in diagramModelObjects)
+				InsertEntity<IDiagramModelObject>(_newDiagramModelObjects, diagramModelObject, model);
+		}
+
+
+		private void DoUpdateDiagramModelObject(IDiagramModelObject diagramModelObject) {
+			DoUpdateDiagramModelObjects(SingleInstanceEnumerator<IDiagramModelObject>.Create(diagramModelObject));
+		}
+
+
+		private void DoUpdateDiagramModelObjects(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			AssertCanUpdate(diagramModelObjects);
+			foreach (IDiagramModelObject diagramModelObject in diagramModelObjects)
+				UpdateEntity<IDiagramModelObject>(_loadedDiagramModelObjects, _newDiagramModelObjects, diagramModelObject);
+		}
+
+
+		private void DoDeleteDiagramModelObject(IDiagramModelObject diagramModelObject) {
+			DoDeleteDiagramModelObjects(SingleInstanceEnumerator<IDiagramModelObject>.Create(diagramModelObject));
+		}
+
+
+		private void DoDeleteDiagramModelObjects(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			AssertCanDelete(diagramModelObjects);
+			foreach (IDiagramModelObject diagramModelObject in diagramModelObjects)
+				DeleteEntity<IDiagramModelObject>(_loadedDiagramModelObjects, _newDiagramModelObjects, diagramModelObject);
+		}
+
+
+		private void DoUndeleteDiagramModelObject(IDiagramModelObject diagramModelObject) {
+			DoUndeleteDiagramModelObjects(SingleInstanceEnumerator<IDiagramModelObject>.Create(diagramModelObject));
+		}
+
+
+		private void DoUndeleteDiagramModelObjects(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			AssertCanUndelete(diagramModelObjects);
+			foreach (IDiagramModelObject diagramModelObject in diagramModelObjects)
+				UndeleteEntity<IDiagramModelObject>(_loadedDiagramModelObjects, diagramModelObject);
 		}
 
 		#endregion
@@ -2931,6 +3401,69 @@ namespace Dataweb.NShape.Advanced {
 		#endregion
 
 
+		#region DiagramModelObject
+
+		[Conditional(REPOSITORY_CHECK_DEFINE)]
+		//[Conditional(DEBUG_DEFINE)]
+		private void AssertCanInsert(IDiagramModelObject diagramModelObject) {
+			if (!CanInsertEntity(diagramModelObject, _newDiagramModelObjects, _loadedDiagramModelObjects, out _reasonText))
+				throw new CachedRepositoryException(_reasonText);
+		}
+
+
+		[Conditional(REPOSITORY_CHECK_DEFINE)]
+		//[Conditional(DEBUG_DEFINE)]
+		private void AssertCanInsert(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			if (!CanInsert(diagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
+		}
+
+
+		[Conditional(REPOSITORY_CHECK_DEFINE)]
+		//[Conditional(DEBUG_DEFINE)]
+		private void AssertCanUpdate(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			if (!CanUpdate(diagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
+		}
+
+
+		[Conditional(REPOSITORY_CHECK_DEFINE)]
+		//[Conditional(DEBUG_DEFINE)]
+		private void AssertCanUpdate(IDiagramModelObject diagramModelObject) {
+			if (!CanUpdateEntity(diagramModelObject, _newDiagramModelObjects, _loadedDiagramModelObjects, out _reasonText))
+				throw new CachedRepositoryException(_reasonText);
+		}
+
+
+		[Conditional(REPOSITORY_CHECK_DEFINE)]
+		//[Conditional(DEBUG_DEFINE)]
+		private void AssertCanDelete(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			if (!CanDelete(diagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
+		}
+
+
+		[Conditional(REPOSITORY_CHECK_DEFINE)]
+		//[Conditional(DEBUG_DEFINE)]
+		private void AssertCanDelete(IDiagramModelObject diagramModelObject) {
+			if (!CanDeleteEntity(diagramModelObject, _newDiagramModelObjects, _loadedDiagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
+		}
+
+
+		[Conditional(REPOSITORY_CHECK_DEFINE)]
+		//[Conditional(DEBUG_DEFINE)]
+		private void AssertCanUndelete(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			foreach (IDiagramModelObject diagramModelObject in diagramModelObjects)
+				if (!CanUndeleteEntity(diagramModelObject, _loadedDiagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
+		}
+
+
+		[Conditional(REPOSITORY_CHECK_DEFINE)]
+		//[Conditional(DEBUG_DEFINE)]
+		private void AssertCanUndelete(IDiagramModelObject diagramModelObject) {
+			if (!CanUndeleteEntity(diagramModelObject, _loadedDiagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
+		}
+
+		#endregion
+
+
 		#region Templates and ModelMappings
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
@@ -3018,16 +3551,16 @@ namespace Dataweb.NShape.Advanced {
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
 		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(IEnumerable<Shape> shapes, IEntity parent) {
-			if (parent is Diagram) {
-				if (!IsExistent((Diagram)parent, _newDiagrams, _loadedDiagrams))
-                    throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_DiagramNotFoundInRepository);
+			if (parent is Diagram diagram) {
+				if (!IsExistent(diagram, _newDiagrams, _loadedDiagrams))
+					throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_DiagramNotFoundInRepository);
 			} else if (parent is Template) {
 				foreach (Shape s in shapes)
 					if (!HasNoTemplate(s))
-                        throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_ShapeOrOneOfItsChildShapesHasATemplate);
-			} else if (parent is Shape) {
-				if (!IsExistent((Shape)parent, _newShapes, _loadedShapes))
-                    throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_ParentShapeNotFoundInRepository);
+						throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_ShapeOrOneOfItsChildShapesHasATemplate);
+			} else if (parent is Shape parentShape) {
+				if (!IsExistent(parentShape, _newShapes, _loadedShapes))
+					throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_ParentShapeNotFoundInRepository);
 			}
 			if (!CanInsert(shapes, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
@@ -3057,15 +3590,15 @@ namespace Dataweb.NShape.Advanced {
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
 		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(IEnumerable<Shape> shapes, IEntity owner) {
-			if (owner is Diagram) {
-				if (!IsExistent((Diagram)owner, _newDiagrams, _loadedDiagrams))
-                    throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_DiagramDoesNotExistInTheRepository);
-			} else if (owner is Template) {
-				if (!IsExistent((Template)owner, _newTemplates, _loadedTemplates))
-                    throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_TemplateDoesNotExistInTheRepository);
-			} else if (owner is Shape) {
-				if (!IsExistent((Shape)owner, _newShapes, _loadedShapes))
-                    throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_ParentShapeDoesNotExistInTheRepository);
+			if (owner is Diagram ownerDiagram) {
+				if (!IsExistent(ownerDiagram, _newDiagrams, _loadedDiagrams))
+					throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_DiagramDoesNotExistInTheRepository);
+			} else if (owner is Template ownerTemplate) {
+				if (!IsExistent(ownerTemplate, _newTemplates, _loadedTemplates))
+					throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_TemplateDoesNotExistInTheRepository);
+			} else if (owner is Shape ownerShape) {
+				if (!IsExistent(ownerShape, _newShapes, _loadedShapes))
+					throw new CachedRepositoryException(Dataweb.NShape.Properties.Resources.MessageTxt_ParentShapeDoesNotExistInTheRepository);
 			}
 			foreach (Shape shape in shapes) AssertCanUndelete(shape);
 		}
@@ -3171,9 +3704,9 @@ namespace Dataweb.NShape.Advanced {
 		private bool CanDelete(IEnumerable<IStyle> styles, out string reason) {
 			reason = null;
 			foreach (IStyle style in styles) {
-				if (IsStyleInUse(style, styles)) 
+				if (IsStyleInUse(style, styles))
 					reason = string.Format(ResourceStrings.MessageTxt_Type0IsStillInUse, ResourceStrings.Text_Style);
-				else if (!IsExistent(style, _newStyles, _loadedStyles)) 
+				else if (!IsExistent(style, _newStyles, _loadedStyles))
 					reason = string.Format(ResourceStrings.MessageFmt_Entity01DoesNotExistInTheRepository, ResourceStrings.Text_Style, style.Title);
 				if (!string.IsNullOrEmpty(reason)) break;
 			}
@@ -3272,44 +3805,73 @@ namespace Dataweb.NShape.Advanced {
 
 		private bool CanDelete(IEnumerable<IModelObject> modelObjects, out string reason) {
 			reason = null;
-			foreach (IModelObject modelObject in modelObjects){
-			if (CanDeleteEntity(modelObject, _newModelObjects, _loadedModelObjects, out reason)) {
-				// Check if model object is used by shapes
-				bool usedByShapes = false;
-				foreach (KeyValuePair<Shape, IEntity> item in _newShapes) {
-					if (item.Key.ModelObject == modelObject) {
-						usedByShapes = true;
-						break;
-					}
-				}
-				if (!usedByShapes) {
-					foreach (EntityBucket<Shape> item in _loadedShapes) {
-						if (item.State == ItemState.Deleted) continue;
-						if (item.ObjectRef.ModelObject == modelObject) {
+			foreach (IModelObject modelObject in modelObjects) {
+				if (CanDeleteEntity(modelObject, _newModelObjects, _loadedModelObjects, out reason)) {
+					// Check if model object is used by shapes
+					bool usedByShapes = false;
+					foreach (KeyValuePair<Shape, IEntity> item in _newShapes) {
+						if (item.Key.ModelObject == modelObject) {
 							usedByShapes = true;
 							break;
 						}
 					}
-				}
-				if (usedByShapes) reason = ResourceStrings.MessageTxt_ModelObjectIsStillUsedByShapes;
-
-				if (string.IsNullOrEmpty(reason)) {
-					bool usedByModelObjects = false;
-					if (_newModelObjects.ContainsValue(modelObject))
-						usedByModelObjects = true;
-					else {
-						foreach (EntityBucket<IModelObject> item in _loadedModelObjects) {
-							if (item.Owner == modelObject && item.State != ItemState.Deleted) {
-								usedByModelObjects = true;
+					if (!usedByShapes) {
+						foreach (EntityBucket<Shape> item in _loadedShapes) {
+							if (item.State == ItemState.Deleted) continue;
+							if (item.ObjectRef.ModelObject == modelObject) {
+								usedByShapes = true;
 								break;
 							}
 						}
 					}
-					if (usedByModelObjects) reason = Dataweb.NShape.Properties.Resources.MessageTxt_ModelObjectIsStillUsedByModelObjects;
+					if (usedByShapes) reason = ResourceStrings.MessageTxt_ModelObjectIsStillUsedByShapes;
+
+					if (string.IsNullOrEmpty(reason)) {
+						bool usedByModelObjects = false;
+						if (_newModelObjects.ContainsValue(modelObject))
+							usedByModelObjects = true;
+						else {
+							foreach (EntityBucket<IModelObject> item in _loadedModelObjects) {
+								if (item.Owner == modelObject && item.State != ItemState.Deleted) {
+									usedByModelObjects = true;
+									break;
+								}
+							}
+						}
+						if (usedByModelObjects) reason = Properties.Resources.MessageTxt_ModelObjectIsStillUsedByModelObjects;
+					}
+					if (string.IsNullOrEmpty(reason))
+						if (IsModelObjectInUse(modelObject)) reason = Properties.Resources.MessageTxt_ModelObjectIsInUse;
 				}
-				if (string.IsNullOrEmpty(reason))
-					if (IsModelObjectInUse(modelObject)) reason = Dataweb.NShape.Properties.Resources.MessageTxt_ModelObjectIsInUse;
 			}
+			return string.IsNullOrEmpty(reason);
+		}
+
+
+		private bool CanInsert(IEnumerable<IDiagramModelObject> diagramModelObjects, out string reason) {
+			reason = null;
+			foreach (IDiagramModelObject diagramModelObject in diagramModelObjects)
+				if (!CanInsertEntity(diagramModelObject, _newDiagramModelObjects, _loadedDiagramModelObjects, out reason))
+					break;
+			return string.IsNullOrEmpty(reason);
+		}
+
+
+		private bool CanUpdate(IEnumerable<IDiagramModelObject> diagramModelObjects, out string reason) {
+			reason = null;
+			foreach (IDiagramModelObject diagramModelObject in diagramModelObjects)
+				CanUpdateEntity(diagramModelObject, _newDiagramModelObjects, _loadedDiagramModelObjects, out reason);
+			return string.IsNullOrEmpty(reason);
+		}
+
+
+		private bool CanDelete(IEnumerable<IDiagramModelObject> diagramModelObjects, out string reason) {
+			reason = null;
+			foreach (IDiagramModelObject diagramModelObject in diagramModelObjects) {
+				if (CanDeleteEntity(diagramModelObject, _newDiagramModelObjects, _loadedDiagramModelObjects, out reason)) {
+					if (IsDiagramModelObjectInUse(diagramModelObject) && string.IsNullOrEmpty(reason))
+						reason = Properties.Resources.MessageTxt_DiagramModelObjectIsInUse;
+				}
 			}
 			return string.IsNullOrEmpty(reason);
 		}
@@ -3324,8 +3886,8 @@ namespace Dataweb.NShape.Advanced {
 			CanInsertEntity(template, _newTemplates, _loadedTemplates, out reason);
 			return string.IsNullOrEmpty(reason);
 		}
-		
-		
+
+
 		private bool CanUpdate(Template template, out string reason) {
 			reason = null;
 			CanUpdateEntity(template, _newTemplates, _loadedTemplates, out reason);
@@ -3425,7 +3987,7 @@ namespace Dataweb.NShape.Advanced {
 			CanInsertEntity(diagram, _newDiagrams, _loadedDiagrams, out reason);
 			return string.IsNullOrEmpty(reason);
 		}
-		
+
 
 		private bool CanUpdate(Diagram diagram, out string reason) {
 			reason = null;
@@ -3482,7 +4044,7 @@ namespace Dataweb.NShape.Advanced {
 		private bool CanUpdate(IEnumerable<Shape> shapes, out string reason) {
 			reason = null;
 			foreach (Shape shape in shapes)
-				if (!CanUpdate(shape, out reason)) 
+				if (!CanUpdate(shape, out reason))
 					break;
 			return string.IsNullOrEmpty(reason);
 		}
@@ -3639,10 +4201,10 @@ namespace Dataweb.NShape.Advanced {
 
 		private bool CanInsertEntity<TEntity>(TEntity entity, IDictionary<TEntity, IEntity> newEntities, LoadedEntities<TEntity> loadedEntities, out string reason)
 			where TEntity : IEntity {
-			reason=null;
-			if (entity.Id != null) 
+			reason = null;
+			if (entity.Id != null)
 				reason = string.Format(ResourceStrings.MessageFmt_EntityAlreadyHasAnIdAssigned, entity.GetType().Name, entity);
-			else if (IsExistent(entity, newEntities, loadedEntities)) 
+			else if (IsExistent(entity, newEntities, loadedEntities))
 				reason = string.Format(ResourceStrings.MessageFmt_EntityAlreadyExistsInTheRepository, entity.GetType().Name, entity);
 			return string.IsNullOrEmpty(reason);
 		}
@@ -3684,8 +4246,8 @@ namespace Dataweb.NShape.Advanced {
 			} else return false;
 		}
 
-		
-		private bool IsExistent<TEntity>(TEntity entity, IDictionary<TEntity, IEntity> newEntities, LoadedEntities<TEntity> loadedEntities) 
+
+		private bool IsExistent<TEntity>(TEntity entity, IDictionary<TEntity, IEntity> newEntities, LoadedEntities<TEntity> loadedEntities)
 			where TEntity : IEntity {
 			bool isExistent = false;
 			if (entity.Id == null)
@@ -3695,52 +4257,57 @@ namespace Dataweb.NShape.Advanced {
 			return isExistent;
 		}
 
+
+		private object ProjectId {
+			get { return ((IEntity)_settings).Id; }
+		}
+
+
+		private bool IsProjectLoaded {
+			get {
+				if (_settings is IEntity settingsEntity)
+					return (settingsEntity.Id != null);
+				return false;
+			}
+		}
+
 		#endregion
 
 
 		#region [Private] Methods for retrieving EventArgs
 
-		private RepositoryProjectEventArgs GetProjectEventArgs(ProjectSettings projectData) {
-			_projectEventArgs.Project = projectData;
-			return _projectEventArgs;
+		private RepositoryProjectEventArgs GetProjectEventArgs(ProjectSettings projectSettings) {
+			return new RepositoryProjectEventArgs(projectSettings);
 		}
 
 
 		private RepositoryModelEventArgs GetModelEventArgs(Model model) {
-			_modelEventArgs.Model = model;
-			return _modelEventArgs;
+			return new RepositoryModelEventArgs(model);
 		}
 
 
 		private RepositoryDesignEventArgs GetDesignEventArgs(Design design) {
-			_designEventArgs.Design = design;
-			return _designEventArgs;
+			return new RepositoryDesignEventArgs(design);
 		}
 
 
 		private RepositoryStyleEventArgs GetStyleEventArgs(IStyle style) {
-			_styleEventArgs.Style = style;
-			return _styleEventArgs;
+			return new RepositoryStyleEventArgs(style);
 		}
 
 
 		private RepositoryDiagramEventArgs GetDiagramEventArgs(Diagram diagram) {
-			_diagramEventArgs.Diagram = diagram;
-			return _diagramEventArgs;
+			return new RepositoryDiagramEventArgs(diagram);
 		}
 
 
 		private RepositoryTemplateEventArgs GetTemplateEventArgs(Template template) {
-			_templateEventArgs.Template = template;
-			return _templateEventArgs;
+			return new RepositoryTemplateEventArgs(template);
 		}
 
 
 		private RepositoryTemplateShapeReplacedEventArgs GetTemplateShapeExchangedEventArgs(Template template, Shape oldTemplateShape, Shape newTemplateShape) {
-			_templateShapeExchangedEventArgs.Template = template;
-			_templateShapeExchangedEventArgs.OldTemplateShape = oldTemplateShape;
-			_templateShapeExchangedEventArgs.NewTemplateShape = newTemplateShape;
-			return _templateShapeExchangedEventArgs;
+			return new RepositoryTemplateShapeReplacedEventArgs(template, oldTemplateShape, newTemplateShape);
 		}
 
 
@@ -3748,54 +4315,61 @@ namespace Dataweb.NShape.Advanced {
 			Diagram diagram;
 			if (((IEntity)shape).Id == null)
 				diagram = _newShapes[shape] as Diagram;
-			else diagram = _loadedShapes[((IEntity)shape).Id].Owner as Diagram;
-			_shapeEventArgs.SetShape(shape, diagram);
-			return _shapeEventArgs;
+			else
+				diagram = _loadedShapes[((IEntity)shape).Id].Owner as Diagram;
+			return new RepositoryShapesEventArgs(SingleInstanceEnumerator<Shape>.Create(shape), diagram);
 		}
 
 
 		private RepositoryShapesEventArgs GetShapesEventArgs(Shape shape, Diagram diagram) {
-			_shapeEventArgs.SetShape(shape, diagram);
-			return _shapeEventArgs;
+			return new RepositoryShapesEventArgs(SingleInstanceEnumerator<Shape>.Create(shape), diagram);
 		}
 
 
 		private RepositoryShapesEventArgs GetShapesEventArgs(IEnumerable<Shape> shapes, Diagram diagram) {
-			_shapeEventArgs.SetShapes(shapes, diagram);
-			return _shapeEventArgs;
+			return new RepositoryShapesEventArgs(shapes, diagram);
 		}
 
 
 		private RepositoryShapesEventArgs GetShapesEventArgs(IEnumerable<Shape> shapes) {
-			_shapeEventArgs.Clear();
+			Diagram diagram = null;
 			foreach (Shape shape in shapes) {
-				Diagram diagram = null;
 				if (((IEntity)shape).Id == null) {
-					if (_newShapes.ContainsKey(shape))
+					if (_newShapes.ContainsKey(shape)) {
+						Debug.Assert(diagram == null || diagram == _newShapes[shape]);
 						diagram = _newShapes[shape] as Diagram;
-				} else if (_loadedShapes.ContainsKey(((IEntity)shape).Id))
+					}
+				} else if (_loadedShapes.ContainsKey(((IEntity)shape).Id)) {
+					Debug.Assert(diagram == null || diagram == _loadedShapes[((IEntity)shape).Id].Owner as Diagram);
 					diagram = _loadedShapes[((IEntity)shape).Id].Owner as Diagram;
-				_shapeEventArgs.AddShape(shape, diagram);
+				}
 			}
-			return _shapeEventArgs;
+			return new RepositoryShapesEventArgs(shapes, diagram);
 		}
 
 
 		private RepositoryModelObjectsEventArgs GetModelObjectsEventArgs(IModelObject modelObject) {
-			_modelObjectEventArgs.SetModelObject(modelObject);
-			return _modelObjectEventArgs;
+			return new RepositoryModelObjectsEventArgs(SingleInstanceEnumerator<IModelObject>.Create(modelObject));
 		}
 
 
 		private RepositoryModelObjectsEventArgs GetModelObjectsEventArgs(IEnumerable<IModelObject> modelObjects) {
-			_modelObjectEventArgs.SetModelObjects(modelObjects);
-			return _modelObjectEventArgs;
+			return new RepositoryModelObjectsEventArgs(modelObjects);
+		}
+
+
+		private RepositoryDiagramModelObjectsEventArgs GetDiagramModelObjectsEventArgs(IDiagramModelObject diagramModelObject) {
+			return new RepositoryDiagramModelObjectsEventArgs(SingleInstanceEnumerator<IDiagramModelObject>.Create(diagramModelObject));
+		}
+
+
+		private RepositoryDiagramModelObjectsEventArgs GetDiagramModelObjectsEventArgs(IEnumerable<IDiagramModelObject> diagramModelObjects) {
+			return new RepositoryDiagramModelObjectsEventArgs(diagramModelObjects);
 		}
 
 
 		private RepositoryShapeConnectionEventArgs GetShapeConnectionEventArgs(ShapeConnection connection) {
-			_shapeConnectionEventArgs.SetShapeConnection(connection);
-			return _shapeConnectionEventArgs;
+			return new RepositoryShapeConnectionEventArgs(connection);
 		}
 
 		#endregion
@@ -3839,11 +4413,12 @@ namespace Dataweb.NShape.Advanced {
 			internal const string MessageTxt_RepositoryIsNotOpen = "Repository is not open.";
 			internal const string MessageTxt_StoreDoesNotExist = "Store does not exist.";
 			internal const string MessageTxt_Type0IsStillInUse = "{0} is still in use.";
-			internal const string MessageTxt_UnsavedRepositoryModificationsPending = "There are unsaved modifications of the repository. Please save all changes first."; 
+			internal const string MessageTxt_UnsavedRepositoryModificationsPending = "There are unsaved modifications of the repository. Please save all changes first.";
 			internal const string Text_Connection = "Connection";
 			internal const string Text_Design = "Design";
 			internal const string Text_Diagram = "Diagram";
 			internal const string Text_Entity = "Entity";
+			internal const string Text_DiagramModelObject = "Diagram Model Object";
 			internal const string Text_ModelObject = "Model Object";
 			internal const string Text_ModelObjects = "Model Objects";
 			internal const string Text_Project = "Project";
@@ -3914,7 +4489,9 @@ namespace Dataweb.NShape.Advanced {
 		private LoadedEntities<Template> _loadedTemplates = new LoadedEntities<Template>();
 		private LoadedEntities<IModelMapping> _loadedModelMappings = new LoadedEntities<IModelMapping>();
 		private LoadedEntities<Shape> _loadedShapes = new LoadedEntities<Shape>();
+		private LoadedEntities<IModelObject> _loadedTemplateModelObjects = new LoadedEntities<IModelObject>();
 		private LoadedEntities<IModelObject> _loadedModelObjects = new LoadedEntities<IModelObject>();
+		private LoadedEntities<IDiagramModelObject> _loadedDiagramModelObjects = new LoadedEntities<IDiagramModelObject>();
 
 		// Containers for new entities
 		// Stores the new entity as the key and its parent as the value.
@@ -3927,21 +4504,11 @@ namespace Dataweb.NShape.Advanced {
 		private Dictionary<Template, IEntity> _newTemplates = new Dictionary<Template, IEntity>();
 		private Dictionary<IModelMapping, IEntity> _newModelMappings = new Dictionary<IModelMapping, IEntity>();
 		private Dictionary<Shape, IEntity> _newShapes = new Dictionary<Shape, IEntity>();
+		private Dictionary<IModelObject, IEntity> _newTemplateModelObjects = new Dictionary<IModelObject, IEntity>();
 		private Dictionary<IModelObject, IEntity> _newModelObjects = new Dictionary<IModelObject, IEntity>();
+		private Dictionary<IDiagramModelObject, IEntity> _newDiagramModelObjects = new Dictionary<IDiagramModelObject, IEntity>();
 		private List<ShapeConnection> _newShapeConnections = new List<ShapeConnection>();
 		private List<ShapeConnection> _deletedShapeConnections = new List<ShapeConnection>();
-
-		// EventArg Buffers
-		private RepositoryProjectEventArgs _projectEventArgs = new RepositoryProjectEventArgs();
-		private RepositoryModelEventArgs _modelEventArgs = new RepositoryModelEventArgs();
-		private RepositoryDesignEventArgs _designEventArgs = new RepositoryDesignEventArgs();
-		private RepositoryStyleEventArgs _styleEventArgs = new RepositoryStyleEventArgs();
-		private RepositoryDiagramEventArgs _diagramEventArgs = new RepositoryDiagramEventArgs();
-		private RepositoryTemplateEventArgs _templateEventArgs = new RepositoryTemplateEventArgs();
-		private RepositoryTemplateShapeReplacedEventArgs _templateShapeExchangedEventArgs = new RepositoryTemplateShapeReplacedEventArgs();
-		private RepositoryShapesEventArgs _shapeEventArgs = new RepositoryShapesEventArgs();
-		private RepositoryShapeConnectionEventArgs _shapeConnectionEventArgs = new RepositoryShapeConnectionEventArgs();
-		private RepositoryModelObjectsEventArgs _modelObjectEventArgs = new RepositoryModelObjectsEventArgs();
 
 		#endregion
 
@@ -4350,6 +4917,16 @@ namespace Dataweb.NShape.Advanced {
 			object id = ReadId();
 			if (id == null) return null;
 			else return Cache.GetModelObject(id);
+		}
+
+
+		/// <summary>
+		/// Reads a model object from the data source.
+		/// </summary>
+		public IDiagramModelObject ReadDiagramModelObject() {
+			object id = ReadId();
+			if (id == null) return null;
+			else return Cache.GetDiagramModelObject(id);
 		}
 
 
@@ -4916,6 +5493,15 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <summary>
+		/// Writes a model object.
+		/// </summary>
+		public void WriteDiagramModelObject(IDiagramModelObject diagramModelObject) {
+			if (InnerObjectsWriter == null) DoWriteDiagramModelObject(diagramModelObject);
+			else InnerObjectsWriter.WriteDiagramModelObject(diagramModelObject);
+		}
+
+
+		/// <summary>
 		/// Writes a style.
 		/// </summary>
 		public void WriteStyle(IStyle style) {
@@ -5045,9 +5631,9 @@ namespace Dataweb.NShape.Advanced {
 		/// Implementation of writing an image.
 		/// </summary>
 		protected abstract void DoWriteImage(System.Drawing.Image image);
-		
+
 		/// <summary>
-		/// Implementation of writing a model object.
+		/// Implementation of writing a diagram model object.
 		/// </summary>
 		protected virtual void DoWriteModelObject(IModelObject modelObject) {
 			if (modelObject != null && modelObject.Id == null)
@@ -5056,6 +5642,18 @@ namespace Dataweb.NShape.Advanced {
 			Debug.Assert(modelObject == null || modelObject.Id != null);
 			if (modelObject == null) WriteId(null);
 			else WriteId(modelObject.Id);
+		}
+
+		/// <summary>
+		/// Implementation of writing a diagram model object.
+		/// </summary>
+		protected virtual void DoWriteDiagramModelObject(IDiagramModelObject diagramModelObject) {
+			if (diagramModelObject != null && diagramModelObject.Id == null)
+				throw new InvalidOperationException(string.Format("{0} '{1}' was not inserted in the repository.",
+					diagramModelObject.Type.FullName, diagramModelObject.Name));
+			Debug.Assert(diagramModelObject == null || diagramModelObject.Id != null);
+			if (diagramModelObject == null) WriteId(null);
+			else WriteId(diagramModelObject.Id);
 		}
 
 		/// <summary>

@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="AggregateShapeBtn" type="System.Resources.ResXFileRef, System.Windows.Forms">
@@ -483,6 +483,9 @@
   </data>
   <data name="MessageTxt_ModelObjectIsInUse" xml:space="preserve">
     <value>Model object is in use.</value>
+  </data>
+  <data name="MessageTxt_DiagramModelObjectIsInUse" xml:space="preserve">
+    <value>Diagram model object is in use.</value>
   </data>
   <data name="MessageTxt_TemplatesShapeWasNotDeleted" xml:space="preserve">
     <value>Template's shape was not deleted.</value>
@@ -1597,7 +1600,31 @@
   <data name="PropName_Diagram_IsBackgroundImageVisible" xml:space="preserve">
     <value>IsBackgroundImageVisible</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value />
+  <data name="MessageTxt_RegisterDiagramModelObjectTypeCanOnlyBeCalledWhileALibraryIsInitializing" xml:space="preserve">
+    <value>'RegisterDiagramModelObjectType' can only be called while a library is initializing.</value>
+  </data>
+  <data name="MessageFmt_01IsAlreadyAttachedToADiagram" xml:space="preserve">
+    <value>{0} '{1}' is already attached to a diagram.</value>
+  </data>
+  <data name="MessageFmt_01IsNotAttachedToADiagram" xml:space="preserve">
+    <value>{0} '{1}' is not attached to a diagram.</value>
+  </data>
+  <data name="Text_Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Text_Cut" xml:space="preserve">
+    <value>Cut</value>
+  </data>
+  <data name="Text_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Text_Paste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="HandGrabCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\HandGrabCursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="HandOpenCursor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\HandOpenCursor.cur;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

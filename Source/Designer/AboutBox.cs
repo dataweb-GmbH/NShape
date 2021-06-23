@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -48,22 +48,22 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			Process.Start("http://www.dataweb.de");
+			Process.Start("https://www.dataweb.de");
 		}
 
 
 		private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			Process.Start("http://www.dataweb.de/en/support/nshapefeedback.html");
+			Process.Start("https://www.dataweb.de/en/support/nshapefeedback.html");
 		}
 
 
 		private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			Process.Start("http://nshape.codeplex.com");
+			Process.Start("https://nshape.codeplex.com");
 		}
 
 
 		private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			Process.Start("http://nshape.googlecode.com");
+			Process.Start("https://github.com/dataweb-GmbH/NShape");
 		}
 
 

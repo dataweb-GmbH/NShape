@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -109,7 +109,7 @@ namespace Dataweb.NShape.Advanced {
 			get { return _elementName; }
 			internal set { _elementName = value; }
 		}
-		
+
 
 		#region Fields
 
@@ -120,7 +120,7 @@ namespace Dataweb.NShape.Advanced {
 		#endregion
 	}
 
-	
+
 	/// <summary>
 	/// Describes a single valued property.
 	/// </summary>
@@ -148,7 +148,7 @@ namespace Dataweb.NShape.Advanced {
 		#region Fields
 
 		private Type _type;
-		
+
 		#endregion
 	}
 
@@ -202,25 +202,27 @@ namespace Dataweb.NShape.Advanced {
 	/// Describes the kind of entity.
 	/// </summary>
 	/// <status>reviewed</status>
-	public enum EntityCategory { 
+	public enum EntityCategory {
 		/// <summary>Project settings entity</summary>
-		ProjectSettings, 
+		ProjectSettings,
 		/// <summary>Diagram entity</summary>
-		Diagram, 
+		Diagram,
 		/// <summary>Shape entity</summary>
-		Shape, 
+		Shape,
 		/// <summary>Template entity</summary>
 		Template,
 		/// <summary>Model entity</summary>
 		Model,
 		/// <summary>Model object entity</summary>
 		ModelObject,
+		/// <summary>Diagram Model object entity</summary>
+		DiagramModelObject,
 		/// <summary>Model mapping entity</summary>
 		ModelMapping,
 		/// <summary>Design entity</summary>
-		Design, 
+		Design,
 		/// <summary>Style entity</summary>
-		Style 
+		Style
 	}
 
 
@@ -253,12 +255,19 @@ namespace Dataweb.NShape.Advanced {
 		/// Indicates the repository version to be used with the entity type.
 		/// </summary>
 		int RepositoryVersion { get; }
-		
+
 		/// <summary>
 		/// Creates an empty instance of this entity for loading.
 		/// </summary>
 		/// <returns></returns>
 		IEntity CreateInstanceForLoading();
+
+
+		/// <summary>
+		/// Creates an empty instance of this entity for loading.
+		/// </summary>
+		/// <returns></returns>
+		TEntity CreateInstanceForLoading<TEntity>() where TEntity : IEntity;
 
 		/// <summary>
 		/// Lists all property infos of this entity type.
@@ -277,7 +286,7 @@ namespace Dataweb.NShape.Advanced {
 	/// </summary>
 	/// <returns></returns>
 	public delegate IEntity CreateInstanceDelegate();
-	
+
 
 	/// <summary>
 	/// Represents a method that retrieves the property definitions of an entity.
@@ -295,7 +304,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Constructs an entity type.
 		/// </summary>
-		public EntityType(string entityTypeName, EntityCategory category, int version, 
+		public EntityType(string entityTypeName, EntityCategory category, int version,
 			CreateInstanceDelegate createInstanceDelegate, IEnumerable<EntityPropertyDefinition> propertyDefinitions) {
 			if (entityTypeName == null) throw new ArgumentNullException("entityTypeName");
 			if (createInstanceDelegate == null) throw new ArgumentNullException("createInstanceDelegate");
@@ -336,14 +345,20 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public int RepositoryVersion { 
-			get { return _repositoryVersion; } 
+		public int RepositoryVersion {
+			get { return _repositoryVersion; }
 		}
 
 
 		/// <override></override>
 		public IEntity CreateInstanceForLoading() {
 			return _createInstanceDelegate();
+		}
+
+
+		/// <override></override>
+		public TEntity CreateInstanceForLoading<TEntity>() where TEntity : IEntity {
+			return (TEntity)_createInstanceDelegate();
 		}
 
 
@@ -447,6 +462,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>Writes a model object.</summary>
 		void WriteModelObject(IModelObject modelObject);
 
+		/// <summary>Writes a diagram model object.</summary>
+		void WriteDiagramModelObject(IDiagramModelObject modelObject);
+
 		/// <summary>Writes a string value.</summary>
 		void WriteString(string value);
 
@@ -534,6 +552,9 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <summary>Reads a model object.</summary>
 		IModelObject ReadModelObject();
+
+		/// <summary>Reads a model object.</summary>
+		IDiagramModelObject ReadDiagramModelObject();
 
 		/// <summary>Reads a paragraph style.</summary>
 		IParagraphStyle ReadParagraphStyle();

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -39,7 +39,7 @@ namespace Dataweb.NShape.Designer {
 
 		public DiagramDesignerMainForm() {
 			InitializeComponent();
-			Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); 
+			Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 			runtimeModeComboBox.SelectedIndex = 0;
 			Visible = false;
 
@@ -67,31 +67,49 @@ namespace Dataweb.NShape.Designer {
 
 		public bool MouseWheelZoom {
 			get { return _mouseWheelZoom; }
-			set { 
+			set {
 				_mouseWheelZoom = value;
 				if (CurrentDisplay != null) CurrentDisplay.ZoomWithMouseWheel = value;
 			}
 		}
 
 
-		public bool ShowScrollBars{
+		public bool UseUniversalScroll {
+			get { return _universalScroll; }
+			set {
+				_universalScroll = value;
+				if (CurrentDisplay != null) CurrentDisplay.IsUniversalScrollEnabled = value;
+			}
+		}
+
+
+		public MouseButtons PanButtons {
+			get { return _panButtons; }
+			set {
+				_panButtons = value;
+				if (CurrentDisplay != null) CurrentDisplay.PanMouseButton = value;
+			}
+		}
+
+
+		public bool ShowScrollBars {
 			get { return _showScrollBars; }
-			set { 
+			set {
 				_showScrollBars = value;
-				if (CurrentDisplay != null) CurrentDisplay.ShowScrollBars = value;
+				if (CurrentDisplay != null) CurrentDisplay.ScrollBarsVisible = value;
 			}
 		}
 
 
 		public bool ShowDiagramSheet {
 			get { return _showSheet; }
-			set { 
+			set {
 				_showSheet = value;
 				if (CurrentDisplay != null) CurrentDisplay.IsSheetVisible = value;
 			}
 		}
-		
-		
+
+
 		public bool ShowGrid {
 			get { return _showGrid; }
 			set {
@@ -132,11 +150,11 @@ namespace Dataweb.NShape.Designer {
 
 
 		public bool HideDeniedMenuItems {
-			get {				return _hideDeniedMenuItems;			}
+			get { return _hideDeniedMenuItems; }
 			set {
 				_hideDeniedMenuItems = value;
-				toolSetListViewPresenter.HideDeniedMenuItems = 
-				modelTreePresenter.HideDeniedMenuItems = 
+				toolSetListViewPresenter.HideDeniedMenuItems =
+				modelTreePresenter.HideDeniedMenuItems =
 				layerEditorListView.HideDeniedMenuItems = value;
 				if (CurrentDisplay != null) CurrentDisplay.HideDeniedMenuItems = value;
 			}
@@ -233,7 +251,9 @@ namespace Dataweb.NShape.Designer {
 					_currentDisplay.IsGridVisible = ShowGrid;
 					// Display Settings
 					_currentDisplay.ZoomWithMouseWheel = MouseWheelZoom;
-					_currentDisplay.ShowScrollBars = ShowScrollBars;
+					_currentDisplay.IsUniversalScrollEnabled = UseUniversalScroll;
+					_currentDisplay.PanMouseButton = PanButtons;
+					_currentDisplay.ScrollBarsVisible = ShowScrollBars;
 					_currentDisplay.IsSheetVisible = ShowDiagramSheet;
 					// Security Settings
 					_currentDisplay.ShowDefaultContextMenu = ShowDefaultContextMenu;
@@ -252,7 +272,8 @@ namespace Dataweb.NShape.Designer {
 						_currentDisplay.ActiveTool = toolSetController.SelectedTool;
 						if (_currentDisplay.SelectedShapes.Count > 0)
 							propertyController.SetObjects(0, _currentDisplay.SelectedShapes);
-						else propertyController.SetObject(0, _currentDisplay.Diagram);
+						else
+							propertyController.SetObject(0, _currentDisplay.Diagram);
 					}
 					layerPresenter.DiagramPresenter = CurrentDisplay;
 
@@ -345,7 +366,7 @@ namespace Dataweb.NShape.Designer {
 
 			toolStripStatusLabelDiagram.ToolTipText =
 			statusLabelShapeCount.ToolTipText = "Number of shapes in the current diagram";
-			
+
 			toolStripStatusLabelSelection.ToolTipText = "Position and size of the current selection";
 			statusLabelMousePosition.ToolTipText = "Mouse position in diagram coordinates";
 			statusLabelSelectionSize.ToolTipText = "The size of the current selection in diagram coordinates";
@@ -408,10 +429,10 @@ namespace Dataweb.NShape.Designer {
 			string filePath = Path.Combine(_configFolder, ConfigFileName);
 			if (File.Exists(filePath)) {
 				XmlReader cfgReader = OpenCfgReader(filePath);
-				
+
 				result.Load(cfgReader);
 				cfgReader.Close();
-			}			
+			}
 			return result;
 		}
 
@@ -448,7 +469,7 @@ namespace Dataweb.NShape.Designer {
 		private void ReadWindowConfig(XmlDocument xmlDoc) {
 			// Load ToolStrip Positions only if a config was saved before
 			if (_loadToolStripLayoutOnStartup) ToolStripManager.LoadSettings(this, GetToolStripSettingsName());
-			else _loadToolStripLayoutOnStartup = true;	// Load next time
+			else _loadToolStripLayoutOnStartup = true;  // Load next time
 
 			// Read window settings
 			XmlNode wndSettingsNode = xmlDoc.SelectSingleNode(string.Format(QueryNode, NodeNameWindowSettings));
@@ -487,7 +508,7 @@ namespace Dataweb.NShape.Designer {
 
 				// Find the "Project Directory" node
 				XmlNode projectDirectoryNode = xmlDoc.SelectSingleNode(string.Format(QueryNode, NodeNameProjectDirectory));
-				if (projectDirectoryNode == null) 
+				if (projectDirectoryNode == null)
 					projectDirectoryNode = CreateConfigNode(xmlDoc, settingsNode, NodeNameProjectDirectory);
 				// Save last project directory
 				projectDirectoryNode.RemoveAll();
@@ -602,7 +623,7 @@ namespace Dataweb.NShape.Designer {
 						for (int i = missingProjects.Count - 1; i >= 0; --i) {
 							int prjIdx = missingProjects[i];
 							res = MessageBox.Show(this, string.Format(msgFormat, Environment.NewLine, _recentProjects[prjIdx].location), "File not found", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-							if (res == DialogResult.No) 
+							if (res == DialogResult.No)
 								missingProjects.RemoveAt(i);
 						}
 					}
@@ -616,7 +637,7 @@ namespace Dataweb.NShape.Designer {
 			}
 		}
 
-		
+
 		// Old version:
 		//private void MaintainRecentProjects() {
 		//    bool modified = false, remove = false;
@@ -738,7 +759,7 @@ namespace Dataweb.NShape.Designer {
 			project.Create();
 			_projectSaved = false;
 			DisplayDiagrams(true);
-			if (askUserLoadLibraries) 
+			if (askUserLoadLibraries)
 				CheckLibrariesLoaded();
 			// Adjust menu items
 			saveMenuItem.Enabled = true;
@@ -805,13 +826,13 @@ namespace Dataweb.NShape.Designer {
 			else result = DoSaveProject();
 			return result;
 		}
-		
+
 
 		private bool SaveProjectAs() {
 			bool result = false;
 			CachedRepository cachedRepository = (CachedRepository)project.Repository;
 			bool isNewstore = false;
-			
+
 			// If there is no store, create an XmlStore
 			if (cachedRepository.Store == null) {
 				// Get default storage location
@@ -820,7 +841,8 @@ namespace Dataweb.NShape.Designer {
 					const int COMMON_DOCUMENTS = 0x002e;
 					if (SHGetSpecialFolderPath(IntPtr.Zero, path, COMMON_DOCUMENTS, 0) != 0)
 						_xmlStoreDirectory = Path.Combine(Path.Combine(path.ToString(), "NShape"), "Demo Projects");
-					else _xmlStoreDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+					else
+						_xmlStoreDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 				}
 
 				XmlStore xmlStore = new XmlStore() {
@@ -837,9 +859,11 @@ namespace Dataweb.NShape.Designer {
 				XmlStore xmlStore = (XmlStore)cachedRepository.Store;
 
 				// Select a file name
-				saveFileDialog.CreatePrompt = false;		// Do not ask whether to create the file
-				saveFileDialog.CheckFileExists = false;		// Do not check whether the file does NOT exist
-				saveFileDialog.CheckPathExists = true;		// Ask whether to overwrite existing file
+				saveFileDialog.CreatePrompt = false;        // Do not ask whether to create the file
+				saveFileDialog.CheckFileExists = false;     // Do not check whether the file does NOT exist
+				saveFileDialog.CheckPathExists = true;      // Ask whether to overwrite existing file
+				saveFileDialog.DefaultExt = ProjectFileExtension;
+				saveFileDialog.AddExtension = true;
 				saveFileDialog.Filter = FileFilterXmlRepository;
 				if (Directory.Exists(xmlStore.DirectoryName))
 					saveFileDialog.InitialDirectory = xmlStore.DirectoryName;
@@ -852,13 +876,17 @@ namespace Dataweb.NShape.Designer {
 					if (xmlStore.ProjectFilePath != saveFileDialog.FileName) {
 						project.Name = Path.GetFileNameWithoutExtension(saveFileDialog.FileName);
 						xmlStore.DirectoryName = Path.GetDirectoryName(saveFileDialog.FileName);
+						string ext = Path.GetExtension(saveFileDialog.FileName);
+						if (!string.IsNullOrEmpty(ext) && ext != xmlStore.FileExtension)
+							xmlStore.FileExtension = ext;
+
 						Text = string.Format("{0} - {1}", AppTitle, project.Name);
 					}
 					// Delete file if it exists, because the user was prompted whether to overwrite it before (SaveFileDialog.CheckPathExists).
-					if (project.Repository.Exists()) 
+					if (project.Repository.Exists())
 						project.Repository.Erase();
 					// If the XmlStore was freshly created, call create in order to create the store media and (internally) open the store
-					if (isNewstore) 
+					if (isNewstore)
 						xmlStore.Create(cachedRepository);
 					xmlStore.ImageLocation = XmlImageFileLocation;
 
@@ -877,7 +905,7 @@ namespace Dataweb.NShape.Designer {
 					string msg = string.Format("Unsupported store type: '{0}'.", cachedRepository.Store.GetType().Name);
 					MessageBox.Show(this, msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
-			} 
+			}
 			return result;
 		}
 
@@ -993,7 +1021,7 @@ namespace Dataweb.NShape.Designer {
 						project.ReadXml(memStream);
 					// Assign the new Repository to the main form's cachedRepository component
 					cachedRepository = (CachedRepository)project.Repository;
-					
+
 					// Display the result
 					DisplayDiagrams(false);
 				}
@@ -1037,8 +1065,8 @@ namespace Dataweb.NShape.Designer {
 				if (CurrentDisplay.SelectedShapes.Count > 0)
 					selectionSize = CurrentDisplay.SelectedShapes.GetBoundingRectangle(true).Size;
 			}
-			statusLabelTopLeft.Text =string.Format(PointFormatStr, bounds.Left, bounds.Top);
-			statusLabelBottomRight.Text =string.Format(PointFormatStr,  bounds.Right, bounds.Bottom);
+			statusLabelTopLeft.Text = string.Format(PointFormatStr, bounds.Left, bounds.Top);
+			statusLabelBottomRight.Text = string.Format(PointFormatStr, bounds.Right, bounds.Bottom);
 			statusLabelMousePosition.Text = string.Format(PointFormatStr, mousePos.X, mousePos.X);
 			statusLabelSelectionSize.Text = string.Format(SizeFormatStr, selectionSize.Width, selectionSize.Height);
 			statusLabelShapeCount.Text = string.Format(ShapeCntFormatStr, shapeCnt, shapeCnt == 1 ? string.Empty : "s");
@@ -1047,7 +1075,7 @@ namespace Dataweb.NShape.Designer {
 
 		private void UpdateAllMenuItems() {
 			upgradeVersionMenuItem.Enabled = false;
-			if (!project.IsOpen) 
+			if (!project.IsOpen)
 				upgradeVersionMenuItem.ToolTipText = "No project opened.";
 			else if (!project.Repository.CanModifyVersion)
 				upgradeVersionMenuItem.ToolTipText = "The current repository does not support upgrading storage version.";
@@ -1055,7 +1083,7 @@ namespace Dataweb.NShape.Designer {
 				upgradeVersionMenuItem.ToolTipText = "The repository storage version is up to date.";
 			else {
 				upgradeVersionMenuItem.Enabled = true;
-				upgradeVersionMenuItem.ToolTipText = string.Format("Upgrade repository storage version from {0} to {1}.", 
+				upgradeVersionMenuItem.ToolTipText = string.Format("Upgrade repository storage version from {0} to {1}.",
 					project.Repository.Version, _maxRepositoryVersion);
 			}
 
@@ -1112,7 +1140,7 @@ namespace Dataweb.NShape.Designer {
 				toForegroundMenuItem.Enabled =
 				toBackgroundMenuItem.Enabled = CurrentDisplay.DiagramSetController.CanLiftShapes(CurrentDisplay.Diagram, CurrentDisplay.SelectedShapes);
 				// Selection
-				selectAllToolStripMenuItem.Enabled = (CurrentDisplay.Diagram.Shapes.Count > 0 
+				selectAllToolStripMenuItem.Enabled = (CurrentDisplay.Diagram.Shapes.Count > 0
 													&& CurrentDisplay.SelectedShapes.Count < CurrentDisplay.Diagram.Shapes.Count);
 				unselectAllToolStripMenuItem.Enabled = (CurrentDisplay.SelectedShapes.Count > 0);
 				selectAllOfTypeToolStripMenuItem.Enabled = (CurrentDisplay.SelectedShapes.Count == 1);
@@ -1142,9 +1170,9 @@ namespace Dataweb.NShape.Designer {
 				toForegroundMenuItem.Enabled =
 				toBackgroundMenuItem.Enabled = false;
 				// Selection
-				selectAllToolStripMenuItem.Enabled = 
-				unselectAllToolStripMenuItem.Enabled = 
-				selectAllOfTypeToolStripMenuItem.Enabled = 
+				selectAllToolStripMenuItem.Enabled =
+				unselectAllToolStripMenuItem.Enabled =
+				selectAllOfTypeToolStripMenuItem.Enabled =
 				selectAllOfTemplateToolStripMenuItem.Enabled = false;
 			}
 		}
@@ -1176,7 +1204,7 @@ namespace Dataweb.NShape.Designer {
 					propertyWindowTabControl.TabPages.Remove(propertyWindowModelTab);
 			}
 		}
-		
+
 		#endregion
 
 
@@ -1200,7 +1228,7 @@ namespace Dataweb.NShape.Designer {
 			}
 			if (displayTabControl.TabCount > 0) {
 				displayTabControl.SelectedIndex = 0;
-				// Call selectedIndexChanged event handler immideiatly because otherwise it would be called 
+				// Call selectedIndexChanged event handler immediately because otherwise it would be called 
 				// when this method is completed (but we need a CurrentDisplay now)
 				displaysTabControl_SelectedIndexChanged(displayTabControl, EventArgs.Empty);
 				showDiagramSettingsToolStripMenuItem_Click(this, EventArgs.Empty);
@@ -1218,7 +1246,9 @@ namespace Dataweb.NShape.Designer {
 			display.HighQualityBackground = HighQuality;
 			display.IsGridVisible = ShowGrid;
 			display.ZoomWithMouseWheel = MouseWheelZoom;
-			display.ShowScrollBars = ShowScrollBars;
+			display.IsUniversalScrollEnabled = UseUniversalScroll;
+			display.PanMouseButton = PanButtons;
+			display.ScrollBarsVisible = ShowScrollBars;
 			display.IsSheetVisible = ShowDiagramSheet;
 			display.GridSize = GridSize;
 			display.SnapToGrid = SnapToGrid;
@@ -1242,7 +1272,6 @@ namespace Dataweb.NShape.Designer {
 			//
 			return display;
 		}
-
 
 		private DisplayTabPage CreateDiagramTabPage(Diagram diagram, bool createDisplay) {
 			DisplayTabPage tabPage = new DisplayTabPage(diagram.Title);
@@ -1320,11 +1349,11 @@ namespace Dataweb.NShape.Designer {
 				project.Repository.DiagramInserted -= repository_DiagramInserted;
 				project.Repository.DiagramUpdated -= repository_DiagramUpdated;
 				project.Repository.DiagramDeleted -= repository_DiagramDeleted;
-				
+
 				// ModelObject events
 				project.Repository.ModelObjectsInserted -= repository_ModelObjectsInsertedOrDeleted;
 				project.Repository.ModelObjectsDeleted -= repository_ModelObjectsInsertedOrDeleted;
-				
+
 				// Event handlers used for detecting changes
 				project.Repository.ConnectionDeleted -= Repository_ConnectionModified;
 				project.Repository.ConnectionInserted -= Repository_ConnectionModified;
@@ -1356,7 +1385,7 @@ namespace Dataweb.NShape.Designer {
 		private void RegisterDisplayEvents(Display display) {
 			if (display != null) {
 				display.Scroll += display_Scroll;
-				display.Resize += display_Resize;				
+				display.Resize += display_Resize;
 				display.MouseMove += display_MouseMove;
 				display.ShapesSelected += display_ShapesSelected;
 				display.ShapesInserted += display_ShapesInserted;
@@ -1417,7 +1446,7 @@ namespace Dataweb.NShape.Designer {
 
 			UnregisterPropertyControllerEvents();
 			UnregisterRepositoryEvents();
-			
+
 			historyTrackBar.Maximum = project.History.UndoCommandCount + project.History.RedoCommandCount;
 			Text = AppTitle;
 			statusLabelMessage.Text =
@@ -1578,11 +1607,10 @@ namespace Dataweb.NShape.Designer {
 		private void display_ShapesSelected(object sender, EventArgs e) {
 			if (sender.Equals(CurrentDisplay)) {
 				int cnt = CurrentDisplay.SelectedShapes.Count;
-				if (cnt > 0) {
+				if (cnt > 0)
 					statusLabelMessage.Text = string.Format("{0} shape{1} selected.", cnt, cnt > 1 ? "s" : string.Empty);
-					if (propertyController.GetSelectedObjects(0) != CurrentDisplay.SelectedShapes)
-						propertyController.SetObjects(0, CurrentDisplay.SelectedShapes);
-				} else statusLabelMessage.Text = string.Empty;
+				else
+					statusLabelMessage.Text = string.Empty;
 				UpdateAllMenuItems();
 				UpdateStatusInfo();
 				//
@@ -1682,7 +1710,7 @@ namespace Dataweb.NShape.Designer {
 						viewHelpToolStripMenuItem.Enabled = true;
 					else
 						viewHelpToolStripMenuItem.ToolTipText = "Help file does not exist (or is not accessible).";
-				}				
+				}
 
 				// Add library load support
 				project.AutoLoadLibraries = true;
@@ -1759,7 +1787,7 @@ namespace Dataweb.NShape.Designer {
 				// after all initialization is done.
 				ReadWindowConfig(config);
 			} catch (Exception ex) {
-			   MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 
@@ -1921,7 +1949,7 @@ namespace Dataweb.NShape.Designer {
 		private void toolStripComboBox1_TextChanged(object sender, EventArgs e) {
 			int cursorPos = -1;
 			if (zoomToolStripComboBox.Focused)
-				cursorPos =  zoomToolStripComboBox.SelectionStart;
+				cursorPos = zoomToolStripComboBox.SelectionStart;
 
 			string txt = null;
 			if (zoomToolStripComboBox.Text.Contains("%"))
@@ -2046,7 +2074,7 @@ namespace Dataweb.NShape.Designer {
 
 		private void upgradeVersionMenuItem_Click(object sender, EventArgs e) {
 			try {
-				string msg = string.Format("Project '{0}' will be upgraded from file version {1} to {2}. " 
+				string msg = string.Format("Project '{0}' will be upgraded from file version {1} to {2}. "
 					+ "{3}After upgrading, the project will be saved automatically.{3}Do you want to continue upgrading and saving the project?",
 					project.Name, project.Repository.Version, _maxRepositoryVersion, Environment.NewLine);
 				DialogResult res = MessageBox.Show(msg, "Upgrade and Save Project?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -2177,23 +2205,23 @@ namespace Dataweb.NShape.Designer {
 			string fileFilter = null;
 			ImageFormat imageFormat = null;
 			switch (imageFileFormat) {
-				case ImageFileFormat.Bmp: 
+				case ImageFileFormat.Bmp:
 					fileFilter = "Bitmap Picture Files|*.bmp|All Files|*.*";
 					imageFormat = ImageFormat.Bmp;
 					break;
-				case ImageFileFormat.Gif: 
+				case ImageFileFormat.Gif:
 					fileFilter = "Graphics Interchange Format Files|*.gif|All Files|*.*";
 					imageFormat = ImageFormat.Gif;
 					break;
-				case ImageFileFormat.Jpeg: 
+				case ImageFileFormat.Jpeg:
 					fileFilter = "Joint Photographic Experts Group (JPEG) Files|*.jpeg;*.jpg|All Files|*.*";
 					imageFormat = ImageFormat.Jpeg;
 					break;
-				case ImageFileFormat.Png: 
+				case ImageFileFormat.Png:
 					fileFilter = "Portable Network Graphics Files|*.png|All Files|*.*";
 					imageFormat = ImageFormat.Png;
 					break;
-				case ImageFileFormat.Tiff: 
+				case ImageFileFormat.Tiff:
 					fileFilter = "Tagged Image File Format Files|*.tiff;*.tif|All Files|*.*";
 					imageFormat = ImageFormat.Tiff;
 					break;
@@ -2325,7 +2353,7 @@ namespace Dataweb.NShape.Designer {
 				Shape refShape = CurrentDisplay.SelectedShapes.TopMost;
 				foreach (Shape s in CurrentDisplay.Diagram.Shapes) {
 					if (s == refShape) continue;
-					if (s.Template== refShape.Template)
+					if (s.Template == refShape.Template)
 						CurrentDisplay.SelectShape(s, true);
 				}
 			}
@@ -2707,7 +2735,7 @@ namespace Dataweb.NShape.Designer {
 			public static readonly RepositoryInfo Empty;
 
 			public const string XmlStoreTypeName = "XML";
-			
+
 			public const string SqlServerStoreTypeName = "SQL Server";
 
 			public static bool operator ==(RepositoryInfo a, RepositoryInfo b) {
@@ -2736,7 +2764,7 @@ namespace Dataweb.NShape.Designer {
 				}
 				return store;
 			}
-			
+
 			public override bool Equals(object obj) {
 				return (obj is RepositoryInfo && ((RepositoryInfo)obj) == this);
 			}
@@ -2793,8 +2821,8 @@ namespace Dataweb.NShape.Designer {
 		private const string DefaultDatabaseName = "NShape";
 		private const string DefaultServerName = ".\\SQLEXPRESS";
 		private const string ConfigFileName = "Config.cfg";
-		private const string ProjectFileExtension = ".nspj";
-		private const string FileFilterXmlRepository = "NShape Designer Files|*.nspj;*.xml|XML Repository Files|*.xml|All Files|*.*";
+		private const string ProjectFileExtension = XmlStore.DefaultProjectFileExtension;
+		private const string FileFilterXmlRepository = "NShape Designer Files|*.nspj|XML Repository Files|*.nspj;*.xml|All Files|*.*";
 
 		private const string NewProjectName = "New NShape Project";
 		private const string DefaultDiagramNameFmt = "Diagram {0}";
@@ -2838,7 +2866,7 @@ namespace Dataweb.NShape.Designer {
 		private EventMonitorForm _eventMoniorForm;
 		private LayoutDialog _layoutControlForm;
 		private TemplateEditorDialog _templateEditorDialog;
-		
+
 		private string _nShapeConfigDirectory = Path.Combine(Path.Combine("dataweb", "NShape"), Application.ProductName);
 		private string _xmlStoreDirectory;
 		private bool _projectSaved = false;
@@ -2848,8 +2876,10 @@ namespace Dataweb.NShape.Designer {
 		private Display _currentDisplay;
 
 		// display config
-		private bool _mouseWheelZoom = false;
+		private bool _mouseWheelZoom = true;
 		private bool _showScrollBars = true;
+		private bool _universalScroll = true;
+		private MouseButtons _panButtons = MouseButtons.Middle | MouseButtons.Right;
 		private bool _showSheet = true;
 		private bool _showGrid = true;
 		private bool _snapToGrid = true;
@@ -2872,7 +2902,7 @@ namespace Dataweb.NShape.Designer {
 
 		private List<RepositoryInfo> _recentProjects = new List<RepositoryInfo>(recentProjectsItemCount);
 		private bool _loadToolStripLayoutOnStartup = true;
-		
+
 		// Specifies whether the project is regarded as changed from the user's perspective 
 		// (loading libraries in an empty repository created at startup will set the repository's IsModified state to "True")
 		private bool _projectIsModified = false;
@@ -2887,7 +2917,7 @@ namespace Dataweb.NShape.Designer {
 
 
 	public class DisplayTabPage : TabPage {
-		
+
 		public DisplayTabPage()
 			: base() {
 		}
@@ -2900,7 +2930,7 @@ namespace Dataweb.NShape.Designer {
 
 		protected override void Dispose(bool disposing) {
 			if (disposing)
-				Display = null;	// Clears and disposes the display
+				Display = null; // Clears and disposes the display
 			base.Dispose(disposing);
 		}
 

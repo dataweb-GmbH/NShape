@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -14,17 +14,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Timers;
 
 using Dataweb.NShape.Advanced;
-using Dataweb.NShape.Commands;
 using Dataweb.NShape.Controllers;
 
 
-namespace Dataweb.NShape {
+namespace Dataweb.NShape
+{
 
 	/// <summary>
 	/// Specifies the outcome of a tool execution.
@@ -59,8 +58,9 @@ namespace Dataweb.NShape {
 		}
 
 
-		[Obsolete("Use ToolExecutedEventArgs.Result instead.")]
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use ToolExecutedEventArgs.Result instead.")]
+		[Browsable(false)]
 		public ToolResult EventType {
 			get { return Result; }
 		}
@@ -491,7 +491,7 @@ namespace Dataweb.NShape {
 					ControlPointId otherPointId = shape.IsConnected(pointId, null);
 					if (otherPointId != ControlPointId.None) shape.Disconnect(pointId);
 				}
-				// Delete model obejct
+				// Delete model object
 				if (shape.ModelObject != null)
 					shape.ModelObject = null;
 				// Delete shape

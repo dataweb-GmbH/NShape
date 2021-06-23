@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -100,7 +100,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		void IDisplayService.NotifyBoundsChanged() {
 			// nothing to do
 		}
-		
+
 
 		/// <override></override>
 		Graphics IDisplayService.InfoGraphics {
@@ -227,14 +227,14 @@ namespace Dataweb.NShape.WinFormsUI {
 		private Project Project {
 			get { return (_templateController != null) ? _templateController.Project : null; }
 		}
-		
-		
+
+
 		#region [Private] Constructing and Initializing
 
 		private void Initialize() {
-			if (_templateController == null) 
+			if (_templateController == null)
 				throw new NShapeException("Unable to initialize {0}: {1} is not set.", this.GetType().Name, typeof(TemplateController).Name);
-			
+
 			// if the user has insufficient privileges, deactivate all controls
 			if (!_templateController.Project.SecurityManager.IsGranted(Permission.Templates)) {
 				foreach (Control ctrl in Controls)
@@ -263,8 +263,8 @@ namespace Dataweb.NShape.WinFormsUI {
 			// Initialize ModelObject dependent TabPages
 			if (_templateController.ModelObjects.Count != 0) {
 				// ToDo: Add implementation for these methods:
-				 //InitModelPropertiesPage(workTemplate.ModelObject);
-				 //InitPropertyMappingPage(workTemplate.ModelObject);
+				//InitModelPropertiesPage(workTemplate.ModelObject);
+				//InitPropertyMappingPage(workTemplate.ModelObject);
 			}
 			InitializeUI();
 
@@ -307,7 +307,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] User interface implementation
 
 		private void InitShapeComboBox() {
-			Debug.Assert(_templateController != null && _templateController.IsInitialized); 
+			Debug.Assert(_templateController != null && _templateController.IsInitialized);
 			if (shapeComboBox.Items.Count > 0)
 				shapeComboBox.Items.Clear();
 
@@ -373,7 +373,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				Shape shape = template.Shape;
 				if (shape != null) {
 					IModelObject modelObject = shape.ModelObject;
-					
+
 					controlPointMappingGrid.SuspendLayout();
 					TerminalColumn.Items.Clear();
 					string terminalName = template.GetMappedTerminalName(ControlPointId.None);
@@ -461,8 +461,8 @@ namespace Dataweb.NShape.WinFormsUI {
 				++result;
 			return result;
 		}
-		
-		
+
+
 		private void SetDrawArea() {
 			_drawArea.X = previewPanel.Width / 8;
 			_drawArea.Y = previewPanel.Height / 8;
@@ -476,7 +476,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			if (shape is ILinearShape)
 				shape.Fit(-(_drawArea.Width / 2), -(_drawArea.Height / 2), _drawArea.Width, _drawArea.Height);
 			else shape.MoveTo(0, 0);
-			
+
 			//int x, y;
 			//if (shape is ILinearShape) {
 			//   int ptCnt = ((ILinearShape)shape).VertexCount;
@@ -491,7 +491,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			//   }
 			//} else shape.MoveControlPointTo(ControlPointId.Reference, 0, 0, ResizeModifiers.None);
 		}
-		
+
 		#endregion
 
 
@@ -519,10 +519,10 @@ namespace Dataweb.NShape.WinFormsUI {
 					GetPropertyInfos(shape.ModelObject.GetType(), _modelPropertyInfos);
 					if (_shapePropertyInfos.Count > 0 && _modelPropertyInfos.Count > 0)
 						PopulatePropertyMappingGrid();
-					
+
 					valueMappingGrid.ResumeLayout();
 					propertyMappingGrid.ResumeLayout();
-					
+
 					_propsMappingTabInitialized = true;
 					propertyMappingGrid.Show();
 				}
@@ -531,7 +531,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		// PropertyMapping Grid
-		private void InitPropertyColumn(DataGridViewComboBoxColumn column, List<PropertyInfo> propertyInfos){
+		private void InitPropertyColumn(DataGridViewComboBoxColumn column, List<PropertyInfo> propertyInfos) {
 			column.Items.Clear();
 			// Add all mappable properties
 			foreach (PropertyInfo propertyInfo in propertyInfos) {
@@ -589,7 +589,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				//throw new NShapeException(errMsg);
 				MessageBox.Show(this, errMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return result;
-			} 
+			}
 			if (IsShapePropertyMapped(rowIndex)) {
 				string errMsg = string.Format("'{0}' is already mapped to an other property.", propertyMappingGrid.Rows[rowIndex].Cells[shapeColumnIdx].Value);
 				propertyMappingGrid.Rows[rowIndex].Cells[shapeColumnIdx].Value = null;
@@ -792,7 +792,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				if (string.Compare((string)row.Cells[mappingPropertyNameCol].Value, titleSlope) == 0) {
 					// Get slope value
 					cellValue = row.Cells[mappingPropertyValueCol].Value;
-					if (cellValue is float)	
+					if (cellValue is float)
 						numericMapping.Slope = (float)cellValue;
 					else if (cellValue is int)
 						numericMapping.Slope = (int)cellValue;
@@ -881,7 +881,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			// Set ModelMapping
 			_templateController.SetModelMapping(styleMapping);
 		}
-	
+
 
 		/// <summary>
 		/// Removes all empty rows from the given grid. Adds an empty row at the bottom if desired
@@ -889,14 +889,14 @@ namespace Dataweb.NShape.WinFormsUI {
 		private void MaintainEmptyRows(DataGridView dataGrid, bool keepLastRowEmpty) {
 			// Remove all empty rows
 			for (int i = dataGrid.Rows.Count - 1; i >= 0; --i) {
-				if (IsRowEmpty(dataGrid.Rows[i])) 
+				if (IsRowEmpty(dataGrid.Rows[i]))
 					dataGrid.Rows.RemoveAt(i);
 			}
 			// Add an empty row if desired
 			if (keepLastRowEmpty) dataGrid.Rows.Add();
 		}
-		
-		
+
+
 		/// <summary>
 		/// Checks if the given Row contans values
 		/// </summary>
@@ -950,7 +950,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				ShapeType shapeType = _templateController.WorkTemplate.Shape.Type;
 				foreach (Shape shape in _templateController.Shapes) {
 					if (shape.Type == shapeType) {
-						foreach (object cboItem in  shapeComboBox.Items) {
+						foreach (object cboItem in shapeComboBox.Items) {
 							ShapeItem item = (ShapeItem)cboItem;
 							if (item.Shape == shape) {
 								shapeComboBox.SelectedIndex = item.Index;
@@ -1003,7 +1003,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			}
 		}
 
-		
+
 		private void previewPanel_Paint(object sender, PaintEventArgs e) {
 			if (_templateController != null) {
 				e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -1120,7 +1120,7 @@ namespace Dataweb.NShape.WinFormsUI {
 					_templateController.SetTemplateShape(newShape);
 					propertyController.SetObject(0, newShape, false);
 					propertyController.SetObject(1, newShape.ModelObject, false);
-					
+
 					// Update user interface
 					InitializeUI();
 				}
@@ -1141,8 +1141,8 @@ namespace Dataweb.NShape.WinFormsUI {
 				}
 				_templateController.SetTemplateModel(newModelObject);
 				if (newModelObject != null) {
-				   propertyController.SetObjects(0, newModelObject.Shapes, false);
-				   propertyController.SetObject(1, newModelObject, false);
+					propertyController.SetObjects(0, newModelObject.Shapes, false);
+					propertyController.SetObject(1, newModelObject, false);
 				} else propertyController.SetObject(0, _templateController.WorkTemplate.Shape, false);
 
 
@@ -1400,7 +1400,7 @@ namespace Dataweb.NShape.WinFormsUI {
 					&& other.terminalName == this.terminalName);
 			}
 
-			static ControlPointMappingInfo(){
+			static ControlPointMappingInfo() {
 				Empty.pointId = ControlPointId.None;
 				Empty.terminalId = TerminalId.Invalid;
 				Empty.terminalName = string.Empty;
@@ -1435,12 +1435,12 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		#region Fields
-		
+
 		private const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty;
 
 		// IDisplayService fields
 		private Graphics _infoGraphics;
-		
+
 		// Template editor dialog stuff
 		private TemplateController _templateController;
 
@@ -1489,6 +1489,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		private Pen _actPen = new Pen(Color.Black);
 		private Brush _actBrush = new SolidBrush(System.Drawing.Color.FromArgb(128, System.Drawing.Color.DarkGreen));
 		#endregion
+
 	}
 
 }

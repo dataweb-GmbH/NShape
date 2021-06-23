@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an library.
 [assembly: AssemblyTitle("NShapes General Shapes")]
-[assembly: AssemblyDescription("NShape Basic Shapes for .NET 2.0")]
+[assembly: AssemblyDescription("NShape Basic Shapes")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("NShape General Shapes Library")]
 [assembly: AssemblyTrademark("")]

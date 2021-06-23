@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2017 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -75,6 +75,9 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
+		
+
+
 		/// <override></override>
 		public override ShapeType Type {
 			get { return _shapeType; }
@@ -84,7 +87,18 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override IModelObject ModelObject {
 			get { return _modelObject; }
-			set { _modelObject = value; }
+			set {
+				if (_modelObject != value) {
+					if (_modelObject != value) {
+						// Store model object reference for calling Detach() *after* the property value was applied
+						// because the ModelObject's Detach() will also set the ModelObject property to null.
+						IModelObject oldModelObj = _modelObject;
+						_modelObject = value;
+						if (oldModelObj != null) oldModelObj.DetachShape(this);
+						if (_modelObject != null) _modelObject.AttachShape(this);
+					}
+				}
+			}
 		}
 
 
@@ -533,12 +547,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override ILineStyle LineStyle {
 			// Shape groups do not have a line style. They return null and ignore the setting.
-			get {
-				return null;
-			}
-			set {
-				// Nothing to do
-			}
+			get { return null; }
+			set { /* Nothing to do */ }
 		}
 
 
@@ -830,8 +840,8 @@ namespace Dataweb.NShape.Advanced {
 		
 		// ShapeGroup fields
 		private int _angle;
-
 		private const int DefaultCapacity = 4;
+
 		#endregion
 	}
 

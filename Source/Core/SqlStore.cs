@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2019 dataweb GmbH
+  Copyright 2009-2021 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -13,7 +13,6 @@
 ******************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
@@ -22,7 +21,6 @@ using System.Drawing;
 using System.Text;
 
 using Dataweb.NShape.Advanced;
-using System.Data.Common;
 
 
 namespace Dataweb.NShape {
@@ -106,6 +104,8 @@ namespace Dataweb.NShape {
 			//
 			CreateModelObjectCommands(storeCache);
 			//
+			CreateDiagramModelObjectCommands(storeCache);
+			//
 			CreateTemplateCommands();
 			//
 			CreateModelMappingCommands();
@@ -156,6 +156,14 @@ namespace Dataweb.NShape {
 			cmdText.Append("CREATE TABLE TemplateModelObject (Template INT, ModelObject INT PRIMARY KEY);" + Environment.NewLine);
 			cmdText.Append("CREATE TABLE ModelModelObject (Model INT, ModelObject INT PRIMARY KEY);" + Environment.NewLine);
 			cmdText.Append("CREATE TABLE ChildModelObject (PARENT INT, ModelObject INT PRIMARY KEY);" + Environment.NewLine);
+			//
+			if (Version >= 7) {
+				cmdText.Append("CREATE TABLE DiagramModelObject (Id INT IDENTITY PRIMARY KEY);" + Environment.NewLine);
+				foreach (IEntityType et in storeCache.EntityTypes)
+					if (et.Category == EntityCategory.DiagramModelObject)
+						cmdText.Append(CreateCreateTableCommand(storeCache.FindEntityTypeByName(et.FullName), "DiagramModelObject", null) + ";" + Environment.NewLine);
+				cmdText.Append("CREATE TABLE ModelDiagramModelObject (PARENT INT, DiagramModelObject INT PRIMARY KEY);" + Environment.NewLine);
+			}
 			//
 			cmdText.Append("CREATE TABLE Template ("
 				+ "Project INT REFERENCES Project (Id) ON DELETE CASCADE ON UPDATE CASCADE, "
@@ -238,7 +246,15 @@ namespace Dataweb.NShape {
 			cmdText.AppendFormat(dropCommand, "ChildShape");
 			cmdText.AppendFormat(dropCommand, "TemplateShape");
 			cmdText.AppendFormat(dropCommand, "DiagramShape");
-			// Drop modelObject tables
+			// Drop diagram model object tables
+			if (Version >= 7) {
+				foreach (IEntityType et in storeCache.EntityTypes)
+					if (et.Category == EntityCategory.DiagramModelObject)
+						cmdText.AppendFormat(dropCommand, SqlTableNameForEntityName(et.FullName));
+				cmdText.AppendFormat(dropCommand, "ModelDiagramModelObject");
+				cmdText.AppendFormat(dropCommand, "DiagramModelObject");
+			}
+			// Drop model object tables
 			foreach (IEntityType et in storeCache.EntityTypes)
 				if (et.Category == EntityCategory.ModelObject)
 					cmdText.AppendFormat(dropCommand, SqlTableNameForEntityName(et.FullName));
@@ -246,6 +262,7 @@ namespace Dataweb.NShape {
 			cmdText.AppendFormat(dropCommand, "ModelModelObject");
 			cmdText.AppendFormat(dropCommand, "TemplateModelObject");
 			cmdText.AppendFormat(dropCommand, "ModelObject");
+			// Drop model table
 			cmdText.AppendFormat(dropCommand, "Model");
 			// Drop shape tables
 			foreach (IEntityType et in storeCache.EntityTypes)
@@ -575,8 +592,9 @@ namespace Dataweb.NShape {
 			if (Version >= 4) cmdTxt += "SecurityDomain, ";
 			cmdTxt += "Width, Height, ";
 			cmdTxt += "BackgroundColor, BackgroundGradientEndColor, BackgroundImageFileName, BackgroundImage, ";
-			cmdTxt += "ImageLayout, ImageGamma, ImageTransparency, ImageGrayScale, ImageTransparentColor ";
-			cmdTxt += "FROM Diagram WHERE Project = @Project";
+			cmdTxt += "ImageLayout, ImageGamma, ImageTransparency, ImageGrayScale, ImageTransparentColor";
+			if (Version >= 7) cmdTxt += ", ModelObject";
+			cmdTxt += " FROM Diagram WHERE Project = @Project";
 			SetCommand(Diagram.EntityTypeName, RepositoryCommandType.SelectByOwnerId,
 				CreateCommand(cmdTxt, CreateParameter("Project", DbType.Int32)));
 
@@ -586,8 +604,9 @@ namespace Dataweb.NShape {
 			if (Version >= 3) cmdTxt += "Title, ";
 			if (Version >= 4) cmdTxt += "SecurityDomain, ";
 			cmdTxt += "Width, Height, BackgroundColor, BackgroundGradientEndColor, ";
-			cmdTxt += "BackgroundImageLayout, BackgroundImageFileName, BackgroundImage FROM Diagram ";
-			cmdTxt += "WHERE Id = @Id";
+			cmdTxt += "BackgroundImageLayout, BackgroundImageFileName, BackgroundImage";
+			if (Version >= 7) cmdTxt += ", ModelObject";
+			cmdTxt += " FROM Diagram WHERE Id = @Id";
 			SetCommand(Diagram.EntityTypeName, RepositoryCommandType.SelectById,
 				CreateCommand(cmdTxt, CreateParameter("Id", DbType.Int32)));
 
@@ -598,13 +617,16 @@ namespace Dataweb.NShape {
 			if (Version >= 4) cmdTxt += "SecurityDomain, ";
 			cmdTxt += "Width, Height, BackgroundColor, BackgroundGradientEndColor, BackgroundImageFileName, ";
 			cmdTxt += "BackgroundImage, ImageLayout, ImageGamma, ImageTransparency, ImageGrayScale, ";
-			cmdTxt += "ImageTransparentColor) VALUES (@Project, @Name, ";
+			cmdTxt += "ImageTransparentColor";
+			if (Version >= 7) cmdTxt += ", ModelObject";
+			cmdTxt += ") VALUES (@Project, @Name, ";
 			if (Version >= 3) cmdTxt += "@Title, ";
 			if (Version >= 4) cmdTxt += "@SecurityDomain, ";
 			cmdTxt += "@Width, @Height, @BackgroundColor, @BackgroundGradientEndColor, ";
 			cmdTxt += "@BackgroundImageFileName, @BackgroundImage, @ImageLayout, @ImageGamma, @ImageTransparency, ";
-			cmdTxt += "@ImageGrayScale, @ImageTransparentColor); ";
-			cmdTxt += "SELECT CAST(IDENT_CURRENT('Diagram') AS INT)";
+			cmdTxt += "@ImageGrayScale, @ImageTransparentColor";
+			if (Version >= 7) cmdTxt += ", @ModelObject";
+			cmdTxt += "); SELECT CAST(IDENT_CURRENT('Diagram') AS INT)";
 			SetCommand(Diagram.EntityTypeName, RepositoryCommandType.Insert,
 				CreateCommand(cmdTxt,
 					CreateParameter("Project", DbType.Int32),
@@ -621,7 +643,8 @@ namespace Dataweb.NShape {
 					CreateParameter("ImageGamma", DbType.Double),
 					CreateParameter("ImageTransparency", DbType.Byte),
 					CreateParameter("ImageGrayScale", DbType.Boolean),
-					CreateParameter("ImageTransparentColor", DbType.Int32)
+					CreateParameter("ImageTransparentColor", DbType.Int32),
+					(Version >= 7) ? CreateParameter("ModelObject", DbType.Int32) : null
 				));
 
 			// Create "Update" command
@@ -634,8 +657,9 @@ namespace Dataweb.NShape {
 			cmdTxt += "BackgroundImageFileName = @BackgroundImageFileName, ";
 			cmdTxt += "BackgroundImage = @BackgroundImage, ImageLayout = @ImageLayout, ";
 			cmdTxt += "ImageGamma = @ImageGamma, ImageTransparency = @ImageTransparency, ";
-			cmdTxt += "ImageGrayScale = @ImageGrayScale, ImageTransparentColor = @ImageTransparentColor ";
-			cmdTxt += "WHERE Id = @Id";
+			cmdTxt += "ImageGrayScale = @ImageGrayScale, ImageTransparentColor = @ImageTransparentColor";
+			if (Version >= 7) cmdTxt += ", ModelObject = @ModelObject";
+			cmdTxt += " WHERE Id = @Id";
 			SetCommand(Diagram.EntityTypeName, RepositoryCommandType.Update,
 				CreateCommand(cmdTxt,
 					CreateParameter("Id", DbType.Int32),
@@ -652,7 +676,8 @@ namespace Dataweb.NShape {
 					CreateParameter("ImageGamma", DbType.Double),
 					CreateParameter("ImageTransparency", DbType.Byte),
 					CreateParameter("ImageGrayScale", DbType.Boolean),
-					CreateParameter("ImageTransparentColor", DbType.Int32)
+					CreateParameter("ImageTransparentColor", DbType.Int32),
+					(Version >= 7) ? CreateParameter("ModelObject", DbType.Int32) : null
 				));
 
 			// Create "Delete" command
@@ -933,7 +958,7 @@ namespace Dataweb.NShape {
 		
 		
 		private void CreateModelObjectCommands(IStoreCache storeCache) {
-			// === Generic Shape Commands ===
+			// === Generic Model Object Commands ===
 			// SELECT by parent id command
 			foreach (IEntityType et in storeCache.EntityTypes) {
 				if (et.Category != EntityCategory.ModelObject) continue;
@@ -1053,8 +1078,96 @@ namespace Dataweb.NShape {
 				SetCommand(et.FullName, RepositoryCommandType.Delete, deleteModelObjectCommand);
 			}
 		}
-	
-			
+
+
+		private void CreateDiagramModelObjectCommands(IStoreCache storeCache)
+		{
+			// === Generic Model Object Commands ===
+			// SELECT by parent id command
+			foreach (IEntityType et in storeCache.EntityTypes) {
+				if (et.Category != EntityCategory.DiagramModelObject) continue;
+				StringBuilder selectCmdText = new StringBuilder();
+				foreach (EntityPropertyDefinition pi in et.PropertyDefinitions) {
+					if (pi is EntityFieldDefinition) {
+						selectCmdText.Append(", M.");
+						selectCmdText.Append(pi.Name);
+					}
+				}
+				IDbCommand selectModelDiagramModelObjCmd = CreateCommand(
+					string.Format("SELECT ModelDiagramModelObject.ModelObject, Model{0} FROM [{1}] M JOIN ModelModelObject ON M.Id = ModelModelObject.ModelObject WHERE ModelModelObject.Model = @Model",
+						selectCmdText.ToString(), SqlTableNameForEntityName(et.FullName)),
+						CreateParameter("Model", DbType.Int32));
+				SetCommand(et.FullName, RepositoryCommandType.SelectDiagramModelObjects, selectModelDiagramModelObjCmd);
+			}
+			// INSERT commands
+			foreach (IEntityType et in storeCache.EntityTypes) {
+				if (et.Category != EntityCategory.DiagramModelObject) continue;
+				IDbCommand insertDiagramModelObjectCmd = CreateCommand();
+				StringBuilder insertDiagramModelObjectCmdText1 = new StringBuilder();
+				StringBuilder insertDiagramModelObjectCmdText2 = new StringBuilder();
+				insertDiagramModelObjectCmdText1.Append("Id");
+				insertDiagramModelObjectCmdText2.Append("@Ident");
+				insertDiagramModelObjectCmd.Parameters.Add(CreateParameter("Parent", DbType.Int32));
+				foreach (EntityPropertyDefinition pi in et.PropertyDefinitions) {
+					if (pi is EntityFieldDefinition) {
+						insertDiagramModelObjectCmdText1.Append(", ");
+						insertDiagramModelObjectCmdText1.Append(pi.Name);
+						insertDiagramModelObjectCmdText2.Append(", ");
+						insertDiagramModelObjectCmdText2.Append("@" + pi.Name);
+						insertDiagramModelObjectCmd.Parameters.Add(CreateParameter(pi.Name, DbTypeForDotNetType(((EntityFieldDefinition)pi).Type)));
+					} else if (IsComposition(pi)) {
+						insertDiagramModelObjectCmdText1.Append(", ");
+						insertDiagramModelObjectCmdText1.Append(pi.Name);
+						insertDiagramModelObjectCmdText2.Append(", ");
+						insertDiagramModelObjectCmdText2.Append("@" + pi.Name);
+						insertDiagramModelObjectCmd.Parameters.Add(CreateParameter(pi.Name, DbType.String));
+					} else Debug.Fail("Unexpected inner objects type in CreateDbCommands.");
+				}
+				IDbCommand insertModelDiagramModelObjectCmd = (IDbCommand)((ICloneable)insertDiagramModelObjectCmd).Clone();
+				insertModelDiagramModelObjectCmd.CommandText = string.Format("DECLARE @Ident INT; "
+					+ "INSERT INTO DiagramModelObject DEFAULT VALUES; SET @Ident = @@IDENTITY; "
+					+ "INSERT INTO ModelDiagramModelObject (Model, DiagramModelObject) VALUES (@Parent, @Ident); "
+					+ "INSERT INTO [{0}] ({1}) VALUES ({2}); SELECT @Ident",
+					SqlTableNameForEntityName(et.FullName), insertDiagramModelObjectCmdText1.ToString(), insertDiagramModelObjectCmdText2.ToString());
+				SetCommand(et.FullName, RepositoryCommandType.InsertDiagramModelObject, insertModelDiagramModelObjectCmd);
+			}
+			// UPDATE commands
+			foreach (IEntityType et in storeCache.EntityTypes) {
+				if (et.Category != EntityCategory.DiagramModelObject) continue;
+				IDbCommand updateModelObjectCmd = CreateCommand();
+				StringBuilder cmdText = new StringBuilder();
+				cmdText.AppendFormat("UPDATE [{0}] SET ", SqlTableNameForEntityName(et.FullName));
+				// Id must be first parameter because it is written first by the writer client.
+				updateModelObjectCmd.Parameters.Add(CreateParameter("Id", DbType.Int32));
+				foreach (EntityPropertyDefinition pi in et.PropertyDefinitions) {
+					if (pi is EntityFieldDefinition) {
+						cmdText.AppendFormat("[{0}] = @{0}, ", pi.Name);
+						updateModelObjectCmd.Parameters.Add(CreateParameter(pi.Name, DbTypeForDotNetType(((EntityFieldDefinition)pi).Type)));
+					} else if (IsComposition(pi)) {
+						cmdText.AppendFormat("[{0}] = @{0}, ", pi.Name);
+						updateModelObjectCmd.Parameters.Add(CreateParameter(pi.Name, DbType.String));
+					} else Debug.Fail("Unexpected inner objects type in CreateDbCommands.");
+				}
+				cmdText.Length -= 2; // RemoveRange last comma + space
+				cmdText.Append(" WHERE Id = @Id");
+				updateModelObjectCmd.CommandText = cmdText.ToString();
+				SetCommand(et.FullName, RepositoryCommandType.Update, updateModelObjectCmd);
+			}
+			//
+			// DELETE command
+			foreach (IEntityType et in storeCache.EntityTypes) {
+				if (et.Category != EntityCategory.DiagramModelObject) continue;
+				IDbCommand deleteModelObjectCommand = CreateCommand(
+					string.Format("DELETE FROM ModelDiagramModelObject WHERE DiagramModelObject = @Id; "
+						+ "DELETE FROM DiagramModelObject WHERE Id = @Id; "
+						+ "DELETE FROM [{0}] WHERE Id = @Id",
+						SqlTableNameForEntityName(et.FullName)),
+						CreateParameter("Id", DbType.Int32));
+				SetCommand(et.FullName, RepositoryCommandType.Delete, deleteModelObjectCommand);
+			}
+		}
+
+
 		private void CreateTemplateCommands() {
 			SetCommand(Template.EntityTypeName, RepositoryCommandType.SelectByOwnerId,
 				CreateCommand("SELECT Id, Project, Name, Title, Description, ConnectionPointMappings"
