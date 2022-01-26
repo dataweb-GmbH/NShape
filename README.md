@@ -19,8 +19,11 @@ Please send an e-mail to support@dataweb.de for all questions regarding NShape.
 License
 -------
 NShape is published under a dual license and you can choose which license is best suited for your project.
-* The [GNU General Public License version 2 (GPLv2)](http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) basically allows you to use and modify the framework in any free program, even if it is used in businesses. Please read the exact license terms delivered in License.rtf together with NShape, if you want to choose this license.
-* If your program is not free, that means if you do not publish its source code or if others are not allowed to distribute it, you must buy a license from dataweb in order to use NShape for this program. Please turn to sales@dataweb.de for more information on licensing.
+* The [GNU General Public License version 2 (GPLv2)](http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) basically allows you to use and modify the framework in any free program, even if it is used in businesses. 
+Please read the exact license terms delivered in License.rtf together with NShape, if you want to choose this license.
+
+* If your program is not free, that means if you do not publish its source code or if others are not allowed to distribute it, you must buy a license from dataweb in order to use NShape for this program. 
+Please turn to sales@dataweb.de for more information on licensing.
 
 Download
 --------
