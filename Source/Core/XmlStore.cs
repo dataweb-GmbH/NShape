@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -1435,9 +1435,17 @@ namespace Dataweb.NShape {
 
 			// Build image file path and set file extension
 			string filePath = UnifyPath(Path.Combine(ImageDirectory, fileName));
-			// Save image file to image directory
-			using (Stream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Write))
-				GdiHelpers.SaveImage(image, stream);
+			// Instead of overwriting existing images with the same name, we do nothing.
+			// When saving to network storage with high latency, this will prevent 'Is locked by another process'
+			// exceptions from the stream's constructor.
+			if (!File.Exists(filePath)) {
+				// Save image file to image directory
+				using (Stream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Write))
+					GdiHelpers.SaveImage(image, stream);
+			} else {
+				using (Image existingImage = Image.FromFile(filePath))
+					Debug.Assert(GdiHelpers.AreEqual(image, existingImage));
+			}
 		}
 
 
@@ -1500,8 +1508,10 @@ namespace Dataweb.NShape {
 		}
 
 
-		// This method works, but it has a little side efect: Metafiles grow each time they are saved using this method.
+		// This method works, but it has a negative side efect: Metafiles grow each time they are saved using this method
+		// because it wraps the metafile records into another draw record each time.
 		// So we are using the GdiHelpers' method "SaveImage" which uses the native GDI+ functions.
+		[Obsolete]
 		private static void SaveImageToStream(Image image, Stream stream) {
 			if (image is Metafile) {
 				// The MetaFile.Save() method will use the PNG encoder (see MSDN documentation), so the metafile 

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -106,6 +106,15 @@ namespace Dataweb.NShape.Designer {
 			set {
 				_showSheet = value;
 				if (CurrentDisplay != null) CurrentDisplay.IsSheetVisible = value;
+			}
+		}
+
+
+		public bool EnterClosesTextEditor {
+			get { return _enterClosesTextEditor; }
+			set {
+				_enterClosesTextEditor = value;
+				if (CurrentDisplay != null) CurrentDisplay.CloseCaptionEditorWithEnter = value;
 			}
 		}
 
@@ -255,6 +264,7 @@ namespace Dataweb.NShape.Designer {
 					_currentDisplay.PanMouseButton = PanButtons;
 					_currentDisplay.ScrollBarsVisible = ShowScrollBars;
 					_currentDisplay.IsSheetVisible = ShowDiagramSheet;
+					_currentDisplay.CloseCaptionEditorWithEnter = EnterClosesTextEditor;
 					// Security Settings
 					_currentDisplay.ShowDefaultContextMenu = ShowDefaultContextMenu;
 					_currentDisplay.HideDeniedMenuItems = HideDeniedMenuItems;
@@ -495,7 +505,8 @@ namespace Dataweb.NShape.Designer {
 
 				// Create a new config file if it does not exist
 				string filePath = Path.Combine(_configFolder, ConfigFileName);
-				if (!File.Exists(filePath)) CreateConfigFile(filePath);
+				if (!File.Exists(filePath)) 
+					CreateConfigFile(filePath);
 
 				XmlDocument xmlDoc = new XmlDocument();
 				using (XmlReader cfgReader = OpenCfgReader(filePath)) {
@@ -598,66 +609,12 @@ namespace Dataweb.NShape.Designer {
 				}
 			}
 			// If projects are missing, let the user decide what to do
-			if (missingProjects != null) {
-				Debug.Assert(missingProjects.Count > 0);
-				// We use the DialogResult as decision for the 'remove all?' question:
-				// Yes = Ask for each missing project
-				// No = Remove all
-				// Cancel = Remove none
-				DialogResult res = DialogResult.Cancel;
-				if (missingProjects.Count > 1) {
-					const string msgText = "{0} recently opened project files were not found:{1}{2}{1}Do you want to decide for each project whether to remove it from the 'Recently opened projects' list?";
-					string projectList = string.Empty;
-					foreach (int i in missingProjects)
-						projectList += _recentProjects[i].location + Environment.NewLine;
-					res = MessageBox.Show(this, string.Format(msgText, missingProjects.Count, Environment.NewLine, projectList), "File not found", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-				} else {
-					// Preselect "Ask for each missin project" if only one project is missing
-					res = DialogResult.Yes;
-				}
-
-				if (res != DialogResult.Cancel) {
-					if (res == DialogResult.Yes) {
-						// Ask for each missing projects if it should be removed
-						string msgFormat = "A recently opened project file was not found:{0}{1}{0}{0}Do you want to remove it from the 'Recently opened projects' list?";
-						for (int i = missingProjects.Count - 1; i >= 0; --i) {
-							int prjIdx = missingProjects[i];
-							res = MessageBox.Show(this, string.Format(msgFormat, Environment.NewLine, _recentProjects[prjIdx].location), "File not found", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-							if (res == DialogResult.No)
-								missingProjects.RemoveAt(i);
-						}
-					}
-					// Remove all (remaining) missing projects
-					if (missingProjects.Count > 0) {
-						for (int i = missingProjects.Count - 1; i >= 0; --i)
-							_recentProjects.RemoveAt(missingProjects[i]);
-						SaveConfigFile();
-					}
-				}
+			if (missingProjects != null && missingProjects.Count > 0) {
+				for (int i = missingProjects.Count - 1; i >= 0; --i)
+					_recentProjects.RemoveAt(missingProjects[i]);
+				SaveConfigFile();
 			}
 		}
-
-
-		// Old version:
-		//private void MaintainRecentProjects() {
-		//    bool modified = false, remove = false;
-		//    for (int i = recentProjects.Count - 1; i >= 0; --i) {
-		//        remove = false;
-		//        if (recentProjects[i].typeName == RepositoryInfo.SqlServerStoreTypeName)
-		//            continue;
-		//        else if (recentProjects[i].typeName == RepositoryInfo.XmlStoreTypeName) {
-		//            if (!File.Exists(recentProjects[i].location)) {
-		//                string msgFormat = "The file or folder '{0}' cannot be opened. Do you want to remove it from the 'Recently opened projects' list?";
-		//                remove = (MessageBox.Show(this, string.Format(msgFormat, recentProjects[i].location), "File not found", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
-		//            }
-		//        }
-		//        if (remove) {
-		//            recentProjects.RemoveAt(i);
-		//            modified = true;
-		//        }
-		//    }
-		//    if (modified) SaveConfigFile();
-		//}
 
 
 		private void ReplaceStore(string projectName, Store store) {
@@ -1250,6 +1207,7 @@ namespace Dataweb.NShape.Designer {
 			display.PanMouseButton = PanButtons;
 			display.ScrollBarsVisible = ShowScrollBars;
 			display.IsSheetVisible = ShowDiagramSheet;
+			display.CloseCaptionEditorWithEnter = EnterClosesTextEditor;
 			display.GridSize = GridSize;
 			display.SnapToGrid = SnapToGrid;
 			display.SnapDistance = SnapDistance;
@@ -2483,6 +2441,7 @@ namespace Dataweb.NShape.Designer {
 				dlg.MouseWheelZoom = MouseWheelZoom;
 				dlg.ShowScrollBars = ShowScrollBars;
 				dlg.ShowDiagramSheet = ShowDiagramSheet;
+				dlg.EnterClosesTextEditor = EnterClosesTextEditor;
 				dlg.SnapToGrid = SnapToGrid;
 				dlg.GridColor = GridColor;
 				dlg.GridSize = GridSize;
@@ -2497,6 +2456,7 @@ namespace Dataweb.NShape.Designer {
 					MouseWheelZoom = dlg.MouseWheelZoom;
 					ShowScrollBars = dlg.ShowScrollBars;
 					ShowDiagramSheet = dlg.ShowDiagramSheet;
+					EnterClosesTextEditor = dlg.EnterClosesTextEditor;
 					ShowGrid = dlg.ShowGrid;
 					GridColor = dlg.GridColor;
 					showGridMenuItem.Checked = ShowGrid;
@@ -2881,6 +2841,7 @@ namespace Dataweb.NShape.Designer {
 		private bool _universalScroll = true;
 		private MouseButtons _panButtons = MouseButtons.Middle | MouseButtons.Right;
 		private bool _showSheet = true;
+		private bool _enterClosesTextEditor = true;
 		private bool _showGrid = true;
 		private bool _snapToGrid = true;
 		private int _gridSize = 20;

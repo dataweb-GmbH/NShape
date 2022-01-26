@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -477,7 +477,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override void CopyFrom(Shape source) {
 			// Prevent recalculating GluePointCalcInfo when moving shape while copying X/Y position
-			_followingConnectedShape = true;
+			IsGluePointFollowingConnectionPoint = true;
 			base.CopyFrom(source);
 			if (source is LabelBase) {
 				LabelBase src = (LabelBase)source;
@@ -486,7 +486,7 @@ namespace Dataweb.NShape.Advanced {
 				this.GluePointPosition = src.GluePointPosition;
 				this.LabelPosition = src.LabelPosition;
 			}
-			_followingConnectedShape = false;
+			IsGluePointFollowingConnectionPoint = false;
 		}
 
 
@@ -517,8 +517,7 @@ namespace Dataweb.NShape.Advanced {
 		public override void Connect(ControlPointId ownPointId, Shape otherShape, ControlPointId otherPointId) {
 			if (otherShape == null) throw new ArgumentNullException("otherShape");
 			// Calculate the relative position of the gluePoint on the other shape
-			CalcGluePointCalcInfo(ownPointId, otherShape, otherPointId);
-			InvalidateDrawCache();
+			LabelPosition = CalcGluePointCalcInfo(ownPointId, otherShape, otherPointId);
 			base.Connect(ownPointId, otherShape, otherPointId);
 		}
 
@@ -541,8 +540,12 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override void FollowConnectionPointWithGluePoint(ControlPointId gluePointId, Shape connectedShape, ControlPointId movedPointId) {
 			if (connectedShape == null) throw new ArgumentNullException("connectedShape");
+
+			Rectangle boundsBefore = GetBoundingRectangle(true);
+			BeginResize();
+
 			try {
-				_followingConnectedShape = true;
+				IsGluePointFollowingConnectionPoint = true;
 				Debug.Assert(LabelPosition != LabelPositionInfo.Empty);
 
 				Point currGluePtPos = GluePointPosition;
@@ -559,30 +562,50 @@ namespace Dataweb.NShape.Advanced {
 				}
 
 				// Calculate new target outline intersection point along with old and new anchor point position
-				int shapeAngle;
-				if (connectedShape is ILinearShape) {
-					Point normalVector = ((ILinearShape)connectedShape).CalcNormalVector(newGluePtPos);
-					shapeAngle = Geometry.RadiansToTenthsOfDegree(Geometry.Angle(newGluePtPos.X, newGluePtPos.Y, normalVector.X, normalVector.Y)) - 900;
-				} else if (connectedShape is IPlanarShape) {
-					shapeAngle = ((IPlanarShape)connectedShape).Angle;
-				} else shapeAngle = 0; // There is no way to get an angle from a generic shape
+				float shapeAngleDeg = CalculateAngleOfShape(connectedShape, newGluePtPos);
+				float posAngleDeg = LabelPosition.Alpha + shapeAngleDeg;
 
-				// Move the glue point to the new position
-				int dx, dy;
-				dx = newGluePtPos.X - currGluePtPos.X;
-				dy = newGluePtPos.Y - currGluePtPos.Y;
 				// Calculate new position of the GlueLabel (calculation method depends on the desired behavior)
-				Point newCenter = Point.Round(Geometry.CalcPoint(newGluePtPos.X, newGluePtPos.Y, LabelPosition.Alpha + Geometry.TenthsOfDegreeToDegrees(shapeAngle), LabelPosition.Distance));
+				Point newCenter = Point.Round(Geometry.CalcPoint(newGluePtPos.X, newGluePtPos.Y, posAngleDeg, LabelPosition.Distance));
 				// Move GlueLabel and update GluePointPos
 				MoveTo(newCenter.X, newCenter.Y);
-				this.GluePointPosition = newGluePtPos;
+				GluePointPosition = newGluePtPos;
 
 				// Rotate shape if MaintainOrientation is set to false
 				if (!MaintainOrientation) {
-					int newAngle = this.LabelPosition.LabelAngle + shapeAngle;
+					int newAngle = Geometry.DegreesToTenthsOfDegree(shapeAngleDeg) + LabelPosition.LabelAngle;
 					if (Angle != newAngle) Angle = newAngle;
 				}
-			} finally { _followingConnectedShape = false; }
+			} finally {
+				IsGluePointFollowingConnectionPoint = false;
+			}
+
+			Rectangle boundsAfter = GetBoundingRectangle(true);
+			EndResize(boundsAfter.Width - boundsBefore.Width, boundsAfter.Height - boundsBefore.Height);
+		}
+
+
+		/// <summary>
+		/// Calculates the angle of the given shape in degrees.
+		/// For shapes that do not implement an 'Angle' property, the normal vector at the given position 
+		/// is used to determine the angle of the shape (at that position).
+		/// </summary>
+		protected float CalculateAngleOfShape(Shape shape, Point gluePointPosition) {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			float shapeAngleDeg = 0;
+			if (shape is IPlanarShape planarShape) {
+				// Planar shapes: Use the shape's angle
+				shapeAngleDeg = Geometry.TenthsOfDegreeToDegrees(planarShape.Angle);
+			} else if (shape is ILinearShape linearShape) {
+				// Calculate the angle of the tangent through the and use it as shape angle
+				Point normalVector = linearShape.CalcNormalVector(gluePointPosition);
+				shapeAngleDeg = Geometry.RadiansToDegrees(Geometry.Angle(gluePointPosition.X, gluePointPosition.Y, normalVector.X, normalVector.Y)) + 90;
+			} else {
+				// Other shapes: Calculate the shape's angle via normal vector at glue point's position
+				Point normalVector = shape.CalculateNormalVector(gluePointPosition.X, gluePointPosition.Y);
+				shapeAngleDeg = Geometry.RadiansToDegrees(Geometry.Angle(gluePointPosition.X, gluePointPosition.Y, normalVector.X, normalVector.Y)) + 90;
+			}
+			return shapeAngleDeg;
 		}
 
 
@@ -780,10 +803,8 @@ namespace Dataweb.NShape.Advanced {
 			} else {
 				// If the gluePoint is connected and the shape is not
 				// following the connected shape, recalculate GluePointCalcInfo
-				if (!_followingConnectedShape) {
-					LabelPosition = LabelPositionInfo.Empty;
-					CalcGluePointCalcInfo(ci.OwnPointId, ci.OtherShape, ci.OtherPointId);
-				}
+				if (!IsGluePointFollowingConnectionPoint)
+					LabelPosition = CalcGluePointCalcInfo(ci.OwnPointId, ci.OtherShape, ci.OtherPointId);
 			}
 			return result;
 		}
@@ -815,12 +836,11 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected override bool RotateCore(int deltaAngle, int x, int y) {
 			bool result = base.RotateCore(deltaAngle, x, y);
-			if (!_followingConnectedShape) {
+			if (!IsGluePointFollowingConnectionPoint) {
 				ShapeConnectionInfo ci = GetConnectionInfo(ControlPointIds.GlueControlPoint, null);
 				if (!ci.IsEmpty) {
 					// If the gluePoint is connected, recalculate GluePointCalcInfo
-					this.LabelPosition = LabelPositionInfo.Empty;
-					CalcGluePointCalcInfo(ci.OwnPointId, ci.OtherShape, ci.OtherPointId);
+					LabelPosition = CalcGluePointCalcInfo(ci.OwnPointId, ci.OtherShape, ci.OtherPointId);
 				}
 			}
 			return result;
@@ -1016,7 +1036,8 @@ namespace Dataweb.NShape.Advanced {
 			public float Distance;
 
 			/// <summary>
-			/// The relative position of the GluePoint inside the target shape. The target shape can calculate the new absolute position of the gluepoint using the RelativePosition.
+			/// The relative position of the GluePoint on the target shape. 
+			/// The target shape can calculate the new absolute position of the gluepoint using the RelativePosition.
 			/// </summary>
 			public RelativePosition RelativePosition;
 
@@ -1026,7 +1047,7 @@ namespace Dataweb.NShape.Advanced {
 			public float Alpha;
 
 			/// <summary>
-			/// Angle between the normal vector of the GlueLabel's outline intersection and the line through GluePoint and X|Y
+			/// Angle between the normal vector of this Label shape's outline intersection and the line through GluePoint and X|Y
 			/// </summary>
 			public float Beta;
 
@@ -1053,7 +1074,6 @@ namespace Dataweb.NShape.Advanced {
 					^ Beta.GetHashCode()
 					^ LabelAngle.GetHashCode());
 			}
-
 
 			static LabelPositionInfo() {
 				Empty.Alpha = float.NaN;
@@ -1110,46 +1130,31 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		private void CalcGluePointCalcInfo(ControlPointId gluePointId, Shape otherShape, ControlPointId otherPointId) {
+		/// <summary>
+		/// Calculates and returns the positioning of the label relative to its partner shape.
+		/// </summary>
+		protected virtual LabelPositionInfo CalcGluePointCalcInfo(ControlPointId gluePointId, Shape otherShape, ControlPointId otherPointId) {
 			// Calculate GluePoint position and AnchorPoint position
 			Point gluePtPos = GetControlPointPosition(gluePointId);
 			Point labelPos = Point.Empty;
 			labelPos.Offset(X, Y);
-			int labelAngle;
 
 			// Calculate target shape's outline intersection point and the relative position of the gluePoint in/on the target shape
-			float alpha = float.NaN, beta = float.NaN;
-			if (otherShape is ILinearShape) {
-				// ToDo: Check if the point is on the line, if not, calculate an intersection point
-				Point normalVector = ((ILinearShape)otherShape).CalcNormalVector(gluePtPos);
-				float shapeAngleDeg = Geometry.RadiansToDegrees(Geometry.Angle(gluePtPos.X, gluePtPos.Y, normalVector.X, normalVector.Y)) - 90;
-				alpha = 360 - shapeAngleDeg + Geometry.RadiansToDegrees(Geometry.Angle(gluePtPos, labelPos));
-				beta = Geometry.RadiansToDegrees(Geometry.Angle(labelPos, gluePtPos));
-				labelAngle = Angle - Geometry.DegreesToTenthsOfDegree(shapeAngleDeg);
-			} else if (otherShape is IPlanarShape) {
-				float shapeAngleDeg = Geometry.TenthsOfDegreeToDegrees(((IPlanarShape)otherShape).Angle);
-				alpha = 360 - shapeAngleDeg + Geometry.RadiansToDegrees(Geometry.Angle(gluePtPos, labelPos));
-				beta = Geometry.RadiansToDegrees(Geometry.Angle(labelPos, gluePtPos));
-				labelAngle = Angle - ((IPlanarShape)otherShape).Angle;
-			} else {
-				alpha = 360 - Geometry.RadiansToDegrees(Geometry.Angle(gluePtPos, labelPos));
-				beta = Geometry.RadiansToDegrees(Geometry.Angle(labelPos, gluePtPos));
-				labelAngle = Angle;
-			}
-			RelativePosition relativePos = otherShape.CalculateRelativePosition(gluePtPos.X, gluePtPos.Y);
-			float distance = Geometry.DistancePointPoint(gluePtPos, labelPos);
+			float shapeAngleDeg = CalculateAngleOfShape(otherShape, gluePtPos);
+			float posAngleDeg = Geometry.RadiansToDegrees(Geometry.Angle(gluePtPos, labelPos));
 
-			// Store all calculated values in the LabelPositioninfo structure
-			LabelPositionInfo position = LabelPositionInfo.Empty; 
-			position.Alpha = alpha % 360;
-			position.Beta = beta % 360;
-			position.Distance = distance;
-			position.RelativePosition = relativePos;
-			position.LabelAngle = labelAngle;
-			LabelPosition = position;
+			// Calculate and store label's relative position info
+			LabelPositionInfo position = LabelPositionInfo.Empty;
+			position.Alpha = (360 + posAngleDeg - shapeAngleDeg) % 360;
+			position.Beta = (360 + Geometry.RadiansToDegrees(Geometry.Angle(labelPos, gluePtPos))) % 360;
+			position.LabelAngle = (Angle - Geometry.DegreesToTenthsOfDegree(shapeAngleDeg)) % 3600;
+			position.Distance = Geometry.DistancePointPoint(gluePtPos, labelPos);
+			position.RelativePosition = otherShape.CalculateRelativePosition(gluePtPos.X, gluePtPos.Y);
 
-			Debug.Assert(LabelPosition != LabelPositionInfo.Empty);
-			Debug.Assert(LabelPosition.RelativePosition != RelativePosition.Empty);
+			Debug.Assert(position != LabelPositionInfo.Empty);
+			Debug.Assert(position.RelativePosition != RelativePosition.Empty);
+
+			return position;
 		}
 
 
@@ -1167,7 +1172,7 @@ namespace Dataweb.NShape.Advanced {
 
 		// Specifies if the movement of a connected label is due to repositioning or 
 		// due to a "FollowConnectionPointWithGluePoint" call
-		private bool _followingConnectedShape = false;
+		//private bool _followingConnectedShape = false;
 
 		// Buffers
 		private Point _tl = Point.Empty;

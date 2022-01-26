@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -158,7 +158,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			_gridSize.Height = _gridSpace;
 			_invalidateDelta = _handleRadius;
 
-			// used for fixed refresh rate rendering
+			// Timer for automatic scrolling while dragging and universal scroll (MiddleMouseButton)
 			_autoScrollTimer.Enabled = false;
 			_autoScrollTimer.Interval = 10;
 			_autoScrollTimer.Tick += autoScrollTimer_Tick;
@@ -594,7 +594,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.OpenCaptionEditor(ICaptionedShape shape, int labelIndex) {
-			DoOpenCaptionEditor(shape, labelIndex, string.Empty);
+			DoOpenCaptionEditor(shape, labelIndex, null);
 		}
 
 
@@ -988,6 +988,17 @@ namespace Dataweb.NShape.WinFormsUI {
 		public int MinRotateRange {
 			get { return _minRotateDistance; }
 			set { _minRotateDistance = value; }
+		}
+
+
+		/// <summary>
+		/// Specifies the minimum distance of the mouse cursor from the shape's rotate point while rotating.
+		/// </summary>
+		[CategoryBehavior()]
+		[DefaultValue(Display.DefaultCloseCaptionEditorWithEnter)]
+		public bool CloseCaptionEditorWithEnter {
+			get { return _closeCaptionEditorWithEnter; }
+			set { _closeCaptionEditorWithEnter = value; }
 		}
 
 		#endregion
@@ -1957,7 +1968,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Inserts the given shape in the displayed diagram.
+		/// Executes a command that inserts the given shape in the displayed diagram.
 		/// </summary>
 		public void InsertShape(Shape shape) {
 			InsertShapes(SingleInstanceEnumerator<Shape>.Create(shape));
@@ -1965,7 +1976,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Inserts the given shapes in the displayed diagram.
+		/// Executes a command that inserts the given shapes in the displayed diagram.
 		/// </summary>
 		public void InsertShapes(IEnumerable<Shape> shapes) {
 			if (Diagram != null) {
@@ -1977,7 +1988,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Deletes the selected shapes.
+		/// Executes a command that deletes the selected shapes.
 		/// </summary>
 		public void DeleteShapes() {
 			DeleteShapes(SelectedShapes, true);
@@ -1985,7 +1996,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Deletes the selected shapes.
+		/// Executes a command that deletes the selected shapes.
 		/// </summary>
 		public void DeleteShapes(bool withModelObjects) {
 			DeleteShapes(SelectedShapes, withModelObjects);
@@ -1993,7 +2004,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Deletes the given shape in the displayed diagram.
+		/// Executes a command that deletes the given shape in the displayed diagram.
 		/// </summary>
 		public void DeleteShape(Shape shape) {
 			DeleteShapes(SingleInstanceEnumerator<Shape>.Create(shape), true);
@@ -2001,7 +2012,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Deletes the given shape in the displayed diagram.
+		/// Executes a command that deletes the given shape in the displayed diagram.
 		/// </summary>
 		public void DeleteShape(Shape shape, bool withModelObjects) {
 			DeleteShapes(SingleInstanceEnumerator<Shape>.Create(shape), withModelObjects);
@@ -2009,7 +2020,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Deletes the given shapes in the displayed diagram.
+		/// Executes a command that deletes the given shapes in the displayed diagram.
 		/// </summary>
 		public void DeleteShapes(IEnumerable<Shape> shapes) {
 			DeleteShapes(shapes, true);
@@ -2017,7 +2028,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Deletes the given shapes in the displayed diagram.
+		/// Executes a command that deletes the given shapes in the displayed diagram.
 		/// </summary>
 		public void DeleteShapes(IEnumerable<Shape> shapes, bool withModelObejcts) {
 			if (Diagram != null) {
@@ -2029,7 +2040,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Cuts the selected shapes.
+		/// Executes a command that cuts the selected shapes.
 		/// </summary>
 		public void Cut() {
 			Cut(true, PointToClient(Control.MousePosition));
@@ -2037,7 +2048,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Cut the selected shapes with or without model objects.
+		/// Executes a command that cuts the selected shapes with or without model objects.
 		/// </summary>
 		public void Cut(bool withModelObjects) {
 			if (Diagram != null && _selectedShapes.Count > 0)
@@ -2046,7 +2057,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Cut the selected shapes with or without model objects.
+		/// Executes a command that cuts the selected shapes with or without model objects.
 		/// </summary>
 		/// <param name="withModelObjects">Specifies whether the shape should be copied with its model objects (if assigned).</param>
 		/// <param name="mousePosDiagram">Current Mouse position in diagram coordinates.</param>
@@ -2084,7 +2095,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Pastes the previously copied or cut shapes into the displayed diagram.
+		/// Executes a command that pastes the previously copied or cut shapes into the displayed diagram.
 		/// </summary>
 		public void Paste() {
 			Paste(PointToClient(Control.MousePosition));
@@ -2092,7 +2103,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Paste the copied or cut shapes.
+		/// Executes a command that pastes the copied or cut shapes.
 		/// </summary>
 		/// <param name="mousePosDiagram">Current mouse position in diagram coordinates.</param>
 		public void Paste(Point mousePosDiagram) {
@@ -2102,7 +2113,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		/// <summary>
-		/// Paste the copied or cut shapes.
+		/// Executes a command that pastes the copied or cut shapes.
 		/// </summary>
 		/// <param name="offsetX">Horizontal offset in diagram coordinates relative to the original shape's X coordinate.</param>
 		/// <param name="offsetY">Vertical offset in diagram coordinates relative to the original shape's Y coordinate.</param>
@@ -2581,6 +2592,65 @@ namespace Dataweb.NShape.WinFormsUI {
 		}
 
 
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing) {
+			if (disposing) {
+				if (components != null) {
+					components.Dispose();
+					components = null;
+				}
+
+				// Detach components 
+				if (Diagram != null) Diagram = null;
+				if (DiagramController != null) DiagramController = null;
+				if (_diagramSetController != null) DiagramSetController = null;
+
+				// Dispose timer
+				DisposeObject(ref _autoScrollTimer);
+
+				// Dispose pens
+				DisposeObject(ref _gridPen);
+				DisposeObject(ref _outlineInteriorPen);
+				DisposeObject(ref _outlineNormalPen);
+				DisposeObject(ref _outlineHilightPen);
+				DisposeObject(ref _outlineInactivePen);
+				DisposeObject(ref _handleNormalPen);
+				DisposeObject(ref _handleHilightPen);
+				DisposeObject(ref _handleInactivePen);
+				DisposeObject(ref _toolPreviewPen);
+				DisposeObject(ref _outerSnapPen);
+				DisposeObject(ref _innerSnapPen);
+
+				// Dispose brushes
+				DisposeObject(ref _controlBrush);
+				DisposeObject(ref _handleInteriorBrush);
+				DisposeObject(ref _toolPreviewBackBrush);
+				DisposeObject(ref _inplaceTextboxBackBrush);
+				DisposeObject(ref _diagramShadowBrush);
+
+				// Dispose other drawing stuff
+				DisposeObject(ref _previewTextFormatter);
+				DisposeObject(ref _rotatePointPath);
+				DisposeObject(ref _connectionPointPath);
+				DisposeObject(ref _resizePointPath);
+
+				// Dispose other GDI+ objects
+				foreach (System.Collections.Generic.KeyValuePair<int, System.Windows.Forms.Cursor> pair in _registeredCursors) {
+					// Dispose only cursors that were loaded from a resource
+					if (pair.Value.Tag != null) pair.Value.Dispose();
+				}
+				_registeredCursors.Clear();
+
+				DisposeObject(ref _infoGraphics);
+				DisposeObject(ref _currentGraphics);
+			}
+			base.Dispose(disposing);
+		}
+
+
 		#region [Protected] Methods: On[Event] event processing
 
 		/// <ToBeCompleted></ToBeCompleted>
@@ -2785,9 +2855,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			//Console.WriteLine("[{0}]\t OnMouseMove (Entering)", DateTime.Now.ToString("HH:mm:ss.ffff"));
 			base.OnMouseMove(e);
 
-			if (ScrollBarContainsPoint(e.Location)) {
-				// Nothing to do
-			} else if (Geometry.IsValid(_panStartPosCtrl) && (e.Button & _panViewportButtons) != 0) {
+			if (Geometry.IsValid(_panStartPosCtrl) && (e.Button & _panViewportButtons) != 0) {
 				// Start/perform pan viewport action
 				if (_panIsActive == false)
 					StartPanViewport(e.Location);
@@ -2804,14 +2872,36 @@ namespace Dataweb.NShape.WinFormsUI {
 						//Console.WriteLine("[{0}]\t Tool.ProcessMouseEvent finished", DateTime.Now.ToString("HH:mm:ss.ffff"));
 
 						if (ActiveTool.WantsAutoScroll && !DrawBoundsContainsPoint(e.X, e.Y, autoScrollMargin)) {
-							int x, y;
-							ControlToDiagram(e.X, e.Y, out x, out y);
-							int margin;
-							ControlToDiagram(autoScrollMargin, out margin);
-							EnsureVisible(x, y, margin);
-							if (!_autoScrollTimer.Enabled) _autoScrollTimer.Enabled = true;
-						} else if (_autoScrollTimer.Enabled)
+							// Calculate distance to scroll
+							Rectangle autoScrollBounds = DrawBounds;
+							autoScrollBounds.Inflate(-autoScrollMargin, -autoScrollMargin);
+							int deltaX = 0;
+							if (e.X < autoScrollBounds.Left)
+								deltaX = e.X - autoScrollBounds.Left;
+							else if (e.X > autoScrollBounds.Right)
+								deltaX = e.X - autoScrollBounds.Right;
+							int deltaY = 0;
+							if (e.Y < autoScrollBounds.Top)
+								deltaY = e.Y - autoScrollBounds.Top;
+							else if (e.Y > autoScrollBounds.Bottom)
+								deltaY = e.Y - autoScrollBounds.Bottom;
+							// Scale distance to move according to zoom factor
+							int slowDownFactor = 3;
+							deltaX = (int)Math.Round(deltaX / (_zoomfactor * slowDownFactor));
+							deltaY = (int)Math.Round(deltaY / (_zoomfactor * slowDownFactor));
+							// Perform scrolling
+							ScrollBy(deltaX, deltaY);
+
+							//int x, y;
+							//ControlToDiagram(e.X, e.Y, out x, out y);
+							//int margin;
+							//ControlToDiagram(autoScrollMargin, out margin);
+							//EnsureVisible(x, y, margin);
+							if (!_autoScrollTimer.Enabled)
+								_autoScrollTimer.Enabled = true;
+						} else if (_autoScrollTimer.Enabled) {
 							_autoScrollTimer.Enabled = false;
+						}
 					} catch (Exception exc) {
 						ActiveTool.Cancel();
 						Debug.Print(GetFailMessage(exc));
@@ -2836,8 +2926,13 @@ namespace Dataweb.NShape.WinFormsUI {
 				mouseEventHandled = true;
 			} else if (ActiveTool != null) {
 				try {
-					if (ActiveTool.ProcessMouseEvent(this, WinFormHelpers.GetMouseEventArgs(this, MouseEventType.MouseUp, e, DrawBounds)))
+					if (ActiveTool.ProcessMouseEvent(this, WinFormHelpers.GetMouseEventArgs(this, MouseEventType.MouseUp, e, DrawBounds))) {
+						// When opening the caption editor by clicking the shape's text, the editor's text is invisible.
+						// Workaround: Invalidate if the caption editor has been opened.
+						if (_inplaceTextbox != null)
+							Invalidate();
 						mouseEventHandled = true;
+					}
 				} catch (Exception exc) {
 					ActiveTool.Cancel();
 					Debug.Print(GetFailMessage(exc));
@@ -2925,12 +3020,12 @@ namespace Dataweb.NShape.WinFormsUI {
 						switch (e.KeyCode) {
 							case Keys.F2:
 								if (Diagram != null
-									&& SelectedShapes.Count == 1
-									&& Project.SecurityManager.IsGranted(Permission.Data, SelectedShapes.TopMost)
-									&& SelectedShapes.TopMost is ICaptionedShape) {
+										&& SelectedShapes.Count == 1
+										&& Project.SecurityManager.IsGranted(Permission.Data, SelectedShapes.TopMost)
+										&& SelectedShapes.TopMost is ICaptionedShape) {
 									ICaptionedShape captionedShape = (ICaptionedShape)SelectedShapes.TopMost;
 									if (captionedShape.CaptionCount > 0) {
-										DoOpenCaptionEditor(captionedShape, 0, string.Empty);
+										DoOpenCaptionEditor(captionedShape, 0, null);
 										e.Handled = true;
 									}
 								}
@@ -4642,7 +4737,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			string currentText = captionedShape.GetCaptionText(_inplaceCaptionIndex);
 			captionedShape.HideCaptionText(_inplaceCaptionIndex);
 
-			// Create and show inplace text editor
+			// Create and show inplace text editor (if parameter 'newText' is null, 'currentText' will not be changed!)
 			_inplaceTextbox = new InPlaceTextBox(this, _inplaceShape, _inplaceCaptionIndex, currentText, newText);
 			_inplaceTextbox.KeyDown += inPlaceTextBox_KeyDown;
 			_inplaceTextbox.Leave += inPlaceTextBox_Leave;
@@ -4651,7 +4746,6 @@ namespace Dataweb.NShape.WinFormsUI {
 			// Show caption editor
 			this.Controls.Add(_inplaceTextbox);
 			_inplaceTextbox.Focus();
-			_inplaceTextbox.Invalidate();
 		}
 
 
@@ -4972,8 +5066,11 @@ namespace Dataweb.NShape.WinFormsUI {
 				y = scrollBarV.Maximum - scrollBarV.LargeChange;
 
 			if (x != _scrollPosX || y != _scrollPosY) {
-				// ToDo: Scroll InPlaceTextBox with along the rest of the display content
-				DoCloseCaptionEditor(true);
+				// Scroll InPlaceTextBox with along the rest of the display content
+				if (_inplaceTextbox != null) {
+					_inplaceTextbox.Left += (_scrollPosX - x);
+					_inplaceTextbox.Top += (_scrollPosY - y);
+				}
 
 				SetScrollPosX(x);
 				SetScrollPosY(y);
@@ -5419,14 +5516,15 @@ namespace Dataweb.NShape.WinFormsUI {
 		}
 
 
-		private MenuItemDef CreateAddShapesToLayersMenuItemDef(Diagram diagram, IShapeCollection shapes, int homeLayer, LayerIds supplementalLayers, bool replaceLayers) {
-			bool isFeasible = (shapes.Count > 0 && homeLayer != Layer.NoLayerId && supplementalLayers != LayerIds.None);
+		private MenuItemDef CreateAddShapesToLayersMenuItemDef(Diagram diagram, IShapeCollection shapes, int homeLayerId, LayerIds supplementalLayers, bool replaceLayers) {
+			bool isFeasible = (shapes.Count > 0 && (homeLayerId != Layer.NoLayerId || supplementalLayers != LayerIds.None));
 			string description;
 			if (isFeasible) {
 				// Build layer description text
 				int layerCnt = 0;
 				string layerNames = string.Empty;
-				foreach (Layer layer in EnumerationHelper.Enumerate(Diagram.Layers[homeLayer], Diagram.Layers.FindLayers(supplementalLayers))) {
+				Layer homeLayer = (homeLayerId != Layer.NoLayerId) ? Diagram.Layers[homeLayerId] : null;
+				foreach (Layer layer in EnumerationHelper.Enumerate(homeLayer, Diagram.Layers.FindLayers(supplementalLayers))) {
 					++layerCnt;
 					if (layerCnt <= 3) layerNames += string.Format("{0}{1}{2}{1}", (layerCnt > 1) ? ", " : string.Empty, "'", layer.Name);
 				}
@@ -5456,9 +5554,9 @@ namespace Dataweb.NShape.WinFormsUI {
 			Bitmap image = replaceLayers ? Properties.Resources.AssignToLayer : Properties.Resources.AddToLayer;
 			DelegateMenuItemDef.ActionExecuteDelegate execDelegate;
 			if (replaceLayers)
-				execDelegate = (a, p) => _diagramSetController.AssignShapesToLayers(diagram, shapes, homeLayer, supplementalLayers);
+				execDelegate = (a, p) => _diagramSetController.AssignShapesToLayers(diagram, shapes, homeLayerId, supplementalLayers);
 			else
-				execDelegate = (a, p) => _diagramSetController.AddShapesToLayers(diagram, shapes, homeLayer, supplementalLayers);
+				execDelegate = (a, p) => _diagramSetController.AddShapesToLayers(diagram, shapes, homeLayerId, supplementalLayers);
 
 			return new DelegateMenuItemDef(name, label, image, description, isFeasible, Permission.Layout, shapes, execDelegate);
 		}
@@ -6098,13 +6196,28 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void inPlaceTextBox_KeyDown(object sender, KeyEventArgs e) {
-			if (e.Modifiers == Keys.None && e.KeyCode == Keys.Escape) {
-				DoCloseCaptionEditor(false);
-				e.Handled = true;
+			bool closeCaptionEditor = false;
+			bool saveChanges = false;
+			if (e.Modifiers == Keys.None) {
+				switch (e.KeyCode) {
+					case Keys.Escape:
+						closeCaptionEditor = true;
+						saveChanges = false;
+						break;
+					case Keys.F2:
+						closeCaptionEditor = true;
+						saveChanges = true;
+						break;
+					case Keys.Enter:
+						if (CloseCaptionEditorWithEnter) {
+							closeCaptionEditor = true;
+							saveChanges = true;
+						}
+						break;
+				}
 			}
-			//else if (e.Modifiers == Keys.None && e.KeyCode == Keys.Enter) {
-			else if (e.KeyCode == Keys.F2) {
-				DoCloseCaptionEditor(true);
+			if (closeCaptionEditor) {
+				DoCloseCaptionEditor(saveChanges);
 				e.Handled = true;
 			}
 		}
@@ -6433,6 +6546,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		private const bool DefaultValueSnapToGrid = true;
 		private const int DefaultValueSnapDistance = 5;
 		private const int DefaultValueMinRotateDistance = 30;
+		private const bool DefaultCloseCaptionEditorWithEnter = false;
 
 		// Appearance
 		private const int DefaultValueGripSize = 3;
@@ -6499,6 +6613,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		private LayerIds _hiddenSharedLayers = LayerIds.None;
 		private HashCollection<int> _hiddenLayerIds = new HashCollection<int>();
 
+		private bool _closeCaptionEditorWithEnter = DefaultCloseCaptionEditorWithEnter;
 		// Fields for mouse related display behavior (click handling, scroll and zoom)
 		private int _minRotateDistance = DefaultValueMinRotateDistance;
 		private bool _zoomWithMouseWheel = DefaultValueZoomWithMouseWheel;

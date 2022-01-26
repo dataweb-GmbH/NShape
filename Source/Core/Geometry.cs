@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -1346,28 +1346,31 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public static Point CalcNormalVectorOfRectangle(int x, int y, int width, int height, int ptX, int ptY, int vectorLength) {
 			Point normalVector = Point.Empty;
-			normalVector.X = ptX;
-			normalVector.Y = ptY;
+			normalVector.Offset(ptX, ptY);
 			if (x <= ptX && ptX <= x + width && y <= ptY && ptY <= y + height) {
-				Point topLeft = Point.Empty, topRight = Point.Empty, bottomLeft = Point.Empty, bottomRight = Point.Empty;
-				topLeft.X = bottomLeft.X = y;
-				topLeft.Y = topRight.Y = y;
-				topRight.X = bottomRight.X = x + width;
-				bottomLeft.Y = bottomRight.Y = y + height;
-				Point center = Point.Empty, p = Point.Empty;
-				center.X = x + (width / 2); center.Y = y + (height / 2);
-				p.X = ptX; p.Y = ptY;
+				Point topLeft = Point.Empty;
+				topLeft.Offset(x, y);
+				Point bottomRight = Point.Empty;
+				bottomRight.Offset(x + width, y + height);
+				Point bottomLeft = Point.Empty;
+				bottomLeft.Offset(topLeft.X, bottomRight.Y);
+				Point topRight = Point.Empty;
+				topRight.Offset(bottomRight.X, topLeft.Y);
+				Point center = Point.Empty;
+				center.Offset(x + (width / 2), y + (height / 2));
+				Point p = Point.Empty;
+				p.Offset(ptX, ptY);
 				if (TriangleContainsPoint(topLeft, topRight, center, p)) {
 					normalVector.X = ptX;
 					normalVector.Y = y - vectorLength;
 				} else if (TriangleContainsPoint(bottomLeft, bottomRight, center, p)) {
 					normalVector.X = ptX;
 					normalVector.Y = y + height + vectorLength;
-				} else if (TriangleContainsPoint(topLeft, bottomLeft, center, p)) {
-					normalVector.X = x - vectorLength;
-					normalVector.Y = ptY;
 				} else if (TriangleContainsPoint(topRight, bottomRight, center, p)) {
 					normalVector.X = x + width + vectorLength;
+					normalVector.Y = ptY;
+				} else if (TriangleContainsPoint(topLeft, bottomLeft, center, p)) {
+					normalVector.X = x - vectorLength;
 					normalVector.Y = ptY;
 				} else Debug.Fail(string.Format("Unable to calculate normal vector of {0}", new Point(ptX, ptY)));
 			}
@@ -1422,10 +1425,13 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns true if point x/y is inside or on the bounds of the triangle a/b/c
 		/// </summary>
 		public static bool TriangleContainsPoint(int aX, int aY, int bX, int bY, int cX, int cY, int x, int y) {
-			bool ab = VectorCrossProduct(aX, aY, bX, bY, x, y) < 0;
-			bool bc = VectorCrossProduct(bX, bY, cX, cY, x, y) < 0;
-			bool ca = VectorCrossProduct(cX, cY, aX, aY, x, y) < 0;
-			return ((ab == bc) && (ab == ca));
+			int ab = VectorCrossProduct(aX, aY, bX, bY, x, y);
+			int bc = VectorCrossProduct(bX, bY, cX, cY, x, y);
+			int ca = VectorCrossProduct(cX, cY, aX, aY, x, y);
+
+			bool hasNegative = (ab < 0) || (bc < 0) || (ca < 0);
+			bool hasPositive = (ab > 0) || (bc > 0) || (ca > 0);
+			return !(hasNegative && hasPositive);
 		}
 
 
@@ -1822,7 +1828,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="x">The x-coordinate of the point to test</param>
 		/// <param name="y">The y-coordinate of the point to test</param>
 		public static bool LineContainsPoint(int p1x, int p1y, int p2x, int p2y, bool isSegment, int x, int y) {
-			return LineContainsPoint(p1x, p1y, p2x, p2y, isSegment, x, y, 0.1f);
+			return LineContainsPoint(p1x, p1y, p2x, p2y, isSegment, x, y, 0.5f);
 		}
 
 
@@ -5791,15 +5797,27 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="nX"></param>
 		/// <param name="nY"></param>
 		public static void CalcNearestPointOfLineSegment(int aX, int aY, int bX, int bY, int pX, int pY, out int nX, out int nY) {
-			CalcDroppedPerpendicularFoot(pX, pY, aX, aY, bX, bY, out nX, out nY);
-			if (Math.Sign(nX - aX) != Math.Sign(bX - aX)) {
-				// Point is on the other side of A
-				nX = aX;
-				nY = aY;
-			} else if (nX - aX >= bX - aX) {
-				// Point is further away than B
-				nX = bX;
-				nY = bY;
+			// Caution! Does not work if the line goes from top right to bottom left and p is below and more left than the end point 'b'!
+			//CalcDroppedPerpendicularFoot(pX, pY, aX, aY, bX, bY, out nX, out nY);
+			//if (Math.Sign(nX - aX) != Math.Sign(bX - aX)) {
+			//	// Point is on the other side of A
+			//	nX = aX;
+			//	nY = aY;
+			//} else if (nX - aX >= bX - aX) {
+			//	// Point is further away than B
+			//	nX = bX;
+			//	nY = bY;
+			//}
+
+			CalcLine(aX, aY, bX, bY, out float aL, out float bL, out float cL);
+			CalcPerpendicularLine(pX, pY, aL, bL, cL, out float aP, out float bP, out float cP);
+			PointF nP = IntersectLines(aL, bL, cL, aP, bP, cP);
+			nX = (int)Math.Round(nP.X);
+			nY = (int)Math.Round(nP.Y);
+			if (!LineContainsPoint(aX, aY, bX, bY, true, nX, nY, 0.75f)) {
+				Point ep = GetNearestPoint(nX, nY, aX, aY, bX, bY);
+				nX = ep.X;
+				nY = ep.Y;
 			}
 		}
 

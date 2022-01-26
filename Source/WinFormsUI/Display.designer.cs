@@ -6,60 +6,6 @@
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (components != null) {
-					components.Dispose();
-					components = null;
-				}
-
-				// Detach components 
-				if (Diagram != null) Diagram = null;
-				if (DiagramController != null) DiagramController = null;
-				if (_diagramSetController != null) DiagramSetController = null;
-
-				// Dispose pens
-				DisposeObject(ref _gridPen);
-				DisposeObject(ref _outlineInteriorPen);
-				DisposeObject(ref _outlineNormalPen);
-				DisposeObject(ref _outlineHilightPen);
-				DisposeObject(ref _outlineInactivePen);
-				DisposeObject(ref _handleNormalPen);
-				DisposeObject(ref _handleHilightPen);
-				DisposeObject(ref _handleInactivePen);
-				DisposeObject(ref _toolPreviewPen);
-				DisposeObject(ref _outerSnapPen);
-				DisposeObject(ref _innerSnapPen);
-
-				// Dispose brushes
-				DisposeObject(ref _controlBrush);
-				DisposeObject(ref _handleInteriorBrush);
-				DisposeObject(ref _toolPreviewBackBrush);
-				DisposeObject(ref _inplaceTextboxBackBrush);
-				DisposeObject(ref _diagramShadowBrush);
-
-				// other drawing stuff
-				DisposeObject(ref _previewTextFormatter);
-				DisposeObject(ref _rotatePointPath);
-				DisposeObject(ref _connectionPointPath);
-				DisposeObject(ref _resizePointPath);
-
-				// Dispose other GDI+ objects
-				foreach (System.Collections.Generic.KeyValuePair<int, System.Windows.Forms.Cursor> pair in _registeredCursors) {
-					// Dispose only cursors that were loaded from a resource
-					if (pair.Value.Tag != null) pair.Value.Dispose();
-				}
-				_registeredCursors.Clear();
-
-				DisposeObject(ref _infoGraphics);
-			}
-			base.Dispose(disposing);
-		}
-
 		#region Component Designer generated code
 
 		/// <summary>

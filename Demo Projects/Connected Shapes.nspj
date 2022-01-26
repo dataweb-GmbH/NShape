@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <dataweb_nshape version="7">
-  <project id="bbca1238-e00a-437f-8e55-cc5521d96dde" last_saved_utc="2021-06-23 10:19:57" description="">
+  <project id="bbca1238-e00a-437f-8e55-cc5521d96dde" last_saved_utc="2022-01-25 13:09:56" description="">
     <libraries>
       <library name="GeneralShapes" assembly_name="Dataweb.NShape.GeneralShapes, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1512080cd664963c" repository_version="6" />
     </libraries>
@@ -74,7 +74,7 @@
       <model_objects></model_objects>
     </model>
     <templates>
-      <template id="0b57a9c6-027a-4643-aa2b-b2c4cffb4988" name="Polyline" title="" description="">
+      <template id="0b57a9c6-027a-4643-aa2b-b2c4cffb4988" name="Polyline" title="Thin Polyline" description="">
         <no_model></no_model>
         <polyline id="75e29a3b-eec7-4572-96df-c66afe780950" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="-118" y="-117" z_order="0" home_layer="0" layers="0" security_domain_name="A" line_style="36209717-0712-4e2a-9145-8f6d724fbbf7" data="" start_cap_style="1834a0a7-4524-40ad-b479-f8b009c0cf8a" end_cap_style="1834a0a7-4524-40ad-b479-f8b009c0cf8a">
           <vertices>
@@ -126,7 +126,7 @@
         </connection_point_mappings>
         <model_mappings></model_mappings>
       </template>
-      <template id="db88635e-d41b-476f-94f8-5dcd2bce141f" name="Ellipse" title="" description="">
+      <template id="db88635e-d41b-476f-94f8-5dcd2bce141f" name="Ellipse" title="Blue Ellipse" description="">
         <no_model></no_model>
         <ellipse id="b8b7e218-09e7-40e7-a90b-220f6c13df66" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" home_layer="0" layers="0" security_domain_name="A" line_style="36209717-0712-4e2a-9145-8f6d724fbbf7" data="" angle="0" fill_style="cbdd7c29-ff55-429c-a898-a343c0fffcf1" character_style="5a2f75b6-0ae9-4e96-9ba3-077206b2a39c" paragraph_style="74be31e0-8923-47b5-986d-8ca41d0d8aa3" text="" width="60" height="40"></ellipse>
         <connection_point_mappings>
@@ -206,7 +206,7 @@
         </connection_point_mappings>
         <model_mappings></model_mappings>
       </template>
-      <template id="52577411-da46-4bb1-b8dd-c256534f1b43" name="RoundedBox" title="" description="">
+      <template id="52577411-da46-4bb1-b8dd-c256534f1b43" name="RoundedBox" title="Rounded Box" description="">
         <no_model></no_model>
         <rounded_box id="ac761f30-fa63-46b9-96e4-e97d1e037a43" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" home_layer="0" layers="0" security_domain_name="A" line_style="36209717-0712-4e2a-9145-8f6d724fbbf7" data="" angle="0" fill_style="1b6463fd-03fe-4b5f-b58c-1a8fbc0dd987" character_style="5a2f75b6-0ae9-4e96-9ba3-077206b2a39c" paragraph_style="74be31e0-8923-47b5-986d-8ca41d0d8aa3" text="" width="60" height="40"></rounded_box>
         <connection_point_mappings>
@@ -250,7 +250,7 @@
         </connection_point_mappings>
         <model_mappings></model_mappings>
       </template>
-      <template id="0bd0684c-b79f-4ee4-aa81-342b19ef289b" name="RoundedBox2" title="" description="">
+      <template id="0bd0684c-b79f-4ee4-aa81-342b19ef289b" name="RoundedBox2" title="Red Box" description="">
         <no_model></no_model>
         <rounded_box id="7d36d763-f020-4f1c-b44a-cb916d55ee46" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" home_layer="0" layers="0" security_domain_name="A" line_style="36209717-0712-4e2a-9145-8f6d724fbbf7" data="" angle="0" fill_style="f260fe52-8853-416d-b6e9-00cf77525154" character_style="5a2f75b6-0ae9-4e96-9ba3-077206b2a39c" paragraph_style="74be31e0-8923-47b5-986d-8ca41d0d8aa3" text="" width="60" height="40"></rounded_box>
         <connection_point_mappings>
@@ -266,7 +266,7 @@
         </connection_point_mappings>
         <model_mappings></model_mappings>
       </template>
-      <template id="0edfcb98-db36-4699-a67e-c88005a6620f" name="Ellipse2" title="" description="">
+      <template id="0edfcb98-db36-4699-a67e-c88005a6620f" name="Ellipse2" title="Yellow Ellipse" description="">
         <no_model></no_model>
         <ellipse id="0e5aceb9-7bdd-4b02-bd99-80ce8c576fbd" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="0" y="0" z_order="0" home_layer="0" layers="0" security_domain_name="A" line_style="36209717-0712-4e2a-9145-8f6d724fbbf7" data="" angle="0" fill_style="5ba8b811-34b0-440b-8ca8-2a0a7ba486b4" character_style="5a2f75b6-0ae9-4e96-9ba3-077206b2a39c" paragraph_style="74be31e0-8923-47b5-986d-8ca41d0d8aa3" text="" width="60" height="40"></ellipse>
         <connection_point_mappings>
@@ -282,12 +282,12 @@
         </connection_point_mappings>
         <model_mappings></model_mappings>
       </template>
-      <template id="7aa3adc4-03b0-4b33-bcc6-fab132063415" name="Polyline2" title="" description="">
+      <template id="7aa3adc4-03b0-4b33-bcc6-fab132063415" name="Polyline2" title="Thick Polyline" description="">
         <no_model></no_model>
-        <polyline id="9a70d063-3023-46e0-abc5-8ac70397789c" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="-118" y="-117" z_order="0" home_layer="0" layers="0" security_domain_name="A" line_style="8c4da35e-85d0-407c-bb4d-1a2155e9f799" data="" start_cap_style="1834a0a7-4524-40ad-b479-f8b009c0cf8a" end_cap_style="1834a0a7-4524-40ad-b479-f8b009c0cf8a">
+        <polyline id="9a70d063-3023-46e0-abc5-8ac70397789c" template="00000000-0000-0000-0000-000000000000" model_object="00000000-0000-0000-0000-000000000000" x="-117" y="-116" z_order="0" home_layer="0" layers="0" security_domain_name="A" line_style="8c4da35e-85d0-407c-bb4d-1a2155e9f799" data="" start_cap_style="1834a0a7-4524-40ad-b479-f8b009c0cf8a" end_cap_style="1834a0a7-4524-40ad-b479-f8b009c0cf8a">
           <vertices>
-            <vertex point_index="0" point_id="1" x="-118" y="-117" />
-            <vertex point_index="1" point_id="2" x="119" y="118" />
+            <vertex point_index="0" point_id="1" x="-117" y="-116" />
+            <vertex point_index="1" point_id="2" x="118" y="117" />
           </vertices>
           <connection_points />
         </polyline>
@@ -387,9 +387,9 @@
             </vertices>
             <connection_points />
           </polyline>
-          <polyline id="ecdc00ea-ecbb-4818-ae55-b8f32721c31c" template="7aa3adc4-03b0-4b33-bcc6-fab132063415" model_object="00000000-0000-0000-0000-000000000000" x="603" y="340" z_order="0" home_layer="0" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" data="" start_cap_style="00000000-0000-0000-0000-000000000000" end_cap_style="00000000-0000-0000-0000-000000000000">
+          <polyline id="ecdc00ea-ecbb-4818-ae55-b8f32721c31c" template="7aa3adc4-03b0-4b33-bcc6-fab132063415" model_object="00000000-0000-0000-0000-000000000000" x="602" y="340" z_order="0" home_layer="0" layers="0" security_domain_name="A" line_style="00000000-0000-0000-0000-000000000000" data="" start_cap_style="00000000-0000-0000-0000-000000000000" end_cap_style="00000000-0000-0000-0000-000000000000">
             <vertices>
-              <vertex point_index="0" point_id="1" x="603" y="340" />
+              <vertex point_index="0" point_id="1" x="602" y="340" />
               <vertex point_index="1" point_id="2" x="658" y="422" />
             </vertices>
             <connection_points />

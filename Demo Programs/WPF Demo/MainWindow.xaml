@@ -24,7 +24,7 @@
 				<MenuItem Header="About..." Name="aboutMenuItem" Click="aboutMenuItem_Click" />
 			</MenuItem>
 		</Menu>
-		<Grid Grid.Row="1" Name="mainGrid" Margin="0,0,0,0">
+		<Grid Grid.Row="1" Name="mainGrid" Margin="5">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="706*" />
 				<ColumnDefinition Width="Auto" />

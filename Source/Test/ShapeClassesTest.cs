@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Reflection;
 using Dataweb.NShape;
 using Dataweb.NShape.Advanced;
@@ -13,45 +14,122 @@ using Dataweb.NShape.SoftwareArchitectureShapes;
 namespace NShapeTest {
 
 	[TestClass]
-	public class ShapeClassesTest : NShapeTestBase
-	{
+	public class ShapeClassesTest : NShapeTestBase {
+
+		[TestInitialize]
+		public override void TestInitialize() {
+			base.TestInitialize();
+			if (_drawTestBitmap == null)
+				_drawTestBitmap = new Bitmap(1000, 1000);
+		}
+
+
+		[TestCleanup]
+		public override void TestCleanup() {
+			GdiHelpers.DisposeObject(ref _drawTestBitmap);
+			base.TestCleanup();
+		}
+
 
 		[TestMethod]
 		public void ControlPointConstantsTest() {
-			// -- Create a project --
-			Project project = new Project();
-			project.AutoLoadLibraries = true;
-			project.Name = "ControlPointConstantsTest";
-			project.Create();
+			Project project = CreateTestProject();
+			try {
+				foreach (ShapeType shapeType in project.ShapeTypes) {
+					using (Shape shape = shapeType.CreateInstance()) {
+						// Check the number of constants and their values
+						//ControlPointsBaseTest(shape);
 
-			// Add Libraries:
-			//
-			// GeneralShapes
-			project.AddLibrary(typeof(Dataweb.NShape.GeneralShapes.Circle).Assembly, true);
-			// ElectricalShapes
-			project.AddLibrary(typeof(Dataweb.NShape.ElectricalShapes.AutoDisconnectorSymbol).Assembly, true);
-			// FlowChartShapes
-			project.AddLibrary(typeof(Dataweb.NShape.FlowChartShapes.ProcessSymbol).Assembly, true);
-			// SoftwareArchitectureShapes
-			project.AddLibrary(typeof(Dataweb.NShape.SoftwareArchitectureShapes.CloudSymbol).Assembly, true);
-
-			foreach (ShapeType shapeType in project.ShapeTypes) {
-				// use var here to obtain the concrete shape type
-				using (Shape shape = shapeType.CreateInstance()) {
-					// Check the number of constants and their values
-					//ControlPointsBaseTest(shape);
-
-					// Get all control point id's defined by constants of the specific shape type
-					// and check whether the point has the expected capabilities
-					ControlPointsByTypeTest(shape);
+						// Get all control point id's defined by constants of the specific shape type
+						// and check whether the point has the expected capabilities
+						ControlPointsByTypeTest(shape);
+					}
 				}
+			} finally {
+				project.Close();
 			}
+		}
 
-			project.Close();
+
+		[TestMethod]
+		public void CaptionsTest() {
+			Project project = CreateTestProject();
+			try {
+				foreach (ShapeType shapeType in project.ShapeTypes) {
+					using (Shape shape = shapeType.CreateInstance()) {
+						if (shape is ICaptionedShape captionedShape)
+							CaptionTest(project, captionedShape);
+					}
+				}
+			} finally {
+				project.Close();
+			}
 		}
 
 
 		#region [Private] General Test Methods
+
+		private void CaptionTest(Project project, ICaptionedShape shape) {
+			if (project == null) throw new ArgumentNullException(nameof(project));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+
+			string[] testStrings = new string[] { "Test Text", string.Empty, "Test\r\n\r\nText", null };
+
+			for (int i = 0; i < shape.CaptionCount; ++i) {
+				foreach (string txt in testStrings) {
+					// This is what happens when the user is editing the caption in the display:
+					// Hide caption (when showing the caption editor)
+					shape.HideCaptionText(i);
+					// Set caption text and show it (closing the caption editor)
+					shape.SetCaptionText(i, txt);
+					shape.ShowCaptionText(i);
+					// Setting the caption via undo/redo command
+					shape.SetCaptionText(i, txt);
+					DrawShape((Shape)shape);
+					// Check result
+					if (string.IsNullOrEmpty(txt))
+						Assert.IsTrue(string.IsNullOrEmpty(shape.GetCaptionText(i)));
+					else
+						Assert.AreEqual(txt, shape.GetCaptionText(i));
+
+					shape.SetCaptionCharacterStyle(i, project.Design.CharacterStyles.Heading1);
+					DrawShape((Shape)shape);
+					Assert.AreEqual(project.Design.CharacterStyles.Heading1, shape.GetCaptionCharacterStyle(i));
+
+					shape.SetCaptionParagraphStyle(i, project.Design.ParagraphStyles.Text);
+					DrawShape((Shape)shape);
+					Assert.AreEqual(project.Design.ParagraphStyles.Text, shape.GetCaptionParagraphStyle(i));
+				}
+			}
+
+			if (shape is CaptionedShapeBase captionedShape) {
+				foreach (string txt in testStrings) {
+					captionedShape.Text = txt;
+					DrawShape(captionedShape);
+					if (string.IsNullOrEmpty(txt))
+						Assert.IsTrue(string.IsNullOrEmpty(captionedShape.Text));
+					else 
+					Assert.AreEqual(txt, captionedShape.Text);
+					Assert.AreEqual(captionedShape.Text, captionedShape.GetCaptionText(0));
+
+					shape.HideCaptionText(0);
+					DrawShape((Shape)shape);
+					shape.ShowCaptionText(0);
+					DrawShape((Shape)shape);
+
+					captionedShape.CharacterStyle = project.Design.CharacterStyles.Heading1;
+					DrawShape(captionedShape);
+					Assert.AreEqual(project.Design.CharacterStyles.Heading1, captionedShape.CharacterStyle);
+					Assert.AreEqual(project.Design.CharacterStyles.Heading1, captionedShape.GetCaptionCharacterStyle(0));
+
+					captionedShape.ParagraphStyle = project.Design.ParagraphStyles.Text;
+					DrawShape(captionedShape);
+					Assert.AreEqual(project.Design.ParagraphStyles.Text, captionedShape.ParagraphStyle);
+					Assert.AreEqual(project.Design.ParagraphStyles.Text, captionedShape.GetCaptionParagraphStyle(0));
+				}
+			}
+		}
+
 
 		private void ControlPointsBaseTest(Shape shape) {
 			List<ControlPointId> pointsFromShape = new List<ControlPointId>(shape.GetControlPointIds(ControlPointCapabilities.All));
@@ -1549,7 +1627,7 @@ namespace NShapeTest {
 			}
 		}
 
-		
+
 		private void TestControlPointCapabilities(Square shape, IEnumerable<ControlPointId> controlPointsFromShape) {
 			// Check whether all points have the expected capabilities
 			foreach (ControlPointId id in controlPointsFromShape) {
@@ -2038,6 +2116,28 @@ namespace NShapeTest {
 
 		#region [Private] Helper Methods
 
+		private Project CreateTestProject() {
+			// -- Create a project --
+			Project project = new Project();
+			project.AutoLoadLibraries = true;
+			project.Name = "ControlPointConstantsTest";
+			project.Create();
+
+			// Add Libraries:
+			//
+			// GeneralShapes
+			project.AddLibrary(typeof(Dataweb.NShape.GeneralShapes.Circle).Assembly, true);
+			// ElectricalShapes
+			project.AddLibrary(typeof(Dataweb.NShape.ElectricalShapes.AutoDisconnectorSymbol).Assembly, true);
+			// FlowChartShapes
+			project.AddLibrary(typeof(Dataweb.NShape.FlowChartShapes.ProcessSymbol).Assembly, true);
+			// SoftwareArchitectureShapes
+			project.AddLibrary(typeof(Dataweb.NShape.SoftwareArchitectureShapes.CloudSymbol).Assembly, true);
+			
+			return project;
+		}
+
+
 		private IEnumerable<int> GetControlPointsFromType(Type type) {
 			// ToDo: This does not work yet -> Repair!
 			System.Reflection.MemberInfo[] memberinfo = type.FindMembers(MemberTypes.NestedType, BindingFlags.Public, new System.Reflection.MemberFilter(SearchCriteria), "ControlPointIds");
@@ -2060,6 +2160,21 @@ namespace NShapeTest {
 			else
 				return false;
 		}
+
+
+		private void DrawShape(Shape shape) {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (_drawTestBitmap == null) throw new InvalidOperationException();
+			using (Graphics gfx = Graphics.FromImage(_drawTestBitmap))
+				shape.Draw(gfx);
+		}
+
+		#endregion
+
+
+		#region [Private] Fields
+
+		private Bitmap _drawTestBitmap = null;
 
 		#endregion
 

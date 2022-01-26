@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -87,14 +87,13 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override Point CalcNormalVector(Point point) {
-			Point result = Point.Empty;
+			Point result = Geometry.InvalidPoint;
 			if (IsLine) {
-				float lineAngle = Geometry.RadiansToDegrees(Geometry.Angle(StartPoint, EndPoint));
-				int x = point.X + 100;
-				int y = point.Y;
-				Geometry.RotatePoint(point.X, point.Y, lineAngle + 90, ref x, ref y);
-				result.X = x;
-				result.Y = y;
+				int rX, rY;
+				Geometry.CalcNormalVectorOfLine(StartPoint.X, StartPoint.Y, EndPoint.X, EndPoint.Y, point.X, point.Y, 100, out rX, out rY);
+				result.X = rX;
+				result.Y = rY;
+				return result;
 			} else {
 				if (DrawCacheIsInvalid) UpdateDrawCache();
 				float angleDeg = Geometry.RadiansToDegrees(Geometry.Angle(Center.X, Center.Y, point.X, point.Y));
@@ -142,18 +141,6 @@ namespace Dataweb.NShape.Advanced {
 			}
 			return result;
 		}
-
-
-		///// <override></override>
-		//public override Point CalculateConnectionFoot(int x1, int y1, int x2, int y2) {
-		//    Point result = Point.Empty;
-		//    Point linePt = Geometry.GetFurthestPoint((int)Math.Round(Center.X), (int)Math.Round(Center.Y), x1, y1, x2, y2);
-		//    Point intersectionPt = Geometry.GetNearestPoint(linePt, Geometry.IntersectArcLine(StartPoint.X, StartPoint.Y, RadiusPoint.X, RadiusPoint.Y, EndPoint.X, EndPoint.Y, x1, y1, x2, y2, false));
-		//    if (Geometry.IsValid(intersectionPt))
-		//        return intersectionPt;
-		//    else
-		//        return Geometry.GetNearestPoint(linePt, Geometry.CalcArcTangentThroughPoint(StartPoint.X, StartPoint.Y, RadiusPoint.X, RadiusPoint.Y, EndPoint.X, EndPoint.Y, linePt.X, linePt.Y));
-		//}
 
 
 		/// <override></override>

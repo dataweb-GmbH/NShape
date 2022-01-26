@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -179,7 +179,7 @@ namespace Dataweb.NShape.Controllers {
 
 
 	/// <summary>
-	/// Defines the interface between the tool and the diagram presenter.
+	/// Defines the interface between the tool and the display implementation.
 	/// </summary>
 	/// <status>reviewed</status>
 	public interface IDiagramPresenter : ISynchronizeInvoke {

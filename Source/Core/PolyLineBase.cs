@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -214,34 +214,34 @@ namespace Dataweb.NShape.Advanced {
 			ControlPointId result = ControlPointId.None;
 
 			int lineRange = (int)Math.Ceiling(LineStyle.LineWidth / 2f) + 1;
-			LineControlPoint lastVertex = null;
+			int totalRange = lineRange + range;
 			int cnt = ControlPointCount;
 			for (int i = 0; i < cnt; ++i) {
 				// Get positions of the current control points and test on hit.
 				LineControlPoint ctrlPoint = GetControlPoint(i);
 				Point currPos = ctrlPoint.GetPosition();
-				if (Geometry.DistancePointPoint(x, y, currPos.X, currPos.Y) <= lineRange + range) {
+				if (Geometry.DistancePointPoint(x, y, currPos.X, currPos.Y) <= totalRange) {
 					if (HasControlPointCapability(ctrlPoint.Id, controlPointCapability))
 						result = GetControlPointId(i);
 				}
-
-				// If the point was not hit, test the line between the current vertex and the last known vertex
-				if (result == ControlPointId.None && HasControlPointCapability(ctrlPoint.Id, ControlPointCapabilities.Resize)) {
-					if (lastVertex != null) {
-						Point lastPos = lastVertex.GetPosition();
-						float d = Geometry.DistancePointLine(x, y, lastPos.X, lastPos.Y, currPos.X, currPos.Y, true);
-						if (d <= lineRange) {
-							// Check if the Reference point matches the given capabilities and if any of the two points 
-							// are inside the range 
-							if (HasControlPointCapability(ControlPointId.Reference, controlPointCapability)
-								&& !(Geometry.DistancePointPoint(x, y, lastPos.X, lastPos.Y) <= lineRange)
-								&& !(Geometry.DistancePointPoint(x, y, currPos.X, currPos.Y) <= lineRange))
-								result = ControlPointId.Reference;
-						}
-					}
-					lastVertex = ctrlPoint;
-				}
 			}
+			// If no point was hit, test the line segments
+			if (result == ControlPointId.None) {
+				Point p = Point.Empty;
+				p.Offset(x, y);
+				ControlPointId fromId, toId = ControlPointId.FirstVertex;
+				do {
+					fromId = toId;
+					toId = GetNextVertexId(fromId);
+					float d = Geometry.DistancePointLine(p, GetControlPointPosition(fromId), GetControlPointPosition(toId), true);
+					if (d <= totalRange) {
+						// Check if the Reference point matches the given capabilities and if any of the two points 
+						// are inside the range 
+						if (HasControlPointCapability(ControlPointId.Reference, controlPointCapability))
+							result = ControlPointId.Reference;
+					}
+				} while (toId != ControlPointId.LastVertex && result == ControlPointId.None);
+			}			
 			return result;
 		}
 
@@ -254,16 +254,15 @@ namespace Dataweb.NShape.Advanced {
 				Point posA = segment.VertexA.GetPosition();
 				Point posB = segment.VertexB.GetPosition();
 				if (Geometry.LineContainsPoint(posA, posB, true, point.X, point.Y, range)) {
-					float lineAngle = Geometry.RadiansToDegrees(Geometry.Angle(posA, posB));
-					int x = point.X + 100;
-					int y = point.Y;
-					Geometry.RotatePoint(point.X, point.Y, lineAngle + 90, ref x, ref y);
-					result.X = x;
-					result.Y = y;
+					int rX, rY;
+					Geometry.CalcNormalVectorOfLine(posA.X, posA.Y, posB.X, posB.Y, point.X, point.Y, 100, out rX, out rY);
+					result.X = rX;
+					result.Y = rY;
 					return result;
 				}
 			}
-			if (!Geometry.IsValid(result)) throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_TheGivenPoint0IsNotPartOfTheLineShape, point);
+			if (!Geometry.IsValid(result)) 
+				throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_TheGivenPoint0IsNotPartOfTheLineShape, point);
 			return result;
 		}
 

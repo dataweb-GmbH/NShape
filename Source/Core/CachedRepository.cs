@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -3033,9 +3033,14 @@ namespace Dataweb.NShape.Advanced {
 			// If the inserted connection is not in the list of deleted connections, it's a new 
 			// connection and has to be added to the list of new connections.
 			if (!_deletedShapeConnections.Remove(connection)) {
-				Debug.Assert(!_newShapeConnections.Contains(connection),
-					string.Format(ResourceStrings.MessageFmt_0AlreadyExistsInRepository, ResourceStrings.Text_Connection));
-				_newShapeConnections.Add(connection);
+				if (!_newShapeConnections.Contains(connection))
+					_newShapeConnections.Add(connection);
+#if REPOSITORY_CHECK
+				else {
+					// The connection must have been inserted twice or not deleted previously
+					throw new NShapeException(string.Format(ResourceStrings.MessageFmt_0AlreadyExistsInRepository, ResourceStrings.Text_Connection));
+				}
+#endif
 			}
 			_isModified = true;
 			return connection;
@@ -3059,9 +3064,14 @@ namespace Dataweb.NShape.Advanced {
 			// If the deleted connection is not in the list of new connections, it's a loaded 
 			// connection and has to be added to the list of deleted connections
 			if (!_newShapeConnections.Remove(connection)) {
-				Debug.Assert(!_deletedShapeConnections.Contains(connection),
-					string.Format(ResourceStrings.MessageFmt_0AlreadyDeletedFromTheRepository, ResourceStrings.Text_Connection));
-				_deletedShapeConnections.Add(connection);
+				if (!_deletedShapeConnections.Contains(connection))
+					_deletedShapeConnections.Add(connection);
+#if REPOSITORY_CHECK
+				else {
+					// The connection must have been deleted twice or not inserted previously
+					throw new NShapeException(string.Format(ResourceStrings.MessageFmt_0AlreadyDeletedFromTheRepository, ResourceStrings.Text_Connection));
+				}
+#endif
 			}
 			_isModified = true;
 			return connection;
@@ -3069,7 +3079,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private bool IsShapeInRepository(Shape shape) {
-			Debug.Assert(shape != null);
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			IEntity shapeEntity = (IEntity)shape;
 			if (shapeEntity.Id == null)
 				return _newShapes.ContainsKey(shape);
@@ -3078,7 +3088,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private bool IsShapeInCollection(Shape shape, IEnumerable<Shape> shapeCollection) {
-			Debug.Assert(shape != null);
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			foreach (Shape s in shapeCollection)
 				if (s == shape) return true;
 			return false;
@@ -3282,56 +3292,48 @@ namespace Dataweb.NShape.Advanced {
 		#region Designs and Styles
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(Design design) {
 			if (!CanInsert(design, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(Design design) {
 			if (!CanUpdate(design, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(Design design) {
 			if (!CanDelete(design, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(Design design) {
 			if (!CanUndeleteEntity(design, _loadedDesigns, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(IEnumerable<IStyle> styles) {
 			if (!CanInsert(styles, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(IStyle style) {
 			if (!CanUpdate(style, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(IEnumerable<IStyle> styles) {
 			if (!CanDelete(styles, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(IEnumerable<IStyle> styles) {
 			foreach (IStyle style in styles)
 				if (!CanUndeleteEntity(style, _loadedStyles, out _reasonText)) throw new CachedRepositoryException(_reasonText);
@@ -3343,56 +3345,48 @@ namespace Dataweb.NShape.Advanced {
 		#region Model and ModelObjects
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(Model model) {
 			if (!CanInsert(model, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(Model model) {
 			if (!CanUpdate(model, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(Model model) {
 			if (!CanDelete(model, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(Model model) {
 			if (!CanUndeleteEntity(model, _loadedModels, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(IEnumerable<IModelObject> modelObjects) {
 			if (!CanInsert(modelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(IEnumerable<IModelObject> modelObjects) {
 			if (!CanUpdate(modelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(IEnumerable<IModelObject> modelObjects) {
 			if (!CanDelete(modelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(IEnumerable<IModelObject> modelObjects) {
 			foreach (IModelObject modelObject in modelObjects)
 				if (!CanUndeleteEntity(modelObject, _loadedModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
@@ -3404,7 +3398,6 @@ namespace Dataweb.NShape.Advanced {
 		#region DiagramModelObject
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(IDiagramModelObject diagramModelObject) {
 			if (!CanInsertEntity(diagramModelObject, _newDiagramModelObjects, _loadedDiagramModelObjects, out _reasonText))
 				throw new CachedRepositoryException(_reasonText);
@@ -3412,21 +3405,18 @@ namespace Dataweb.NShape.Advanced {
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(IEnumerable<IDiagramModelObject> diagramModelObjects) {
 			if (!CanInsert(diagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(IEnumerable<IDiagramModelObject> diagramModelObjects) {
 			if (!CanUpdate(diagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(IDiagramModelObject diagramModelObject) {
 			if (!CanUpdateEntity(diagramModelObject, _newDiagramModelObjects, _loadedDiagramModelObjects, out _reasonText))
 				throw new CachedRepositoryException(_reasonText);
@@ -3434,21 +3424,18 @@ namespace Dataweb.NShape.Advanced {
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(IEnumerable<IDiagramModelObject> diagramModelObjects) {
 			if (!CanDelete(diagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(IDiagramModelObject diagramModelObject) {
 			if (!CanDeleteEntity(diagramModelObject, _newDiagramModelObjects, _loadedDiagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(IEnumerable<IDiagramModelObject> diagramModelObjects) {
 			foreach (IDiagramModelObject diagramModelObject in diagramModelObjects)
 				if (!CanUndeleteEntity(diagramModelObject, _loadedDiagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
@@ -3456,7 +3443,6 @@ namespace Dataweb.NShape.Advanced {
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(IDiagramModelObject diagramModelObject) {
 			if (!CanUndeleteEntity(diagramModelObject, _loadedDiagramModelObjects, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
@@ -3467,49 +3453,42 @@ namespace Dataweb.NShape.Advanced {
 		#region Templates and ModelMappings
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(Template template, bool checkContentCanInsert) {
 			if (!CanInsert(template, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(Template template) {
 			if (!CanUpdate(template, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(Template template) {
 			if (!CanDelete(template, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(IEnumerable<IModelMapping> modelMappings) {
 			if (!CanInsert(modelMappings, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(IEnumerable<IModelMapping> modelMappings) {
 			if (!CanUpdate(modelMappings, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(IEnumerable<IModelMapping> modelMappings) {
 			if (!CanDelete(modelMappings, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(IEnumerable<IModelMapping> modelMappings) {
 			foreach (IModelMapping modelMapping in modelMappings)
 				if (!CanUndeleteEntity(modelMapping, _loadedModelMappings, out _reasonText)) throw new CachedRepositoryException(_reasonText);
@@ -3521,35 +3500,30 @@ namespace Dataweb.NShape.Advanced {
 		#region Diagram, Shapes and Connections
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(Diagram diagram) {
 			if (!CanInsert(diagram, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(Diagram diagram) {
 			if (!CanUpdate(diagram, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(Diagram diagram) {
 			if (!CanDelete(diagram, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(Diagram diagram) {
 			if (!CanUndeleteEntity(diagram, _loadedDiagrams, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(IEnumerable<Shape> shapes, IEntity parent) {
 			if (parent is Diagram diagram) {
 				if (!IsExistent(diagram, _newDiagrams, _loadedDiagrams))
@@ -3567,28 +3541,24 @@ namespace Dataweb.NShape.Advanced {
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(IEnumerable<Shape> shapes) {
 			if (!CanUpdate(shapes, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUpdate(IEnumerable<Shape> shapes, IEntity owner) {
 			if (!CanUpdate(shapes, owner, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(IEnumerable<Shape> shapes) {
 			if (!CanDelete(shapes, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(IEnumerable<Shape> shapes, IEntity owner) {
 			if (owner is Diagram ownerDiagram) {
 				if (!IsExistent(ownerDiagram, _newDiagrams, _loadedDiagrams))
@@ -3605,38 +3575,24 @@ namespace Dataweb.NShape.Advanced {
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanUndelete(Shape shape) {
 			if (!CanUndeleteEntity(shape, _loadedShapes, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanInsert(Shape activeShape, ControlPointId gluePointId, Shape passiveShape, ControlPointId connectionPointId) {
 			if (!CanInsert(activeShape, gluePointId, passiveShape, connectionPointId, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 
 		[Conditional(REPOSITORY_CHECK_DEFINE)]
-		//[Conditional(DEBUG_DEFINE)]
 		private void AssertCanDelete(Shape activeShape, ControlPointId gluePointId, Shape passiveShape, ControlPointId connectionPointId) {
 			if (!CanDelete(activeShape, gluePointId, passiveShape, connectionPointId, out _reasonText)) throw new CachedRepositoryException(_reasonText);
 		}
 
 		#endregion
 
-
-		//[Conditional(CONSISTENCY_CHECK_DEFINE)]
-		//private void AssertCan () {
-		//    if (!Can (, out reasonText)) throw new CachedRepositoryException(reasonText);
-		//}
-
-
-		//[Conditional(CONSISTENCY_CHECK_DEFINE)]
-		//private void AssertCan () {
-		//    if (!Can (, out reasonText)) throw new CachedRepositoryException(reasonText);
-		//}
 
 		#endregion
 

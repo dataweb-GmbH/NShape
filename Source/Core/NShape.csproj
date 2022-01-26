@@ -296,7 +296,6 @@
     <EmbeddedResource Include="Controllers.ToolSetController.bmp" />
     <EmbeddedResource Include="SqlStore.bmp" />
     <EmbeddedResource Include="XmlStore.bmp" />
-    <None Include="package.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\HandGrabCursor.cur" />

@@ -6,6 +6,28 @@ Known issues:
   x64/AnyCPU configuration on x64 OS.
   
 ====================================================================================================
+Changes in 2.3.1.0:
+====================================================================================================
+* Bugfix: A NullReferenceException occured when deleting a captioned shape's text with the display's 
+  shape caption editor.
+* BugFix: Text in the shape caption editor was invisible when clicking on shape's text and *not* 
+  moving the mouse or pressing a key.
+* Bugfix: Line shapes calculate their normal vector (using CalcNormalVector) in the correct direction
+* Bugfix: LineShapeBase now overrides Shape.CalculateNormalVector and returns the normal vector calculated by ILinearShape.CalcNormalVector
+* Bugfix: Bugfixes in Geometry.TriangleContainsPoint and Geometry.CalcNormalVectorOfRectangle
+* Bugfix: Bugfixes and refactorings in 'LabelBase' shape class
+* Bugfix: PolylineBase.HitTest now resprects given the range when hit testing line segments
+* Improvement: XML Store no longer overwrites images with the same image file name but ignores them 
+  instead ('ImageFileLocation.Directory' only).
+* Improvement: SelectionTool's snap function now snaps to shapes, too (if no 'real' connection points 
+  are in range)
+* Improvement: Slower autoscroll when dragging mouse (e.g. selection frame)
+* Improvement: Added generic version of Tool.FindNearestControlPoint in order to enable searching for 
+  specific shape types
+* New Feature: New Property 'Display.EnterClosesTextEditor': Close the shape text editor by pressing 
+  the enter key (default value: false)
+
+====================================================================================================
 Changes in 2.3.0.0:
 ====================================================================================================
 * Breaking Change: NShape is now based on Framework 4.0 instead of Framework 2.0.
@@ -17,11 +39,11 @@ Changes in 2.3.0.0:
 * Interface Change: New model object type for diagram model objects
 	IDiagramModelObject : IEntity, ISecurityDomainObject
 * Interface Change: Added property "ModelObject" of type IDiagramModelObject to the Diagram class.
-* Improvement: The Text and CaptionStyle properties of shapes implementing ICaptionedShape now use the Interface 
-  methods for modifing the shape's text and caption style properties instead of the interface 
-  methods using the properties.
-* Improvement: LinearShapeCreationTools now handle MouseDown and MouseUp events instead of only handling the 
-  MouseClick event. The shapes will be created when releasing the mouse button.
+* Improvement: The Text and CaptionStyle properties of shapes implementing ICaptionedShape now use 
+  the Interface methods for modifing the shape's text and caption style properties instead of the 
+  interface methods using the properties.
+* Improvement: LinearShapeCreationTools now handle MouseDown and MouseUp events instead of only 
+  handling the MouseClick event. The shapes will be created when releasing the mouse button.
 * Bugfix: The context menu of the display did not show if the display had no ActiveTool. 
   Now, it shows even if the display has no ActiveTool and displays only the context menu entries from
   the display in this case.
@@ -31,12 +53,12 @@ Changes in 2.3.0.0:
 * Added public Methods to WinFormsUi.ToolSetPresenter: 
 	ListViewItem CreateListViewItem(Tool tool)
 	public ListViewItem FindItem(Tool tool)
-* Breaking Change: The default shape base class ShapeBase now seals inherited methods like MoveBy, MovePointBy, 
-  Rotate, etc but introduces methods like MoveByCore, MovePointByCore, RotateCore, etc. that can be
-  overridden in order to change the default behavior without having to reimplement code of the base 
-  class.
-* Bugfix: ModelObjectBase.DetachShape() no longer throws exceptions if the given shape is not attached to 
-  the model object.
+* Breaking Change: The default shape base class ShapeBase now seals inherited methods like MoveBy, 
+  MovePointBy, Rotate, etc but introduces methods like MoveByCore, MovePointByCore, RotateCore, etc. 
+  that can be overridden in order to change the default behavior without having to reimplement code 
+  of the base class.
+* Bugfix: ModelObjectBase.DetachShape() no longer throws exceptions if the given shape is not attached 
+  to the model object.
   
 ====================================================================================================
 Changes in 2.2.1.20:

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -20,7 +20,7 @@ using System;
 // set of attributes. Change these attribute values to modify the information
 // associated with an library.
 [assembly: AssemblyCompany("dataweb GmbH - www.dataweb.de")]
-[assembly: AssemblyCopyright("Copyright © dataweb GmbH 2009-2021")]
+[assembly: AssemblyCopyright("Copyright © dataweb GmbH 2009-2022")]
 [assembly: AssemblyCulture("")]
 
 // Enables CLS compliancy checks
@@ -39,5 +39,5 @@ using System;
 //      Revision
 //
 //[assembly: AssemblyVersion("1.0.0.*")]
-[assembly: AssemblyVersion("2.3.0.0")]
-[assembly: AssemblyFileVersion("2.3.0.0")]
+[assembly: AssemblyVersion("2.3.1.0")]
+[assembly: AssemblyFileVersion("2.3.1.0")]

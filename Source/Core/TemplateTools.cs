@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -46,12 +46,12 @@ namespace Dataweb.NShape {
 		/// <override></override>
 		public override void RefreshIcons() {
 			using (Shape clone = Template.Shape.Clone()) {
-				clone.DrawThumbnail(base.LargeIcon, margin, transparentColor);
-				base.LargeIcon.MakeTransparent(transparentColor);
+				clone.DrawThumbnail(base.LargeIcon, IconMargin, IconTransparentColor);
+				base.LargeIcon.MakeTransparent(IconTransparentColor);
 			}
 			using (Shape clone = Template.Shape.Clone()) {
-				clone.DrawThumbnail(base.SmallIcon, margin, transparentColor);
-				base.SmallIcon.MakeTransparent(transparentColor);
+				clone.DrawThumbnail(base.SmallIcon, IconMargin, IconTransparentColor);
+				base.SmallIcon.MakeTransparent(IconTransparentColor);
 			}
 			ClearPreview();
 			Title = Template.Title;
@@ -336,7 +336,6 @@ namespace Dataweb.NShape {
 
 
 		private bool ProcessMouseDown(IDiagramPresenter diagramPresenter, MouseState mouseState) {
-			Debug.Print("ProcessMouseDown");
 			bool result = false;
 			switch (CurrentAction) {
 				case Action.None:
@@ -380,7 +379,8 @@ namespace Dataweb.NShape {
 						if (doFinishLine) {
 							if (CurrentAction == Action.CreateLine)
 								FinishLine(ActionDiagramPresenter, mouseState, false);
-							else FinishExtendLine(ActionDiagramPresenter, mouseState, false);
+							else 
+								FinishExtendLine(ActionDiagramPresenter, mouseState, false, (Shape)_modifiedLinearShape);
 
 							while (IsToolActionPending)
 								EndToolAction();
@@ -399,7 +399,6 @@ namespace Dataweb.NShape {
 
 		private bool ProcessMouseUp(IDiagramPresenter diagramPresenter, MouseState mouseState)
 		{
-			Debug.Print("ProcessMouseClick");
 			bool result = false;
 			switch (CurrentAction) {
 				case Action.None:
@@ -427,7 +426,8 @@ namespace Dataweb.NShape {
 							if (PreviewLinearShape.VertexCount <= PreviewLinearShape.MinVertexCount
 								|| PreviewLinearShape.VertexCount - 1 == _modifiedLinearShape.VertexCount)
 								Cancel();
-							else FinishExtendLine(ActionDiagramPresenter, mouseState, true);
+							else 
+								FinishExtendLine(ActionDiagramPresenter, mouseState, true, (Shape)_modifiedLinearShape);
 						}
 
 						while (IsToolActionPending)
@@ -445,7 +445,6 @@ namespace Dataweb.NShape {
 
 
 		private bool ProcessDoubleClick(IDiagramPresenter diagramPresenter, MouseState mouseState) {
-			Debug.Print("ProcessDoubleClick");
 			bool result = false;
 			if (IsToolActionPending) {
 #if DEBUG_DIAGNOSTICS
@@ -454,7 +453,7 @@ namespace Dataweb.NShape {
 				if (CurrentAction == Action.CreateLine)
 					FinishLine(ActionDiagramPresenter, mouseState, true);
 				else if (CurrentAction == Action.ExtendLine)
-					FinishExtendLine(ActionDiagramPresenter, mouseState, true);
+					FinishExtendLine(ActionDiagramPresenter, mouseState, true, (Shape)_modifiedLinearShape);
 
 				while (IsToolActionPending)
 					EndToolAction();
@@ -590,7 +589,8 @@ namespace Dataweb.NShape {
 
 
 		/// <summary>
-		/// Creates a new LinearShape and inserts it into the diagram of the CurrentDisplay by executing a Command.
+		/// Creates a new linear shape, copies all vertexes from the preview shape and inserts the new line 
+		/// into the diagram by executing a command.
 		/// </summary>
 		private void FinishLine(IDiagramPresenter diagramPresenter, MouseState mouseState, bool ignorePointAtMouse) {
 #if DEBUG_DIAGNOSTICS
@@ -651,15 +651,16 @@ namespace Dataweb.NShape {
 
 
 		/// <summary>
-		/// Creates a new LinearShape and inserts it into the diagram of the CurrentDisplay by executing a Command.
+		/// 
 		/// </summary>
-		private void FinishExtendLine(IDiagramPresenter diagramPresenter, MouseState mouseState, bool ignorePointAtMouse) {
+		private void FinishExtendLine(IDiagramPresenter diagramPresenter, MouseState mouseState, bool ignorePointAtMouse, Shape linearShapeToModify) {
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
+			if (linearShapeToModify == null) throw new ArgumentNullException(nameof(linearShapeToModify));
 #if DEBUG_DIAGNOSTICS
+			Assert(diagramPresnter == ActionDiagramPresenter);
 			Assert(PreviewShape != null);
-			Assert(_modifiedLinearShape != null);
+			Assert(_modifiedLinearShape is ILinearShape);
 #endif
-			Shape modifiedShape = (Shape)_modifiedLinearShape;
-
 			// Copy points from the PreviewShape to the new shape 
 			// Start at the opposite point of the point at mouse cursor and skip all existing points
 			ControlPointId pointId, endPointId;
@@ -680,33 +681,33 @@ namespace Dataweb.NShape {
 			// Process all point id's
 			do {
 				ControlPointId nextPointId = GetNextResizePointId(PreviewLinearShape, pointId, firstToLast);
-				ControlPointId nextOrigPtId = GetNextResizePointId(_modifiedLinearShape, pointId, firstToLast);
+				ControlPointId nextOrigPtId = GetNextResizePointId((ILinearShape)linearShapeToModify, pointId, firstToLast);
 				if (nextPointId != nextOrigPtId && nextPointId != endPointId) {
 					// If the next point id of the preview does not equal the original shape's point id,
 					// we have to create it...
 					Point p = PreviewShape.GetControlPointPosition(nextPointId);
 					ControlPointId beforePointId = (firstToLast) ? (ControlPointId)ControlPointId.LastVertex : pointId;
 					if (aggregatedCommand == null) aggregatedCommand = new AggregatedCommand();
-					aggregatedCommand.Add(new InsertVertexCommand(modifiedShape, beforePointId, p.X, p.Y));
+					aggregatedCommand.Add(new InsertVertexCommand(linearShapeToModify, beforePointId, p.X, p.Y));
 				}
 				pointId = nextPointId;
 			} while (pointId != endPointId);
 			// Set last point's position
 			ControlPointId lastPtId = firstToLast ? ControlPointId.LastVertex : ControlPointId.FirstVertex;
-			Point currPos = modifiedShape.GetControlPointPosition(lastPtId);
+			Point currPos = linearShapeToModify.GetControlPointPosition(lastPtId);
 			Point newPos = PreviewShape.GetControlPointPosition(endPointId);
 #if DEBUG_DIAGNOSTICS
 			Assert(aggregatedCommand != null);
 #endif
-			aggregatedCommand.Add(new MoveControlPointCommand(modifiedShape, lastPtId, newPos.X - currPos.X, newPos.Y - currPos.Y, ResizeModifiers.None));
+			aggregatedCommand.Add(new MoveControlPointCommand(linearShapeToModify, lastPtId, newPos.X - currPos.X, newPos.Y - currPos.Y, ResizeModifiers.None));
 
 			// Create connection for the last vertex
-			ShapeAtCursorInfo targetInfo = FindConnectionTarget(ActionDiagramPresenter, modifiedShape, lastPtId, newPos, false, true);
+			ShapeAtCursorInfo targetInfo = FindConnectionTarget(ActionDiagramPresenter, linearShapeToModify, lastPtId, newPos, false, true);
 			if (!targetInfo.IsEmpty &&
 				!targetInfo.IsCursorAtGluePoint &&
 				targetInfo.ControlPointId != ControlPointId.None) {
 				if (aggregatedCommand == null) aggregatedCommand = new AggregatedCommand();
-				aggregatedCommand.Add(new ConnectCommand(modifiedShape, lastPtId, targetInfo.Shape, targetInfo.ControlPointId));
+				aggregatedCommand.Add(new ConnectCommand(linearShapeToModify, lastPtId, targetInfo.Shape, targetInfo.ControlPointId));
 			}
 
 			// Execute command and insert it into the history
@@ -847,52 +848,11 @@ namespace Dataweb.NShape {
 			try {
 				switch (e.EventType) {
 					case MouseEventType.MouseMove:
-						if (newMouseState.Position != CurrentMouseState.Position) {
-							// If no Preview exists, create a new one by starting a new ToolAction
-							if (!IsToolActionPending)
-								StartToolAction(diagramPresenter, (int)Action.Create, newMouseState, false);
-
-							Invalidate(ActionDiagramPresenter);
-							// Move preview shape to Mouse Position
-							PreviewShape.MoveTo(newMouseState.X, newMouseState.Y);
-							// Snap to grid
-							if (diagramPresenter.SnapToGrid) {
-								int snapDeltaX = 0, snapDeltaY = 0;
-								FindNearestSnapPoint(diagramPresenter, PreviewShape, 0, 0, out snapDeltaX, out snapDeltaY);
-								PreviewShape.MoveTo(newMouseState.X + snapDeltaX, newMouseState.Y + snapDeltaY);
-							}
-							Invalidate(ActionDiagramPresenter);
-							result = true;
-						}
+						result = MovePreview(diagramPresenter, newMouseState);
 						break;
 
 					case MouseEventType.MouseUp:
-						if (IsToolActionPending && newMouseState.IsButtonDown(MouseButtonsDg.Left)) {
-							try {
-								// Left mouse button was pressed: Create shape
-								_executing = true;
-								Invalidate(ActionDiagramPresenter);
-								if (ActionDiagramPresenter.Diagram != null) {
-									int x = PreviewShape.X;
-									int y = PreviewShape.Y;
-
-									Shape newShape = Template.CreateShape();
-									newShape.ZOrder = ActionDiagramPresenter.Project.Repository.ObtainNewTopZOrder(ActionDiagramPresenter.Diagram);
-									newShape.MoveTo(x, y);
-
-									ActionDiagramPresenter.InsertShape(newShape);
-									result = true;
-								}
-							} finally {
-								_executing = false;
-							}
-							EndToolAction();
-							OnToolExecuted(ExecutedEventArgs);
-						} else if (newMouseState.IsButtonDown(MouseButtonsDg.Right)) {
-							// Right mouse button was pressed: Cancel Tool
-							Cancel();
-							result = true;
-						}
+						result = CreateShapeFromTemplate(diagramPresenter, newMouseState);
 						break;
 
 					case MouseEventType.MouseDown:
@@ -904,6 +864,65 @@ namespace Dataweb.NShape {
 				}
 			} finally { diagramPresenter.ResumeUpdate(); }
 			base.ProcessMouseEvent(diagramPresenter, e);
+			return result;
+		}
+
+		
+		private bool CreateShapeFromTemplate(IDiagramPresenter diagramPresenter, MouseState newMouseState) {
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
+			Debug.Assert(diagramPresenter == ActionDiagramPresenter);
+			bool result = false;
+			if (IsToolActionPending && newMouseState.IsButtonDown(MouseButtonsDg.Left)) {
+				try {
+					// Left mouse button was pressed: Create shape
+					_executing = true;
+					Invalidate(diagramPresenter);
+					if (diagramPresenter.Diagram != null) {
+						int x = PreviewShape.X;
+						int y = PreviewShape.Y;
+
+						Shape newShape = Template.CreateShape();
+						newShape.ZOrder = diagramPresenter.Project.Repository.ObtainNewTopZOrder(diagramPresenter.Diagram);
+						newShape.MoveTo(x, y);
+
+						diagramPresenter.InsertShape(newShape);
+						result = true;
+					}
+				} finally {
+					_executing = false;
+				}
+				EndToolAction();
+				OnToolExecuted(ExecutedEventArgs);
+			} else if (newMouseState.IsButtonDown(MouseButtonsDg.Right)) {
+				// Right mouse button was pressed: Cancel Tool
+				Cancel();
+				result = true;
+			}
+
+			return result;
+		}
+
+
+		private bool MovePreview(IDiagramPresenter diagramPresenter, MouseState newMouseState) {
+			bool result = false;
+			if (newMouseState.Position != CurrentMouseState.Position) {
+				// If no Preview exists, create a new one by starting a new ToolAction
+				if (!IsToolActionPending)
+					StartToolAction(diagramPresenter, (int)Action.Create, newMouseState, false);
+
+				Invalidate(ActionDiagramPresenter);
+				// Move preview shape to Mouse Position
+				PreviewShape.MoveTo(newMouseState.X, newMouseState.Y);
+				// Snap to grid
+				if (diagramPresenter.SnapToGrid) {
+					int snapDeltaX = 0, snapDeltaY = 0;
+					FindNearestSnapPoint(diagramPresenter, PreviewShape, 0, 0, out snapDeltaX, out snapDeltaY);
+					PreviewShape.MoveTo(newMouseState.X + snapDeltaX, newMouseState.Y + snapDeltaY);
+				}
+				Invalidate(ActionDiagramPresenter);
+				result = true;
+			}
+
 			return result;
 		}
 
@@ -1013,6 +1032,7 @@ namespace Dataweb.NShape {
 		private bool _executing = false;
 
 		#endregion
+
 	}
 
 }

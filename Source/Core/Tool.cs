@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -481,37 +481,6 @@ namespace Dataweb.NShape
 		#region [Protected] Methods
 
 		/// <summary>
-		/// Disconnect, disposes and deletes the given preview <see cref="T:Dataweb.NShape.Advanced.Shape" />.
-		/// </summary>
-		/// <param name="shape"></param>
-		protected void DeletePreviewShape(ref Shape shape) {
-			if (shape != null) {
-				// Disconnect all existing connections (disconnects model, too)
-				foreach (ControlPointId pointId in shape.GetControlPointIds(ControlPointCapabilities.Connect | ControlPointCapabilities.Glue)) {
-					ControlPointId otherPointId = shape.IsConnected(pointId, null);
-					if (otherPointId != ControlPointId.None) shape.Disconnect(pointId);
-				}
-				// Delete model object
-				if (shape.ModelObject != null)
-					shape.ModelObject = null;
-				// Delete shape
-				shape.Invalidate();
-				shape.Dispose();
-				shape = null;
-			}
-		}
-
-
-		/// <summary>
-		/// Indicates whether the given shape can connect to the given targetShape with the specified glue point.
-		/// </summary>
-		[Obsolete("Use CanActiveShapeConnectTo instead.")]
-		protected bool CanConnectTo(Shape shape, ControlPointId gluePointId, Shape targetShape) {
-			return CanActiveShapeConnectTo(shape, gluePointId, targetShape);
-		}
-
-
-		/// <summary>
 		/// Indicates whether the given shape can connect to the given targetShape with the specified glue point.
 		/// </summary>
 		protected bool CanActiveShapeConnectTo(Shape shape, ControlPointId gluePointId, Shape targetShape) {
@@ -547,13 +516,6 @@ namespace Dataweb.NShape
 		}
 
 
-		///<ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use CanActiveShapeConnectTo instead.")]
-		protected bool CanConnectTo(IDiagramPresenter diagramPresenter, Shape shape, ControlPointId unmovedGluePoint, ControlPointId movedControlPoint, bool onlyUnselected) {
-			return CanActiveShapeConnectTo(diagramPresenter, shape, unmovedGluePoint, movedControlPoint, onlyUnselected);
-		}
-
-
 		/// <summary>
 		/// Indicates whether the given linear shape can connect to the given targetShape with the specified glue point.
 		/// This method also checks the unmoved glue point (you cannot connect two glue points to the same shape via Point-to-Shape).
@@ -571,6 +533,57 @@ namespace Dataweb.NShape
 					return false;
 			}
 			return true;
+		}
+
+
+		// Moved here from ShapeAtCursorInfo. ToDo: Refactor in a future version, unify with similiar functions!
+		internal static bool CanConnect(Shape shape, ControlPointId controlPointId, Shape otherShape, ControlPointId otherControlPointId) {
+			if (shape == null || controlPointId == ControlPointId.None || otherShape == null || otherControlPointId == ControlPointId.None)
+				return false;
+			else if ((shape.HasControlPointCapability(controlPointId, ControlPointCapabilities.Glue) && otherShape.HasControlPointCapability(otherControlPointId, ControlPointCapabilities.Connect))
+				|| (shape.HasControlPointCapability(controlPointId, ControlPointCapabilities.Connect) && otherShape.HasControlPointCapability(otherControlPointId, ControlPointCapabilities.Glue))) {
+				return (shape.CanConnect(controlPointId, otherShape, otherControlPointId)
+					&& otherShape.CanConnect(otherControlPointId, shape, controlPointId));
+			} else
+				return false;
+		}
+
+
+		/// <summary>
+		/// Indicates whether the given shape can connect to the given targetShape with the specified glue point.
+		/// </summary>
+		[Obsolete("Use CanActiveShapeConnectTo instead.")]
+		protected bool CanConnectTo(Shape shape, ControlPointId gluePointId, Shape targetShape) {
+			return CanActiveShapeConnectTo(shape, gluePointId, targetShape);
+		}
+
+
+		///<ToBeCompleted></ToBeCompleted>
+		[Obsolete("Use CanActiveShapeConnectTo instead.")]
+		protected bool CanConnectTo(IDiagramPresenter diagramPresenter, Shape shape, ControlPointId unmovedGluePoint, ControlPointId movedControlPoint, bool onlyUnselected) {
+			return CanActiveShapeConnectTo(diagramPresenter, shape, unmovedGluePoint, movedControlPoint, onlyUnselected);
+		}
+
+
+		/// <summary>
+		/// Disconnect, disposes and deletes the given preview <see cref="T:Dataweb.NShape.Advanced.Shape" />.
+		/// </summary>
+		/// <param name="shape"></param>
+		protected void DeletePreviewShape(ref Shape shape) {
+			if (shape != null) {
+				// Disconnect all existing connections (disconnects model, too)
+				foreach (ControlPointId pointId in shape.GetControlPointIds(ControlPointCapabilities.Connect | ControlPointCapabilities.Glue)) {
+					ControlPointId otherPointId = shape.IsConnected(pointId, null);
+					if (otherPointId != ControlPointId.None) shape.Disconnect(pointId);
+				}
+				// Delete model object
+				if (shape.ModelObject != null)
+					shape.ModelObject = null;
+				// Delete shape
+				shape.Invalidate();
+				shape.Dispose();
+				shape = null;
+			}
 		}
 
 
@@ -742,7 +755,7 @@ namespace Dataweb.NShape
 		/// <param name="snapDeltaX">Horizontal distance between x and the nearest snap point.</param>
 		/// <param name="snapDeltaY">Vertical distance between y and the nearest snap point.</param>
 		/// <returns>Distance to nearest snap point.</returns>
-		/// <remarks>If snapping is disabled for the current ownerDisplay, this function does nothing.</remarks>
+		/// <remarks>If snapping is disabled for the current diagramPresenter, this function does nothing.</remarks>
 		protected float FindNearestSnapPoint(IDiagramPresenter diagramPresenter, int x, int y, out int snapDeltaX, out int snapDeltaY) {
 			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
 
@@ -934,9 +947,9 @@ namespace Dataweb.NShape
 		/// Finds the nearest ControlPoint in range of the given shape's ControlPoint. 
 		/// If there is no ControlPoint in range, the snap distance to the nearest grid line will be calculated.
 		/// </summary>
-		/// <param name="diagramPresenter">The <see cref="T:Dataweb.NShape.Controllers.IDiagramPresenter" /></param>
-		/// <param name="shape">The given shape.</param>
-		/// <param name="controlPointId">the given shape's ControlPoint</param>
+		/// <param name="diagramPresenter">The current <see cref="T:Dataweb.NShape.Controllers.IDiagramPresenter" /></param>
+		/// <param name="shape">The shape for which the nearest shape control point is searched. Typically the shape that is manipulated by the tool.</param>
+		/// <param name="controlPointId">The control point for which the nearest shape control point is searched. Typically the control point that is manipulated by the tool.</param>
 		/// <param name="targetPointCapabilities">Capabilities of the control point to find.</param>
 		/// <param name="pointOffsetX">Declares the distance, the shape is moved on X axis before finding snap point.</param>
 		/// <param name="pointOffsetY">Declares the distance, the shape is moved on X axis before finding snap point.</param>
@@ -947,37 +960,61 @@ namespace Dataweb.NShape
 		protected Shape FindNearestControlPoint(IDiagramPresenter diagramPresenter, Shape shape, ControlPointId controlPointId,
 			ControlPointCapabilities targetPointCapabilities, int pointOffsetX, int pointOffsetY,
 			out int snapDeltaX, out int snapDeltaY, out ControlPointId resultPointId) {
+			return FindNearestControlPoint<Shape>(diagramPresenter, shape, controlPointId, targetPointCapabilities, pointOffsetX, pointOffsetY, out snapDeltaX, out snapDeltaY, out resultPointId);
+		}
+
+
+		/// <summary>
+		/// Finds the nearest ControlPoint of a shape of type TShape in range of the given shape's ControlPoint. 
+		/// If there is no ControlPoint in range, the snap distance to the nearest grid line will be calculated.
+		/// </summary>
+		/// <param name="diagramPresenter">The current <see cref="T:Dataweb.NShape.Controllers.IDiagramPresenter" /></param>
+		/// <param name="shape">The shape for which the nearest shape control point is searched. Typically the shape that is manipulated by the tool.</param>
+		/// <param name="controlPointId">The control point for which the nearest shape control point is searched. Typically the control point that is manipulated by the tool.</param>
+		/// <param name="targetPointCapabilities">Capabilities of the control point to find.</param>
+		/// <param name="offsetX">Declares the offset on X axis before finding control/snap point.</param>
+		/// <param name="offsetY">Declares the offset on Y axis before finding control/snap point.</param>
+		/// <param name="snapDeltaX">Horizontal distance between ptX and the nearest snap point.</param>
+		/// <param name="snapDeltaY">Vertical distance between ptY and the nearest snap point.</param>
+		/// <param name="resultPointId">The Id of the returned shape's nearest ControlPoint.</param>
+		/// <returns>The shape owning the found <see cref="T:Dataweb.NShape.Advanced.ControlPointId" />.</returns>
+		protected TShape FindNearestControlPoint<TShape>(IDiagramPresenter diagramPresenter, Shape shape, ControlPointId controlPointId,
+			ControlPointCapabilities targetPointCapabilities, int offsetX, int offsetY,
+			out int snapDeltaX, out int snapDeltaY, out ControlPointId resultPointId) where TShape: Shape 
+		{
 			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
 			if (shape == null) throw new ArgumentNullException("shape");
 
-			Shape result = null;
+			TShape result = null;
 			snapDeltaX = snapDeltaY = 0;
 			resultPointId = ControlPointId.None;
 
 			if (diagramPresenter.Diagram != null) {
 				// calculate new position of the ControlPoint
 				Point ctrlPtPos = shape.GetControlPointPosition(controlPointId);
-				ctrlPtPos.Offset(pointOffsetX, pointOffsetY);
+				ctrlPtPos.Offset(offsetX, offsetY);
 
 				int snapDistance = diagramPresenter.SnapDistance;
 				int resultZOrder = int.MinValue;
 				IEnumerable<Shape> foundShapes = FindVisibleShapes(diagramPresenter, ctrlPtPos.X, ctrlPtPos.Y, ControlPointCapabilities.Connect, snapDistance);
 				foreach (Shape foundShape in foundShapes) {
 					if (foundShape == shape) continue;
+					if (foundShape is TShape == false) continue;
 					//
-					// Find the nearest control point
+					// Find the nearest control point.
+					// If no suitable point is in range, use HitTest (which also returns ControlPoinId.Reference)
 					float distance, lowestDistance = float.MaxValue;
-					ControlPointId foundPtId = foundShape.FindNearestControlPoint(
-							ctrlPtPos.X, ctrlPtPos.Y, snapDistance, targetPointCapabilities);
+					ControlPointId foundPtId = foundShape.FindNearestControlPoint(ctrlPtPos.X, ctrlPtPos.Y, snapDistance, targetPointCapabilities);
+					if (foundPtId == ControlPointId.None)
+						foundPtId = foundShape.HitTest(ctrlPtPos.X, ctrlPtPos.Y, targetPointCapabilities, snapDistance);
 					//
 					// Skip shapes without matching control points or below the last matching shape
 					if (foundPtId == ControlPointId.None) continue;
 					if (foundShape.ZOrder < resultZOrder) continue;
 					//
-					// If a valid control point was found, check whether it matches the criteria
+					// If the shape itself is hit, do not calculate the snap distance because snapping 
+					// to "real" control point has a higher priority.
 					if (foundPtId != ControlPointId.Reference) {
-						// If the shape itself is hit, do not calculate the snap distance because snapping 
-						// to "real" control point has a higher priority.
 						// Set TargetPointId and result shape in order to skip snapping to gridlines
 						Point targetPtPos = foundShape.GetControlPointPosition(foundPtId);
 						distance = Geometry.DistancePointPoint(ctrlPtPos.X, ctrlPtPos.Y, targetPtPos.X, targetPtPos.Y);
@@ -989,16 +1026,19 @@ namespace Dataweb.NShape
 					}
 					resultZOrder = foundShape.ZOrder;
 					resultPointId = foundPtId;
-					result = foundShape;
+					result = (TShape)foundShape;
 				}
 				// calcualte distance to nearest grid point if there is no suitable control point in range
-				if (resultPointId == ControlPointId.None)
-					FindNearestSnapPoint(diagramPresenter, ctrlPtPos.X, ctrlPtPos.Y, out snapDeltaX, out snapDeltaY);
-				else if (result != null && resultPointId == ControlPointId.Reference) {
-					// ToDo: Calculate snap distance if the current mouse position outside the shape's outline
-					if (result.ContainsPoint(ctrlPtPos.X, ctrlPtPos.Y)) {
-
+				if (result != null && resultPointId == ControlPointId.Reference) {
+					// Calculate snap distance if the current mouse position outside the shape's outline
+					if (!result.ContainsPoint(ctrlPtPos.X, ctrlPtPos.Y)) {
+						Point targetPos = result.CalculateConnectionFoot(ctrlPtPos.X, ctrlPtPos.Y);
+						snapDeltaX = targetPos.X - ctrlPtPos.X;
+						snapDeltaY = targetPos.Y - ctrlPtPos.Y;
 					}
+				} else {
+					// Calculate snap distance to next grid line
+					FindNearestSnapPoint(diagramPresenter, ctrlPtPos.X, ctrlPtPos.Y, out snapDeltaX, out snapDeltaY);
 				}
 			}
 			return result;
@@ -1198,7 +1238,10 @@ namespace Dataweb.NShape
 			/// <ToBeCompleted></ToBeCompleted>
 			public long Ticks;
 
-			/// <ToBeCompleted></ToBeCompleted>
+			/// <summary>
+			/// Specifies the pressed mouse buttons.
+			/// For MouseUp events, it's the 'formerly pressed and now released' button.
+			/// </summary>
 			public bool IsButtonDown(MouseButtonsDg button) {
 				return (Buttons & button) != 0;
 			}
@@ -1224,7 +1267,7 @@ namespace Dataweb.NShape
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <ToBeCompleted></ToBeCompleted>		
 		protected struct ShapeAtCursorInfo : IEquatable<ShapeAtCursorInfo> {
 
 			/// <ToBeCompleted></ToBeCompleted>
@@ -1283,41 +1326,37 @@ namespace Dataweb.NShape
 
 			/// <ToBeCompleted></ToBeCompleted>
 			public bool CanConnect(ShapeAtCursorInfo other) {
-				if (IsEmpty || other == ShapeAtCursorInfo.Empty
-					|| !((IsCursorAtConnectionPoint && other.IsCursorAtGluePoint) || (other.IsCursorAtConnectionPoint && IsCursorAtGluePoint)))
-					return false;
-				else
-					return CanConnect(other.Shape, other.ControlPointId);
+				return Tool.CanConnect(this.Shape, this.ControlPointId, other.Shape, other.ControlPointId);
 			}
 
 			/// <ToBeCompleted></ToBeCompleted>
+			[Obsolete]
 			public bool CanConnect(Shape otherShape, ControlPointId otherControlPointId) {
-				return (Shape.CanConnect(ControlPointId, otherShape, otherControlPointId)
-					&& otherShape.CanConnect(otherControlPointId, Shape, ControlPointId));
+				return Tool.CanConnect(Shape, ControlPointId, otherShape, otherControlPointId);
 			}
 
 			/// <ToBeCompleted></ToBeCompleted>
 			public bool IsCursorAtGrip {
 				get {
-					return (Shape != null
-					&& ControlPointId != ControlPointId.None
-					&& ControlPointId != ControlPointId.Reference);
+					// ControlPointCapabilities of grips/handles of a shape that can be moved with the mouse
+					const ControlPointCapabilities gripCapabilities = ControlPointCapabilities.Resize | ControlPointCapabilities.Rotate 
+							| ControlPointCapabilities.Movable | ControlPointCapabilities.Glue;
+					return (Shape != null && ControlPointId != ControlPointId.None && ControlPointId != ControlPointId.Reference
+						&& Shape.HasControlPointCapability(ControlPointId, gripCapabilities));
 				}
 			}
 
 			/// <ToBeCompleted></ToBeCompleted>
 			public bool IsCursorAtGluePoint {
 				get {
-					return (Shape != null
-						&& Shape.HasControlPointCapability(ControlPointId, ControlPointCapabilities.Glue));
+					return (Shape != null && Shape.HasControlPointCapability(ControlPointId, ControlPointCapabilities.Glue));
 				}
 			}
 
 			/// <ToBeCompleted></ToBeCompleted>
 			public bool IsCursorAtConnectionPoint {
 				get {
-					return (Shape != null
-						&& Shape.HasControlPointCapability(ControlPointId, ControlPointCapabilities.Connect));
+					return (Shape != null && Shape.HasControlPointCapability(ControlPointId, ControlPointCapabilities.Connect));
 				}
 			}
 
@@ -1401,8 +1440,15 @@ namespace Dataweb.NShape
 
 		#region Fields
 
+		/// <summary>The margin around the tool's icon image.</summary>
+		protected const int IconMargin = 1;
+		/// <summary>The color that will appear as transparent in the tool's icon image.</summary>
+		protected readonly Color IconTransparentColor = Color.LightGray;
+		
+		[Obsolete("Use IconMargin instead.")]
 		/// <ToBeCompleted></ToBeCompleted>
-		protected const int margin = 1;
+		protected const int margin = IconMargin;
+		[Obsolete("Use IconTransparentColor instead.")]
 		/// <ToBeCompleted></ToBeCompleted>
 		protected readonly Color transparentColor = Color.LightGray;
 

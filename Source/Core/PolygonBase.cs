@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -360,7 +360,7 @@ namespace Dataweb.NShape.Advanced {
 			// Normalize the movement to the first vector
 			float segmentAngle = 360 / (float)_pointCount;
 			float ptAngle = (pointId - 1) * segmentAngle;
-			float normalizedDeltaX= transformedDeltaX;
+			float normalizedDeltaX = transformedDeltaX;
 			float normalizedDeltaY = transformedDeltaY;
 			Geometry.RotatePoint(0, 0, -ptAngle, ref normalizedDeltaX, ref normalizedDeltaY);
 

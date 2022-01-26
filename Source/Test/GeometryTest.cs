@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -58,6 +58,66 @@ namespace NShapeTest {
 
 
 		[TestMethod]
+		public void CalcNormalVectorOfRectangleTest() {
+			System.Drawing.Point p;
+
+			// Test each side (from point on the outline)
+			// Left
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, -2, 0, 100);
+			Assert.AreEqual(-102, p.X);
+			Assert.AreEqual(0, p.Y);
+			// Top
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, 0, -4, 100);
+			Assert.AreEqual(0, p.X);
+			Assert.AreEqual(-104, p.Y);
+			// Right
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, 16, 0, 100);
+			Assert.AreEqual(118, p.X);
+			Assert.AreEqual(0, p.Y);
+			// Bottom
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, 0, 6, 100);
+			Assert.AreEqual(0, p.X);
+			Assert.AreEqual(106, p.Y);
+
+			// Test each side (from point inside)
+			// Left
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, 0, 0, 100);
+			Assert.AreEqual(-102, p.X);
+			Assert.AreEqual(0, p.Y);
+			// Top
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, 0, -3, 100);
+			Assert.AreEqual(0, p.X);
+			Assert.AreEqual(-104, p.Y);
+			// Right
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, 15, 0, 100);
+			Assert.AreEqual(118, p.X);
+			Assert.AreEqual(0, p.Y);
+			// Bottom
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, 0, 5, 100);
+			Assert.AreEqual(0, p.X);
+			Assert.AreEqual(106, p.Y);
+
+			// Test corners (from outline)
+			// Top Left
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, -2, -4, 100);
+			Assert.AreEqual(-2, p.X);
+			Assert.AreEqual(-104, p.Y);
+			// Top Right
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, 18, -4, 100);
+			Assert.AreEqual(18, p.X);
+			Assert.AreEqual(-104, p.Y);
+			// Bottom Left
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, -2, 6, 100);
+			Assert.AreEqual(-2, p.X);
+			Assert.AreEqual(106, p.Y);
+			// Bottom Right
+			p = Geometry.CalcNormalVectorOfRectangle(-2, -4, 20, 10, 18, 6, 100);
+			Assert.AreEqual(18, p.X);
+			Assert.AreEqual(106, p.Y);
+		}
+
+
+		[TestMethod]
 		public void DistancePointLineTest() {
 			float d;
 
@@ -104,6 +164,7 @@ namespace NShapeTest {
 			Assert.AreEqual(y, 1);
 
 		}
+
 	}
 
 }

@@ -1,5 +1,5 @@
 ﻿/******************************************************************************
-  Copyright 2009-2021 dataweb GmbH
+  Copyright 2009-2022 dataweb GmbH
   This file is part of the NShape framework.
   NShape is free software: you can redistribute it and/or modify it under the 
   terms of the GNU General Public License as published by the Free Software 
@@ -529,11 +529,11 @@ namespace Dataweb.NShape.Advanced {
 			if (_caption == null) {
 				if (!string.IsNullOrEmpty(text))
 					_caption = new Caption(text);
-			} else
+			} else {
 				_caption.Text = text;
-			//
+			}
 			// Delete caption object for lower memory footprint if it does not contain any vital information
-			if (string.IsNullOrEmpty(_caption.Text) && _caption.IsVisible)
+			if (_caption != null && _caption.IsVisible && string.IsNullOrEmpty(_caption.Text))
 				_caption = null;
 
 			InvalidateDrawCache();
@@ -576,7 +576,11 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public virtual void HideCaptionText(int index) {
 			if (index != 0) throw new IndexOutOfRangeException();
-			if (_caption == null) _caption = new Caption();
+			// Create caption object in order to store the 'IsVisible' information but also because 
+			// it is most likely that text is entered and stored while the caption is hidden.
+			// If this is not the case, the caption will be deleted when setting the (empty) text.
+			if (_caption == null)
+				_caption = new Caption();
 			_caption.IsVisible = false;
 			Invalidate();
 		}
@@ -585,12 +589,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public virtual void ShowCaptionText(int index) {
 			if (index != 0) throw new IndexOutOfRangeException();
-			if (_caption != null)
+			if (_caption != null) {
 				_caption.IsVisible = true;
-			// Release caption object if it is no longer needed
-			if (string.IsNullOrEmpty(_caption.Text))
-				_caption = null;
-			Invalidate();
+				Invalidate();
+			}
 		}
 
 		#endregion
