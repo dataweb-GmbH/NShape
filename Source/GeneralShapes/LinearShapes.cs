@@ -160,7 +160,7 @@ namespace Dataweb.NShape.GeneralShapes {
 	public class CircularArc : CircularArcBase {
 
 		internal static Shape CreateInstance(ShapeType shapeType, Template template) {
-			if (shapeType == null) throw new ArgumentNullException("shapeType");
+			if (shapeType == null) throw new ArgumentNullException(nameof(shapeType));
 			Shape result = new CircularArc(shapeType, template);
 			return result;
 		}

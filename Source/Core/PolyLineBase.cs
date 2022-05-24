@@ -29,6 +29,22 @@ namespace Dataweb.NShape.Advanced {
 		#region Shape Members
 
 		/// <override></override>
+		public override bool CanConnect(ControlPointId ownPointId, Shape otherShape, ControlPointId otherPointId) {
+			if (!base.CanConnect(ownPointId, otherShape, otherPointId))
+				return false;
+			// Do not allow point-to-shape connections with both glue points to the same shape
+			if (otherPointId == ControlPointId.Reference) {
+				foreach (ControlPointId gluePointId in GetControlPointIds(ControlPointCapabilities.Glue)) {
+					if (gluePointId == ownPointId) continue;
+					if (IsConnected(gluePointId, otherShape) == ControlPointId.Reference)
+						return false;
+				}
+			}
+			return true;
+		}
+
+
+		/// <override></override>
 		public override void CopyFrom(Shape source) {
 			base.CopyFrom(source);
 			if (source is PolylineBase) {
@@ -89,7 +105,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override Point CalculateAbsolutePosition(RelativePosition relativePosition) {
-			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException("relativePosition");
+			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException(nameof(relativePosition));
 			// The RelativePosition of a PolyLine is defined as
 			// A = ControlPointId of the first vertex of the nearest line segment (FirstVertex -> LastVertex)
 			// B = Angle between the line segment (A / next vertex of A) and the point
@@ -184,21 +200,16 @@ namespace Dataweb.NShape.Advanced {
 			if (segment != LineSegment.Empty) {
 				Point p1 = segment.VertexA.GetPosition();
 				Point p2 = segment.VertexB.GetPosition();
-				float aSeg, bSeg, cSeg;
-				// Calculate line equation for the line segment
-				Geometry.CalcLine(p1, p2, out aSeg, out bSeg, out cSeg);
-				// Translate the line to point fromX/fromY:
-				float cFrom = -((aSeg * fromP.X) + (bSeg * fromP.Y));
-				// Calculate perpendicular line through fromX/fromY
-				float aPer, bPer, cPer;
-				Geometry.CalcPerpendicularLine(fromX, fromY, aSeg, bSeg, cFrom, out aPer, out bPer, out cPer);
-				// intersect perpendicular line with line segment
 
-				float resX, resY;
-				if (Geometry.IntersectLineWithLineSegment(aPer, bPer, cPer, p1, p2, out resX, out resY)) {
-					result.X = (int)Math.Round(resX);
-					result.Y = (int)Math.Round(resY);
-				} else {
+				// Calculate perpendicular line and translate it to point fromX/fromY:
+				//Geometry.CalcPerpendicularLine(p1.X, p1.Y, p2.X, p2.Y, out int aX, out int aY, out int bX, out int bY);
+				//int perpendicularX = fromX + (bX - aX);
+				//int perpendicularY = fromY - (aY - bY);
+				Geometry.CalcPerpendicularLine(p1.X, p1.Y, p2.X, p2.Y, fromX, fromY, out int toX, out int toY);
+
+				// Intersect perpendicular line with line segment
+				result = Geometry.IntersectLineWithLineSegment(fromX, fromY, toX, toY, p1.X, p1.Y, p2.X, p2.Y);
+				if (!Geometry.IsValid(result)) {
 					// if the lines do not intersect, return the nearest point of the line segment
 					result = Geometry.GetNearestPoint(fromP, p1, p2);
 				}
@@ -235,9 +246,9 @@ namespace Dataweb.NShape.Advanced {
 					toId = GetNextVertexId(fromId);
 					float d = Geometry.DistancePointLine(p, GetControlPointPosition(fromId), GetControlPointPosition(toId), true);
 					if (d <= totalRange) {
-						// Check if the Reference point matches the given capabilities and if any of the two points 
-						// are inside the range 
-						if (HasControlPointCapability(ControlPointId.Reference, controlPointCapability))
+						//// Check if the Reference point matches the given capabilities and if any of the two points 
+						//// are inside the range 
+						//if (HasControlPointCapability(ControlPointId.Reference, controlPointCapability))
 							result = ControlPointId.Reference;
 					}
 				} while (toId != ControlPointId.LastVertex && result == ControlPointId.None);
@@ -281,7 +292,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			UpdateDrawCache();
 			int lastIdx = ShapePoints.Length - 1;
 			if (lastIdx > 0) {
@@ -319,8 +330,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void DrawOutline(Graphics graphics, Pen pen) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			ShapeUtils.DrawLinesSafe(graphics, pen, ShapePoints);
 			base.DrawOutline(graphics, pen);
 		}
@@ -328,7 +339,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void DrawThumbnail(Image image, int margin, Color transparentColor) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			using (Graphics g = Graphics.FromImage(image)) {
 				GdiHelpers.ApplyGraphicsSettings(g, RenderingQuality.MaximumQuality);
 				g.Clear(transparentColor);
@@ -403,7 +414,7 @@ namespace Dataweb.NShape.Advanced {
 						|| IsCellOccupied(segmentStartCells, cell)
 						|| IsCellOccupied(segmentEndCells, cell)
 						|| IsCellOccupied(lastStepCells, cell)
-						);
+					);
 				};
 
 			// Calculate cells occupied by the line's start cap
@@ -460,7 +471,7 @@ namespace Dataweb.NShape.Advanced {
 					// Then, check if the end cell is on the cell boundaries ensure that the end cell is in the expected direction
 					if (posB.X % cellSize == 0 && posB.Y % cellSize == 0) {
 						// If the point is on the cell boundaries, e.g. (100,400), the cell will be calculated as (1,4)
-						// This is correct if the processing direction is left-to-right and topdown, but for other processing 
+						// This is correct if the processing direction is left-to-right and top-to-bottom, but for other processing 
 						// directions the end cell will never be reached. So we have to correct this here.
 						if (Geometry.Signum(endCell.X) != Geometry.Signum(stepX)) endCell.X += stepX;
 						if (Geometry.Signum(endCell.Y) != Geometry.Signum(stepY)) endCell.Y += stepY;
@@ -552,7 +563,7 @@ namespace Dataweb.NShape.Advanced {
 			// Find position where to insert the new point
 			int pointIndex = GetControlPointIndex(beforePointId);
 			if (pointIndex < 0 || pointIndex > ControlPointCount)
-				throw new ArgumentOutOfRangeException("beforePointId");
+				throw new ArgumentOutOfRangeException(nameof(beforePointId));
 
 			InsertControlPoint(pointIndex, new VertexControlPoint(newVertexId, x, y));
 
@@ -990,10 +1001,10 @@ namespace Dataweb.NShape.Advanced {
 
 		private void StoreOccupiedCell(Point cell, ref Rectangle occupiedCells) {
 			if (Geometry.IsValid(occupiedCells))
-				occupiedCells = Geometry.UniteRectangles(cell.X, cell.Y, cell.X, cell.Y, occupiedCells);
+				Geometry.IncludeRectanglePoint(ref occupiedCells, cell);
 			else {
 				occupiedCells.Location = cell;
-				occupiedCells.Width = occupiedCells.Height = 0;
+				occupiedCells.Size = Size.Empty;
 			}
 		}
 
@@ -1043,10 +1054,7 @@ namespace Dataweb.NShape.Advanced {
 			}
 
 			public override int GetHashCode() {
-				int result = 0;
-				result |= VertexA.GetHashCode();
-				result |= VertexB.GetHashCode();
-				return result;
+				return HashCodeGenerator.CalculateHashCode(VertexA, VertexB);
 			}
 
 			public override bool Equals(object obj) {

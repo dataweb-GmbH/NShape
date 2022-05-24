@@ -256,7 +256,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-			if (destinationType == null) throw new ArgumentNullException("destinationType");
+			if (destinationType == null) throw new ArgumentNullException(nameof(destinationType));
 			if (value is TextPadding) {
 				if (destinationType == typeof(string)) {
 					TextPadding txtPadding = (TextPadding)value;
@@ -301,8 +301,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		public override object CreateInstance(ITypeDescriptorContext context, System.Collections.IDictionary propertyValues) {
-			if (context == null) throw new ArgumentNullException("context");
-			if (propertyValues == null) throw new ArgumentNullException("propertyValues");
+			if (context == null) throw new ArgumentNullException(nameof(context));
+			if (propertyValues == null) throw new ArgumentNullException(nameof(propertyValues));
 
 			TextPadding txtPadding = (TextPadding)context.PropertyDescriptor.GetValue(context.Instance);
 			TextPadding result = TextPadding.Empty;
@@ -393,7 +393,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-			if (destinationType == null) throw new ArgumentNullException("destinationType");
+			if (destinationType == null) throw new ArgumentNullException(nameof(destinationType));
 			if (value is string || value == null) {
 				if (destinationType == typeof(int))
 					return ConvertToLayerId(context, (string)value);

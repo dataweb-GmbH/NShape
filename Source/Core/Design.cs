@@ -329,7 +329,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public Design(string name)
 			: this() {
-			if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+			if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 			this._name = name;
 			CreateStandardStyles();
 		}
@@ -362,7 +362,7 @@ namespace Dataweb.NShape {
 
 		void IEntity.AssignId(object id) {
 			if (id == null)
-				throw new ArgumentNullException("id");
+				throw new ArgumentNullException(nameof(id));
 			if (this._id != null)
 				throw new InvalidOperationException("Design has already an id.");
 			this._id = id;
@@ -407,42 +407,42 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ICapStyle GetPreviewStyle(ICapStyle capStyle) {
-			if (capStyle == null) throw new ArgumentNullException("capStyle");
+			if (capStyle == null) throw new ArgumentNullException(nameof(capStyle));
 			return _capStyles.GetPreviewStyle(capStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ICharacterStyle GetPreviewStyle(ICharacterStyle characterStyle) {
-			if (characterStyle == null) throw new ArgumentNullException("characterStyle");
+			if (characterStyle == null) throw new ArgumentNullException(nameof(characterStyle));
 			return _characterStyles.GetPreviewStyle(characterStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IColorStyle GetPreviewStyle(IColorStyle colorStyle) {
-			if (colorStyle == null) throw new ArgumentNullException("colorStyle");
+			if (colorStyle == null) throw new ArgumentNullException(nameof(colorStyle));
 			return _colorStyles.GetPreviewStyle(colorStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IFillStyle GetPreviewStyle(IFillStyle fillStyle) {
-			if (fillStyle == null) throw new ArgumentNullException("fillStyle");
+			if (fillStyle == null) throw new ArgumentNullException(nameof(fillStyle));
 			return _fillStyles.GetPreviewStyle(fillStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ILineStyle GetPreviewStyle(ILineStyle lineStyle) {
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 			return _lineStyles.GetPreviewStyle(lineStyle.Name);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IParagraphStyle GetPreviewStyle(IParagraphStyle paragraphStyle) {
-			if (paragraphStyle == null) throw new ArgumentNullException("paragraphStyle");
+			if (paragraphStyle == null) throw new ArgumentNullException(nameof(paragraphStyle));
 			return _paragraphStyles.GetPreviewStyle(paragraphStyle.Name);
 		}
 
@@ -580,7 +580,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool ContainsStyle(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			if (style is CapStyle)
 				return _capStyles.Contains((CapStyle)style);
 			else if (style is CharacterStyle)
@@ -599,7 +599,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool IsStandardStyle(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			if (style is CapStyle)
 				return _capStyles.IsStandardStyle((CapStyle)style);
 			else if (style is CharacterStyle)
@@ -620,7 +620,7 @@ namespace Dataweb.NShape {
 		/// Returns the style of the same type with the same name if there is one in the design's style collection.
 		/// </summary>
 		public IStyle FindMatchingStyle(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			if (style is ColorStyle) {
 				if (_colorStyles.Contains(style.Name))
 					return _colorStyles[style.Name];
@@ -651,15 +651,15 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IStyle FindStyleByName(string name, Type styleType) {
-			if (name == null) throw new ArgumentNullException("name");
-			if (styleType == null) throw new ArgumentNullException("styleType");
+			if (name == null) throw new ArgumentNullException(nameof(name));
+			if (styleType == null) throw new ArgumentNullException(nameof(styleType));
 			return DoFindStyleByName(name, styleType);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void AddStyle(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertValidStyle(style);
 			if (style is CapStyle) {
 				_capStyles.Add((CapStyle)style, CreatePreviewStyle((ICapStyle)style));
@@ -679,7 +679,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void RemoveStyle(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			if (style is CapStyle)
 				_capStyles.Remove((CapStyle)style);
 			else if (style is CharacterStyle)
@@ -698,8 +698,8 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void RemoveStyle(string name, Type styleType) {
-			if (name == null) throw new ArgumentNullException("name");
-			if (styleType == null) throw new ArgumentNullException("styleType");
+			if (name == null) throw new ArgumentNullException(nameof(name));
+			if (styleType == null) throw new ArgumentNullException(nameof(styleType));
 			if (styleType == typeof(CapStyle))
 				_capStyles.Remove(name);
 			else if (styleType == typeof(CharacterStyle))
@@ -724,7 +724,7 @@ namespace Dataweb.NShape {
 		/// <param name="style">The style that should be assigned to an existing style.</param>
 		/// <returns>Returns true if an existring style was assigned and false if there was no matching style.</returns>
 		public bool AssignStyle(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertValidStyle(style);
 			bool styleFound = ContainsStyle(style);
 			if (styleFound) {
@@ -743,7 +743,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public CapStyle CreatePreviewStyle(ICapStyle baseStyle) {
-			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
+			if (baseStyle == null) throw new ArgumentNullException(nameof(baseStyle));
 			CapStyle result = new CapStyle(baseStyle.Name);
 			result.Title = baseStyle.Name + _previewNameSuffix;
 			result.CapShape = baseStyle.CapShape;
@@ -756,7 +756,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ColorStyle CreatePreviewStyle(IColorStyle baseStyle) {
-			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
+			if (baseStyle == null) throw new ArgumentNullException(nameof(baseStyle));
 			ColorStyle result = new ColorStyle(baseStyle.Name);
 			result.Title = baseStyle.Name + _previewNameSuffix;
 			result.Color = baseStyle.Color;
@@ -768,7 +768,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public FillStyle CreatePreviewStyle(IFillStyle baseStyle) {
-			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
+			if (baseStyle == null) throw new ArgumentNullException(nameof(baseStyle));
 			FillStyle result = new FillStyle(baseStyle.Name, ColorStyle.Empty, ColorStyle.Empty);
 			result.Title = baseStyle.Name + _previewNameSuffix;
 			if (baseStyle.AdditionalColorStyle != null)
@@ -803,7 +803,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public CharacterStyle CreatePreviewStyle(ICharacterStyle baseStyle) {
-			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
+			if (baseStyle == null) throw new ArgumentNullException(nameof(baseStyle));
 			CharacterStyle result = new CharacterStyle(baseStyle.Name);
 			result.Title = baseStyle.Name + _previewNameSuffix;
 			if (baseStyle.ColorStyle != null)
@@ -817,7 +817,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public LineStyle CreatePreviewStyle(ILineStyle baseStyle) {
-			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
+			if (baseStyle == null) throw new ArgumentNullException(nameof(baseStyle));
 			LineStyle result = new LineStyle(baseStyle.Name);
 			result.Title = baseStyle.Name + _previewNameSuffix;
 			if (baseStyle.ColorStyle != null)
@@ -832,7 +832,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ParagraphStyle CreatePreviewStyle(IParagraphStyle baseStyle) {
-			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
+			if (baseStyle == null) throw new ArgumentNullException(nameof(baseStyle));
 			ParagraphStyle result = new ParagraphStyle(baseStyle.Name);
 			result.Title = baseStyle.Name + _previewNameSuffix;
 			result.Alignment = baseStyle.Alignment;
@@ -935,24 +935,24 @@ namespace Dataweb.NShape {
 
 
 		private void AssertValidStyle(ICapStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertStyleExists(style, style.ColorStyle);
 		}
 
 
 		private void AssertValidStyle(ICharacterStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertStyleExists(style, style.ColorStyle);
 		}
 
 
 		private void AssertValidStyle(IColorStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 		}
 
 
 		private void AssertValidStyle(IFillStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			if (style.FillMode == FillMode.Gradient || style.FillMode == FillMode.Pattern) {
 				AssertStyleNotEmpty(style, style.AdditionalColorStyle);
 				AssertStyleExists(style, style.AdditionalColorStyle);
@@ -965,13 +965,13 @@ namespace Dataweb.NShape {
 
 
 		private void AssertValidStyle(ILineStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertStyleExists(style, style.ColorStyle);
 		}
 
 
 		private void AssertValidStyle(IParagraphStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 		}
 
 

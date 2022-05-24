@@ -115,7 +115,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Example: LayerId 3 will be converted to LayerIds.Layer03 which has the numeric value 0x00000004.
 		/// </summary>
 		public static LayerIds ConvertToLayerIds(int layerNo) {
-			if (layerNo < 1 || layerNo > 32) throw new ArgumentOutOfRangeException("layerNo");
+			if (layerNo < 1 || layerNo > 32) throw new ArgumentOutOfRangeException(nameof(layerNo));
 			return (layerNo != 0) ? (LayerIds)Math.Pow(2, layerNo - 1) : LayerIds.None;
 		}
 
@@ -125,7 +125,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Layer ids that are not comnbinable will be omitted.
 		/// </summary>
 		public static LayerIds ConvertToLayerIds(IEnumerable<int> layerNos) {
-			if (layerNos == null) throw new ArgumentNullException("layerIds");
+			if (layerNos == null) throw new ArgumentNullException(nameof(layerNos));
 			LayerIds result = LayerIds.None;
 			foreach (int id in layerNos) {
 				if (IsCombinable(id))
@@ -140,7 +140,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Layers with ids that are not combinable will be omitted.
 		/// </summary>
 		public static LayerIds ConvertToLayerIds(IEnumerable<Layer> layers) {
-			if (layers == null) throw new ArgumentNullException("layers");
+			if (layers == null) throw new ArgumentNullException(nameof(layers));
 			LayerIds result = LayerIds.None;
 			foreach (Layer layer in layers) {
 				if (IsCombinable(layer.LayerId))
@@ -156,7 +156,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="layerId">A LayerIds value.</param>
 		/// <remarks>Combinations of LayerIds values as well as LayerIds.All will lead to an ArgumentException.</remarks>
 		public static int ConvertToLayerId(LayerIds layerId) {
-			if (layerId > LayerIds.Layer32) throw new ArgumentOutOfRangeException("layerId");
+			if (layerId > LayerIds.Layer32) throw new ArgumentOutOfRangeException(nameof(layerId));
 			if (layerId == LayerIds.All) throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidLayerIdForOneSingleLayer, layerId), "layerId");
 			if (layerId == LayerIds.None) 
 				return Layer.NoLayerId;
@@ -187,7 +187,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Layer" />.
 		/// </summary>
 		public Layer(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			if (name == string.Empty) throw new ArgumentException("Parameter name must not be empty.");
 			this._name = name;
 		}
@@ -199,7 +199,7 @@ namespace Dataweb.NShape.Advanced {
 		internal Layer(int layerNo, string name)
 			: this(name) {
 			if (layerNo == (int)LayerIds.None || (uint)layerNo == (uint)LayerIds.All) throw new ArgumentException("Invalid layer id.");
-			if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+			if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 			this._layerId = layerNo;
 			this._name = name;
 		}
@@ -265,7 +265,7 @@ namespace Dataweb.NShape.Advanced {
 		public int LowerZoomThreshold {
 			get { return _lowerZoomThreshold; }
 			set {
-				if (value < 0) throw new ArgumentOutOfRangeException("LowerZoomThreshold");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(LowerZoomThreshold));
 				_lowerZoomThreshold = value;
 			}
 		}
@@ -278,7 +278,7 @@ namespace Dataweb.NShape.Advanced {
 		public int UpperZoomThreshold {
 			get { return _upperZoomThreshold; }
 			set {
-				if (value < 0) throw new ArgumentOutOfRangeException("UpperZoomThreshold");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(UpperZoomThreshold));
 				_upperZoomThreshold = value;
 			}
 		}
@@ -335,14 +335,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public override int GetHashCode() {
-			// Overflow is fine, just wrap
-			unchecked {
-				// We use prime numbers 17 and 23, could also be other prime numbers
-				int result = 17;
-				result = result * 23 + HomeLayer.GetHashCode();
-				result = result * 23 + SupplementalLayers.GetHashCode();
-				return result;
-			}
+			return HashCodeGenerator.CalculateHashCode(HomeLayer, SupplementalLayers);
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
@@ -381,7 +374,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public LayersEventArgs(IEnumerable<Layer> layers) {
-			if (layers == null) throw new ArgumentNullException("layers");
+			if (layers == null) throw new ArgumentNullException(nameof(layers));
 			this.layers = new ReadOnlyList<Layer>(layers);
 		}
 
@@ -516,7 +509,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns all layer ids of the given layers.
 		/// </summary>
 		public static IEnumerable<int> GetAllLayerIds(IEnumerable<Layer> layers) {
-			if (layers == null) throw new ArgumentNullException("layers");
+			if (layers == null) throw new ArgumentNullException(nameof(layers));
 			foreach (Layer layer in layers)
 				yield return layer.LayerId;
 		}
@@ -524,7 +517,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static LayerEventArgs GetLayerEventArgs(string layerName, Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			Layer layer = diagram.Layers.FindLayer(layerName);
 			Debug.Assert(layer != null);
 			_layerEventArgs.Layer = layer;
@@ -534,7 +527,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static LayerEventArgs GetLayerEventArgs(Layer layer) {
-			if (layer == null) throw new ArgumentNullException("layer");
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
 			_layerEventArgs.Layer = layer;
 			return _layerEventArgs;
 		}
@@ -542,7 +535,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static LayersEventArgs GetLayersEventArgs(Layer layer) {
-			if (layer == null) throw new ArgumentNullException("layer");
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
 			_layersEventArgs.SetLayers(layer);
 			return _layersEventArgs;
 		}
@@ -550,7 +543,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static LayersEventArgs GetLayersEventArgs(ReadOnlyList<Layer> layers) {
-			if (layers == null) throw new ArgumentNullException("layers");
+			if (layers == null) throw new ArgumentNullException(nameof(layers));
 			_layersEventArgs.SetLayers(layers);
 			return _layersEventArgs;
 		}
@@ -558,7 +551,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static LayersEventArgs GetLayersEventArgs(IEnumerable<Layer> layers) {
-			if (layers == null) throw new ArgumentNullException("layers");
+			if (layers == null) throw new ArgumentNullException(nameof(layers));
 			_layersEventArgs.SetLayers(layers);
 			return _layersEventArgs;
 		}

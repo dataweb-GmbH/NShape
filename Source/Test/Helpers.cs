@@ -27,6 +27,27 @@ namespace NShapeTest {
 
 	public static class DiagramHelper {
 
+		public static string GetProjectFilesDirectory() {
+			DirectoryInfo binDirectory = new FileInfo(typeof(DiagramHelper).Assembly.Location).Directory;
+			return Path.Combine(binDirectory.Parent.Parent.FullName, "Demo Projects");
+		}
+
+		public static Project CreateProject(string filePath) {
+			string directory = Path.GetDirectoryName(filePath);
+			string name = Path.GetFileNameWithoutExtension(filePath);
+			string extension = Path.GetExtension(filePath);
+
+			Project project = new Project();
+			project.LibrarySearchPaths.Add(Path.GetDirectoryName(typeof(DiagramHelper).Assembly.Location));
+			project.Name = name;
+			project.AutoLoadLibraries = true;
+			project.Repository = new CachedRepository() {
+				Store = new XmlStore(directory, extension),
+			};
+			return project;
+		}
+
+
 		public static void CreateLargeDiagram(Project project, string diagramName) {
 			const int shapesPerSide = 100;
 			CreateDiagram(project, diagramName, shapesPerSide, shapesPerSide, true, false, false, false, true);

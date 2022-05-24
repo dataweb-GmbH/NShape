@@ -348,14 +348,14 @@ namespace Dataweb.NShape.Advanced {
 
 		public Layer this[string layerName] {
 			get {
-				if (string.IsNullOrEmpty(layerName)) throw new ArgumentNullException("layerName");
+				if (string.IsNullOrEmpty(layerName)) throw new ArgumentNullException(nameof(layerName));
 				return _layers[_layerNames[layerName.ToLowerInvariant()]]; 
 			}
 		}
 
 		
 		public Layer FindLayer(string name) {
-			if (name == null) throw new ArgumentNullException("name");			
+			if (name == null) throw new ArgumentNullException(nameof(name));			
 			int layerId;
 			if (_layerNames.TryGetValue(name.ToLowerInvariant(), out layerId))
 				return _layers[layerId];
@@ -397,7 +397,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		public IEnumerable<Layer> FindLayers(IEnumerable<int> layerIds) {
-			if (layerIds == null) throw new ArgumentNullException("layerIds");
+			if (layerIds == null) throw new ArgumentNullException(nameof(layerIds));
 			foreach (int id in layerIds) {
 				Layer layer = FindLayer(id);
 				if (layer != null)
@@ -407,11 +407,11 @@ namespace Dataweb.NShape.Advanced {
 
 
 		public bool RenameLayer(string previousName, string newName) {
-			if (string.IsNullOrEmpty(previousName)) throw new ArgumentNullException("previousName");
-			if (string.IsNullOrEmpty(newName)) throw new ArgumentNullException("newName");
+			if (string.IsNullOrEmpty(previousName)) throw new ArgumentNullException(nameof(previousName));
+			if (string.IsNullOrEmpty(newName)) throw new ArgumentNullException(nameof(newName));
 			string previousNameLC = previousName.ToLowerInvariant();
 			string newNameLC = newName.ToLowerInvariant();
-			if (!_layerNames.ContainsKey(previousNameLC)) throw new KeyNotFoundException("previousName");
+			if (!_layerNames.ContainsKey(previousNameLC)) throw new KeyNotFoundException(nameof(previousName));
 			if (_layerNames.ContainsKey(newNameLC)) throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ALayerNamed0AlreadyExists, newName));
 			
 			Layer layer = _layers[_layerNames[previousNameLC]];
@@ -429,8 +429,8 @@ namespace Dataweb.NShape.Advanced {
 		#region ICollection<Layer> Members
 
 		public void Add(Layer layer) {
-			if (layer == null) throw new ArgumentNullException("item");
-			if (string.IsNullOrEmpty(layer.Name)) throw new ArgumentNullException("layer.Name");
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
+			if (string.IsNullOrEmpty(layer.Name)) throw new ArgumentNullException(nameof(layer.Name));
 			// Assign the first unused layer id if the layer does not have an id.
 			if (layer.LayerId == Layer.NoLayerId)
 				layer.LayerId = GetNextAvailableLayerId();
@@ -468,13 +468,13 @@ namespace Dataweb.NShape.Advanced {
 
 
 		public bool Contains(string layerName) {
-			if (string.IsNullOrEmpty(layerName)) throw new ArgumentNullException("layerName");
+			if (string.IsNullOrEmpty(layerName)) throw new ArgumentNullException(nameof(layerName));
 			return _layerNames.ContainsKey(layerName.ToLowerInvariant());
 		}
 
 
 		public void CopyTo(Layer[] array, int arrayIndex) {
-			if (array == null) throw new ArgumentNullException("array");
+			if (array == null) throw new ArgumentNullException(nameof(array));
 			_layers.Values.CopyTo(array, arrayIndex);
 		}
 
@@ -490,7 +490,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		public bool Remove(Layer item) {
-			if (item == null) throw new ArgumentNullException("item");
+			if (item == null) throw new ArgumentNullException(nameof(item));
 			Debug.Assert(this[item.Name] == item);
 			_layerNames.Remove(item.Name.ToLowerInvariant());
 			return _layers.Remove(item.LayerId);
@@ -536,7 +536,7 @@ namespace Dataweb.NShape.Advanced {
 		//private struct Enumerator : IEnumerator<Layer>, IEnumerator {
 
 		//    public static Enumerator Create(SortedList<int, Layer> layerList) {
-		//        if (layerList == null) throw new ArgumentNullException("layerList");
+		//        if (layerList == null) throw new ArgumentNullException(nameof(layerList));
 		//        Enumerator result = Enumerator.Empty;
 		//        result.layerList = layerList;
 		//        result.currentIdx = -1;
@@ -549,7 +549,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		//    public Enumerator(SortedList<int, Layer> layerList) {
-		//        if (layerList == null) throw new ArgumentNullException("layerList");
+		//        if (layerList == null) throw new ArgumentNullException(nameof(layerList));
 		//        this.layerList = layerList;
 		//        this.currentIdx = -1;
 		//        this.currentLayer = null;

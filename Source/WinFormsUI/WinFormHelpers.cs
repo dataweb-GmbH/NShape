@@ -67,7 +67,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Returns NShapeMouseEventArgs buildt with the provided parameters
 		/// </summary>
 		public static MouseEventArgsDg GetMouseEventArgs(Control source, MouseEventType eventType, MouseButtons mouseButtons, int clicks, int x, int y, int delta, Rectangle controlBounds) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) throw new ArgumentNullException(nameof(source));
 			DateTime utcNow = DateTime.UtcNow;
 			if (_lastClickEventSource == source && (int)_lastClickEventArgs.Buttons == (int)mouseButtons) {
 				if (_lastClickEventArgs.EventType == eventType
@@ -162,8 +162,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Creates a collection of ToolStripMenuItems from a collection of MenuItemDefs. Actions that are not allowed will be skipped.
 		/// </summary>
 		public static IEnumerable<ToolStripItem> GetContextMenuItemsFromAllowedActions(IEnumerable<MenuItemDef> actions, Project project) {
-			if (actions == null) throw new ArgumentNullException("actions");
-			if (project == null) throw new ArgumentNullException("project");
+			if (actions == null) throw new ArgumentNullException(nameof(actions));
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			MenuItemDef lastMenuItemDef = null;
 			// Caution!!
 			// We have to iterate manually instead of unsing foreach here because otherwise always the least 
@@ -173,7 +173,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				// Skip actions that are not allowed
 				if (!enumerator.Current.IsGranted(project.SecurityManager)) continue;
 				// If the item is a separator and no 'real' item was created before, skip the separator 
-				// as we do not want a context  menu beginning with a menu seperator
+				// as we do not want a context  menu beginning with a menu separator
 				if (enumerator.Current is SeparatorMenuItemDef 
 					&& (lastMenuItemDef == null || lastMenuItemDef is SeparatorMenuItemDef)) continue;
 				// Build and return menu item
@@ -188,8 +188,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Actions that are not allowed will disabled and their tool tip displays the reason.
 		/// </summary>
 		public static IEnumerable<ToolStripItem> GetContextMenuItemsFromActions(IEnumerable<MenuItemDef> actions, Project project) {
-			if (actions == null) throw new ArgumentNullException("actions");
-			if (project == null) throw new ArgumentNullException("project");
+			if (actions == null) throw new ArgumentNullException(nameof(actions));
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			// Caution!!
 			// We have to iterate manually instead of unsing foreach here because otherwise always the least 
 			// processed action's Execute method will be called.
@@ -205,9 +205,9 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Fills the given ContextMenuStrip with ToolStripItems created from the given collection of MenuItemDefs.
 		/// </summary>
 		public static void BuildContextMenu(ContextMenuStrip contextMenuStrip, IEnumerable<MenuItemDef> actions, Project project, bool skipIfNotGranted) {
-			if (contextMenuStrip == null) throw new ArgumentNullException("contextMenuStrip");
-			if (actions == null) throw new ArgumentNullException("actions");
-			if (project == null) throw new ArgumentNullException("project");
+			if (contextMenuStrip == null) throw new ArgumentNullException(nameof(contextMenuStrip));
+			if (actions == null) throw new ArgumentNullException(nameof(actions));
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			int itemCnt = contextMenuStrip.Items.Count;
 			// Add a ToolStripSeparator if the last item is not a ToolStripSeparator
 			if (itemCnt > 0 && !(contextMenuStrip.Items[itemCnt - 1] is ToolStripSeparator))
@@ -223,8 +223,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Fills the given ContextMenuStrip with ToolStripItems created from the given collection of MenuItemDefs.
 		/// </summary>
 		public static void BuildContextMenu(ContextMenuStrip contextMenu, IEnumerable<ToolStripItem> menuItems) {
-			if (contextMenu == null) throw new ArgumentNullException("contextMenu");
-			if (menuItems == null) throw new ArgumentNullException("menuItems");
+			if (contextMenu == null) throw new ArgumentNullException(nameof(contextMenu));
+			if (menuItems == null) throw new ArgumentNullException(nameof(menuItems));
 			int itemCnt = contextMenu.Items.Count;
 			if (itemCnt > 0 && !(contextMenu.Items[itemCnt - 1] is ToolStripSeparator))
 				contextMenu.Items.Add(CreateMenuItemSeparator());
@@ -237,7 +237,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Removes all ToolStripItems formerly created from MenuItemDefs.
 		/// </summary>
 		public static void CleanUpContextMenu(ContextMenuStrip contextMenuStrip) {
-			if (contextMenuStrip == null) throw new ArgumentNullException("contextMenuStrip");
+			if (contextMenuStrip == null) throw new ArgumentNullException(nameof(contextMenuStrip));
 			// Do not dispose the items here because the execute method of the attached action will be called later!
 			for (int i = contextMenuStrip.Items.Count - 1; i >= 0; --i) {
 				if (contextMenuStrip.Items[i].Tag is MenuItemDef)

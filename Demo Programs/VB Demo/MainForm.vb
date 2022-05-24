@@ -272,9 +272,9 @@ Public Class MainForm
 		If Not Display Is Nothing And Not Display.Diagram Is Nothing Then
 			zoom = Math.Min(Display.Bounds.Width / CSng(Display.Diagram.Width), Display.Bounds.Height / CSng(Display.Diagram.Height))
 			If (zoom > 0) Then
-				Display.ZoomLevel = zoom * 100
+				Display.ZoomLevelHD = zoom * 10000
 			Else
-				Display.ZoomLevel = 1
+				Display.ZoomLevelHD = 1
 			End If
 		End If
 	End Sub

@@ -42,7 +42,7 @@ namespace Dataweb.NShape.Controllers {
 		public DesignController(Project project)
 			: this() {
 			// Set property in order to register event handlers
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			this.Project = project;
 		}
 
@@ -155,8 +155,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IEnumerable<IStyle> GetOwnerStyles(Design design, IStyle style) {
-			if (design == null) throw new ArgumentNullException("design");
-			if (style == null) throw new ArgumentNullException("style");
+			if (design == null) throw new ArgumentNullException(nameof(design));
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			// check all Styles of the parent design if the style is used by (not yet deleted) styles
 			if (style is ColorStyle) {
 				foreach (IStyle s in design.Styles) {
@@ -187,7 +187,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void CreateStyle(Design design, StyleCategory category) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			Style style;
 			switch (category) {
 				case StyleCategory.CapStyle:
@@ -235,8 +235,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void ReplaceStyle(Design design, Style style, string propertyName, object oldValue, object newValue) {
-			if (design == null) throw new ArgumentNullException("design");
-			if (style == null) throw new ArgumentNullException("style");
+			if (design == null) throw new ArgumentNullException(nameof(design));
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			PropertyInfo propertyInfo = style.GetType().GetProperty(propertyName);
 			if (propertyInfo == null) throw new NShapeException("Property {0} not found in Type {1}.", propertyName, style.GetType().Name);
 
@@ -254,7 +254,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void DeleteDesign(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			ICommand cmd = new DeleteDesignCommand(design);
 			_project.ExecuteCommand(cmd);
 		}
@@ -262,8 +262,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void DeleteStyle(Design design, Style style) {
-			if (design == null) throw new ArgumentNullException("design");
-			if (style == null) throw new ArgumentNullException("style");
+			if (design == null) throw new ArgumentNullException(nameof(design));
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			ICommand cmd = new DeleteStyleCommand(design, style);
 			_project.ExecuteCommand(cmd);
 		}
@@ -324,8 +324,8 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private bool StyleNameExists(Design design, IStyle style, string newName) {
-			if (design == null) throw new ArgumentNullException("design");
-			if (style == null) throw new ArgumentNullException("style");
+			if (design == null) throw new ArgumentNullException(nameof(design));
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			return (design.FindStyleByName(newName, style.GetType()) != null);
 		}
 
@@ -440,7 +440,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public DesignEventArgs(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			this.design = design;
 		}
 
@@ -462,7 +462,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		public StyleEventArgs(Design design, IStyle style)
 			: base(design) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			this.style = style;
 		}
 

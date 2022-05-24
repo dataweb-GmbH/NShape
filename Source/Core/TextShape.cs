@@ -193,7 +193,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			DrawPath(graphics, LineStyle, FillStyle);
 			DrawCaption(graphics);
 		}
@@ -515,7 +515,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Connect(ControlPointId ownPointId, Shape otherShape, ControlPointId otherPointId) {
-			if (otherShape == null) throw new ArgumentNullException("otherShape");
+			if (otherShape == null) throw new ArgumentNullException(nameof(otherShape));
 			// Calculate the relative position of the gluePoint on the other shape
 			LabelPosition = CalcGluePointCalcInfo(ownPointId, otherShape, otherPointId);
 			base.Connect(ownPointId, otherShape, otherPointId);
@@ -539,7 +539,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void FollowConnectionPointWithGluePoint(ControlPointId gluePointId, Shape connectedShape, ControlPointId movedPointId) {
-			if (connectedShape == null) throw new ArgumentNullException("connectedShape");
+			if (connectedShape == null) throw new ArgumentNullException(nameof(connectedShape));
 
 			Rectangle boundsBefore = GetBoundingRectangle(true);
 			BeginResize();
@@ -554,7 +554,8 @@ namespace Dataweb.NShape.Advanced {
 				// with the help of the connected shape. 
 				if (movedPointId == ControlPointId.Reference)
 					newGluePtPos = CalcGluePoint(gluePointId, connectedShape);
-				else newGluePtPos = connectedShape.GetControlPointPosition(movedPointId);
+				else 
+					newGluePtPos = connectedShape.GetControlPointPosition(movedPointId);
 				// Ensure that the glue point is moved to a valid coordinate
 				if (!Geometry.IsValid(newGluePtPos)) {
 					//System.Diagnostics.Debug.Fail("Invalid glue point position");
@@ -932,7 +933,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void DrawGluePointLine(Graphics graphics, ILineStyle lineStyle, ICapStyle capStyle) {
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 			Pen pen = ToolCache.GetPen(LineStyle, null, capStyle);
 			DrawGluePointLine(graphics, pen);
 		}
@@ -940,7 +941,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected virtual void DrawGluePointLine(Graphics graphics, Pen pen) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			Point p = CalculateConnectionFoot(GluePointPosition.X, GluePointPosition.Y);
 			if (pen != null && Geometry.IsValid(p)) 
 				graphics.DrawLine(pen, p, GluePointPosition);
@@ -1068,11 +1069,7 @@ namespace Dataweb.NShape.Advanced {
 
 			/// <override></override>
 			public override int GetHashCode() {
-				return (Distance.GetHashCode()
-					^ RelativePosition.GetHashCode()
-					^ Alpha.GetHashCode()
-					^ Beta.GetHashCode()
-					^ LabelAngle.GetHashCode());
+				return HashCodeGenerator.CalculateHashCode(Distance, RelativePosition, Alpha, Beta, LabelAngle);
 			}
 
 			static LabelPositionInfo() {

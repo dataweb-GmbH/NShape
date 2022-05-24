@@ -25,8 +25,8 @@ namespace Dataweb.NShape.Advanced {
 	internal static class TypeDescriptorRegistrar {
 
 		public static void RegisterUITypeEditor(Type type, Type uiTypeEditorType) {
-			if (type == null) throw new ArgumentNullException("type");
-			if (uiTypeEditorType == null) throw new ArgumentNullException("typeConverterType");
+			if (type == null) throw new ArgumentNullException(nameof(type));
+			if (uiTypeEditorType == null) throw new ArgumentNullException(nameof(uiTypeEditorType));
 			if (!IsType(uiTypeEditorType, typeof(UITypeEditor)))
 				throw new ArgumentException(string.Format("{0} is not a {1}.", type.Name, typeof(UITypeEditor).Name));
 
@@ -42,8 +42,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		public static void RegisterTypeConverter(Type type, Type typeConverterType) {
-			if (type == null) throw new ArgumentNullException("type");
-			if (typeConverterType == null) throw new ArgumentNullException("typeConverterType");
+			if (type == null) throw new ArgumentNullException(nameof(type));
+			if (typeConverterType == null) throw new ArgumentNullException(nameof(typeConverterType));
 			if (!IsType(typeConverterType, typeof(TypeConverter)))
 				throw new ArgumentException(string.Format("{0} is not a {1}.", type.Name, typeof(TypeConverter).Name));
 
@@ -147,7 +147,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		protected TypeDescriptorDgBase(ICustomTypeDescriptor parent, IPropertyController propertyController)
 			: base(parent) {
-			if (propertyController == null) throw new ArgumentNullException("propertyController");
+			if (propertyController == null) throw new ArgumentNullException(nameof(propertyController));
 			this.propertyController = propertyController;
 		}
 
@@ -250,8 +250,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected Attribute[] GetPropertyAttributes(IPropertyController controller, PropertyDescriptor descriptor) {
-			if (controller == null) throw new ArgumentNullException("controller");
-			if (descriptor == null) throw new ArgumentNullException("descriptor");
+			if (controller == null) throw new ArgumentNullException(nameof(controller));
+			if (descriptor == null) throw new ArgumentNullException(nameof(descriptor));
 			try {
 				int attrCount = descriptor.Attributes.Count;
 				BrowsableAttribute browsableAttr = descriptor.Attributes[typeof(BrowsableAttribute)] as BrowsableAttribute;

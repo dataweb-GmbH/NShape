@@ -211,7 +211,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			UpdateDrawCache();
 			Pen pen = ToolCache.GetPen(LineStyle, null, null);
 			Brush brush = ToolCache.GetTransformedBrush(FillStyle, BoundingRectangleUnrotated, Center, Angle);
@@ -311,7 +311,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			Size txtSize = Size.Empty;
 			txtSize.Width = Width;
 			txtSize.Height = Height;
@@ -667,7 +667,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override Point CalculateAbsolutePosition(RelativePosition relativePosition) {
-			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException("relativePosition");
+			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException(nameof(relativePosition));
 			Point result = Point.Empty;
 			result.X = (int)Math.Round((relativePosition.A / 1000f) * _width) + X;
 			result.Y = (int)Math.Round((relativePosition.B / 1000f) * _height) + Y;
@@ -822,7 +822,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			UpdateDrawCache();
 			if (_height >= _ch + _minH) {
 				graphics.DrawImage(_image, _x - _width / 2, Y - _width / 2, _width, _height - _ch);
@@ -837,8 +837,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void DrawOutline(Graphics graphics, Pen pen) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			UpdateDrawCache();
 			base.DrawOutline(graphics, pen);
 			graphics.DrawRectangle(pen, _x - _width / 2, _y - _height / 2, _width, _height);
@@ -896,7 +896,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public bool GetCaptionTextBounds(int index, out Point topLeft, out Point topRight, out Point bottomRight, out Point bottomLeft) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			Point location = Point.Empty;
 			location.Offset(X, Y);
 			Rectangle captionBounds = Rectangle.Empty;
@@ -912,7 +912,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public bool GetCaptionBounds(int index, out Point topLeft, out Point topRight, out Point bottomRight, out Point bottomLeft) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			Point location = Point.Empty;
 			location.Offset(X, Y);
 			Rectangle captionBounds = Rectangle.Empty;
@@ -927,7 +927,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public Rectangle GetCaptionTextBounds(int index) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			Rectangle captionBounds = Rectangle.Empty;
 			captionBounds.X = -_width / 2;
 			captionBounds.Y = -_height / 2 + _height - _ch;
@@ -1186,7 +1186,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void Construct(string resourceBaseName, Assembly resourceAssembly) {
-			if (resourceBaseName == null) throw new ArgumentNullException("resourceBaseName");
+			if (resourceBaseName == null) throw new ArgumentNullException(nameof(resourceBaseName));
 			System.IO.Stream stream = resourceAssembly.GetManifestResourceStream(resourceBaseName);
 			if (stream == null) throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidResourceIn1, resourceBaseName, resourceAssembly), "resourceBaseName");
 			_image = Image.FromStream(stream);
@@ -1266,7 +1266,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			if (!_captionUpdated) UpdateDrawCache();
 			_replaceColorFound = false;
 			Rectangle dstBounds = Rectangle.Empty;

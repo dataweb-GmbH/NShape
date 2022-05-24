@@ -65,7 +65,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual void CopyFrom(IShapeCollection source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) throw new ArgumentNullException(nameof(source));
 			Clear();
 			foreach (Shape shape in source.BottomUp) {
 				Shape shapeClone = null;
@@ -122,7 +122,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void SetPreviewStyles(IStyleSet styleSet) {
-			if (styleSet == null) throw new ArgumentNullException("styleSet");
+			if (styleSet == null) throw new ArgumentNullException(nameof(styleSet));
 			foreach (Shape shape in Shapes)
 				shape.MakePreview(styleSet);
 		}
@@ -159,7 +159,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			foreach (Shape shape in BottomUp)
 				shape.Draw(graphics);
 
@@ -176,8 +176,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void DrawOutline(Graphics graphics, Pen pen) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			foreach (Shape shape in BottomUp) shape.DrawOutline(graphics, pen);
 		}
 
@@ -552,7 +552,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void Construct(Shape owner, int capacity) {
-			if (owner == null) throw new ArgumentNullException("owner");
+			if (owner == null) throw new ArgumentNullException(nameof(owner));
 			this._owner = owner;
 			if (capacity <= 0) {
 				_shapePositions = new Dictionary<Shape, Point>();
@@ -619,7 +619,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private IEnumerable<ControlPointId> GetLineAnchorPoints(Shape lineShape) {
-			if (lineShape == null) throw new ArgumentNullException("lineShape");
+			if (lineShape == null) throw new ArgumentNullException(nameof(lineShape));
 			if (!(lineShape is ILinearShape)) throw new ArgumentException("Shape does not implement ILinearShape");
 			// Return end points first
 			yield return ControlPointId.FirstVertex;
@@ -635,7 +635,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private IEnumerable<ControlPointId> GetIsoscelesTriangleAnchorPoints(IsoscelesTriangleBase triangleShape) {
-			if (triangleShape == null) throw new ArgumentNullException("triangleShape");
+			if (triangleShape == null) throw new ArgumentNullException(nameof(triangleShape));
 			// ToDo: Ensure that the ControlPointId values match the expected values
 			const int TopCenterControlPoint = 1;
 			const int BottomLeftControlPoint = 2;
@@ -650,7 +650,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private IEnumerable<ControlPointId> GetDiameterShapeAnchorPoints(DiameterShapeBase diameterShape, Rectangle ownerBounds) {
-			if (diameterShape == null) throw new ArgumentNullException("diameterShape");
+			if (diameterShape == null) throw new ArgumentNullException(nameof(diameterShape));
 			// ToDo: Ensure that the ControlPointId values match the expected values
 			const int TopCenterControlPoint = 2;
 			const int MiddleLeftControlPoint = 4;
@@ -669,7 +669,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private IEnumerable<ControlPointId> GetRegularPolygonAnchorPoints(RegularPolygoneBase polygonShape, Rectangle ownerBounds) {
-			if (polygonShape == null) throw new ArgumentNullException("polygonShape");
+			if (polygonShape == null) throw new ArgumentNullException(nameof(polygonShape));
 			// (Re)store the shape position and one resize point (sufficient for defining the radius)
 			yield return ControlPointId.Reference;
 			// Calculate the point that is closest to the ownerBounds
@@ -703,7 +703,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private IEnumerable<ControlPointId> GetImageAnchorPoints(ImageBasedShape imageShape) {
-			if (imageShape == null) throw new ArgumentNullException("imageShape");
+			if (imageShape == null) throw new ArgumentNullException(nameof(imageShape));
 			// (Re)store the corner and bottom resize point and the shape position
 			yield return ControlPointId.Reference;
 			yield return 8;
@@ -713,7 +713,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private IEnumerable<ControlPointId> GetShapeAnchorPoints(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			// First, (re)store position of reference point
 			yield return ControlPointId.Reference;
 			// Then, (re)store positions of all other resize points
@@ -747,8 +747,8 @@ namespace Dataweb.NShape.Advanced {
 			/// <ToBeCompleted></ToBeCompleted>
 			public PointPositions(Shape shape, Shape owner)
 				: this() {
-				if (shape == null) throw new ArgumentNullException("shape");
-				if (owner == null) throw new ArgumentNullException("owner");
+				if (shape == null) throw new ArgumentNullException(nameof(shape));
+				if (owner == null) throw new ArgumentNullException(nameof(owner));
 				// First, store position of reference point
 				RelativePosition relativePos = RelativePosition.Empty;
 				relativePos = owner.CalculateRelativePosition(shape.X, shape.Y);
@@ -799,7 +799,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public GroupShapeAggregation(Shape owner)
 			: base(owner) {
-			if (owner == null) throw new ArgumentNullException("owner");
+			if (owner == null) throw new ArgumentNullException(nameof(owner));
 			if (!(owner is IShapeGroup)) throw new ArgumentException("owner");
 		}
 
@@ -807,7 +807,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public GroupShapeAggregation(Shape owner, int capacity)
 			: base(owner, capacity) {
-			if (owner == null) throw new ArgumentNullException("owner");
+			if (owner == null) throw new ArgumentNullException(nameof(owner));
 			if (!(owner is IShapeGroup)) throw new ArgumentException("owner");
 		}
 
@@ -1036,7 +1036,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CompositeShapeAggregation(Shape owner, IEnumerable<Shape> collection)
 			: base(owner, (collection is ICollection<Shape>) ? ((ICollection<Shape>)collection).Count : -1) {
-			if (collection == null) throw new ArgumentNullException("collection");
+			if (collection == null) throw new ArgumentNullException(nameof(collection));
 			// if collection provides an indexer, use it in order to reduce overhead
 			if (collection is IList<Shape>) {
 				IList<Shape> shapeList = (IList<Shape>)collection;

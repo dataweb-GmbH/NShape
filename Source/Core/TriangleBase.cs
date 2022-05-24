@@ -101,21 +101,26 @@ namespace Dataweb.NShape.Advanced {
 			// Storage in the relative position's fields:
 			// RelativePosition.A = Tenths of percentage of BC
 			// RelativePosition.B = Tenths of percentage of AC
-			int sX = X, sY = Y;
+			int shapeX = X, shapeY = Y;
 			float angleDeg = Geometry.TenthsOfDegreeToDegrees(Angle);
-			Point p1 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[0].X + sX, _shapePoints[0].Y + sY);
-			Point p2 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[1].X + sX, _shapePoints[1].Y + sY);
-			Point p3 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[2].X + sX, _shapePoints[2].Y + sY);
-			Point posA, posB;
-			if (p1.X == x && p1.Y == y)
-				posA = Geometry.VectorLinearInterpolation(p2, p3, 0.5f);
-			else posA = Geometry.IntersectLines(p1.X, p1.Y, x, y, p2.X, p2.Y, p3.X, p3.Y);
-			if (p2.X == x && p2.Y == y)
-				posB = Geometry.VectorLinearInterpolation(p1, p3, 0.5f);
-			else posB = Geometry.IntersectLines(p2.X, p2.Y, x, y, p1.X, p1.Y, p3.X, p3.Y);
+			Point ptA = Geometry.RotatePoint(shapeX, shapeY, angleDeg, _shapePoints[0].X + shapeX, _shapePoints[0].Y + shapeY);
+			Point ptB = Geometry.RotatePoint(shapeX, shapeY, angleDeg, _shapePoints[1].X + shapeX, _shapePoints[1].Y + shapeY);
+			Point ptC = Geometry.RotatePoint(shapeX, shapeY, angleDeg, _shapePoints[2].X + shapeX, _shapePoints[2].Y + shapeY);
 
-			float distA = Geometry.DistancePointPoint(p2, posA) / Geometry.DistancePointPoint(p2, p3);
-			float distB = Geometry.DistancePointPoint(p1, posB) / Geometry.DistancePointPoint(p1, p3);
+			// Use float overloads in this case because when using the integer versions, numeric errors due to 
+			// integer arithmetic are too big and thefore the results are wrong when the shape is small (e.g. 40 x 40).
+			PointF posA, posB;
+			if (ptA.X == x && ptA.Y == y) 
+				posA = Geometry.VectorLinearInterpolation(ptB, ptC, 0.5f);
+			else  
+				posA = Geometry.IntersectLineWithLineSegment((float)ptA.X, ptA.Y, x, y, ptB.X, ptB.Y, ptC.X, ptC.Y);
+			if (ptB.X == x && ptB.Y == y)
+				posB = Geometry.VectorLinearInterpolation(ptA, ptC, 0.5f);
+			else 
+				posB = Geometry.IntersectLineWithLineSegment((float)ptB.X, ptB.Y, x, y, ptA.X, ptA.Y, ptC.X, ptC.Y);
+
+			float distA = Geometry.DistancePointPoint(ptB, posA) / Geometry.DistancePointPoint(ptB, ptC);
+			float distB = Geometry.DistancePointPoint(ptA, posB) / Geometry.DistancePointPoint(ptA, ptC);
 
 			RelativePosition result = RelativePosition.Empty;
 			result.A = (int)Math.Round(distA * 1000);
@@ -127,24 +132,24 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		public override Point CalculateAbsolutePosition(RelativePosition relativePosition) {
 			// Definition of the relative position:
-			// Let posA be thwe intersection point of A|xy and B|C
+			// Let posA be the intersection point of A|xy and B|C
 			// Let posB be the intersection point of B|xy and A|C
 			// The relative position is the intersection point of A|posA and B|posB
 			// Storage in the relative position's fields:
 			// RelativePosition.A = Tenths of percentage of BC
 			// RelativePosition.B = Tenths of percentage of AC
-			int sX = X, sY = Y;
+			int shapeX = X, shapeY = Y;
 			float angleDeg = Geometry.TenthsOfDegreeToDegrees(Angle);
-			Point p1 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[0].X + sX, _shapePoints[0].Y + sY);
-			Point p2 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[1].X + sX, _shapePoints[1].Y + sY);
-			Point p3 = Geometry.RotatePoint(sX, sY, angleDeg, _shapePoints[2].X + sX, _shapePoints[2].Y + sY);
+			Point ptA = Geometry.RotatePoint(shapeX, shapeY, angleDeg, _shapePoints[0].X + shapeX, _shapePoints[0].Y + shapeY);
+			Point ptB = Geometry.RotatePoint(shapeX, shapeY, angleDeg, _shapePoints[1].X + shapeX, _shapePoints[1].Y + shapeY);
+			Point ptC = Geometry.RotatePoint(shapeX, shapeY, angleDeg, _shapePoints[2].X + shapeX, _shapePoints[2].Y + shapeY);
 			float distA = relativePosition.A / 1000f;
 			float distB = relativePosition.B / 1000f;
 			
-			Point posA = Geometry.VectorLinearInterpolation(p2, p3, distA);
-			Point posB = Geometry.VectorLinearInterpolation(p1, p3, distB);
+			Point posBC = Geometry.VectorLinearInterpolation(ptB, ptC, distA);
+			Point posAC = Geometry.VectorLinearInterpolation(ptA, ptC, distB);
 
-			Point result = Geometry.IntersectLines(p1.X, p1.Y, posA.X, posA.Y, p2.X, p2.Y, posB.X, posB.Y);
+			Point result = Geometry.IntersectLineWithLineSegment(ptA.X, ptA.Y, posBC.X, posBC.Y, ptB.X, ptB.Y, posAC.X, posAC.Y);
 			return result;
 		}
 
@@ -170,7 +175,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			DrawPath(graphics, LineStyle, FillStyle);
 			DrawCaption(graphics);
 			base.Draw(graphics);	// Draw children and outline

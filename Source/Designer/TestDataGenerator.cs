@@ -29,6 +29,11 @@ namespace Dataweb.NShape.Designer {
 
 
 		public static void CreateDiagram(Project project, string diagramName, int shapeSize, int shapesPerRow, int shapesPerColumn, bool connectShapes, bool withModels, bool withMappings, bool withLayers) {
+			CreateDiagram(project, diagramName, Diagram.IndexCellSize, shapeSize, shapesPerRow, shapesPerColumn, connectShapes, withModels, withMappings, withLayers);
+		}
+		
+		
+		public static void CreateDiagram(Project project, string diagramName, int indexCellSize, int shapeSize, int shapesPerRow, int shapesPerColumn, bool connectShapes, bool withModels, bool withMappings, bool withLayers) {
 			shapeSize = Math.Max(10, shapeSize);
 			int lineLength = shapeSize / 2;
 			//
@@ -67,7 +72,7 @@ namespace Dataweb.NShape.Designer {
 				}
 			}
 			//
-			// Create model obejct for the planar shape's template
+			// Create model object for the planar shape's template
 			IModelObject planarModel = null;
 			if (withModels) planarModel = project.ModelObjectTypes["Core.GenericModelObject"].CreateInstance();
 			//

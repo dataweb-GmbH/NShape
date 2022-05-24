@@ -51,7 +51,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		public void AddEventSource<T>(T eventSender) {
-			if (eventSender == null) throw new ArgumentNullException("eventSender");
+			if (eventSender == null) throw new ArgumentNullException(nameof(eventSender));
 
 			string name = eventSender.GetType().Name;
 			PropertyInfo pi = eventSender.GetType().GetProperty("Title");
@@ -113,7 +113,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void RegisterEvents(IRepository repository) {
-			if (repository == null) throw new ArgumentNullException("repository");
+			if (repository == null) throw new ArgumentNullException(nameof(repository));
 			DoRegisterEvent(repository, "DesignDeleted");
 			DoRegisterEvent(repository, "DesignInserted");
 			DoRegisterEvent(repository, "DesignUpdated");
@@ -180,7 +180,7 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void UnregisterEvents(IRepository repository) {
-			if (repository == null) throw new ArgumentNullException("repository");
+			if (repository == null) throw new ArgumentNullException(nameof(repository));
 			DoUnregisterEvents(repository);
 		}
 
@@ -242,7 +242,7 @@ namespace Dataweb.NShape.Designer {
 		#region [Private] (Un)Registering Generic Event Handlers
 
 		private void DoRegisterEvents(object eventSender, bool declaredTypeOnly) {
-			if (eventSender == null) throw new ArgumentNullException("eventSender");
+			if (eventSender == null) throw new ArgumentNullException(nameof(eventSender));
 			BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 			if (declaredTypeOnly) bindingFlags |= BindingFlags.DeclaredOnly;
 

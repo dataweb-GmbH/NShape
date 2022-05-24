@@ -188,8 +188,8 @@ namespace Dataweb.NShape {
 	[ToolboxBitmap(typeof(AdoNetStore))]
 	public abstract class AdoNetStore : Store {
 
-		internal const char CompositionFieldSeperatorChar = ',';
-		internal const char CompositionSeperatorChar = ';';
+		internal const char CompositionFieldSeparatorChar = ',';
+		internal const char CompositionSeparatorChar = ';';
 
 
 		#region [Public] Store Implementation
@@ -254,7 +254,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void Create(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			// TODO 2: Perhaps check, whether the project name already exists?
 			// TODO 2: Perhaps check, that base version is compatible with database schema?
 			OpenCore(cache, true);
@@ -263,7 +263,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void Open(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			// We just check whether the cache is reachable.
 			OpenCore(cache, false);
 		}
@@ -271,7 +271,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void Close(IStoreCache storeCache) {
-			if (storeCache == null) throw new ArgumentNullException("storeCache");
+			if (storeCache == null) throw new ArgumentNullException(nameof(storeCache));
 			if (_connection != null) _connection.Dispose();
 			_connection = null;
 			foreach (KeyValuePair<CommandKey, IDbCommand> item in _commands) {
@@ -302,7 +302,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void SaveChanges(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			AssertOpen();
 			AssertValid();
 			const bool transactional = true;
@@ -465,7 +465,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadTemplates(IStoreCache cache, object projectId) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
 				// Load all templates
@@ -518,8 +518,8 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadProjects(IStoreCache cache, IEntityType entityType, params object[] parameters) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (entityType == null) throw new ArgumentNullException("entityType");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (entityType == null) throw new ArgumentNullException(nameof(entityType));
 			foreach (EntityBucket<ProjectSettings> pb in LoadEntities<ProjectSettings>(cache, entityType, id => true, id => null,
 				RepositoryCommandType.SelectByName, cache.ProjectName))
 				cache.LoadedProjects.Add(pb);
@@ -528,7 +528,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadModel(IStoreCache cache, object modelId) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
 				// Load model
@@ -544,7 +544,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadDesigns(IStoreCache cache, object projectId) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			Debug.Assert(projectId == null && ((IEntity)cache.Project).Id == null || ((IEntity)cache.Project).Id.Equals(projectId));
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
@@ -591,8 +591,8 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadDiagramShapes(IStoreCache cache, Diagram diagram) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
 				// Load all shapes of diagram
@@ -619,14 +619,14 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadTemplateShapes(IStoreCache cache, object projectId) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			throw new NotImplementedException();
 		}
 
 
 		/// <override></override>
 		public override void LoadDiagrams(IStoreCache cache, object projectId) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			foreach (EntityBucket<Diagram> db in LoadEntities<Diagram>(cache,
 				cache.FindEntityTypeByName(Diagram.EntityTypeName), id => true,
 				id => cache.Project, RepositoryCommandType.SelectByOwnerId, cache.ProjectId)) {
@@ -637,8 +637,8 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadChildShapes(IStoreCache cache, object parentShapeId) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (parentShapeId == null) throw new ArgumentNullException("parentShapeId");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (parentShapeId == null) throw new ArgumentNullException(nameof(parentShapeId));
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
 				Shape parentShape = cache.GetShape(parentShapeId);
@@ -662,16 +662,16 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadTemplateModelObjects(IStoreCache cache, object templateId) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (templateId == null) throw new ArgumentNullException("templateId");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (templateId == null) throw new ArgumentNullException(nameof(templateId));
 			throw new NotImplementedException();
 		}
 
 
 		/// <override></override>
 		public override void LoadModelModelObjects(IStoreCache cache, object modelId) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (modelId == null) throw new ArgumentNullException("modelId");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (modelId == null) throw new ArgumentNullException(nameof(modelId));
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
 				// Load all root model objects of the model
@@ -693,8 +693,8 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadChildModelObjects(IStoreCache cache, object parentModelObjectId) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (parentModelObjectId == null) throw new ArgumentNullException("parentModelObjectId");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (parentModelObjectId == null) throw new ArgumentNullException(nameof(parentModelObjectId));
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
 				// Load all root model objects of the model
@@ -715,8 +715,8 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadDiagramModelObjects(IStoreCache cache, object modelId) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (modelId == null) throw new ArgumentNullException("modelId");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (modelId == null) throw new ArgumentNullException(nameof(modelId));
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
 				if (Version >= 7) {
@@ -738,8 +738,8 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool CheckTemplateInUse(IStoreCache cache, object templateId) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (templateId == null) throw new ArgumentNullException("styleId");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (templateId == null) throw new ArgumentNullException(nameof(templateId));
 			bool result = false;
 			bool closeDataSource = EnsureDataSourceOpen();
 			try {
@@ -767,8 +767,8 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool CheckModelObjectInUse(IStoreCache cache, object modelObjectId) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (modelObjectId == null) throw new ArgumentNullException("styleId");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (modelObjectId == null) throw new ArgumentNullException(nameof(modelObjectId));
 			bool result = false;
 			bool closeDataSource = EnsureDataSourceOpen();
 			try {
@@ -796,8 +796,8 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool CheckStyleInUse(IStoreCache cache, object styleId) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (styleId == null) throw new ArgumentNullException("styleId");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (styleId == null) throw new ArgumentNullException(nameof(styleId));
 			bool result = false;
 			bool closeDataSource = EnsureDataSourceOpen();
 			try {
@@ -824,8 +824,8 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool CheckShapeTypeInUse(IStoreCache cache, string typeName) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (string.IsNullOrEmpty(typeName)) throw new ArgumentNullException("typeName");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (string.IsNullOrEmpty(typeName)) throw new ArgumentNullException(nameof(typeName));
 			bool result = false;
 			bool closeDatasource = EnsureDataSourceOpen();
 			try {
@@ -965,7 +965,7 @@ namespace Dataweb.NShape {
 		/// Sets a command that creates all tables of the database schema.
 		/// </summary>
 		public void SetCreateTablesCommand(IDbCommand command) {
-			if (command == null) throw new ArgumentNullException("command");
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			_createTablesCommand = command;
 		}
 
@@ -974,8 +974,7 @@ namespace Dataweb.NShape {
 		/// Retrieves a command of the specified type for the specified entity type.
 		/// </summary>
 		public IDbCommand GetCommand(string entityTypeName, RepositoryCommandType cmdType) {
-			if (entityTypeName == null) throw new ArgumentNullException("entityTypeName");
-			if (entityTypeName == string.Empty) throw new ArgumentException("entityTypeName");
+			if (string.IsNullOrEmpty(entityTypeName)) throw new ArgumentNullException(nameof(entityTypeName));
 			IDbCommand result;
 			CommandKey commandKey;
 			commandKey.Kind = cmdType;
@@ -991,9 +990,8 @@ namespace Dataweb.NShape {
 		/// Sets a command of the specified type for the specified entity type.
 		/// </summary>
 		public void SetCommand(string entityTypeName, RepositoryCommandType cmdType, IDbCommand command) {
-			if (entityTypeName == null) throw new ArgumentNullException("entityTypeName");
-			if (entityTypeName == string.Empty) throw new ArgumentException("entityTypeName");
-			if (command == null) throw new ArgumentNullException("command");
+			if (string.IsNullOrEmpty(entityTypeName)) throw new ArgumentNullException(nameof(entityTypeName));
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			CommandKey commandKey;
 			commandKey.Kind = cmdType;
 			commandKey.EntityTypeName = entityTypeName;
@@ -1101,7 +1099,7 @@ namespace Dataweb.NShape {
 		/// Override this method to create the actual SQL commands for your database.
 		/// </summary>
 		public virtual void CreateDbCommands(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			foreach (KeyValuePair<CommandKey, IDbCommand> item in _commands)
 				item.Value.Dispose();
 			_commands.Clear();
@@ -1117,7 +1115,7 @@ namespace Dataweb.NShape {
 		/// their specialized database schemas and generation scripts.
 		/// </remarks>
 		public virtual void CreateDbSchema(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			AssertClosed();
 			bool dataSourceOpened = EnsureDataSourceOpen();
 			try {
@@ -1641,7 +1639,7 @@ namespace Dataweb.NShape {
 			/// Associates the given command with the given repository action
 			/// </summary>
 			public void SetCommand(RepositoryCommandType type, IDbCommand command) {
-				if (command == null) throw new ArgumentNullException("command");
+				if (command == null) throw new ArgumentNullException(nameof(command));
 				switch (type) {
 					case RepositoryCommandType.SelectAll:
 						SelectIdsCommand = command; break;
@@ -1725,7 +1723,7 @@ namespace Dataweb.NShape {
 			/// </summary>
 			public DbParameterReader(AdoNetStore store, IStoreCache cache)
 				: base(cache) {
-				if (store == null) throw new ArgumentNullException("store");
+				if (store == null) throw new ArgumentNullException(nameof(store));
 				this._store = store;
 			}
 
@@ -1742,7 +1740,7 @@ namespace Dataweb.NShape {
 			/// PreparesReading of the inner objects from the given entity.
 			/// </summary>
 			public void PrepareInnerObjectsReading(IEntity entity) {
-				if (entity == null) throw new ArgumentNullException("persistableObject");
+				if (entity == null) throw new ArgumentNullException(nameof(entity));
 				this.Object = entity;
 				PropertyIndex = 0;
 				foreach (EntityPropertyDefinition pi in PropertyInfos) {
@@ -2048,7 +2046,7 @@ namespace Dataweb.NShape {
 			/// This method has to be called before passing the repositoryWriter to the IPeristable object for saving.
 			/// </summary>
 			protected internal override void Prepare(IEntity entity) {
-				if (entity == null) throw new ArgumentNullException("entity");
+				if (entity == null) throw new ArgumentNullException(nameof(entity));
 				base.Prepare(entity);
 				//if (!commandIsPrepared && command != null) {
 				//    command.Prepare();
@@ -2287,7 +2285,7 @@ namespace Dataweb.NShape {
 			/// <override></override>
 			public void ResetFieldReading(IEnumerable<EntityPropertyDefinition> fieldInfos, string data) {
 				base.ResetFieldReading(fieldInfos);
-				if (data == null) throw new ArgumentNullException("data");
+				if (data == null) throw new ArgumentNullException(nameof(data));
 				_str = data;
 				_pos = 0;
 			}
@@ -2317,7 +2315,7 @@ namespace Dataweb.NShape {
 
 			/// <override></override>
 			protected internal override void DoEndObject() {
-				if (_str[_pos] != AdoNetStore.CompositionSeperatorChar) throw new InvalidOperationException(ResourceStrings.MessageTxt_UnsupportedStringSemicolonExpected);
+				if (_str[_pos] != AdoNetStore.CompositionSeparatorChar) throw new InvalidOperationException(ResourceStrings.MessageTxt_UnsupportedStringSemicolonExpected);
 				++_pos;
 			}
 
@@ -2348,7 +2346,7 @@ namespace Dataweb.NShape {
 							result = DoReadInt64();
 						else throw new NotSupportedException();
 					}
-					if (_pos < _str.Length && _str[_pos] == AdoNetStore.CompositionFieldSeperatorChar) ++_pos;
+					if (_pos < _str.Length && _str[_pos] == AdoNetStore.CompositionFieldSeparatorChar) ++_pos;
 				}
 				return result;
 			}
@@ -2445,7 +2443,7 @@ namespace Dataweb.NShape {
 				while (_pos < _str.Length && _str[_pos] >= '0' && _str[_pos] <= '9')
 					++_pos;
 				result = long.Parse(_str.Substring(startPos, _pos - startPos), CultureInfo.InvariantCulture);
-				if (_pos < _str.Length && _str[_pos] == AdoNetStore.CompositionFieldSeperatorChar)
+				if (_pos < _str.Length && _str[_pos] == AdoNetStore.CompositionFieldSeparatorChar)
 					++_pos;
 				return result;
 			}
@@ -2460,7 +2458,7 @@ namespace Dataweb.NShape {
 						++_pos;
 					string fracValueStr = _str.Substring(startPos, _pos - startPos);
 					result += (long.Parse(fracValueStr, CultureInfo.InvariantCulture) / Math.Pow(10, fracValueStr.Length));
-					if (_pos < _str.Length && _str[_pos] == AdoNetStore.CompositionFieldSeperatorChar)
+					if (_pos < _str.Length && _str[_pos] == AdoNetStore.CompositionFieldSeparatorChar)
 						++_pos;
 				}
 				return result;
@@ -2468,10 +2466,10 @@ namespace Dataweb.NShape {
 
 
 			private string DoReadStringValue() {
-				int seperatorPos = _str.IndexOfAny(_seperators, _pos);
-				if (seperatorPos < 0) throw new AdoNetStoreException(ResourceStrings.MessageTxt_InvalidRepositoryFormat);
-				string result = Uri.UnescapeDataString(_str.Substring(_pos, seperatorPos - _pos));
-				_pos = seperatorPos;
+				int separatorPos = _str.IndexOfAny(_separators, _pos);
+				if (separatorPos < 0) throw new AdoNetStoreException(ResourceStrings.MessageTxt_InvalidRepositoryFormat);
+				string result = Uri.UnescapeDataString(_str.Substring(_pos, separatorPos - _pos));
+				_pos = separatorPos;
 				return result;
 			}
 
@@ -2480,7 +2478,7 @@ namespace Dataweb.NShape {
 			private string _str;
 			// Current position within string data
 			private int _pos;
-			private char[] _seperators = new char[2] { AdoNetStore.CompositionFieldSeperatorChar, AdoNetStore.CompositionSeperatorChar };
+			private char[] _separators = new char[2] { AdoNetStore.CompositionFieldSeparatorChar, AdoNetStore.CompositionSeparatorChar };
 		}
 
 
@@ -2512,7 +2510,7 @@ namespace Dataweb.NShape {
 
 			/// <override></override>
 			protected internal override void Finish() {
-				_str.Append(AdoNetStore.CompositionSeperatorChar);
+				_str.Append(AdoNetStore.CompositionSeparatorChar);
 				base.Finish();
 			}
 
@@ -2528,7 +2526,7 @@ namespace Dataweb.NShape {
 			/// <override></override>
 			protected override void DoWriteId(object id) {
 				++PropertyIndex;
-				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeperatorChar);
+				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeparatorChar);
 				_str.Append(string.Format("({0}){1}", id.GetType().Name, id));
 			}
 
@@ -2631,21 +2629,21 @@ namespace Dataweb.NShape {
 
 			private void DoWriteDblValue(double value) {
 				++PropertyIndex;
-				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeperatorChar);
+				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeparatorChar);
 				_str.Append(value.ToString(CultureInfo.InvariantCulture));
 			}
 
 
 			private void DoWriteIntValue(long value) {
 				++PropertyIndex;
-				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeperatorChar);
+				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeparatorChar);
 				_str.Append(value.ToString(CultureInfo.InvariantCulture));
 			}
 
 
 			private void DoWriteStrValue(string value) {
 				++PropertyIndex;
-				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeperatorChar);
+				if (PropertyIndex >= 0) _str.Append(AdoNetStore.CompositionFieldSeparatorChar);
 				if (!string.IsNullOrEmpty(value)) _str.Append(Uri.EscapeDataString(value));
 			}
 

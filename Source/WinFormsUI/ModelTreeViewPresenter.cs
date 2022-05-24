@@ -156,7 +156,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <param name="modelObject">Model object to be selected.</param>
 		/// <param name="addToSelection">Specifies if the model object should be added to the current selection or should replace it.</param>
 		public void SelectModelObject(IModelObject modelObject, bool addToSelection) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 
 			// perform selection
 			if (!addToSelection) _selectedModelObjects.Clear();
@@ -173,7 +173,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Removes the given model object from the current selection.
 		/// </summary>
 		public void UnselectModelObject(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			if (_selectedModelObjects.Contains(modelObject))
 				_selectedModelObjects.Remove(modelObject);
 
@@ -199,7 +199,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		/// <param name="modelObjects"></param>
 		public void FindShapes(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 		   _modelTreeController.FindShapes(modelObjects);
 		}
 
@@ -270,7 +270,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		
 		private void AddModelObjectNode(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			foreach (Shape s in modelObject.Shapes) {
 				// do not add nodes of template shapes
 				// ToDo: Find a better way of determining whether the model belongs to a template.
@@ -386,7 +386,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void DeleteNodeImage(string imageKey) {
-			if (string.IsNullOrEmpty(imageKey)) throw new ArgumentNullException("imageKey");
+			if (string.IsNullOrEmpty(imageKey)) throw new ArgumentNullException(nameof(imageKey));
 			if (_imageList.Images.ContainsKey(imageKey)) {
 				Image img = _imageList.Images[imageKey];
 				_imageList.Images.RemoveByKey(imageKey);
@@ -447,8 +447,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private TreeNode FindTreeNode(TreeNodeCollection nodesCollection, IModelObject modelObject) {
-			if (nodesCollection == null) throw new ArgumentNullException("nodesCollection");
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (nodesCollection == null) throw new ArgumentNullException(nameof(nodesCollection));
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			TreeNode result = null;
 			int dummyNodeIdx = nodesCollection.IndexOfKey(keyDummyNode);
 			for (int i = nodesCollection.Count - 1; i >= 0; --i) {
@@ -467,8 +467,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private IEnumerable<TreeNode> FindTreeNodes(TreeNodeCollection nodesCollection, Shape shape) {
-			if (nodesCollection == null) throw new ArgumentNullException("nodesCollection");
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (nodesCollection == null) throw new ArgumentNullException(nameof(nodesCollection));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			int dummyNodeIdx = nodesCollection.IndexOfKey(keyDummyNode);
 			for (int i = 0; i < nodesCollection.Count; ++i) {
 				if (i == dummyNodeIdx) continue;
@@ -492,8 +492,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private IEnumerable<TreeNode> FindTreeNodes(TreeNodeCollection nodesCollection, Template template) {
-			if (nodesCollection == null) throw new ArgumentNullException("nodesCollection");
-			if (template == null) throw new ArgumentNullException("template");
+			if (nodesCollection == null) throw new ArgumentNullException(nameof(nodesCollection));
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			int dummyNodeIdx = nodesCollection.IndexOfKey(keyDummyNode);
 			for (int i = nodesCollection.Count - 1; i >= 0; --i) {
 				if (i == dummyNodeIdx) continue;
@@ -841,7 +841,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		/// <param name="modelObject"></param>
 		public ModelObjectDragInfo(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			this._modelObject = modelObject;
 		}
 
@@ -889,7 +889,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		public void CopyTo(IModelObject[] array, int arrayIndex) {
 			if (arrayIndex >= array.Length)
-				throw new ArgumentOutOfRangeException("arrayIndex");
+				throw new ArgumentOutOfRangeException(nameof(arrayIndex));
 			array[arrayIndex] = (IModelObject)_treeView.SelectedNode.Tag;
 		}
 

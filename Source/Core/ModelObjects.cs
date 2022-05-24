@@ -118,12 +118,12 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public ModelObjectType(string name, string libraryName, string categoryTitle, CreateModelObjectDelegate createModelObjectDelegate,
 			GetPropertyDefinitionsDelegate getPropertyDefinitionsDelegate) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			if (!Project.IsValidName(name)) throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidModelObjectTypeName, name));
-			if (libraryName == null) throw new ArgumentNullException("libraryName");
+			if (libraryName == null) throw new ArgumentNullException(nameof(libraryName));
 			if (!Project.IsValidName(libraryName)) throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidLibraryName, libraryName));
-			if (createModelObjectDelegate == null) throw new ArgumentNullException("createModelObjectDelegate");
-			if (getPropertyDefinitionsDelegate == null) throw new ArgumentNullException("getPropertyDefinitionsDelegate");
+			if (createModelObjectDelegate == null) throw new ArgumentNullException(nameof(createModelObjectDelegate));
+			if (getPropertyDefinitionsDelegate == null) throw new ArgumentNullException(nameof(getPropertyDefinitionsDelegate));
 			//
 			_name = name;
 			_libraryName = libraryName;
@@ -267,7 +267,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override string GetTerminalName(TerminalId terminalId) {
-			if (terminalId < 0 || terminalId > _maxTerminalId) throw new ArgumentOutOfRangeException("terminalId");
+			if (terminalId < 0 || terminalId > _maxTerminalId) throw new ArgumentOutOfRangeException(nameof(terminalId));
 			string result;
 			if (_terminals.TryGetValue(terminalId, out result)) return result;
 			else throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageFmt_NoTerminalNameFoundForTerminal0, terminalId);
@@ -319,7 +319,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="modelObjectType"></param>
 		public void Add(ModelObjectType modelObjectType) {
-			if (modelObjectType == null) throw new ArgumentNullException("modelObjectType");
+			if (modelObjectType == null) throw new ArgumentNullException(nameof(modelObjectType));
 			_modelObjectTypes.Add(modelObjectType.FullName, modelObjectType);
 		}
 
@@ -329,7 +329,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="modelObjectType"></param>
 		public bool Remove(ModelObjectType modelObjectType) {
-			if (modelObjectType == null) throw new ArgumentNullException("modelObjectType");
+			if (modelObjectType == null) throw new ArgumentNullException(nameof(modelObjectType));
 			return _modelObjectTypes.Remove(modelObjectType.FullName);
 		}
 
@@ -340,7 +340,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="typeName">Either a full (i.e. including the namespace) or partial model object type name</param>
 		/// <returns>ModelObjectTypes object type with given name.</returns>
 		public ModelObjectType GetModelObjectType(string typeName) {
-			if (typeName == null) throw new ArgumentNullException("typeName");
+			if (typeName == null) throw new ArgumentNullException(nameof(typeName));
 			ModelObjectType result = null;
 			if (!_modelObjectTypes.TryGetValue(typeName, out result)) {
 				foreach (KeyValuePair<string, ModelObjectType> item in _modelObjectTypes) {
@@ -403,7 +403,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void CopyTo(Array array, int index) {
-			if (array == null) throw new ArgumentNullException("array");
+			if (array == null) throw new ArgumentNullException(nameof(array));
 			_modelObjectTypes.Values.CopyTo((ModelObjectType[])array, index);
 		}
 
@@ -536,7 +536,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void AttachShape(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_shapes == null) _shapes = new List<Shape>(1);
 			else if (_shapes.Contains(shape)) throw new NShapeException(Properties.Resources.MessageFmt_01IsAlreadyAttachedToThisShape, Type.Name, Name);
 			if (shape.ModelObject != this) shape.ModelObject = this;
@@ -546,7 +546,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void DetachShape(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			//if (_shapes == null) throw new NShapeException(Properties.Resources.MessageFmt_01IsNotAttachedToAnyShape, Type.Name, Name);
 			if (_shapes != null) {
 				int idx = _shapes.IndexOf(shape);
@@ -579,40 +579,40 @@ namespace Dataweb.NShape.Advanced {
 
 
 		void IEntity.AssignId(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			if (this._id != null) throw new InvalidOperationException("Model object has already an id.");
 			this._id = id;
 		}
 
 
 		void IEntity.LoadFields(IRepositoryReader reader, int version) {
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			LoadFieldsCore(reader, version);
 		}
 
 
 		void IEntity.LoadInnerObjects(string propertyName, IRepositoryReader reader, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			LoadInnerObjectsCore(propertyName, reader, version);
 		}
 
 
 		void IEntity.SaveFields(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			SaveFieldsCore(writer, version);
 		}
 
 
 		void IEntity.SaveInnerObjects(string propertyName, IRepositoryWriter writer, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			SaveInnerObjectsCore(propertyName, writer, version);
 		}
 
 
 		void IEntity.Delete(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			foreach (EntityPropertyDefinition pi in GetPropertyDefinitions(version)) {
 				if (pi is EntityInnerObjectsDefinition) {
 					writer.DeleteInnerObjects();
@@ -635,7 +635,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal ModelObjectBase(ModelObjectType modelObjectType) {
-			if (modelObjectType == null) throw new ArgumentNullException("ModelObjectType");
+			if (modelObjectType == null) throw new ArgumentNullException(nameof(modelObjectType));
 			this._modelObjectType = modelObjectType;
 			this._name = modelObjectType.GetDefaultName();
 		}
@@ -710,7 +710,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static GenericModelObject CreateInstance(ModelObjectType modelObjectType) {
-			if (modelObjectType == null) throw new ArgumentNullException("modelObjectType");
+			if (modelObjectType == null) throw new ArgumentNullException(nameof(modelObjectType));
 			return new GenericModelObject(modelObjectType);
 		}
 
@@ -783,7 +783,7 @@ namespace Dataweb.NShape.Advanced {
 			get { return _securityDomainName; }
 			set {
 				if (value < 'A' || value > 'Z')
-					throw new ArgumentOutOfRangeException("SecurityDomainName", Dataweb.NShape.Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
+					throw new ArgumentOutOfRangeException(nameof(SecurityDomainName), Dataweb.NShape.Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
 				_securityDomainName = value;
 			}
 		}

@@ -32,8 +32,8 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.Template" />.
 		/// </summary>
 		public Template(string name, Shape shape) {
-			if (name == null) throw new ArgumentNullException("name");
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (name == null) throw new ArgumentNullException(nameof(name));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			this._name = name;
 			this._shape = shape;
 		}
@@ -57,10 +57,10 @@ namespace Dataweb.NShape {
 
 		/// <summary>
 		/// Copies all properties and fields from the source template to this template.
-		/// The shape and the model obejcts will be cloned.
+		/// The shape and the model objects will be cloned.
 		/// </summary>
 		public void CopyFrom(Template source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) throw new ArgumentNullException(nameof(source));
 
 			this._name = source._name;
 			this._title = source._title;
@@ -132,7 +132,7 @@ namespace Dataweb.NShape {
 			set {
 				if (_shape != null) {
 					if (_shape.ModelObject != null && value != null && value.ModelObject != null) {
-						// If both shapes have ModelObejct instances assigned, 
+						// If both shapes have ModelObject instances assigned, 
 						// try to keep as many mappings as possible
 						// ToDo: try to copy property mappings
 						CopyTerminalMappings(_shape.ModelObject, value.ModelObject);
@@ -216,7 +216,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void MapProperties(IModelMapping propertyMapping) {
-			if (propertyMapping == null) throw new ArgumentNullException("propertyMapping");
+			if (propertyMapping == null) throw new ArgumentNullException(nameof(propertyMapping));
 			if (_propertyMappings.ContainsKey(propertyMapping.ModelPropertyId))
 				_propertyMappings[propertyMapping.ModelPropertyId] = propertyMapping;
 			else
@@ -226,7 +226,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void UnmapProperties(IModelMapping propertyMapping) {
-			if (propertyMapping == null) throw new ArgumentNullException("propertyMapping");
+			if (propertyMapping == null) throw new ArgumentNullException(nameof(propertyMapping));
 			_propertyMappings.Remove(propertyMapping.ModelPropertyId);
 		}
 
@@ -332,7 +332,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void AssignId(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			if (this._id != null) throw new InvalidOperationException("Template has already an id.");
 			this._id = id;
 		}
@@ -340,7 +340,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void SaveFields(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			writer.WriteString(_name);
 			// See comment in GetPropertyDefinitions()
 			writer.WriteString(_title);
@@ -350,7 +350,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void LoadFields(IRepositoryReader reader, int version) {
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			_name = reader.ReadString();
 			// See comment in GetPropertyDefinitions()
 			_title = reader.ReadString();
@@ -360,8 +360,8 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void SaveInnerObjects(string propertyName, IRepositoryWriter writer, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			if (propertyName == "ConnectionPointMappings") {
 				// Save ConnectionPoint mappings
 				writer.BeginWriteInnerObjects();
@@ -378,8 +378,8 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void LoadInnerObjects(string propertyName, IRepositoryReader reader, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			if (propertyName == "ConnectionPointMappings") {
 				// load ConnectionPoint mappings			
 				reader.BeginReadInnerObjects();
@@ -400,7 +400,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Delete(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			foreach (EntityPropertyDefinition pi in GetPropertyDefinitions(version)) {
 				if (pi is EntityInnerObjectsDefinition)
 					writer.DeleteInnerObjects();
@@ -416,7 +416,7 @@ namespace Dataweb.NShape {
 
 
 		private int CountControlPoints(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			int result = 0;
 			foreach (ControlPointId id in shape.GetControlPointIds(ControlPointCapabilities.All))
 				++result;
@@ -428,8 +428,8 @@ namespace Dataweb.NShape {
 		/// Checks if the mappings between ConnectionPoints and Terminals can be reused
 		/// </summary>
 		private void CopyTerminalMappings(IModelObject oldModelObject, IModelObject newModelObject) {
-			if (oldModelObject == null) throw new ArgumentNullException("oldModelObject");
-			if (newModelObject == null) throw new ArgumentNullException("newModelObject");
+			if (oldModelObject == null) throw new ArgumentNullException(nameof(oldModelObject));
+			if (newModelObject == null) throw new ArgumentNullException(nameof(newModelObject));
 			foreach (KeyValuePair<ControlPointId, TerminalId> item in _connectionPointMappings) {
 				if (item.Value == TerminalId.Invalid) continue;
 				string oldTerminalName = oldModelObject.Type.GetTerminalName(item.Value);

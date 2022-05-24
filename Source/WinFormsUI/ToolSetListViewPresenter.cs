@@ -189,7 +189,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public ListViewItem CreateListViewItem(Tool tool)
 		{
-			if (tool == null) throw new ArgumentNullException("tool");
+			if (tool == null) throw new ArgumentNullException(nameof(tool));
 			ListViewItem item = new ListViewItem(tool.Title, tool.Name);
 			item.ToolTipText = tool.ToolTipText;
 			item.Tag = tool;
@@ -463,7 +463,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				Tool clickedTool = null;
 				if (hitTestInfo.Item != null) clickedTool = hitTestInfo.Item.Tag as Tool;
 				
-				if (_toolSetController == null) throw new ArgumentNullException("ToolSetController");
+				if (_toolSetController == null) throw new ArgumentNullException(nameof(ToolSetController));
 				WinFormHelpers.BuildContextMenu(_listView.ContextMenuStrip, _toolSetController.GetMenuItemDefs(clickedTool), _toolSetController.Project, _hideMenuItemsIfNotGranted);
 			}
 			e.Cancel = _listView.ContextMenuStrip.Items.Count == 0;

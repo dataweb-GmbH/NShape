@@ -35,20 +35,14 @@ namespace Dataweb.NShape.ElectricalShapes {
 
 		/// <override></override>
 		public override bool HasControlPointCapability(ControlPointId controlPointId, ControlPointCapabilities controlPointCapability) {
-			if ((controlPointCapability & ControlPointCapabilities.Connect) != 0)
-				return true;
-			if ((controlPointCapability & ControlPointCapabilities.Glue) != 0) {
-				// always false
-			}
-			if ((controlPointCapability & ControlPointCapabilities.Reference) != 0) {
-				if (controlPointId == ControlPointId.Reference || controlPointId == 1) return true;
-			}
-			if ((controlPointCapability & ControlPointCapabilities.Rotate) != 0) {
-				// always false
-			}
-			if ((controlPointCapability & ControlPointCapabilities.Resize) != 0)
-				return true;
-			return false;
+			// BusBar has no glue points
+			if (IsFirstVertex(controlPointId)) {
+				return (controlPointCapability & ControlPointCapabilities.Reference) != 0
+					|| (controlPointCapability & ControlPointCapabilities.Resize) != 0;
+			} else if (IsLastVertex(controlPointId)) {
+				return (controlPointCapability & ControlPointCapabilities.Resize) != 0;
+			} else
+				return base.HasControlPointCapability(controlPointId, controlPointCapability);
 		}
 
 

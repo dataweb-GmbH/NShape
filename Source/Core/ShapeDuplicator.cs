@@ -35,7 +35,7 @@ namespace Dataweb.NShape {
 		/// Creates a clone of both, shape and model object.
 		/// </summary>
 		public static Shape CloneShapeAndModelObject(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			_modelObjectClones.Clear();
 			return DoCloneShape(shape, true);
 		}
@@ -45,7 +45,7 @@ namespace Dataweb.NShape {
 		/// Creates for each shape a clone of both, the shape and it's model object.
 		/// </summary>
 		public static IEnumerable<Shape> CloneShapeAndModelObject(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			_modelObjectClones.Clear();
 			foreach (Shape s in shapes)
 				yield return DoCloneShape(s, true);
@@ -56,7 +56,7 @@ namespace Dataweb.NShape {
 		/// Creates a clone of the given shape. The clone references the source' model object.
 		/// </summary>
 		public static Shape CloneShapeOnly(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			_modelObjectClones.Clear();
 			return DoCloneShape(shape, false);
 		}
@@ -66,7 +66,7 @@ namespace Dataweb.NShape {
 		/// Creates a clone of the given shapes. The clones reference their source' model object.
 		/// </summary>
 		public static IEnumerable<Shape> CloneShapesOnly(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			_modelObjectClones.Clear();
 			foreach (Shape s in shapes)
 				yield return DoCloneShape(s, false);
@@ -77,7 +77,7 @@ namespace Dataweb.NShape {
 		/// Creates a clone of the given shape's model object.
 		/// </summary>
 		public static void CloneModelObjectOnly(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			_modelObjectClones.Clear();
 			DoCloneShapeModelObject(shape);
 		}
@@ -87,7 +87,7 @@ namespace Dataweb.NShape {
 		/// Creates a clone of the given shape's model object.
 		/// </summary>
 		public static void CloneModelObjectsOnly(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			_modelObjectClones.Clear();
 			foreach (Shape shape in shapes)
 				DoCloneShapeModelObject(shape);

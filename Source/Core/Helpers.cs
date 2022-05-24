@@ -421,7 +421,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Enumerates over the given enumerables without creating new collections.
 		/// </summary>
 		public static IEnumerable<T> Enumerate<T>(params IEnumerable<T>[] itemCollections) {
-			if (itemCollections == null) throw new ArgumentNullException("itemCollections");
+			if (itemCollections == null) throw new ArgumentNullException(nameof(itemCollections));
 			foreach (IEnumerable<T> items in itemCollections)
 				foreach (T item in items)
 					yield return item;
@@ -451,7 +451,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns true if the given enumeration has no items.
 		/// </summary>
 		public static Boolean IsEmpty<T>(IEnumerable<T> items) {
-			if (items == null) throw new ArgumentNullException("items");
+			if (items == null) throw new ArgumentNullException(nameof(items));
 			if (items is ICollection<T>)
 				return ((ICollection<T>)items).Count == 0;
 			else 
@@ -481,6 +481,67 @@ namespace Dataweb.NShape.Advanced {
 				return result;
 			}
 		}
+
+	}
+
+
+	/// <summary>Class for generating hash codes based on fields.</summary>
+	public static class HashCodeGenerator {
+
+		/// <summary>Calculates and returns a hash code for the given fields.</summary>
+		public static int CalculateHashCode<T1, T2>(T1 field1, T2 field2) {
+			int result = SeedNumber;
+			unchecked {
+				if (field1 != null) result = result * FieldMultiplicator + field1.GetHashCode();
+				if (field2 != null) result = result * FieldMultiplicator + field2.GetHashCode();
+			}
+			return result;
+		}
+
+
+		/// <summary>Calculates and returns a hash code for the given fields.</summary>
+		public static int CalculateHashCode<T1, T2, T3>(T1 field1, T2 field2, T3 field3) {
+			int result = SeedNumber;
+			unchecked {
+				if (field1 != null) result = result * FieldMultiplicator + field1.GetHashCode();
+				if (field2 != null) result = result * FieldMultiplicator + field2.GetHashCode();
+				if (field3 != null) result = result * FieldMultiplicator + field3.GetHashCode();
+			}
+			return result;
+		}
+
+
+		/// <summary>Calculates and returns a hash code for the given fields.</summary>
+		public static int CalculateHashCode<T1, T2, T3, T4>(T1 field1, T2 field2, T3 field3, T4 field4) {
+			int result = SeedNumber;
+			unchecked {
+				if (field1 != null) result = result * FieldMultiplicator + field1.GetHashCode();
+				if (field2 != null) result = result * FieldMultiplicator + field2.GetHashCode();
+				if (field3 != null) result = result * FieldMultiplicator + field3.GetHashCode();
+				if (field4 != null) result = result * FieldMultiplicator + field4.GetHashCode();
+			}
+			return result;
+		}
+
+
+		/// <summary>Calculates and returns a hash code for the given fields.</summary>
+		public static int CalculateHashCode<T1, T2, T3, T4, T5>(T1 field1, T2 field2, T3 field3, T4 field4, T5 field5) {
+			int result = SeedNumber;
+			unchecked {
+				if (field1 != null) result = result * FieldMultiplicator + field1.GetHashCode();
+				if (field2 != null) result = result * FieldMultiplicator + field2.GetHashCode();
+				if (field3 != null) result = result * FieldMultiplicator + field3.GetHashCode();
+				if (field4 != null) result = result * FieldMultiplicator + field4.GetHashCode();
+				if (field5 != null) result = result * FieldMultiplicator + field5.GetHashCode();
+			}
+			return result;
+		}
+
+
+		// Prime numbers for calculating the hash code. 
+		// We use prime numbers 17 and 23, could also be other prime numbers
+		private const int SeedNumber = 17;
+		private const int FieldMultiplicator = 23;
 
 	}
 

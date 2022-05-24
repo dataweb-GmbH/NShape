@@ -183,14 +183,14 @@ namespace Dataweb.NShape.Controllers {
 		#region [Public] Methods
 
 		/// <summary>
-		/// Removes all tools.
+		/// Deletes (and disposes) all tools.
 		/// </summary>
 		public void Clear() {
 			// Clear selected and default tool
 			DoSelectTool(null, true, false);
 			_defaultTool = null;
-			foreach (Tool tool in Tools)
-				tool.Dispose();
+			for (int i = _tools.Count - 1; i >= 0; --i)
+				DeleteTool(_tools[i]);
 			_tools.Clear();
 			_toolBoxInitialized = false;
 			if (Cleared != null) Cleared(this, EventArgs.Empty);
@@ -212,7 +212,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="template">The template of the creation tool.</param>
 		/// <param name="categoryTitle">Title of the toolbox category where the tool is inserted</param>
 		public void CreateTemplateTool(Template template, string categoryTitle) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			if (FindTool(template) == null) {
 				Tool tool = null;
 				if (template.Shape is ILinearShape) {
@@ -250,7 +250,7 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		/// <param name="tool"></param>
 		public void AddTool(Tool tool) {
-			if (tool == null) throw new ArgumentNullException("tool");
+			if (tool == null) throw new ArgumentNullException(nameof(tool));
 			AddTool(tool, _tools.Count == 0);
 		}
 
@@ -261,7 +261,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="tool">CurrentTool to add</param>
 		/// <param name="isDefaultTool">If true, this tool becomes the default tool.</param>
 		public void AddTool(Tool tool, bool isDefaultTool) {
-			if (tool == null) throw new ArgumentNullException("tool");
+			if (tool == null) throw new ArgumentNullException(nameof(tool));
 			_tools.Add(tool);
 			tool.ToolExecuted += Tool_ToolExecuted;
 			if (tool is TemplateTool)
@@ -284,7 +284,7 @@ namespace Dataweb.NShape.Controllers {
 		/// Deletes the given tool.
 		/// </summary>
 		public void DeleteTool(Tool tool) {
-			if (tool == null) throw new ArgumentNullException("tool");
+			if (tool == null) throw new ArgumentNullException(nameof(tool));
 			if (tool == _selectedTool) SelectDefaultTool(true);
 			if (tool == _defaultTool)
 				if (_tools.Count <= 0) _defaultTool = null;
@@ -332,7 +332,7 @@ namespace Dataweb.NShape.Controllers {
 		/// Find the tool that contains the given template
 		/// </summary>
 		public Tool FindTool(Template template) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			foreach (Tool t in _tools) {
 				if (t is TemplateTool && ((TemplateTool)t).Template == template)
 					return t;
@@ -621,11 +621,13 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private void DoSelectTool(Tool tool, bool multiUse, bool ensureVisibility) {
-			this._selectedTool = tool;
-			this._executeOnce = !multiUse;
+			_selectedTool = tool;
+			_executeOnce = !multiUse;
 
-			if (_diagramSetController != null)
-				this._diagramSetController.ActiveTool = this._selectedTool;
+			if (_diagramSetController != null) {
+				Debug.Assert(_diagramSetController.ActiveTool == null || _diagramSetController.ActiveTool.IsToolActionPending == false);
+				_diagramSetController.ActiveTool = _selectedTool;
+			}
 
 			if (ToolSelected != null) {
 				_toolEventArgs.Tool = tool;
@@ -819,8 +821,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ToolEventArgs(Tool tool) {
-			if (tool == null) throw new ArgumentNullException("tool");
-			this._tool = tool;
+			if (tool == null) throw new ArgumentNullException(nameof(tool));
+			_tool = tool;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
@@ -841,13 +843,13 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public TemplateEditorEventArgs(Project project) {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			this.project = project;
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public TemplateEditorEventArgs(Project project, Template template) {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			this.project = project;
 			this.template = template;
 		}

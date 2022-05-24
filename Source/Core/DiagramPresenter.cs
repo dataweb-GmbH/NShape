@@ -362,9 +362,20 @@ namespace Dataweb.NShape.Controllers {
 		int ZoomedGripSize { get; }
 
 		/// <summary>
-		/// Zoom in percentage.
+		/// Zoom level in percentage: 100 means 100%.
 		/// </summary>
+		[Obsolete]
 		int ZoomLevel { get; set; }
+
+		/// <summary>
+		/// High definition zoom level in 1/100 percent: 10000 means 100%
+		/// </summary>
+		int ZoomLevelHD { get; set; }
+
+		/// <summary>
+		/// Zoom factor, 1 means 100%.
+		/// </summary>
+		float ZoomFactor { get; }
 
 		/// <summary>
 		/// Specifies whether the component has captured the mouse.
@@ -773,7 +784,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Sets the visibility of the given layers.
 		/// </summary>
-		[Obsolete("Use an overload that takes á collection of layers or layer ids instead.")]
+		[Obsolete("Use an overloaded version that takes á collection of layers or layer ids instead.")]
 		void SetLayerVisibility(LayerIds layers, bool visible);
 
 

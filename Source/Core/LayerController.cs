@@ -58,7 +58,7 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		public LayerController(DiagramSetController diagramSetController)
 			: this() {
-			if (diagramSetController == null) throw new ArgumentNullException("diagramSetController");
+			if (diagramSetController == null) throw new ArgumentNullException(nameof(diagramSetController));
 			this.DiagramSetController = diagramSetController;
 		}
 
@@ -138,7 +138,7 @@ namespace Dataweb.NShape.Controllers {
 		/// Adds a new layer to the given diagram.
 		/// </summary>
 		public void AddLayer(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertDiagramSetControllerIsSet();
 			string newLayerName = GetNewLayerName(diagram);
 			AddLayer(diagram, newLayerName);
@@ -147,8 +147,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void AddLayer(Diagram diagram, string layerName) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (layerName == null) throw new ArgumentNullException("layerName");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (layerName == null) throw new ArgumentNullException(nameof(layerName));
 			AssertDiagramSetControllerIsSet();
 			if (diagram.Layers.FindLayer(layerName) != null) 
 				throw new NShapeException("Layer name '{0}' already exists.", layerName);
@@ -160,8 +160,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void RemoveLayers(Diagram diagram, IEnumerable<Layer> layers) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (layers == null) throw new ArgumentNullException("layers");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (layers == null) throw new ArgumentNullException(nameof(layers));
 			AssertDiagramSetControllerIsSet();
 			Command cmd = new RemoveLayerCommand(diagram, layers);
 			Project.ExecuteCommand(cmd);
@@ -171,8 +171,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void RemoveLayer(Diagram diagram, string layerName) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (string.IsNullOrEmpty(layerName)) throw new ArgumentNullException("layerName");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (string.IsNullOrEmpty(layerName)) throw new ArgumentNullException(nameof(layerName));
 			AssertDiagramSetControllerIsSet();
 			Layer layer = diagram.Layers.FindLayer(layerName);
 			if (layer == null) throw new NShapeException("Layer '{0}' does not exist.", layerName);
@@ -184,10 +184,10 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void RenameLayer(Diagram diagram, Layer layer, string oldName, string newName) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (layer == null) throw new ArgumentNullException("layer");
-			if (oldName == null) throw new ArgumentNullException("oldName");
-			if (newName == null) throw new ArgumentNullException("newName");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
+			if (oldName == null) throw new ArgumentNullException(nameof(oldName));
+			if (newName == null) throw new ArgumentNullException(nameof(newName));
 			AssertDiagramSetControllerIsSet();
 			ICommand cmd = new EditLayerCommand(diagram, layer, EditLayerCommand.ChangedProperty.Name, oldName, newName);
 			Project.ExecuteCommand(cmd);
@@ -197,8 +197,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void SetLayerZoomBounds(Diagram diagram, Layer layer, int lowerZoomBounds, int upperZoomBounds) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (layer == null) throw new ArgumentNullException("layer");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
 			AssertDiagramSetControllerIsSet();
 			ICommand cmdMinZoom = null;
 			ICommand cmdMaxZoom = null;
@@ -233,8 +233,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Returns a collection of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" /> for constructing context menus etc.
 		/// </summary>
 		public IEnumerable<MenuItemDef> GetMenuItemDefs(Diagram diagram, IReadOnlyCollection<Layer> selectedLayers) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (selectedLayers == null) throw new ArgumentNullException("selectedLayers");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (selectedLayers == null) throw new ArgumentNullException(nameof(selectedLayers));
 			bool isFeasible;
 			string description;
 

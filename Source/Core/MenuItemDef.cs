@@ -243,7 +243,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 	/// <summary>
-	/// Dummy action for creating MenuSeperators
+	/// Dummy action for creating MenuSeparators
 	/// </summary>
 	public class SeparatorMenuItemDef : MenuItemDef {
 
@@ -253,8 +253,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Execute(MenuItemDef action, Project project) {
-			if (action == null) throw new ArgumentNullException("action");
-			if (project == null) throw new ArgumentNullException("project");
+			if (action == null) throw new ArgumentNullException(nameof(action));
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			// nothing to do
 		}
 
@@ -282,7 +282,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override bool IsGranted(ISecurityManager securityManager) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			return true;
 		}
 
@@ -335,15 +335,15 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Execute(MenuItemDef action, Project project) {
-			if (action == null) throw new ArgumentNullException("action");
-			if (project == null) throw new ArgumentNullException("project");
+			if (action == null) throw new ArgumentNullException(nameof(action));
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			throw new NotImplementedException();
 		}
 
 
 		/// <override></override>
 		public override bool IsGranted(ISecurityManager securityManager) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			return true;
 		}
 
@@ -473,15 +473,15 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override bool IsGranted(ISecurityManager securityManager) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			return true;
 		}
 
 
 		/// <override></override>
 		public override void Execute(MenuItemDef action, Project project) {
-			//if (action == null) throw new ArgumentNullException("action");
-			//if (project == null) throw new ArgumentNullException("project");
+			//if (action == null) throw new ArgumentNullException(nameof(action));
+			//if (project == null) throw new ArgumentNullException(nameof(project));
 			//if (DefaultAction != null) DefaultAction.Execute(DefaultAction, project);
 		}
 
@@ -665,15 +665,15 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Execute(MenuItemDef action, Project project) {
-			if (action == null) throw new ArgumentNullException("action");
-			if (project == null) throw new ArgumentNullException("project");
+			if (action == null) throw new ArgumentNullException(nameof(action));
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			_executeDelegate(action, project);
 		}
 
 
 		/// <override></override>
 		public override bool IsGranted(ISecurityManager securityManager) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			if (_securityDomainObjects != null)
 				return securityManager.IsGranted(_requiredPermission, _securityDomainObjects);
 			else if (_securityDomainName != NoSecurityDomain)
@@ -807,7 +807,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override bool IsGranted(ISecurityManager securityManager) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			if (_command != null) {
 				Exception exc = _command.CheckAllowed(securityManager);
 				if (exc != null) {
@@ -820,8 +820,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Execute(MenuItemDef action, Project project) {
-			if (action == null) throw new ArgumentNullException("action");
-			if (project == null) throw new ArgumentNullException("project");
+			if (action == null) throw new ArgumentNullException(nameof(action));
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			if (_command != null) project.ExecuteCommand(_command);
 		}
 

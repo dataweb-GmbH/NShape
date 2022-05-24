@@ -4,6 +4,72 @@ Known issues:
 
 * Transparent bitmap images with 8 bit color depth are not rendered correctly when compiling in 
   x64/AnyCPU configuration on x64 OS.
+====================================================================================================
+Changes in 2.4.0.0:
+====================================================================================================
+* New Feature: NShape now supports diagrams with a size up to 1000000 x 1000000 diagram units. 
+  Bigger diagrams may work but this is not guaranteed. Arithmethic overflow checks are now enabled 
+  for all NShape assemblies. 
+  Changed Geometry functions to work with large coordinate values. Some functions became deprecated.
+* New Feature: New property "ZoomLevelHD" for IDiagramPresenter / Display. When using large diagrams, 
+  we recommend using the ZoomLevelHD property because the ZoomLevel property is very limited in terms
+  of zooming the diagrams to small zoom levels.
+* New Feature: Adjustable spatial index cell size for better performance when working with huge 
+  diagrams and small shapes. Caution: This is an application level setting, do not change while 
+  a project is open!
+    public static int Diagram.IndexCellSize { get; set; }
+* Interface Change: Changed interface of Tool classes in order to make them more customizable.
+  There are 2 new concepts for customizing tools. 
+  The first one consists of a set of new methods that take a filter delegate.
+  If you want do customize e.g. finding control points, then override the tool's 
+  'CreateIsConnectionTargetFilter' method and return your custom filter delegate.
+	protected static bool CanConnect(Shape shape, ControlPointId controlPointId, Shape otherShape, ControlPointId otherControlPointId)
+	protected void InvalidateConnectionTargets(IDiagramPresenter diagramPresenter, int positionX, int positionY, ControlPointCapabilities capabilities, int range, TargetFilterDelegate isConnectionTarget)
+	protected void DrawConnectionTargets(IDiagramPresenter diagramPresenter, Shape shapeAtCursor, ControlPointId gluePointAtCursor, Point newGluePtPos, ControlPointCapabilities capabilities, int highlightRange, int connectRange, TargetFilterDelegate isConnectionTarget)
+	protected static Locator FindNearestTarget(IDiagramPresenter diagramPresenter, int x, int y, ControlPointCapabilities capabilities, int range, TargetFilterDelegate filter = null)
+	protected static Locator FindNearestTarget(IDiagramPresenter diagramPresenter, int x, int y, ControlPointCapabilities capabilities, bool searchChildShapes, int range, TargetFilterDelegate filter = null)
+	protected static float FindNearestSnapPoint(IDiagramPresenter diagramPresenter, int x, int y, out int snapDeltaX, out int snapDeltaY)
+	protected static float FindNearestSnapPoint(IDiagramPresenter diagramPresenter, Rectangle bounds, out int snapDeltaX, out int snapDeltaY)
+	protected static Point CalculateDistanceToConnectionTarget(Point position, Shape targetShape, ControlPointId targetPointId)
+	protected static Point CalculateDistanceToGridLine(int fromX, int fromY, int gridSize, int range)
+	protected static Point CalculateMouseOffset(Point mousePos, Shape shapeAtMouse, ControlPointId controlPointAtMouse)
+	protected delegate bool TargetFilterDelegate(Shape shape, ControlPointId controlPointId)
+	protected static IEnumerable<Locator> FindConnectionTargets(IDiagramPresenter diagramPresenter, int positionX, int positionY, ControlPointCapabilities controlPointCapabilities, int range, TargetFilterDelegate isConnectionTargetCallback)
+	protected ShapeAtCursorInfo FindConnectionTargetFromPosition(IDiagramPresenter diagramPresenter, int x, int y, bool onlyUnselected, bool snapToConnectionPoints)
+	protected virtual TargetFilterDelegate CreateIsConnectionTargetFilter(IDiagramPresenter diagramPresenter)
+	protected void CreatePreviewShapes(IDiagramPresenter diagramPresenter)
+	protected void ResetPreviewShapes(IDiagramPresenter diagramPresenter)
+	protected virtual int HighlightTargetsRange { get; }
+	protected virtual int GetFindTargetRange(IDiagramPresenter diagramPresenter)
+	protected virtual int GetFindGridLineRange(IDiagramPresenter diagramPresenter)
+  The second new concept consists of new virtual methods that will be called when processing the 
+  mouse events. If you want to customize moving shapes or control points, override the appropriate 
+  'OnPreview...' and 'On...'  methods. Return false in the overridden methods to indicate the base 
+  class should not execute its original code after the overridden function was called.
+  SelectionTool:
+	protected virtual void OnPreviewShapesCreated(IDictionary<Shape, Shape> previewShapes)
+    protected virtual bool OnPreviewHandleMoving(IDiagramPresenter diagramPresenter, MouseState mouseState, Shape shapeAtCursor, ControlPointId controlPointAtCursor)
+	protected virtual bool OnHandleMoved(IDiagramPresenter diagramPresenter, MouseState mouseState, Shape shapeAtCursor, ControlPointId controlPointAtCursor)
+	protected virtual bool OnPreviewShapesMoving(IDiagramPresenter diagramPresenter, MouseState mouseState, Shape shapeAtCursor, ControlPointId controlPointAtCursor)
+	protected virtual bool OnShapesMoved(IDiagramPresenter diagramPresenter, MouseState mouseState, Shape shapeAtCursor, ControlPointId controlPointAtCursor)
+	protected virtual bool OnPreviewShapesRotating(IDiagramPresenter diagramPresenter, MouseState mouseState, IEnumerable<Shape> shapes, int sweepAngle)
+	protected virtual bool OnShapesRotated(IDiagramPresenter diagramPresenter, MouseState mouseState, IEnumerable<Shape> shapes, int sweepAngle)
+  Template tools:
+	protected virtual bool OnPreviewShapeMoving(IDiagramPresenter diagramPresenter, MouseState mouseState)
+	protected virtual bool OnLinearShapeCreating(IDiagramPresenter diagramPresenter, MouseState mouseState, bool discardLastVertex)
+	protected virtual bool OnPlanarShapeCreating(IDiagramPresenter diagramPresenter, MouseState mouseState)
+* Improvement: Improved line cap drawing (avoid cumulating numeric errors and improved performance)
+* Improvement: 'CanConnect' of line shape classes now check the line's second glue point if 
+  connected to the same shape via point-to-shape
+* Improvement: Adaptive zoom speed when zooming with mouse wheel.
+* Improvement: ArgumentExceptions and ArgumentNullExceptions now use nameof() instead of hard coded 
+  parameter names.
+* Bugfix: Cutting connected shapes together using DiagramSetController.Cut() did not store the 
+  connections properly
+* Bugfix: Show diagram properties only if no shapes are selected
+* Bugfix: Fixed generic repository methods
+* Bugfix: LineShapeBase.GetControlPointIds(ControlPointCapabilities.Connect) did not return an id 
+  for the reference point.
   
 ====================================================================================================
 Changes in 2.3.1.0:
@@ -13,7 +79,8 @@ Changes in 2.3.1.0:
 * BugFix: Text in the shape caption editor was invisible when clicking on shape's text and *not* 
   moving the mouse or pressing a key.
 * Bugfix: Line shapes calculate their normal vector (using CalcNormalVector) in the correct direction
-* Bugfix: LineShapeBase now overrides Shape.CalculateNormalVector and returns the normal vector calculated by ILinearShape.CalcNormalVector
+* Bugfix: LineShapeBase now overrides Shape.CalculateNormalVector and returns the normal vector 
+  calculated by ILinearShape.CalcNormalVector
 * Bugfix: Bugfixes in Geometry.TriangleContainsPoint and Geometry.CalcNormalVectorOfRectangle
 * Bugfix: Bugfixes and refactorings in 'LabelBase' shape class
 * Bugfix: PolylineBase.HitTest now resprects given the range when hit testing line segments

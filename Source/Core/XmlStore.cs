@@ -83,8 +83,8 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.XmlStore" />.
 		/// </summary>
 		public XmlStore(string directoryName, string fileExtension, bool lazyLoading) {
-			if (directoryName == null) throw new ArgumentNullException("directoryName");
-			if (fileExtension == null) throw new ArgumentNullException("fileExtension");
+			if (directoryName == null) throw new ArgumentNullException(nameof(directoryName));
+			if (fileExtension == null) throw new ArgumentNullException(nameof(fileExtension));
 			this.DirectoryName = directoryName;
 			this.FileExtension = fileExtension;
 			this.LazyLoading = lazyLoading;
@@ -95,7 +95,7 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.XmlStore" />.
 		/// </summary>
 		public XmlStore(Stream stream) {
-			if (stream == null) throw new ArgumentNullException("stream");
+			if (stream == null) throw new ArgumentNullException(nameof(stream));
 			this.Stream = stream;
 		}
 
@@ -141,7 +141,7 @@ namespace Dataweb.NShape {
 		public string DirectoryName {
 			get { return _directoryName; }
 			set {
-				if (value == null) throw new ArgumentNullException("DirectoryName");
+				if (value == null) throw new ArgumentNullException(nameof(DirectoryName));
 				_directoryName = value;
 			}
 		}
@@ -154,7 +154,7 @@ namespace Dataweb.NShape {
 		public string FileExtension {
 			get { return _fileExtension; }
 			set {
-				if (value == null) throw new ArgumentNullException("FileExtension");
+				if (value == null) throw new ArgumentNullException(nameof(FileExtension));
 				if (value.StartsWith("*")) value = value.Substring(1);
 				_fileExtension = value;
 				if (!string.IsNullOrEmpty(_fileExtension) && _fileExtension[0] != '.')
@@ -193,7 +193,7 @@ namespace Dataweb.NShape {
 		public string BackupFileExtension {
 			get { return _backupFileExtension; }
 			set {
-				if (string.IsNullOrEmpty(value)) throw new ArgumentNullException("value");
+				if (value == null) throw new ArgumentNullException(nameof(value));
 				_backupFileExtension = value; 
 			}
 		}
@@ -283,7 +283,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void ReadVersion(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			_version = DoReadVersion(cache, (Stream != null));
 			cache.SetRepositoryBaseVersion(_version);
 		}
@@ -339,15 +339,15 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void LoadProjects(IStoreCache cache, IEntityType entityType, params object[] parameters) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (entityType == null) throw new ArgumentNullException("entityType");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (entityType == null) throw new ArgumentNullException(nameof(entityType));
 			// Do nothing. OpenComplete must be called after the libraries have been loaded.
 		}
 
 
 		/// <override></override>
 		public override void LoadDesigns(IStoreCache cache, object projectId) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			// Do nothing. OpenComplete must be called after the libraries have been loaded.
 		}
 
@@ -472,7 +472,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override void SaveChanges(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			if (!_isOpen) throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageTxt_StoreIsNotOpen);
 			if (string.IsNullOrEmpty(ProjectName)) throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageTxt_ProjectNameWasNotSpecified);
 			if (_diagramsToLoad != null && _diagramsToLoad.Count > 0)
@@ -559,7 +559,7 @@ namespace Dataweb.NShape {
 
 		/// <summary>Saves the contents of the given store cache to the given stream as UTF8 encoded XML string</summary>
 		private void SaveChangesToStream(IStoreCache cache) {
-		    if (cache == null) throw new ArgumentNullException("cache");
+		    if (cache == null) throw new ArgumentNullException(nameof(cache));
 			if (Stream == null) throw new NShapeException("Cannot save to stream: Stream does not exist.");
 		    //if (!stream.CanSeek) throw new ArgumentException("The provided stream does not support seeking.");
 		    if (!_isOpen) throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageTxt_StoreIsNotOpen);
@@ -599,7 +599,7 @@ namespace Dataweb.NShape {
 		/// Reads the save version from the XML file.
 		/// </summary>
 		protected int DoReadVersion(IStoreCache cache, bool keepOpen) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			if (_isOpen) throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_StoreIsAlreadyOpen);
 			// Open the stream (if existing)
 			OpenReader(cache, GetReadStream());
@@ -618,7 +618,7 @@ namespace Dataweb.NShape {
 		/// Opens the XML file and read the project settings. The rest of the file is loaded on the first request of data.
 		/// </summary>
 		protected void DoOpen(IStoreCache cache, bool create) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			if (_isOpen) throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_StoreIsAlreadyOpen);
 			// Reset the image location read from store
 			_storeImageLocation = null;
@@ -703,8 +703,8 @@ namespace Dataweb.NShape {
 			/// </summary>
 			public XmlStoreReader(XmlReader xmlReader, XmlStore store, IStoreCache cache)
 				: base(cache) {
-				if (xmlReader == null) throw new ArgumentNullException("xmlReader");
-				if (store == null) throw new ArgumentNullException("store");
+				if (xmlReader == null) throw new ArgumentNullException(nameof(xmlReader));
+				if (store == null) throw new ArgumentNullException(nameof(store));
 				this._store = store;
 				this._xmlReader = xmlReader;
 			}
@@ -957,8 +957,8 @@ namespace Dataweb.NShape {
 			/// </summary>
 			public XmlStoreWriter(XmlWriter xmlWriter, XmlStore xmlStore, IStoreCache cache)
 				: base(cache) {
-				if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
-				if (xmlStore == null) throw new ArgumentNullException("xmlStore");
+				if (xmlWriter == null) throw new ArgumentNullException(nameof(xmlWriter));
+				if (xmlStore == null) throw new ArgumentNullException(nameof(xmlStore));
 				this._xmlStore = xmlStore;
 				this._xmlWriter = xmlWriter;
 			}
@@ -1163,8 +1163,8 @@ namespace Dataweb.NShape {
 			/// </summary>
 			public XmlEmbeddedImageWriter(XmlWriter xmlWriter, XmlStore xmlStore, IStoreCache cache)
 				: base(cache) {
-				if (xmlWriter == null) throw new ArgumentNullException("xmlWriter");
-				if (xmlStore == null) throw new ArgumentNullException("xmlStore");
+				if (xmlWriter == null) throw new ArgumentNullException(nameof(xmlWriter));
+				if (xmlStore == null) throw new ArgumentNullException(nameof(xmlStore));
 				this._xmlStore = xmlStore;
 				this._xmlWriter = xmlWriter;
 			}
@@ -1363,7 +1363,7 @@ namespace Dataweb.NShape {
 		/// otherwise it is the file name.
 		/// </param>
 		internal Image LoadImage(string imageKey) {
-			if (string.IsNullOrEmpty(imageKey)) throw new ArgumentNullException("fileName");
+			if (string.IsNullOrEmpty(imageKey)) throw new ArgumentNullException(nameof(imageKey));
 			
 			Image result = null;
 			byte[] buffer = null;
@@ -1583,7 +1583,7 @@ namespace Dataweb.NShape {
 
 
 		internal string GetImageFileName(IEntity entity, Image image, string imageName) {
-			if (entity == null) throw new ArgumentNullException("entity");
+			if (entity == null) throw new ArgumentNullException(nameof(entity));
 			try {
 				// If the imageName is a path, we extract the file name
 				if (!string.IsNullOrEmpty(imageName) && imageName.Contains("\\"))
@@ -1715,7 +1715,7 @@ namespace Dataweb.NShape {
 
 
 		private Stream OpenFileStream(string filePath, bool forReading) {
-			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException("filePath");
+			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
 			if (forReading && !File.Exists(filePath)) throw new FileNotFoundException(Properties.Resources.MessageTxt_FileNotFoundOrAccessDenied, filePath);
 			// Assign file stream to fileStream field
 			return File.Open(filePath, FileMode.OpenOrCreate, 
@@ -1725,7 +1725,7 @@ namespace Dataweb.NShape {
 
 
 		private void CloseFileStream(Stream stream) {
-			if (stream == null) throw new ArgumentNullException("stream");
+			if (stream == null) throw new ArgumentNullException(nameof(stream));
 			stream.Close();
 			stream.Dispose();
 			stream = null;
@@ -1794,7 +1794,7 @@ namespace Dataweb.NShape {
 
 
 		private void OpenComplete(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			if (!_isOpenComplete) {
 				// The position is on the model
 				ReadModel(cache, _xmlReader);
@@ -2201,8 +2201,8 @@ namespace Dataweb.NShape {
 
 
 		private void OpenReader(IStoreCache cache, Stream stream) {
-			if (cache == null) throw new ArgumentNullException("cache");
-			if (stream == null) throw new ArgumentNullException("stream");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
+			if (stream == null) throw new ArgumentNullException(nameof(stream));
 			// Rewind stream if necessary
 			if (stream.Position != 0) stream.Position = 0;
 			// Create readers
@@ -2957,7 +2957,7 @@ namespace Dataweb.NShape {
 
 
 		internal bool IsVersion2TemplateDefinition(IList<EntityPropertyDefinition> propertyDefinitions) {
-			if (propertyDefinitions == null) throw new ArgumentNullException("propertyDefinitions");
+			if (propertyDefinitions == null) throw new ArgumentNullException(nameof(propertyDefinitions));
 			// Backwards compatibility workaround, see comment in "GetPropertyDefinitions" of class "Template".
 			bool result = true;
 			List<EntityPropertyDefinition> templatePropertyDefs = new List<EntityPropertyDefinition>(Template.GetPropertyDefinitions(2));

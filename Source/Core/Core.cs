@@ -256,7 +256,7 @@ namespace Dataweb.NShape.Advanced
 		/// </summary>
 		/// <param name="source"></param>
 		public void CopyFrom(ProjectSettings source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) throw new ArgumentNullException(nameof(source));
 			_id = ((IEntity)source).Id;
 			_lastSaved = source.LastSaved;
 			foreach (LibraryData library in source._libraries) {
@@ -290,8 +290,8 @@ namespace Dataweb.NShape.Advanced
 		/// Adds a dynamic library to the project.
 		/// </summary>
 		public void AddLibrary(string name, string assemblyName, int libraryVersion) {
-			if (name == null) throw new ArgumentNullException("name");
-			if (assemblyName == null) throw new ArgumentNullException("assemblyName");
+			if (name == null) throw new ArgumentNullException(nameof(name));
+			if (assemblyName == null) throw new ArgumentNullException(nameof(assemblyName));
 			_libraries.Add(new LibraryData(name, assemblyName, libraryVersion));
 		}
 
@@ -300,7 +300,7 @@ namespace Dataweb.NShape.Advanced
 		/// Retrieves the repository version of the given library.
 		/// </summary>
 		public int GetRepositoryVersion(string libraryName) {
-			if (libraryName == null) throw new ArgumentNullException("libraryName");
+			if (libraryName == null) throw new ArgumentNullException(nameof(libraryName));
 			LibraryData ld = FindLibraryData(libraryName, true);
 			return ld.RepositoryVersion;
 		}
@@ -359,7 +359,7 @@ namespace Dataweb.NShape.Advanced
 
 
 		void IEntity.AssignId(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			if (this._id != null)
 				throw new InvalidOperationException("Project settings have already an id.");
 			this._id = id;
@@ -459,6 +459,100 @@ namespace Dataweb.NShape.Advanced
 		private List<LibraryData> _libraries = new List<LibraryData>();
 
 		#endregion
+	}
+
+
+	// ToDo: Find a better name
+	/// <summary>Addresses a shape and/or a control point.</summary>
+	public struct Locator {
+		
+		#region [Public] Operators
+
+		/// <override></override>
+		public static bool operator ==(Locator a, Locator b) {
+			return a.Shape == b.Shape && a.ControlPointId == b.ControlPointId;
+		}
+
+
+		/// <override></override>
+		public static bool operator !=(Locator a, Locator b) {
+			return !(a == b);
+		}
+
+		#endregion
+
+
+		#region Construction
+
+		/// <summary>Constructor</summary>
+		public Locator(Shape shape, ControlPointId pointId) {
+			Shape = shape; 
+			ControlPointId = pointId;
+		}
+
+
+		/// <summary>Type Initializer</summary>
+		static Locator() {
+			Empty.Shape = null;
+			Empty.ControlPointId = ControlPointId.None;
+		}
+
+		#endregion
+
+
+		#region [Public] Properties
+
+		/// <summary>Represents an empty instance.</summary>
+		public static readonly Locator Empty;
+
+
+		/// <summary>The <see cref="T:Dataweb.NShape.Shape"/> that owns the <see cref="T:Dataweb.NShape.ControlPointId"/>.</summary>
+		public Shape Shape {
+			get; set;
+		}
+
+
+		/// <summary>The <see cref="T:Dataweb.NShape.ControlPointId"/> of the shape.</summary>
+		public ControlPointId ControlPointId {
+			get; set;
+		}
+
+
+		/// <summary>Returns true if this instance is empty, otherwise false.</summary>
+		public bool IsEmpty {
+			get { return this == Empty; }
+		}
+
+		#endregion
+
+
+		#region [Public] Methods
+
+		/// <summary>The <see cref="T:Dataweb.NShape.Shape"/> that owns the <see cref="T:Dataweb.NShape.ControlPointId"/>.</summary>
+		public TShape GetShape<TShape>() where TShape : Shape {
+			return (TShape)Shape;
+		}
+
+
+		/// <override></override>
+		public override bool Equals(object obj) {
+			return base.Equals(obj);
+		}
+
+
+		/// <override></override>
+		public override int GetHashCode() {
+			return HashCodeGenerator.CalculateHashCode(Shape, ControlPointId);
+		}
+
+
+		/// <override></override>
+		public override string ToString() {
+			return base.ToString();
+		}
+
+		#endregion
+
 	}
 
 }

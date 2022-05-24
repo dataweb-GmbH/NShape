@@ -22,7 +22,7 @@ namespace Dataweb.NShape.Designer {
 
 		public TestDataGeneratorDialog(Project project) {
 			InitializeComponent();
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			this._project = project;
 
 			// ToDo: Check if all needed libraries are loaded 
@@ -39,6 +39,56 @@ namespace Dataweb.NShape.Designer {
 		}
 
 
+		public string DiagramName {
+			get {
+				string diagramName = diagramNameTextBox.Text;
+				if (string.IsNullOrEmpty(diagramName))
+					diagramName = string.Format("Diagram {0}", GetDiagramCount() + 1);
+				return diagramName;
+			}
+		}
+
+
+		public int SpatialIndexCellSize {
+			get { return (int)indexCellSizeUpDown.Value; }
+		}
+
+
+		public int ShapeSize {
+			get { return (int)shapeSizeUpDown.Value; }
+		}
+
+
+		public int ShapesPerRow {
+			get { return (int)shapesPerRowUpDown.Value; }
+		}
+
+
+		public int ShapesPerColumn {
+			get { return (int)shapesPerColUpDown.Value; }
+		}
+
+		
+		public bool ConnectShapes {
+			get { return connectShapesChk.Checked; }
+		}
+
+
+		public bool CreateShapesWithModelObjects {
+			get { return useModelObjectsChk.Checked; }
+		}
+
+
+		public bool CreateModelMappings {
+			get { return useModelObjectsChk.Checked ? useModelMappingsChk.Checked : false; }
+		}
+
+
+		public bool AddShapesToLayers {
+			get { return useLayersChk.Checked; }
+		}
+
+
 		private int GetDiagramCount() {
 			int diagramCnt = 0;
 			foreach (Diagram diagram in _project.Repository.GetDiagrams())
@@ -48,30 +98,6 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void TestDataGeneratorDialog_FormClosing(object sender, FormClosingEventArgs e) {
-			if (DialogResult == System.Windows.Forms.DialogResult.OK) {
-				Owner.Refresh();
-				try {
-					Cursor = Cursors.WaitCursor;
-					string diagramName = diagramNameTextBox.Text;
-					if (string.IsNullOrEmpty(diagramName))
-						diagramName = string.Format("Diagram {0}", GetDiagramCount() + 1);
-
-					// Create test diagram
-					TestDataGenerator.CreateDiagram(_project,
-						diagramName,
-						(int)shapeSizeUpDown.Value,
-						(int)shapesPerRowUpDown.Value,
-						(int)shapesPerColUpDown.Value,
-						connectShapesChk.Checked,
-						useModelObjectsChk.Checked,
-						useModelObjectsChk.Checked ? useModelMappingsChk.Checked : false,
-						useLayersChk.Checked);
-				} catch (Exception exc) {
-					MessageBox.Show(this, exc.Message, "Error while creating test data", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				} finally {
-					Cursor = Cursors.Default;
-				}
-			}
 		}
 
 

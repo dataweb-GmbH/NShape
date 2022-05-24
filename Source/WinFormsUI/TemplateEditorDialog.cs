@@ -43,7 +43,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public TemplateEditorDialog(Project project, Template template)
 			: this() {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			templateController.Initialize(project, template);
 		}
 

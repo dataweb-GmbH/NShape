@@ -61,7 +61,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public TextEditorDialog(IEnumerable<string> lines)
 			: this() {
-			if (lines == null) throw new ArgumentNullException("lines");
+			if (lines == null) throw new ArgumentNullException(nameof(lines));
 			foreach (string line in lines)
 				textBox.Text += line + Environment.NewLine;
 			_wantReturn = true;
@@ -73,7 +73,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public TextEditorDialog(string text, ICharacterStyle characterStyle)
 			: this(text) {
-			if (characterStyle == null) throw new ArgumentNullException("characterStyle");
+			if (characterStyle == null) throw new ArgumentNullException(nameof(characterStyle));
 			Font font = ToolCache.GetFont(characterStyle);
 			textBox.Font = (Font)font.Clone();
 			font = null;
@@ -85,7 +85,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public TextEditorDialog(string text, string fontFamilyName, float fontSizeInPts, System.Drawing.FontStyle fontStyle)
 			: this(text) {
-			if (fontFamilyName == null) throw new ArgumentNullException("fontFamilyName");
+			if (fontFamilyName == null) throw new ArgumentNullException(nameof(fontFamilyName));
 			textBox.Font = new Font(fontFamilyName, fontSizeInPts, fontStyle, GraphicsUnit.Point);
 		}
 
@@ -95,7 +95,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public TextEditorDialog(IEnumerable<string> lines, CharacterStyle characterStyle)
 			: this(lines) {
-			if (characterStyle == null) throw new ArgumentNullException("characterStyle");
+			if (characterStyle == null) throw new ArgumentNullException(nameof(characterStyle));
 			Font font = ToolCache.GetFont(characterStyle);
 			textBox.Font = (Font)font.Clone();
 			font = null;
@@ -107,7 +107,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public TextEditorDialog(IEnumerable<string> lines, string fontFamilyName, float fontSizeInPts, System.Drawing.FontStyle fontStyle)
 			: this(lines) {
-			if (fontFamilyName == null) throw new ArgumentNullException("fontFamilyName");
+			if (fontFamilyName == null) throw new ArgumentNullException(nameof(fontFamilyName));
 			textBox.Font = new Font(fontFamilyName, fontSizeInPts, fontStyle, GraphicsUnit.Point);
 		}
 
@@ -243,7 +243,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		public TextEditorTextBox(string text, Font font) {
-			if (font == null) throw new ArgumentNullException("font");
+			if (font == null) throw new ArgumentNullException(nameof(font));
 			SetControlStyles();
 			Font = font;
 			Text = text;
@@ -251,8 +251,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		public TextEditorTextBox(IEnumerable<string> lines, Font font) {
-			if (lines == null) throw new ArgumentNullException("lines");
-			if (font == null) throw new ArgumentNullException("font");
+			if (lines == null) throw new ArgumentNullException(nameof(lines));
+			if (font == null) throw new ArgumentNullException(nameof(font));
 			SetControlStyles();
 			Font = font;
 			List<string> textLines = new List<string>(lines);

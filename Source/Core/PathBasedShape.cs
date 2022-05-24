@@ -460,6 +460,7 @@ namespace Dataweb.NShape.Advanced {
 				// store unrotated bounding rectangle for transforming brushes to the right size.
 				// rotated bounding rectangles have usually not the correct size for this purpose
 				BoundingRectangleUnrotated = Rectangle.Round(Path.GetBounds());
+				Debug.Assert(Geometry.IsValid(BoundingRectangleUnrotated));
 				DrawCacheIsInvalid = false;
 			}
 		}

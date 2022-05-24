@@ -101,7 +101,7 @@ namespace Dataweb.NShape.GeneralModelObjects {
 			get { return _securityDomainName; }
 			set {
 				if (value < 'A' || value > 'Z')
-					throw new ArgumentOutOfRangeException("SecurityDomainName", "The domain qualifier has to be an upper case  ANSI letter (A-Z).");
+					throw new ArgumentOutOfRangeException(nameof(SecurityDomainName), "The domain qualifier has to be an upper case  ANSI letter (A-Z).");
 				_securityDomainName = value;
 			}
 		}

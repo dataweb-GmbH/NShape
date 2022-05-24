@@ -118,7 +118,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		public void AddLayer(Layer layer, bool isActive, bool isVisible) {
-			if (layer == null) throw new ArgumentNullException("layer");
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
 			if (FindItem(layer) != null) return;
 
 			ListViewItem item = new ListViewItem(layer.Name);
@@ -143,7 +143,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		public void RefreshLayer(Layer layer, bool isActive, bool isVisible) {
-			if (layer == null) throw new ArgumentNullException("layer");
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
 			_oldName = _newName = string.Empty;
 			ListViewItem item = FindItem(layer);
 			if (item != null) {
@@ -156,7 +156,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		public void RemoveLayer(Layer layer) {
-			if (layer == null) throw new ArgumentNullException("layer");
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
 			ListViewItem item = FindItem(layer);
 			if (item != null) {
 				Items.Remove(item);
@@ -169,7 +169,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		public void BeginEditLayerName(Layer layer) {
 			if (LabelEdit) {
 				_enableRenameLayer = true;
-				if (layer == null) throw new ArgumentNullException("layer");
+				if (layer == null) throw new ArgumentNullException(nameof(layer));
 				ListViewItem item = FindItem(layer);
 				if (item != null && LabelEdit) item.BeginEdit();
 			}
@@ -178,7 +178,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		public void BeginEditLayerMinZoomBound(Layer layer) {
-			if (layer == null) throw new ArgumentNullException("layer");
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
 			ListViewItem item = FindItem(layer);
 			if (item != null) ShowUpDown(item, _idxColumnLowerZoomBound);
 		}
@@ -186,7 +186,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		public void BeginEditLayerMaxZoomBound(Layer layer) {
-			if (layer == null) throw new ArgumentNullException("layer");
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
 			ListViewItem item = FindItem(layer);
 			if (item != null) ShowUpDown(item, _idxColumnUpperZoomBound);
 		}
@@ -194,8 +194,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		public void OpenContextMenu(int x, int y, IEnumerable<MenuItemDef> actions, Project project) {
-			if (actions == null) throw new ArgumentNullException("actions");
-			if (project == null) throw new ArgumentNullException("project");
+			if (actions == null) throw new ArgumentNullException(nameof(actions));
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			if (_showDefaultContextMenu && contextMenuStrip != null) {
 				contextMenuStrip.SuspendLayout();
 				contextMenuStrip.Left = x;

@@ -35,7 +35,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void CopyFrom(Shape source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) throw new ArgumentNullException(nameof(source));
 
 			// Delete all cached graphical objects and structures
 			InvalidateDrawCache();
@@ -85,7 +85,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void MakePreview(IStyleSet styleSet) {
-			if (styleSet == null) throw new ArgumentNullException("styleSet");
+			if (styleSet == null) throw new ArgumentNullException(nameof(styleSet));
 			if (!IsChildrenCollectionEmpty) ChildrenCollection.SetPreviewStyles(styleSet);
 			_privateLineStyle = styleSet.GetPreviewStyle(LineStyle);
 			if (ModelObject != null) ModelObject.Name += " (Preview)";
@@ -310,7 +310,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Establishes a connction between this shape and the other shape.
 		/// </summary>
 		public override void Connect(ControlPointId ownPointId, Shape otherShape, ControlPointId otherPointId) {
-			if (otherShape == null) throw new ArgumentNullException("otherShape");
+			if (otherShape == null) throw new ArgumentNullException(nameof(otherShape));
 			String message;
 			if (!CanConnect(ownPointId, otherShape, otherPointId, out message))
 				throw new NShapeException(message);
@@ -510,13 +510,18 @@ namespace Dataweb.NShape.Advanced {
 					return pointId;
 			if ((range > 0 && IntersectsWith(r.X, r.Y, r.Width, r.Height))
 					|| ContainsPoint(x, y)) {
-				if (HasControlPointCapability(ControlPointId.Reference, controlPointCapability)) {
-					if (controlPointCapability == ControlPointCapabilities.All) return ControlPointId.Reference;
-					else if ((controlPointCapability & ControlPointCapabilities.Connect) == ControlPointCapabilities.Connect
-						|| (controlPointCapability & ControlPointCapabilities.Glue) == ControlPointCapabilities.Glue) {
-						if (IsConnectionPointEnabled(ControlPointId.Reference)) return ControlPointId.Reference;
-					}
-				}
+				// This is a hit test function.
+				// If the shape was hit, return ControlPointId.Reference.
+				return ControlPointId.Reference;
+
+				// Old version:
+				//if (HasControlPointCapability(ControlPointId.Reference, controlPointCapability)) {
+				//	if (controlPointCapability == ControlPointCapabilities.All) return ControlPointId.Reference;
+				//	else if ((controlPointCapability & ControlPointCapabilities.Connect) == ControlPointCapabilities.Connect
+				//		|| (controlPointCapability & ControlPointCapabilities.Glue) == ControlPointCapabilities.Glue) {
+				//		if (IsConnectionPointEnabled(ControlPointId.Reference)) return ControlPointId.Reference;
+				//	}
+				//}
 			}
 			return ControlPointId.None;
 		}
@@ -750,15 +755,15 @@ namespace Dataweb.NShape.Advanced {
 		/// Paint the shape
 		/// </summary>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			if (!IsChildrenCollectionEmpty) ChildrenCollection.Draw(graphics);
 		}
 
 
 		/// <override></override>
 		public override void DrawOutline(Graphics graphics, Pen pen) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			UpdateDrawCache();
 			if (!IsChildrenCollectionEmpty) ChildrenCollection.DrawOutline(graphics, pen);
 		}
@@ -773,7 +778,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="margin">The margin around the shape.</param>
 		/// <param name="transparentColor">The color which should become the TransparentColor of the Image.</param>
 		public override void DrawThumbnail(Image image, int margin, Color transparentColor) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			using (Graphics g = Graphics.FromImage(image)) {
 				GdiHelpers.ApplyGraphicsSettings(g, RenderingQuality.MaximumQuality);
 				g.Clear(transparentColor);
@@ -912,7 +917,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override sealed void AssignIdCore(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			if (this._id != null) throw new InvalidOperationException("Shape has already an id.");
 			this._id = id;
 		}
@@ -1078,7 +1083,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Protetced internal constructur. Should only be called by the <see cref="T:Dataweb.NShape.Advanced.ShapeType" />'s <see cref="T:Dataweb.NShape.Advanced.CreateShapeDelegate" />
 		/// </summary>
 		protected ShapeBase(ShapeType shapeType, Template template) {
-			if (shapeType == null) throw new ArgumentNullException("shapeType");
+			if (shapeType == null) throw new ArgumentNullException(nameof(shapeType));
 			InvalidateDrawCache();
 			this._shapeType = shapeType;
 			this._template = template;
@@ -1090,7 +1095,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		protected ShapeBase(ShapeType shapeType, IStyleSet styleSet)
 			: this(shapeType, (Template)null) {
-			if (styleSet == null) throw new ArgumentNullException("styleSet");
+			if (styleSet == null) throw new ArgumentNullException(nameof(styleSet));
 			InitializeToDefault(styleSet);
 		}
 
@@ -1237,7 +1242,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		protected virtual int GetControlPointIndex(ControlPointId id) {
+		protected virtual int GetControlPointIndex(ControlPointId id) {			
 			return id - 1;
 		}
 
@@ -1468,7 +1473,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private Boolean CanConnect(ControlPointId ownPointId, Shape otherShape, ControlPointId otherPointId, out String message) {
-			if (otherShape == null) throw new ArgumentNullException("otherShape");
+			if (otherShape == null) throw new ArgumentNullException(nameof(otherShape));
 			message = null;
 			if (otherShape.Diagram != null && this.Diagram != null && otherShape.Diagram != this.Diagram)
 				message = Properties.Resources.MessageTxt_ConnectingToShapesOfOtherDiagramsIsNotSupported;
@@ -1477,9 +1482,9 @@ namespace Dataweb.NShape.Advanced {
 					message = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Neither0SPoint1Nor2SPoint3IsAGluePoint, Type.Name, ownPointId, otherShape.Type.Name, otherPointId);
 			} else {
 				// Check if connecting is possible:
+				ShapeConnectionInfo ci = GetConnectionInfo(ownPointId, null);
 				//
 				// 1. The glue point must not be connected yet
-				ShapeConnectionInfo ci = GetConnectionInfo(ownPointId, null);
 				if (!ci.IsEmpty)
 					message = String.Format(Properties.Resources.MessageFmt_0SGluePoint1IsAlreadyConnectedToA2, Type.Name, ci.OwnPointId, ci.OtherShape.Type.Name);
 				// 2. The target shape's control point must not be a glue point
@@ -1489,8 +1494,6 @@ namespace Dataweb.NShape.Advanced {
 				else if (otherPointId != ControlPointId.Reference
 					&& !otherShape.HasControlPointCapability(otherPointId, ControlPointCapabilities.Connect))
 					message = String.Format(Properties.Resources.MessageFm_AttachGluePointToConnectionPoint_0SPoint1HasToBeAConnectionPoint, otherShape.Type.Name, otherPointId);
-				//else if (!IsConnectionPointEnabled(ownPointId))
-				//    message = String.Format("{0}'s connection point {1} is disabled.", otherShape.Type.Name, ownPointId);
 			}
 			return (message == null);
 		}
@@ -1679,7 +1682,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		bool IShapeCollection.Remove(Shape item) {
-			if (item == null) throw new ArgumentNullException("shape");
+			if (item == null) throw new ArgumentNullException(nameof(item));
 			Boolean result = false;
 			if (!IsChildrenCollectionEmpty) {
 				if (Owner != null && !SuspendingOwnerNotification) Owner.NotifyChildResizing(this);
@@ -1693,7 +1696,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		void IShapeCollection.AddRange(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			if (Owner != null && !SuspendingOwnerNotification) Owner.NotifyChildResizing(this);
 			try {
 				SuspendOwnerNotification();

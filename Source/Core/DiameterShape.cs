@@ -139,7 +139,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override Point CalculateAbsolutePosition(RelativePosition relativePosition) {
-			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException("relativePosition");
+			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException(nameof(relativePosition));
 			// The RelativePosition of a RectangleBased shape is:
 			// A = Tenths of percent of Width
 			// B = Tenths of percent of Height
@@ -193,7 +193,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			UpdateDrawCache();
 			DrawPath(graphics, LineStyle, FillStyle);
 			DrawCaption(graphics);
@@ -216,7 +216,7 @@ namespace Dataweb.NShape.Advanced {
 		protected int DiameterInternal {
 			get { return _internalDiameter; }
 			set {
-				if (value < 0)  throw new ArgumentOutOfRangeException("value");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
 				Invalidate();
 				if (Owner != null) Owner.NotifyChildResizing(this);
 				int delta = value - _internalDiameter;
@@ -342,7 +342,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			captionBounds = Rectangle.Empty;
 			captionBounds.X = captionBounds.Y = (int)Math.Round(-DiameterInternal / 2f);
 			captionBounds.Width = captionBounds.Height = DiameterInternal;
@@ -594,9 +594,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override Point CalculateConnectionFoot(int startX, int startY) {
-			Point p = Geometry.IntersectCircleWithLine(X, Y, (int)Math.Round(Diameter / 2f), startX, startY, X, Y, true);
-			if (Geometry.IsValid(p)) return p;
-			else return Center;
+			Point p = Geometry.IntersectCircleWithLine(X, Y, (int)Math.Round(Diameter / 2f), startX, startY, X, Y, false);
+			return Geometry.IsValid(p) ? p : Center;
 		}
 
 
@@ -709,7 +708,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			captionBounds = Rectangle.Empty;
 			captionBounds.X = (int)Math.Round((-Diameter / 2f) + (Diameter / 8f));
 			captionBounds.Y = (int)Math.Round((-Diameter / 2f) + (Diameter / 8f));

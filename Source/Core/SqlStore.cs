@@ -49,8 +49,8 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public SqlStore(string serverName, string databaseName)
 			: base() {
-			if (serverName == null) throw new ArgumentNullException("serverName");
-			if (databaseName == null) throw new ArgumentNullException("databaseName");
+			if (serverName == null) throw new ArgumentNullException(nameof(serverName));
+			if (databaseName == null) throw new ArgumentNullException(nameof(databaseName));
 			this.ProviderName = "System.Data.SqlClient";
 			this._serverName = serverName;
 			this._databaseName = databaseName;
@@ -198,7 +198,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected string CreateCreateTableCommand(IEntityType entityType, string parentTableName, string parentColumnName) {
-			if (parentTableName == null) throw new ArgumentNullException("parentTableName");
+			if (parentTableName == null) throw new ArgumentNullException(nameof(parentTableName));
 			StringBuilder sb = new StringBuilder();
 			if (parentColumnName == null)
 				// Table has a supertype table

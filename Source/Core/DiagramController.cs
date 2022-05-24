@@ -29,7 +29,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="owner"></param>
 		/// <param name="diagram"></param>
 		public DiagramController(DiagramSetController owner, Diagram diagram) {
-			if (owner == null) throw new ArgumentNullException("owner");
+			if (owner == null) throw new ArgumentNullException(nameof(owner));
 			if (owner.Project == null) throw new InvalidOperationException("DiagramSetController's Project property is not set.");
 			this._owner = owner;
 			this._diagram = diagram;

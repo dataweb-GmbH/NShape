@@ -120,7 +120,7 @@ namespace Dataweb.NShape {
 
 		internal DiagramShapeCollection(Diagram owner, int capacity)
 			: base(capacity) {
-			if (owner == null) throw new ArgumentNullException("owner");
+			if (owner == null) throw new ArgumentNullException(nameof(owner));
 			this._owner = owner;
 		}
 
@@ -301,7 +301,7 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Diagram" />.
 		/// </summary>
 		public Diagram(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			this._name = name;
 			_diagramShapes = new DiagramShapeCollection(this, _expectedShapes);
 			_layers = new LayerCollection(this);
@@ -538,7 +538,7 @@ namespace Dataweb.NShape {
 		public float BackgroundImageGamma {
 			get { return _imageGamma; }
 			set {
-				if (value <= 0) throw new ArgumentOutOfRangeException("Value has to be greater 0.");
+				if (value <= 0) throw new ArgumentOutOfRangeException(nameof(BackgroundImageGamma), "Value has to be greater 0.");
 				_imageGamma = value;
 				InvalidateDrawCache();
 				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
@@ -573,7 +573,7 @@ namespace Dataweb.NShape {
 		public byte BackgroundImageTransparency {
 			get { return _imageTransparency; }
 			set {
-				if (value < 0 || value > 100) throw new ArgumentOutOfRangeException("The value has to be between 0 and 100.");
+				if (value < 0 || value > 100) throw new ArgumentOutOfRangeException(nameof(BackgroundImageTransparency), "The value has to be between 0 and 100.");
 				_imageTransparency = value;
 				InvalidateDrawCache();
 				if (_displayService != null) _displayService.Invalidate(0, 0, Width, Height);
@@ -684,7 +684,7 @@ namespace Dataweb.NShape {
 			get { return _securityDomainName; }
 			set {
 				if (value < 'A' || value > 'Z')
-					throw new ArgumentOutOfRangeException("SecurityDomainName", "The domain qualifier has to be an upper case  ANSI letter (A-Z).");
+					throw new ArgumentOutOfRangeException(nameof(SecurityDomainName), "The domain qualifier has to be an upper case  ANSI letter (A-Z).");
 				_securityDomainName = value; 
 			}
 		}
@@ -716,7 +716,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		[Obsolete("Use GetShapeLayerIds instead.")]
 		public LayerIds GetShapeLayers(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			return shape.SupplementalLayers;
 		}
 
@@ -727,7 +727,7 @@ namespace Dataweb.NShape {
 		/// <param name="shape"></param>
 		/// <returns></returns>
 		public IEnumerable<int> GetShapeLayerIds(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (shape.HomeLayer != Layer.NoLayerId)
 				yield return shape.HomeLayer;
 			foreach (int layerId in LayerHelper.GetAllLayerIds(shape.SupplementalLayers))
@@ -738,7 +738,7 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Associates the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
-		[Obsolete("Use an overload taking home layer and/or supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and/or supplemental layers instead.")]
 		public void AddShapeToLayers(Shape shape, LayerIds layers) {
 			AddShapeToLayers(shape, Layer.NoLayerId, layers);
 		}
@@ -756,7 +756,7 @@ namespace Dataweb.NShape {
 		/// Associates the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
 		public void AddShapeToLayers(Shape shape, int homeLayer, LayerIds supplementalLayers) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (homeLayer != Layer.NoLayerId)
 				shape.HomeLayer = homeLayer;
 			if (supplementalLayers != LayerIds.None)
@@ -767,7 +767,7 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Associates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void AddShapesToLayers(IEnumerable<Shape> shapes, LayerIds layers) {
 			AddShapesToLayers(shapes, Layer.NoLayerId, layers);
 		}
@@ -777,7 +777,7 @@ namespace Dataweb.NShape {
 		/// Associates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
 		public void AddShapesToLayers(IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			// Assign layers
 			foreach (Shape shape in shapes) {
 				if (homeLayer != Layer.NoLayerId)
@@ -791,7 +791,7 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Disociates the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
-		[Obsolete("Use an overload taking home layer and/or supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and/or supplemental layers instead.")]
 		public void RemoveShapeFromLayers(Shape shape, LayerIds layers) {
 			RemoveShapeFromLayers(shape, Layer.NoLayerId, layers);
 		}
@@ -809,7 +809,7 @@ namespace Dataweb.NShape {
 		/// Removes the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> from all specified layers.
 		/// </summary>
 		public void RemoveShapeFromLayers(Shape shape, int homeLayer, LayerIds supplementalLayers) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			// Remove home layer (if applicable)
 			if (homeLayer == shape.HomeLayer)
 				shape.HomeLayer = Layer.NoLayerId;
@@ -827,7 +827,7 @@ namespace Dataweb.NShape {
 		/// Removes the given <see cref="T:Dataweb.NShape.Advanced.Shape" /> from all layers.
 		/// </summary>
 		public void RemoveShapeFromLayers(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			shape.SupplementalLayers = LayerIds.None;
 			shape.HomeLayer = Layer.NoLayerId;
 		}
@@ -836,9 +836,9 @@ namespace Dataweb.NShape {
 		/// <summary>
 		/// Disociates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
-		[Obsolete("Use an overload taking home layer and/or supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and/or supplemental layers instead.")]
 		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, LayerIds layers) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			RemoveShapesFromLayers(shapes, Layer.NoLayerId, layers);
 		}
 
@@ -847,7 +847,7 @@ namespace Dataweb.NShape {
 		/// Disociates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
 		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, int homeLayer) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			RemoveShapesFromLayers(shapes, homeLayer, LayerIds.None);
 		}
 
@@ -856,7 +856,7 @@ namespace Dataweb.NShape {
 		/// Disociates the given collection of <see cref="T:Dataweb.NShape.Advanced.Shape" /> to all specified layers.
 		/// </summary>
 		public void RemoveShapesFromLayers(IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			// Assign layers
 			foreach (Shape shape in shapes) {
 				if (homeLayer == shape.HomeLayer)
@@ -1195,7 +1195,7 @@ namespace Dataweb.NShape {
 		/// <param name="graphics"></param>
 		/// <param name="clipRectangle"></param>
 		public void DrawBackground(Graphics graphics, Rectangle clipRectangle) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			Rectangle bounds = Rectangle.Empty;
 			bounds.X = Math.Max(0, clipRectangle.X);
 			bounds.Y = Math.Max(0, clipRectangle.Y);
@@ -1260,7 +1260,7 @@ namespace Dataweb.NShape {
 		/// Draws the diagram shapes.
 		/// </summary>
 		internal void DrawShapes(Graphics graphics, LayerIds visibleLayers, HashCollection<int> visibleHomeLayers, Rectangle clipRectangle) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			int x = clipRectangle.X;
 			int y = clipRectangle.Y;
 			int width = clipRectangle.Width;
@@ -1368,7 +1368,7 @@ namespace Dataweb.NShape {
 
 		void IEntity.AssignId(object id) {
 			if (id == null)
-				throw new ArgumentNullException("id");
+				throw new ArgumentNullException(nameof(id));
 			if (this._id != null)
 				throw new InvalidOperationException(string.Format("{0} has already a id.", GetType().Name));
 			this._id = id;
@@ -1608,7 +1608,21 @@ namespace Dataweb.NShape {
 		#region Fields
 
 		/// <summary>Defines the cell size of the diagram's spatial index.</summary>
-		public const int CellSize = 100;
+		public const int DefaultIndexCellSize = 100;
+
+		/// <summary>
+		/// Defines the cell size of the diagram's spatial index.
+		/// This property is meant as a 'per application' (or at least a 'per project') setting:
+		/// Do not modify this property after loading or creating diagrams, otherwise the spatial 
+		/// indexes of all existing diagrams will be corrupted!
+		/// </summary>
+		/// <remarks>
+		/// The spatial index' cell size affects the number of shapes per cell but also the 
+		/// number of cells a shape occupies.
+		/// When working with large diagrams (~ 50000 x 50000 or larger) and large shapes, 
+		/// increasing the cell size from 100 to 1000 improves performance drastically.
+		/// </remarks>
+		public static int IndexCellSize { get; set; } = DefaultIndexCellSize;
 
 		private const string _entityTypeName = "Core.Diagram";
 		private const int _expectedShapes = 10000;

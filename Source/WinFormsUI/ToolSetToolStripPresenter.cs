@@ -157,7 +157,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			if (FindItem(e.Tool) != null)
 				throw new NShapeException(string.Format("Tool {0} already exists.", e.Tool.Title));
 			ToolStripItem item = CreateItem(e.Tool);
-			// ToDo: Put the tool into the right group, seperrate groups by seperators
+			// ToDo: Put the tool into the right group, separate groups by separators
 			//   if (!string.IsNullOrEmpty(e.Tool.Category)) {
 			//      foreach (ListViewGroup group in listView.Groups) {
 			//         if (group.Name.Equals(e.Tool.Category, StringComparison.InvariantCultureIgnoreCase)) {

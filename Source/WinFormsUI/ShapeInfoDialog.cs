@@ -33,8 +33,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Template, shape type, shape library and the shape's control points including their capabilities and connected shapes.
 		/// </summary>
 		public ShapeInfoDialog(Project project, Shape shape) {
-			if (project == null) throw new ArgumentNullException("project");
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (project == null) throw new ArgumentNullException(nameof(project));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			InitializeComponent();
 
 			this.project = project;

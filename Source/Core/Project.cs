@@ -241,7 +241,7 @@ namespace Dataweb.NShape {
 			get { return _security; }
 			set {
 				AssertClosed();
-				if (value == null) throw new ArgumentNullException("Security");
+				if (value == null) throw new ArgumentNullException(nameof(SecurityManager));
 				_security = value;
 			}
 		}
@@ -286,7 +286,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <param name="newDesign"></param>
 		public void ApplyDesign(Design newDesign) {
-			if (newDesign == null) throw new ArgumentNullException("newDesign");
+			if (newDesign == null) throw new ArgumentNullException(nameof(newDesign));
 			Design design = _repository.GetDesign(null);
 			bool styleFound = false;
 			foreach (IStyle style in newDesign.Styles) {
@@ -306,7 +306,7 @@ namespace Dataweb.NShape {
 		/// Uses the given design for the project.
 		/// </summary>
 		public void ApplyDesign(string designName) {
-			if (designName == null) throw new ArgumentNullException("designName");
+			if (designName == null) throw new ArgumentNullException(nameof(designName));
 			Design design = null;
 			foreach (Design d in _repository.GetDesigns()) {
 				if (designName.Equals(d.Name, StringComparison.InvariantCultureIgnoreCase)) {
@@ -402,7 +402,7 @@ namespace Dataweb.NShape {
 		/// When setting AutoLoadLibraries to false, libraries should not be unloaded when closing the project.
 		/// </param>
 		public void AddLibrary(Assembly assembly, bool unloadOnClose) {
-			if (assembly == null) throw new ArgumentNullException("assembly");
+			if (assembly == null) throw new ArgumentNullException(nameof(assembly));
 			DoLoadLibrary(assembly, unloadOnClose);
 			if (IsOpen) {
 				DoRegisterLibrary(FindLibraryByAssemblyName(assembly.FullName), true);
@@ -421,7 +421,7 @@ namespace Dataweb.NShape {
 		/// When setting AutoLoadLibraries to false, libraries should not be unloaded when closing the project.
 		/// </param>
 		public void AddLibraryByName(string assemblyName, bool unloadOnClose) {
-			if (string.IsNullOrEmpty(assemblyName)) throw new ArgumentNullException("assemblyName");
+			if (string.IsNullOrEmpty(assemblyName)) throw new ArgumentNullException(nameof(assemblyName));
 			Assembly a = Assembly.Load(assemblyName);
 			AddLibrary(a, unloadOnClose);
 		}
@@ -479,7 +479,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <param name="command"></param>
 		public void ExecuteCommand(ICommand command) {
-			if (command == null) throw new ArgumentNullException("command");
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			Exception exc = command.CheckAllowed(_security);
 			if (exc != null) throw exc;
 			command.Repository = _repository;
@@ -572,7 +572,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>Only supported by <see cref="T:Dataweb.NShape.Advanced.CachedRepository" />.</remarks>
 		public void ReadXml(Stream stream) {
-			if (stream == null) throw new ArgumentNullException("stream");
+			if (stream == null) throw new ArgumentNullException(nameof(stream));
 			AssertClosed();
 			if (Repository != null) 
 				throw new NShapeException(Dataweb.NShape.Properties.Resources.MessageTxt_ARepositoryIsAssignedToTheProjectRepositoryPropertyMustBeNull);
@@ -621,7 +621,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>Only supported by <see cref="T:Dataweb.NShape.Advanced.CachedRepository" />.</remarks>
 		public void WriteXml(Stream stream) {
-			if (stream == null) throw new ArgumentNullException("stream");
+			if (stream == null) throw new ArgumentNullException(nameof(stream));
 			//if (!stream.CanSeek) throw new ArgumentException("The provided stream does not support seeking.");
 			if (Repository.IsModified) throw new NShapeException(Properties.Resources.MessageTxt_UnsavedRepositoryModificationsPending);
 			
@@ -676,7 +676,7 @@ namespace Dataweb.NShape {
 				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_RegisterShapeTypeCanOnlyBeCalledWhileALibraryIsInitializing);
 			if (string.IsNullOrEmpty(_initializingLibrary.Name))
 				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_RegisterLibraryHasNotBeenCalledOrTheLibraryHasAnEmptyLibraryName);
-			if (shapeType == null) throw new ArgumentNullException("shapeType");
+			if (shapeType == null) throw new ArgumentNullException(nameof(shapeType));
 			if (shapeType.LibraryName != _initializingLibrary.Name)
 				throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_TheLibraryNameOfShapeType0Is1InsteadOf2, shapeType.GetType().Name, shapeType.LibraryName, _initializingLibrary.Name));
 			//
@@ -697,7 +697,7 @@ namespace Dataweb.NShape {
 				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_RegisterModelObjectTypeCanOnlyBeCalledWhileALibraryIsInitializing);
 			if (string.IsNullOrEmpty(_initializingLibrary.Name))
 				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_RegisterLibraryHasNotBeenCalledOrTheLibraryHasAnEmptyLibraryName);
-			if (modelObjectType == null) throw new ArgumentNullException("modelObjectType");
+			if (modelObjectType == null) throw new ArgumentNullException(nameof(modelObjectType));
 			if (!Project.IsValidName(modelObjectType.Name))
 				throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidModelObjectTypeName, modelObjectType.Name);
 			if (modelObjectType.LibraryName != _initializingLibrary.Name)
@@ -721,7 +721,7 @@ namespace Dataweb.NShape {
 				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_RegisterDiagramModelObjectTypeCanOnlyBeCalledWhileALibraryIsInitializing);
 			if (string.IsNullOrEmpty(_initializingLibrary.Name))
 				throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_RegisterLibraryHasNotBeenCalledOrTheLibraryHasAnEmptyLibraryName);
-			if (diagramModelObjectType == null) throw new ArgumentNullException("diagramModelObjectType");
+			if (diagramModelObjectType == null) throw new ArgumentNullException(nameof(diagramModelObjectType));
 			if (!Project.IsValidName(diagramModelObjectType.Name))
 				throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidModelObjectTypeName, diagramModelObjectType.Name);
 			if (diagramModelObjectType.LibraryName != _initializingLibrary.Name)
@@ -1146,11 +1146,11 @@ namespace Dataweb.NShape {
 		}
 
 
-		private Library DoLoadLibrary(Assembly a, bool unloadOnClose) {
-			if (a == null) throw new ArgumentNullException("a");
-			Library result = FindLibraryByAssemblyName(a.FullName);
-			if (result != null) throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Library0IsAlreadyLoaded, a.FullName));
-			result = new Library(a, unloadOnClose);
+		private Library DoLoadLibrary(Assembly assembly, bool unloadOnClose) {
+			if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+			Library result = FindLibraryByAssemblyName(assembly.FullName);
+			if (result != null) throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Library0IsAlreadyLoaded, assembly.FullName));
+			result = new Library(assembly, unloadOnClose);
 			_libraries.Add(result);
 			return result;
 		}
@@ -1177,14 +1177,14 @@ namespace Dataweb.NShape {
 
 
 		// ToDo: Implement RemoveLibrary, RemoveLibraryByPath and RemoveLibraryByName
-		private void DoRemoveLibrary(Library l) {
-			if (l == null) throw new ArgumentNullException("l");
-			_libraries.Remove(l);
+		private void DoRemoveLibrary(Library library) {
+			if (library == null) throw new ArgumentNullException(nameof(library));
+			_libraries.Remove(library);
 		}
 
 
 		private void RemoveLibrary(Library library) {
-			if (library == null) throw new ArgumentNullException("library");
+			if (library == null) throw new ArgumentNullException(nameof(library));
 			List<ShapeType> registeredShapeTypes = new List<ShapeType>(GetRegisteredShapeTypes(library));
 			List<ModelObjectType> registeredModelObjectTypes = new List<ModelObjectType>(GetRegisteredModelObjectTypes(library));
 			List<DiagramModelObjectType> registeredDiagramModelObjectType = new List<DiagramModelObjectType>(GetRegisteredDiagramModelObjectTypes(library));
@@ -1236,8 +1236,8 @@ namespace Dataweb.NShape {
 
 
 		private bool IsShapeOfType(Shape shape, ShapeType shapeType) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (shapeType == null) throw new ArgumentNullException("shapeType");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (shapeType == null) throw new ArgumentNullException(nameof(shapeType));
 			bool result = false;
 			if (shape.Type == shapeType)
 				result = true;
@@ -1300,7 +1300,7 @@ namespace Dataweb.NShape {
 
 
 		private string GetFullAssemblyPath(string assemblyPath) {
-			if (assemblyPath == null) throw new ArgumentNullException("libraryFilePath");
+			if (assemblyPath == null) throw new ArgumentNullException(nameof(assemblyPath));
 			if (!Path.HasExtension(assemblyPath)) assemblyPath += ".dll";
 			if (!Path.IsPathRooted(assemblyPath)) {
 				string libDir = this.GetType().Assembly.Location;
@@ -1326,7 +1326,7 @@ namespace Dataweb.NShape {
 
 
 		private Type GetInitializerType(Assembly assembly) {
-			if (assembly == null) throw new ArgumentNullException("assembly");
+			if (assembly == null) throw new ArgumentNullException(nameof(assembly));
 			Type initializerType = null;
 			foreach (Type t in assembly.GetTypes()) {
 				if (t is Type) {
@@ -1420,8 +1420,8 @@ namespace Dataweb.NShape {
 		private void DoNotifyStyleChanged<TStyle, TStyleInterface>(StyleCollection<TStyle, TStyleInterface> styleCollection, TStyle style)
 			where TStyle : class, TStyleInterface
 			where TStyleInterface : class, IStyle {
-			if (styleCollection == null) throw new ArgumentNullException("styleCollection");
-			if (style == null) throw new ArgumentNullException("style");
+			if (styleCollection == null) throw new ArgumentNullException(nameof(styleCollection));
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			// Maintain StyleCollection's name index in case the style was renamed
 			Debug.Assert(styleCollection.Contains(style) == styleCollection.Contains(style.Name));
 			// Create and set new PreviewStyle if the style is in the currently active design
@@ -1476,7 +1476,7 @@ namespace Dataweb.NShape {
 
 
 			public Library(Assembly assembly, bool unloadOnClose) {
-				if (assembly == null) throw new ArgumentNullException("assembly");
+				if (assembly == null) throw new ArgumentNullException(nameof(assembly));
 				this._assembly = assembly;
 				this._name = null;
 				this._unloadOnClose = unloadOnClose;
@@ -1597,7 +1597,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public LibraryLoadedEventArgs(string libraryName) {
-			if (libraryName == null) throw new ArgumentNullException("libraryName");
+			if (libraryName == null) throw new ArgumentNullException(nameof(libraryName));
 			LibraryName = libraryName;
 		}
 

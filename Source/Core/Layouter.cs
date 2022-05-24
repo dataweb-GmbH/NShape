@@ -102,7 +102,7 @@ namespace Dataweb.NShape.Layouters {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Layouters.LayouterBase" />.
 		/// </summary>
 		protected LayouterBase(Project project) {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			_project = project;
 		}
 
@@ -547,8 +547,8 @@ namespace Dataweb.NShape.Layouters {
 
 
 		/// <summary>
-		/// Gets or sets the factor for expanding/compacting the shapes in horizontal direction. 
-		/// Accepts values between -10 and 10.
+		/// Gets or sets the factor (in percent) for expanding/compacting the shapes in horizontal direction. 
+		/// 100% means the layout will remain in its original size, values below will shrink the layout, values above will grow the layout.
 		/// </summary>
 		public int HorizontalCompression {
 			get { return horizontalCompression; }
@@ -557,8 +557,8 @@ namespace Dataweb.NShape.Layouters {
 
 
 		/// <summary>
-		/// Gets or sets the factor for expanding/compacting the shapes in vertical direction. 
-		/// Accepts values between -10 and 10.
+		/// Gets or sets the factor (in percent) for expanding/compacting the shapes in vertical direction. 
+		/// 100% means the layout will remain in its original size, values below will shrink the layout, values above will grow the layout.
 		/// </summary>
 		public int VerticalCompression {
 			get { return verticalCompression; }

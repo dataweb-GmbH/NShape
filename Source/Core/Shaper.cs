@@ -28,7 +28,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static Stroke CreateStroke(sbyte[,] pixels, sbyte color) {
-			if (pixels == null) throw new ArgumentNullException("pixels");
+			if (pixels == null) throw new ArgumentNullException(nameof(pixels));
 			Stroke result = new Stroke();
 			int x, y; // Current pixel
 			// Startpunkt finden
@@ -287,7 +287,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public FigureShape(string typeName) {
-			if (typeName == null) throw new ArgumentNullException("typeName");
+			if (typeName == null) throw new ArgumentNullException(nameof(typeName));
 			this.typeName = typeName;
 		}
 
@@ -306,7 +306,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public byte Matches(FigureShape other) {
-			if (other == null) throw new ArgumentNullException("other");
+			if (other == null) throw new ArgumentNullException(nameof(other));
 			return (byte)(other.TypeName == TypeName ? 100 : 0);
 		}
 
@@ -383,7 +383,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public PathFigureShape(PathFigureShape source)
 			: base("PathShape") {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) throw new ArgumentNullException(nameof(source));
 			nodes = new List<Node>(source.nodes);
 		}
 
@@ -447,7 +447,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static TriangleFigureShape CreateFromPath(PathFigureShape path) {
-			if (path == null) throw new ArgumentNullException("path");
+			if (path == null) throw new ArgumentNullException(nameof(path));
 			TriangleFigureShape result = null;
 			if (path.IsClosed && path.nodes.Count == 3) {
 				bool isTriangleShape = true;
@@ -579,7 +579,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static QuadrangleFigureShape CreateFromPath(PathFigureShape path) {
-			if (path == null) throw new ArgumentNullException("path");
+			if (path == null) throw new ArgumentNullException(nameof(path));
 			QuadrangleFigureShape result = null;
 			// Ein Viereckt hat vier Ecken mit geraden Seiten
 			if (path.IsClosed && path.nodes.Count == 4) {
@@ -621,7 +621,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static EllipseFigureShape CreateFromPath(PathFigureShape path) {
-			if (path == null) throw new ArgumentNullException("path");
+			if (path == null) throw new ArgumentNullException(nameof(path));
 			EllipseFigureShape result = null;
 			if (path.IsClosed) {
 				if (path.nodes.Count <= 2)
@@ -683,7 +683,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static LineFigureShape CreateFromPath(PathFigureShape path) {
-			if (path == null) throw new ArgumentNullException("path");
+			if (path == null) throw new ArgumentNullException(nameof(path));
 			LineFigureShape result = null;
 			if (!path.IsClosed && path.nodes.Count == 2)
 				result = new LineFigureShape(path[0].X, path[0].Y, path[1].X, path[1].Y, path[0].RightLine.bowing);
@@ -722,7 +722,7 @@ namespace Dataweb.NShape.Advanced {
 		// Die Linien sind parallel, wenn der Abstand der Endpunkte von other ungefähr gleich ist
 		/// <ToBeCompleted></ToBeCompleted>
 		public byte IsParallelTo(LineFigureShape other) {
-			if (other == null) throw new ArgumentNullException("other");
+			if (other == null) throw new ArgumentNullException(nameof(other));
 			float d0 = CalcDistance(other.points[0]);
 			float d1 = CalcDistance(other.points[1]);
 			return Fuzzy.MapToFuzzy(-Math.Abs((d1 - d0) / d0), -1, -0.1F);
@@ -731,7 +731,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public byte Crosses(LineFigureShape line) {
-			if (line == null) throw new ArgumentNullException("line");
+			if (line == null) throw new ArgumentNullException(nameof(line));
 			// TODO: Implement
 			return 0;
 		}
@@ -756,7 +756,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static MultiLineFigureShape CreateFromPath(PathFigureShape path) {
-			if (path == null) throw new ArgumentNullException("path");
+			if (path == null) throw new ArgumentNullException(nameof(path));
 			MultiLineFigureShape result = null;
 			if (!path.IsClosed && path.nodes.Count > 2) {
 				Point[] points = new Point[path.nodes.Count];
@@ -773,7 +773,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <ToBeCompleted></ToBeCompleted>
 		public MultiLineFigureShape(Point[] points)
 			: base(String.Format("Multiline with {0} segments", (points != null) ? points.Length - 1 : 0)) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			this.points = (Point[])points.Clone();
 		}
 
@@ -808,8 +808,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static FigureShapeRelation CreateFromShapes(FigureShape referenceShape, FigureShape relatedShape) {
-			if (referenceShape == null) throw new ArgumentNullException("referenceShape");
-			if (relatedShape == null) throw new ArgumentNullException("relatedShape");
+			if (referenceShape == null) throw new ArgumentNullException(nameof(referenceShape));
+			if (relatedShape == null) throw new ArgumentNullException(nameof(relatedShape));
 			FigureShapeRelation result = null;
 			if (IsValidRelation(referenceShape, relatedShape, FigureShapeRelationType.ParallelTo) > 70)
 				result = new FigureShapeRelation(referenceShape, relatedShape, FigureShapeRelationType.ParallelTo);
@@ -833,8 +833,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public FigureShapeRelation(FigureShape referenceShape, FigureShape relatedShape, FigureShapeRelationType type) {
-			if (referenceShape == null) throw new ArgumentNullException("referenceShape");
-			if (relatedShape == null) throw new ArgumentNullException("relatedShape");
+			if (referenceShape == null) throw new ArgumentNullException(nameof(referenceShape));
+			if (relatedShape == null) throw new ArgumentNullException(nameof(relatedShape));
 			this.referenceShape = referenceShape;
 			this.relatedShape = relatedShape;
 			this.type = type;
@@ -843,8 +843,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public FigureShapeRelation CloneFor(FigureShape referenceShape, FigureShape relatedShape) {
-			if (referenceShape == null) throw new ArgumentNullException("referenceShape");
-			if (relatedShape == null) throw new ArgumentNullException("relatedShape");
+			if (referenceShape == null) throw new ArgumentNullException(nameof(referenceShape));
+			if (relatedShape == null) throw new ArgumentNullException(nameof(relatedShape));
 			return new FigureShapeRelation(referenceShape, relatedShape, type);
 		}
 
@@ -988,7 +988,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void RegisterShapeSet(string name, Figure figure) {
-			if (figure == null) throw new ArgumentNullException("figure");
+			if (figure == null) throw new ArgumentNullException(nameof(figure));
 			figureList.Add(new NamedFigure(name, figure));
 		}
 
@@ -996,7 +996,7 @@ namespace Dataweb.NShape.Advanced {
 		// Liefert die Figur aus der Liste der registrierten Figure, die figure entspricht.
 		/// <ToBeCompleted></ToBeCompleted>
 		public Figure FindFigure(Figure figure) {
-			if (figure == null) throw new ArgumentNullException("figure");
+			if (figure == null) throw new ArgumentNullException(nameof(figure));
 			Figure result = null;
 			byte bestFuzzyValue = 0;
 			foreach (NamedFigure nf in figureList) {
@@ -1012,7 +1012,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IEnumerable<string> GetFigureNames(Figure figure) {
-			if (figure == null) throw new ArgumentNullException("figure");
+			if (figure == null) throw new ArgumentNullException(nameof(figure));
 			for (int i = 0; i < figureList.Count; ++i) {
 				if (figureList[i].figure == figure)
 					yield return figureList[i].name;
@@ -1022,7 +1022,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Figure IdentifyShapes(StrokeSequence strokes) {
-			if (strokes == null) throw new ArgumentNullException("strokes");
+			if (strokes == null) throw new ArgumentNullException(nameof(strokes));
 			Figure result = new Figure();
 			PathFigureShape polygone = new PathFigureShape();
 			foreach (Stroke s in strokes) {
@@ -1055,8 +1055,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void CreatePolygone(Stroke stroke, PathFigureShape polygone) {
-			if (stroke == null) throw new ArgumentNullException("stroke");
-			if (polygone == null) throw new ArgumentNullException("polygone");
+			if (stroke == null) throw new ArgumentNullException(nameof(stroke));
+			if (polygone == null) throw new ArgumentNullException(nameof(polygone));
 			int index = 0;
 			if (stroke.Count > 0) {
 				do {
@@ -1077,7 +1077,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public StrokeSequence CreateStrokeSetFromBitmap(Bitmap bitmap) {
-			if (bitmap == null) throw new ArgumentNullException("bitmap");
+			if (bitmap == null) throw new ArgumentNullException(nameof(bitmap));
 			// Wir lassen einen leeren Rand
 			sbyte[,] pixels = new sbyte[bitmap.Width + 2, bitmap.Height + 2];
 			List<Color> colorsUsed = new List<Color>();

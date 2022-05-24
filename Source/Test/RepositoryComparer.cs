@@ -526,14 +526,19 @@ namespace NShapeTest {
 		private static int GetAcceptablePositionDelta(Shape shape, int version, out bool failureIsWarning)
 		{
 			failureIsWarning = false;
-			int delta = 0;
-			if (shape is ILinearShape) {
+			// Since NShape 2.3.2, some gemeotry functions calculate with pure integer arithmetic,
+			// therefore a delta of 1 diagram unit is acceptable.
+			//int delta = 0; 
+			int delta = 1;
+			if (shape is LabelBase)
+				delta = 3;
+			else if (shape is ILinearShape) {
 				failureIsWarning = (shape is CircularArcBase);
 				if (version <= 2)
 					delta = (shape is CircularArcBase) ? 10 : 5;
 				else if (version <= 3)
 					delta = (shape is CircularArcBase) ? 3 : 1;
-			}
+			} 
 			return delta;
 		}
 
@@ -570,6 +575,8 @@ namespace NShapeTest {
 
 
 		private static void CompareBounds(Rectangle a, Rectangle b, int acceptablePositionDelta, bool treatFailureAsWarning) {
+			//int acceptableDelta = (a.Width == b.Width && a.Height == b.Height) ? acceptablePositionDelta * 2 : acceptablePositionDelta;
+			//ComparePosition(a.Location, b.Location, acceptableDelta, treatFailureAsWarning);
 			ComparePosition(a.Location, b.Location, acceptablePositionDelta, treatFailureAsWarning);
 			int acceptableSizeDelta = acceptablePositionDelta * 2;
 			bool xIsEqual = (Math.Abs(a.Width - b.Width) <= acceptableSizeDelta);

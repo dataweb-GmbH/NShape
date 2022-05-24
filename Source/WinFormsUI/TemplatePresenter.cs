@@ -55,7 +55,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public TemplatePresenter(Project project, Template template)
 			: this() {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			TemplateController = new TemplateController(project, template);
 			_disposeTemplateEditor = true;
 			Initialize();
@@ -1235,7 +1235,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] ModelMapping helpers
 
 		private int? GetPropertyId(PropertyInfo propertyInfo) {
-			if (propertyInfo == null) throw new ArgumentNullException("propertyInfo");
+			if (propertyInfo == null) throw new ArgumentNullException(nameof(propertyInfo));
 			// Use the static method Attribute.GetCustomAttributes() instead of propertyInfo.GetCustomAttributes()
 			// for retrieving the PropertyMapping attributes because the propertyInfo's method only considers its 
 			// own contents whereas the static method considers the whole hierarchy

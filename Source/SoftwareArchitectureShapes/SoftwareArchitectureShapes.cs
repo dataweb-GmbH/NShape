@@ -53,7 +53,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, Shape.SecurityDomainName);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -622,7 +622,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		public void RemoveColumnAt(int index) {
 			if (index < 0 || index > _columnCaptions.Count)
-				throw new ArgumentOutOfRangeException("index");
+				throw new ArgumentOutOfRangeException(nameof(index));
 			// Check whether connection points are not connected
 			const String stillConnectedMsg = "Cannot remove connection point {0}: Other shapes are still connected to this point.";
 			ControlPointId leftCtrlPtId = GetControlPointId(base.ControlPointCount + (2 * index));
@@ -1296,7 +1296,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			int left, right, top, bottom;
 			left = top = int.MaxValue;
 			right = bottom = int.MinValue;
@@ -1650,7 +1650,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			int left = (int)Math.Round(-Width / 2f);
 			int top = (int)Math.Round(-Height / 2f);
 			captionBounds = Rectangle.Empty;
@@ -1927,7 +1927,7 @@ namespace Dataweb.NShape.SoftwareArchitectureShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			int left = (int)Math.Round(-Width / 2f);
 			int top = (int)Math.Round(-Height / 2f);
 			int w = (int)Math.Round((float)Width / 8);

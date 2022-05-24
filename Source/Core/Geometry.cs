@@ -301,7 +301,7 @@ namespace Dataweb.NShape.Advanced {
 				float newDeltaX = ((dstHeightY * aspectRatio) - width) * growDirectionX;
 				result = (deltaX == newDeltaX);
 				deltaX = newDeltaX;
-			} else Debug.Fail("Undefined case!");
+			} else { Debug.Fail("Undefined case!"); }
 
 			//float dstWidth = width + (deltaX * growDirectionX);
 			//float dstHeight = height + (deltaY * growDirectionY);
@@ -1087,8 +1087,19 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the dot product a * b
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static int VectorDotProduct(int aX, int aY, int bX, int bY) {
-			return aX * bX + aY * bY;
+			return (int)((long)aX * bX + (long)aY * bY);
+		}
+
+
+		/// <summary>
+		/// Calculates the dot product a * b
+		/// </summary>
+		internal static long VectorDotProductL(int aX, int aY, int bX, int bY) {
+			// Not really slower than int version (100.000.000 calls):
+			// int: 695 ms, long: 725 ms
+			return (long)aX * bX + (long)aY * bY;
 		}
 
 
@@ -1103,6 +1114,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the dot product a * b
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static int VectorDotProduct(Point a, Point b) {
 			return VectorDotProduct(a.X, a.Y, b.X, b.Y);
 		}
@@ -1139,6 +1151,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the dot product ab * bc
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static int VectorDotProduct(Point a, Point b, Point c) {
 			return VectorDotProduct(a.X, a.Y, b.X, b.Y, c.X, c.Y);
 		}
@@ -1149,22 +1162,65 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		// Note: We should have calculated ba * bc instead, that would be more conformant to the expectations.
 		// The result should be proportional to the cos of the angle between the two vectors.
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static int VectorDotProduct(int aX, int aY, int bX, int bY, int cX, int cY) {
 			int abX = bX - aX;
 			int abY = bY - aY;
 			int bcX = cX - bX;
 			int bcY = cY - bY;
-			return abX * bcX + abY * bcY;
-			// Sometimes, the products get larger than int.MaxValue!
-			//return (int)((float)abX * (float)bcX + (float)abY * (float)bcY);
+			return (int)((long)abX * bcX + (long)abY * bcY);
+		}
+
+
+		/// <summary>
+		/// Calculates the dot product ab * bc
+		/// </summary>
+		// Note: We should have calculated ba * bc instead, that would be more conformant to the expectations.
+		// The result should be proportional to the cos of the angle between the two vectors.
+		internal static long VectorDotProductL(int aX, int aY, int bX, int bY, int cX, int cY) {
+			// Not really slower than int version (100.000.000 calls):
+			// int: 693 ms, long: 731 ms
+			int abX = bX - aX;
+			int abY = bY - aY;
+			int bcX = cX - bX;
+			int bcY = cY - bY;
+			return (long)abX * bcX + (long)abY * bcY;
 		}
 
 
 		/// <summary>
 		/// Calculates the scalar/dot product between vectors A-B and C-D
 		/// </summary>
-		public static int CalcScalarProduct(int aX, int aY, int bX, int bY, int cX, int cY, int dX, int dY) {
+		internal static long VectorDotProductL(int aX, int aY, int bX, int bY, int cX, int cY, int dX, int dY) {
+			// Faster than int version (100.000.000 calls:
+			// int: 1205 ms, long: 1104 ms
+			return (long)(bX - aX) * (dX - cX) + (long)(bY - aY) * (dY - cY);
+		}
+
+
+		/// <summary>
+		/// Calculates the scalar/dot product between vectors A-B and C-D
+		/// </summary>
+		public static float VectorDotProduct(float aX, float aY, float bX, float bY, float cX, float cY, float dX, float dY) {
 			return (bX - aX) * (dX - cX) + (bY - aY) * (dY - cY);
+		}
+
+
+		/// <summary>
+		/// Calculates the scalar/dot product between vectors A-B and C-D
+		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
+		public static int CalcScalarProduct(int aX, int aY, int bX, int bY, int cX, int cY, int dX, int dY) {
+			return (int)((long)(bX - aX) * (dX - cX) + (long)(bY - aY) * (dY - cY));
+		}
+
+
+		/// <summary>
+		/// Calculates the scalar/dot product between vectors A-B and C-D
+		/// </summary>
+		[Obsolete("Use 'VectorDotProduct' instead.")]
+		public static float CalcScalarProduct(float aX, float aY, float bX, float bY, float cX, float cY, float dX, float dY) {
+			return VectorDotProduct(aX, aY, bX, bY, cX, cY, dX, dY);
 		}
 
 
@@ -1175,10 +1231,23 @@ namespace Dataweb.NShape.Advanced {
 		/// What we actually calculate here is the z coordinate of the cross product vector in R³
 		/// with aZ and bZ assumed to be zero. Result is the size of the area of the parallelogram A B A' B'
 		/// </remarks>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static int VectorCrossProduct(int aX, int aY, int bX, int bY) {
 			return aX * bY - aY * bX;
-			// Sometimes, the products get larger than int.MaxValue!
-			//return (int)((float)aX * (float)bY - (float)aY * (float)bX);
+		}
+
+
+		/// <summary>
+		/// Calculates the cross product a x b
+		/// </summary>
+		/// <remarks>
+		/// What we actually calculate here is the z coordinate of the cross product vector in R³
+		/// with aZ and bZ assumed to be zero. Result is the size of the area of the parallelogram A B A' B'
+		/// </remarks>
+		internal static long VectorCrossProductL(int aX, int aY, int bX, int bY) {
+			// Not really slower than int version (100.000.000 calls):
+			// int: 694ms, long: 715ms
+			return (long)aX * bY - (long)aY * bX;
 		}
 
 
@@ -1193,6 +1262,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the cross product ab x ac
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static int VectorCrossProduct(Point a, Point b, Point c) {
 			return VectorCrossProduct(a.X, a.Y, b.X, b.Y, c.X, c.Y);
 		}
@@ -1201,12 +1271,27 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the cross product ab x ac
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static int VectorCrossProduct(int aX, int aY, int bX, int bY, int cX, int cY) {
 			int abX = bX - aX;
 			int abY = bY - aY;
 			int acX = cX - aX;
 			int acY = cY - aY;
-			return (int)((float)abX * (float)acY - (float)abY * (float)acX);
+			return (int)((long)abX * acY - (long)abY * acX);
+		}
+
+
+		/// <summary>
+		/// Calculates the cross product ab x ac
+		/// </summary>
+		internal static long VectorCrossProductL(int aX, int aY, int bX, int bY, int cX, int cY) {
+			// Not really slower than int version (100.000.000 calls):
+			// int:   704 ms, longt: 722 ms
+			int abX = bX - aX;
+			int abY = bY - aY;
+			int acX = cX - aX;
+			int acY = cY - aY;
+			return (long)abX * acY - (long)abY * acX;
 		}
 
 
@@ -1249,8 +1334,10 @@ namespace Dataweb.NShape.Advanced {
 			Point result = Point.Empty;
 			int dX = bX - aX;
 			int dY = bY - aY;
-			result.X = aX + (int)Math.Round(dX * t);
-			result.Y = aY + (int)Math.Round(dY * t);
+			result.Offset(
+				aX + (int)Math.Round(dX * t),
+				aY + (int)Math.Round(dY * t)
+			);
 			return result;
 		}
 
@@ -1278,8 +1365,8 @@ namespace Dataweb.NShape.Advanced {
 			PointF result = Point.Empty;
 			float dX = bX - aX;
 			float dY = bY - aY;
-			result.X = (float)(aX + (dX * t));
-			result.Y = (float)(aY + (dY * t));
+			result.X = aX + (dX * t);
+			result.Y = aY + (dY * t);
 			return result;
 		}
 
@@ -1291,18 +1378,18 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the normal vector of the line in foot F.
 		/// </summary>
-		/// <param name="x1">x coordinate of first line definition point</param>
-		/// <param name="y1">y coordinate of first line definition point</param>
-		/// <param name="x2">x coordinate of second line definition point</param>
-		/// <param name="y2">y coordinate of second line definition point</param>
+		/// <param name="a1X">x coordinate of first line definition point</param>
+		/// <param name="a1Y">y coordinate of first line definition point</param>
+		/// <param name="a2X">x coordinate of second line definition point</param>
+		/// <param name="a2Y">y coordinate of second line definition point</param>
 		/// <param name="fX">x coordinate of foot point</param>
 		/// <param name="fY">y coordinate of foot point</param>
 		/// <param name="vectorLength">desired length of normal vector</param>
 		/// <param name="pX">x coordinate of normal vector end point</param>
 		/// <param name="pY">y coordinate of normal vector end point</param>
 		// The direction of the resulting vector should point towards the half-plane that does not contain the origin.
-		public static void CalcNormalVectorOfLine(int x1, int y1, int x2, int y2, int fX, int fY, int vectorLength, out int pX, out int pY) {
-			//// Original version, changes the normal's direction depending on the line's slope :(
+		public static void CalcNormalVectorOfLine(int a1X, int a1Y, int a2X, int a2Y, int fX, int fY, int vectorLength, out int pX, out int pY) {
+			//// Original version: Works, but changes the normal's direction depending on the line's slope
 			//int a, b, c;
 			//CalcLine(x1, y1, x2, y2, out a, out b, out c);
 			//double l;
@@ -1313,9 +1400,9 @@ namespace Dataweb.NShape.Advanced {
 			//pY = (int)Math.Round(fY + vectorLength * b / l);
 
 			// New Version
-			Point normalFoot = Geometry.CalcPointOnLine(x1, y1, x2, y2, vectorLength);
-			int dx = normalFoot.X - x1;
-			int dy = normalFoot.Y - y1;
+			Point normalFoot = Geometry.CalcPointOnLine(a1X, a1Y, a2X, a2Y, vectorLength);
+			int dx = normalFoot.X - a1X;
+			int dy = normalFoot.Y - a1Y;
 			// The normals are (-dy, dx) and (dy, -dx).
 			pX = fX + dy;
 			pY = fY - dx;
@@ -1344,33 +1431,33 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates the normal vector in (ptX, ptY) with respect to the bounds of a rectangle. 
 		/// If the point (ptX,ptY) is not on the outline of the rectangle, the resulting normal vector will be translated to the outline.
 		/// </summary>
-		public static Point CalcNormalVectorOfRectangle(int x, int y, int width, int height, int ptX, int ptY, int vectorLength) {
+		public static Point CalcNormalVectorOfRectangle(int rX, int rY, int rWidth, int rHeight, int ptX, int ptY, int vectorLength) {
 			Point normalVector = Point.Empty;
 			normalVector.Offset(ptX, ptY);
-			if (x <= ptX && ptX <= x + width && y <= ptY && ptY <= y + height) {
+			if (rX <= ptX && ptX <= rX + rWidth && rY <= ptY && ptY <= rY + rHeight) {
 				Point topLeft = Point.Empty;
-				topLeft.Offset(x, y);
+				topLeft.Offset(rX, rY);
 				Point bottomRight = Point.Empty;
-				bottomRight.Offset(x + width, y + height);
+				bottomRight.Offset(rX + rWidth, rY + rHeight);
 				Point bottomLeft = Point.Empty;
 				bottomLeft.Offset(topLeft.X, bottomRight.Y);
 				Point topRight = Point.Empty;
 				topRight.Offset(bottomRight.X, topLeft.Y);
 				Point center = Point.Empty;
-				center.Offset(x + (width / 2), y + (height / 2));
+				center.Offset(rX + (rWidth / 2), rY + (rHeight / 2));
 				Point p = Point.Empty;
 				p.Offset(ptX, ptY);
 				if (TriangleContainsPoint(topLeft, topRight, center, p)) {
 					normalVector.X = ptX;
-					normalVector.Y = y - vectorLength;
+					normalVector.Y = rY - vectorLength;
 				} else if (TriangleContainsPoint(bottomLeft, bottomRight, center, p)) {
 					normalVector.X = ptX;
-					normalVector.Y = y + height + vectorLength;
+					normalVector.Y = rY + rHeight + vectorLength;
 				} else if (TriangleContainsPoint(topRight, bottomRight, center, p)) {
-					normalVector.X = x + width + vectorLength;
+					normalVector.X = rX + rWidth + vectorLength;
 					normalVector.Y = ptY;
 				} else if (TriangleContainsPoint(topLeft, bottomLeft, center, p)) {
-					normalVector.X = x - vectorLength;
+					normalVector.X = rX - vectorLength;
 					normalVector.Y = ptY;
 				} else Debug.Fail(string.Format("Unable to calculate normal vector of {0}", new Point(ptX, ptY)));
 			}
@@ -1401,6 +1488,45 @@ namespace Dataweb.NShape.Advanced {
 		#region Hit test functions
 
 		/// <summary>
+		/// Returns true, if point (x,y) is inside (including bounds) of given rectangle.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="p1x"></param>
+		/// <param name="p1y"></param>
+		/// <param name="p2x"></param>
+		/// <param name="p2y"></param>
+		/// <returns></returns>
+		private static bool IsPointInRect(int x, int y, int p1x, int p1y, int p2x, int p2y)
+		{
+			if (p1x >= p2x && (x < p2x || x > p1x)) return false;
+			if (p1x <= p2x && (x > p2x || x < p1x)) return false;
+			if (p1y >= p2y && (y < p2y || y > p1y)) return false;
+			if (p1y <= p2y && (y > p2y || y < p1y)) return false;
+			return true;
+		}
+
+
+		/// <summary>
+		/// Returns true, if point (x,y) is inside (including bounds) of given rectangle.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="p1x"></param>
+		/// <param name="p1y"></param>
+		/// <param name="p2x"></param>
+		/// <param name="p2y"></param>
+		/// <returns></returns>
+		private static bool IsPointInRect(float x, float y, float p1x, float p1y, float p2x, float p2y) {
+			if (p1x >= p2x && (x < p2x || x > p1x)) return false;
+			if (p1x <= p2x && (x > p2x || x < p1x)) return false;
+			if (p1y >= p2y && (y < p2y || y > p1y)) return false;
+			if (p1y <= p2y && (y > p2y || y < p1y)) return false;
+			return true;
+		}
+
+
+		/// <summary>
 		/// Returns true if point p is inside or on the bounds of the triangle a/b/c
 		/// </summary>
 		/// <param name="a">First point of the triangle</param>
@@ -1425,10 +1551,12 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns true if point x/y is inside or on the bounds of the triangle a/b/c
 		/// </summary>
 		public static bool TriangleContainsPoint(int aX, int aY, int bX, int bY, int cX, int cY, int x, int y) {
-			int ab = VectorCrossProduct(aX, aY, bX, bY, x, y);
-			int bc = VectorCrossProduct(bX, bY, cX, cY, x, y);
-			int ca = VectorCrossProduct(cX, cY, aX, aY, x, y);
-
+			if ((x == aX || x == bX || x == cX) && (y == aY || y == bY || y == cY))
+				return true;
+			// Faster than the float version: 1365 ms versus 1435 ms for the float version (100.000.000 calls, Release) 
+			long ab = VectorCrossProductL(aX, aY, bX, bY, x, y);
+			long bc = VectorCrossProductL(bX, bY, cX, cY, x, y);
+			long ca = VectorCrossProductL(cX, cY, aX, aY, x, y);
 			bool hasNegative = (ab < 0) || (bc < 0) || (ca < 0);
 			bool hasPositive = (ab > 0) || (bc > 0) || (ca > 0);
 			return !(hasNegative && hasPositive);
@@ -1452,10 +1580,14 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns true if point x/y is inside or on the bounds of the triangle a/b/c
 		/// </summary>
 		public static bool TriangleContainsPoint(float aX, float aY, float bX, float bY, float cX, float cY, float x, float y) {
-			bool ab = VectorCrossProduct(aX, aY, bX, bY, x, y) < 0;
-			bool bc = VectorCrossProduct(bX, bY, cX, cY, x, y) < 0;
-			bool ca = VectorCrossProduct(cX, cY, aX, aY, x, y) < 0;
-			return ((ab == bc) && (ab == ca));
+			if ((Equals(x, aX) || Equals(x, bX) || Equals(x, cX)) && (Equals(y, aY) || Equals(y, bY) || Equals(y, cY)))
+				return true;
+			float ab = VectorCrossProduct(aX, aY, bX, bY, x, y);
+			float bc = VectorCrossProduct(bX, bY, cX, cY, x, y);
+			float ca = VectorCrossProduct(cX, cY, aX, aY, x, y);
+			bool hasNegative = (ab < -EqualityDeltaFloat) || (bc < -EqualityDeltaFloat) || (ca < -EqualityDeltaFloat);
+			bool hasPositive = (ab > EqualityDeltaFloat) || (bc > EqualityDeltaFloat) || (ca > EqualityDeltaFloat);
+			return !(hasNegative && hasPositive);
 		}
 
 
@@ -1477,12 +1609,17 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns true if point x/y is inside or on the bounds of the quadrangle a/b/c/d
 		/// </summary>
 		public static bool QuadrangleContainsPoint(int aX, int aY, int bX, int bY, int cX, int cY, int dX, int dY, int x, int y) {
-			// ToDo: Check whether shuffling points affects the result
-			bool ab = VectorCrossProduct(aX, aY, bX, bY, x, y) < 0;
-			bool bc = VectorCrossProduct(bX, bY, cX, cY, x, y) < 0;
-			bool cd = VectorCrossProduct(cX, cY, dX, dY, x, y) < 0;
-			bool da = VectorCrossProduct(dX, dY, aX, aY, x, y) < 0;
-			return ((ab == bc) && (ab == cd) && (ab == da));
+			// Order of points does not matter as long as they form a polygon: "a, b, c, d" works as good as "c, d, a, b" or "d, c, b, a"
+			if ((x == aX || x == bX || x == cX || x == dX) && (y == aY || y == bY || y == cY || y == dY))
+				return true;
+			// Faster than the float version: 1923 ms (long version) versus 2186 ms (float version) for 100.000.000 calls, Release
+			long ab = VectorCrossProductL(aX, aY, bX, bY, x, y);
+			long bc = VectorCrossProductL(bX, bY, cX, cY, x, y);
+			long cd = VectorCrossProductL(cX, cY, dX, dY, x, y);
+			long da = VectorCrossProductL(dX, dY, aX, aY, x, y);
+			bool hasNegative = (ab < 0) || (bc < 0) || (cd < 0) || (da < 0);
+			bool hasPositive = (ab > 0) || (bc > 0) || (cd > 0) || (da > 0);
+			return !(hasNegative && hasPositive);
 		}
 
 
@@ -1505,13 +1642,15 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns true if point x/y is inside or on the bounds of the quadrangle a/b/c/d
 		/// </summary>
 		public static bool QuadrangleContainsPoint(float aX, float aY, float bX, float bY, float cX, float cY, float dX, float dY, float x, float y) {
-			if ((x == aX || x == bX || x == cX || x == dX) && (y == aY || y == bY || y == cY || y == dY))
+			if ((Equals(x, aX) || Equals(x, bX) || Equals(x, cX) || Equals(x, dX)) && (Equals(y, aY) || Equals(y, bY) || Equals(y, cY) || Equals(y, dY)))
 				return true;
-			bool ab = VectorCrossProduct(aX, aY, bX, bY, x, y) < 0;
-			bool bc = VectorCrossProduct(bX, bY, cX, cY, x, y) < 0;
-			bool cd = VectorCrossProduct(cX, cY, dX, dY, x, y) < 0;
-			bool da = VectorCrossProduct(dX, dY, aX, aY, x, y) < 0;
-			return ((ab == bc) && (ab == cd) && (ab == da));
+			float ab = VectorCrossProduct(aX, aY, bX, bY, x, y);
+			float bc = VectorCrossProduct(bX, bY, cX, cY, x, y);
+			float cd = VectorCrossProduct(cX, cY, dX, dY, x, y);
+			float da = VectorCrossProduct(dX, dY, aX, aY, x, y);
+			bool hasNegative = (ab < -EqualityDeltaFloat) || (bc < -EqualityDeltaFloat) || (cd < -EqualityDeltaFloat) || (da < -EqualityDeltaFloat);
+			bool hasPositive = (ab > EqualityDeltaFloat) || (bc > EqualityDeltaFloat) || (cd > -EqualityDeltaFloat) || (da > -EqualityDeltaFloat);
+			return !(hasNegative && hasPositive);
 		}
 
 
@@ -1542,7 +1681,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Tests if point p is inside the given rectangle. The bounds of the rectangle can be excluded.
 		/// </summary>
-		public static bool RectangleContainsPoint(int rectX, int rectY, int rectWidth, int rectHeight, float rectRotationAngleDeg, int pX, int pY, bool withBounds) {
+		public static bool RectangleContainsPoint(int rectX, int rectY, int rectWidth, int rectHeight, 
+			float rectRotationAngleDeg, int pX, int pY, bool withBounds) 
+		{
 			if (rectRotationAngleDeg != 0 && rectRotationAngleDeg % 180 != 0) {
 				float x = pX;
 				float y = pY;
@@ -1612,7 +1753,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Tests if the given point array is a convex polygon.
 		/// </summary>
 		public static bool PolygonIsConvex(Point[] points) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			int convex = 0;
 			int n = points.Length - 1;
 			float ai = (float)Math.Atan2(points[n].X - points[0].X, points[n].Y - points[0].Y);
@@ -1631,7 +1772,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Tests if the given points define a convex polygon or not
 		/// </summary>
 		public static bool PolygonIsConvex(PointF[] points) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			int convex = 0;
 			int n = points.Length - 1;
 			float ai = (float)Math.Atan2(points[n].X - points[0].X, points[n].Y - points[0].Y);
@@ -1650,16 +1791,16 @@ namespace Dataweb.NShape.Advanced {
 		/// Tests if point x/y is inside or on the bounds of the given (convex) polygon
 		/// </summary>
 		public static bool ConvexPolygonContainsPoint(Point[] points, int x, int y) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			// Store the cross product of the points.
 			// If all the points have the same cross product (this means that they 
 			// are on the same side), the point is inside the convex polygon.
 			int maxIdx = points.Length - 1;
-			bool z = VectorCrossProduct(points[maxIdx].X, points[maxIdx].Y, points[0].X, points[0].Y, x, y) < 0;
-			for (int i = 0; i < maxIdx; ++i) {
-				Point a = points[i];
-				Point b = points[i + 1];
-				if (VectorCrossProduct(a.X, a.Y, b.X, b.Y, x, y) < 0 != z)
+			// Faster than the float version: 1498 ms (long version) versus 2203 ms (float version) for 100.000.000 calls, Release
+			bool z = VectorCrossProductL(points[maxIdx].X, points[maxIdx].Y, points[0].X, points[0].Y, x, y) < 0;
+			for (int idxPt1 = 0; idxPt1 < maxIdx; ++idxPt1) {
+				int idxPt2 = idxPt1 + 1;
+				if (VectorCrossProductL(points[idxPt1].X, points[idxPt1].Y, points[idxPt2].X, points[idxPt2].Y, x, y) < 0 != z)
 					return false;
 			}
 			return true;
@@ -1671,7 +1812,7 @@ namespace Dataweb.NShape.Advanced {
 		/// PointF's of the polygon will be rounded to Point.
 		/// </summary>
 		public static bool ConvexPolygonContainsPoint(PointF[] points, int x, int y) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			int maxIdx = points.Length - 1;
 			if (points[0] == points[maxIdx]) --maxIdx;
 			// Store the cross product of the points.
@@ -1680,11 +1821,11 @@ namespace Dataweb.NShape.Advanced {
 			PointF a = PointF.Empty, b = PointF.Empty;
 			a = points[maxIdx];
 			b = points[0];
-			bool z = VectorCrossProduct((int)Math.Round(a.X), (int)Math.Round(a.Y), (int)Math.Round(b.X), (int)Math.Round(b.Y), x, y) < 0;
+			bool z = VectorCrossProduct(a.X, a.Y, b.X, b.Y, x, y) < 0;
 			for (int i = 0; i < maxIdx; ++i) {
 				a = points[i];
 				b = points[i + 1];
-				if (VectorCrossProduct((int)Math.Round(a.X), (int)Math.Round(a.Y), (int)Math.Round(b.X), (int)Math.Round(b.Y), x, y) < 0 != z)
+				if (VectorCrossProduct(a.X, a.Y, b.X, b.Y, x, y) < 0 != z)
 					return false;
 			}
 			return true;
@@ -1695,7 +1836,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Tests if point x/y is inside or on the bounds of the given (convex) polygon
 		/// </summary>
 		public static bool ConvexPolygonContainsPoint(PointF[] points, float x, float y) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			// If vector a is less than 180 degrees clockwise from b, the value is positive
 			// If all cross products are positive or all cross products are negative, this means 
 			// that the point is always on the same side and this means that the point is inside
@@ -1723,7 +1864,11 @@ namespace Dataweb.NShape.Advanced {
 				// Test intersection of a line between the point and a point far, far away
 				// If the number of intersections is even, the point must be outside, otherwise it is inside.
 				int intersectionCnt = 0;
-				long x2 = int.MaxValue, y2 = int.MaxValue;
+				// Instead of using a point far, far away we search for the max coordinates of the polygon's points
+				CalcBoundingRectangle(points, out Rectangle boundingRect);
+				//int x2 = int.MaxValue, y2 = int.MaxValue;
+				int x2 = boundingRect.Right + 10, y2 = boundingRect.Top + 10;
+
 				int j;
 				for (int i = 0; i < cnt; ++i) {
 					j = i + 1;
@@ -1750,7 +1895,7 @@ namespace Dataweb.NShape.Advanced {
 				// Test intersection of a line between the point and a point far, far away
 				// If the number of intersections is even, the point must be outside, otherwise it is inside.
 				int intersectionCnt = 0;
-				long x2 = int.MaxValue, y2 = int.MaxValue;
+				float x2 = int.MaxValue, y2 = int.MaxValue;
 				int j;
 				for (int i = 0; i < cnt; ++i) {
 					j = i + 1;
@@ -1820,126 +1965,118 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Determines if the point is on the line (segment).
 		/// </summary>
-		/// <param name="p1x">The x-coordinate of the first point that defines the line</param>
-		/// <param name="p1y">The y-coordinate of the first point that defines the line</param>
-		/// <param name="p2x">The x-coordinate of the second point that defines the line</param>
-		/// <param name="p2y">The y-coordinate of the second point that defines the line</param>
+		/// <param name="a1X">The x-coordinate of the first point that defines the line</param>
+		/// <param name="a1Y">The y-coordinate of the first point that defines the line</param>
+		/// <param name="a2X">The x-coordinate of the second point that defines the line</param>
+		/// <param name="a2Y">The y-coordinate of the second point that defines the line</param>
 		/// <param name="isSegment">Specifies if the line is a line or a line segment.</param>
 		/// <param name="x">The x-coordinate of the point to test</param>
 		/// <param name="y">The y-coordinate of the point to test</param>
-		public static bool LineContainsPoint(int p1x, int p1y, int p2x, int p2y, bool isSegment, int x, int y) {
-			return LineContainsPoint(p1x, p1y, p2x, p2y, isSegment, x, y, 0.5f);
+		public static bool LineContainsPoint(int a1X, int a1Y, int a2X, int a2Y, bool isSegment, int x, int y) {
+			return LineContainsPoint(a1X, a1Y, a2X, a2Y, isSegment, x, y, 0.5f);
 		}
 
 
 		/// <summary>
 		/// Determines if the point is on the line (segment).
 		/// </summary>
-		/// <param name="p1">The first point that defines the line</param>
-		/// <param name="p2">The second point that defines the line</param>
+		/// <param name="a1">The first point that defines the line</param>
+		/// <param name="a2">The second point that defines the line</param>
 		/// <param name="isSegment">Specifies if the line is a line or a line segment</param>
 		/// <param name="x">The x-coordinate of the point to test</param>
 		/// <param name="y">The y-coordinate of the point to test</param>
 		/// <param name="delta">Specifies the tolerance of the calculation</param>
-		public static bool LineContainsPoint(Point p1, Point p2, bool isSegment, int x, int y, float delta) {
-			return LineContainsPoint(p1.X, p1.Y, p2.X, p2.Y, isSegment, x, y, delta);
+		public static bool LineContainsPoint(Point a1, Point a2, bool isSegment, int x, int y, float delta) {
+			return LineContainsPoint(a1.X, a1.Y, a2.X, a2.Y, isSegment, x, y, delta);
 		}
 
 
 		/// <summary>
 		/// Determines if the point is on the line (segment).
 		/// </summary>
-		/// <param name="p1">The first point that defines the line</param>
-		/// <param name="p2">The second point that defines the line</param>
+		/// <param name="a1">The first point that defines the line</param>
+		/// <param name="a2">The second point that defines the line</param>
 		/// <param name="isSegment">Specifies if the line is a line or a line segment</param>
 		/// <param name="p">The point to test</param>
 		/// <param name="delta">Specifies the tolerance of the calculation</param>
-		public static bool LineContainsPoint(Point p1, Point p2, bool isSegment, Point p, float delta) {
-			return LineContainsPoint(p1.X, p1.Y, p2.X, p2.Y, isSegment, p.X, p.Y, delta);
+		public static bool LineContainsPoint(Point a1, Point a2, bool isSegment, Point p, float delta) {
+			return LineContainsPoint(a1.X, a1.Y, a2.X, a2.Y, isSegment, p.X, p.Y, delta);
 		}
 
 
 		/// <summary>
 		/// Determines if the point is on the line (segment).
 		/// </summary>
-		/// <param name="p1">The first point that defines the line</param>
-		/// <param name="p2">The second point that defines the line</param>
+		/// <param name="a1">The first point that defines the line</param>
+		/// <param name="a2">The second point that defines the line</param>
 		/// <param name="isSegment">Specifies if the line is a line or a line segment</param>
 		/// <param name="x">The x-coordinate of the point to test</param>
 		/// <param name="y">The y-coordinate of the point to test</param>
 		/// <param name="delta">Specifies the tolerance of the calculation</param>
-		public static bool LineContainsPoint(PointF p1, PointF p2, bool isSegment, float x, float y, float delta) {
-			return LineContainsPoint(p1.X, p1.Y, p2.X, p2.Y, isSegment, x, y, delta);
+		public static bool LineContainsPoint(PointF a1, PointF a2, bool isSegment, float x, float y, float delta) {
+			return LineContainsPoint(a1.X, a1.Y, a2.X, a2.Y, isSegment, x, y, delta);
 		}
 
 
 		/// <summary>
 		/// Determines if the point is on the line (segment).
 		/// </summary>
-		/// <param name="p1x">The x-coordinate of the first point that defines the line</param>
-		/// <param name="p1y">The y-coordinate of the first point that defines the line</param>
-		/// <param name="p2x">The x-coordinate of the second point that defines the line</param>
-		/// <param name="p2y">The y-coordinate of the second point that defines the line</param>
+		/// <param name="a1X">The x-coordinate of the first point that defines the line</param>
+		/// <param name="a1Y">The y-coordinate of the first point that defines the line</param>
+		/// <param name="a2X">The x-coordinate of the second point that defines the line</param>
+		/// <param name="a2Y">The y-coordinate of the second point that defines the line</param>
 		/// <param name="isSegment">Specifies if the line is a line or a line segment</param>
 		/// <param name="x">The x-coordinate of the point to test</param>
 		/// <param name="y">The y-coordinate of the point to test</param>
 		/// <param name="delta">Specifies the tolerance of the calculation</param>
-		public static bool LineContainsPoint(int p1x, int p1y, int p2x, int p2y, bool isSegment, int x, int y, float delta) {
-			return Math.Abs(DistancePointLine(x, y, p1x, p1y, p2x, p2y, isSegment)) <= delta;
+		public static bool LineContainsPoint(int a1X, int a1Y, int a2X, int a2Y, bool isSegment, int x, int y, float delta) {
+			return Math.Abs(DistancePointLine(x, y, a1X, a1Y, a2X, a2Y, isSegment)) <= delta;
 		}
 
 
 		/// <summary>
 		/// Determines if the point is on the line (segment).
 		/// </summary>
-		/// <param name="p1x">The x-coordinate of the first point that defines the line</param>
-		/// <param name="p1y">The y-coordinate of the first point that defines the line</param>
-		/// <param name="p2x">The x-coordinate of the second point that defines the line</param>
-		/// <param name="p2y">The y-coordinate of the second point that defines the line</param>
-		/// <param name="isSegment">Specifies if the line is a line or a line segment.</param>
+		/// <param name="a1X">The x-coordinate of the first point that defines the line</param>
+		/// <param name="a1Y">The y-coordinate of the first point that defines the line</param>
+		/// <param name="a2X">The x-coordinate of the second point that defines the line</param>
+		/// <param name="a2Y">The y-coordinate of the second point that defines the line</param>
+		/// <param name="isSegment">Specifies if the line is a line or a line segment</param>
 		/// <param name="x">The x-coordinate of the point to test</param>
 		/// <param name="y">The y-coordinate of the point to test</param>
-		public static bool LineContainsPoint(float p1x, float p1y, float p2x, float p2y, bool isSegment, float x, float y) {
-			if (p2x == p1x)
-				return (p1x == x);
-			// check if point is inside the bounds of the line segment
-			if (isSegment) {
-				if (!(Math.Min(p1x, p2x) <= x && x <= Math.Max(p1x, p2x)) ||
-					 !(Math.Min(p1y, p2y) <= y && y <= Math.Max(p1y, p2y)))
-					return false;
-			}
-			float m = (p2y - p1y) / (p2x - p1x);
-			float c1 = m * p1x - p1y;
-			float c = m * x - y;
-			return (c1 == c);
+		public static bool LineContainsPoint(float a1X, float a1Y, float a2X, float a2Y, bool isSegment, float x, float y) {
+			return LineContainsPoint(a1X, a1Y, a2X, a2Y, true, x, y, 0);
 		}
 
 
 		/// <summary>
 		/// Determines if the point is on the line (segment).
 		/// </summary>
-		/// <param name="p1x">The x-coordinate of the first point that defines the line</param>
-		/// <param name="p1y">The y-coordinate of the first point that defines the line</param>
-		/// <param name="p2x">The x-coordinate of the second point that defines the line</param>
-		/// <param name="p2y">The y-coordinate of the second point that defines the line</param>
+		/// <param name="a1X">The x-coordinate of the first point that defines the line</param>
+		/// <param name="a1Y">The y-coordinate of the first point that defines the line</param>
+		/// <param name="a2X">The x-coordinate of the second point that defines the line</param>
+		/// <param name="a2Y">The y-coordinate of the second point that defines the line</param>
 		/// <param name="isSegment">Specifies if the line is a line or a line segment</param>
 		/// <param name="x">The x-coordinate of the point to test</param>
 		/// <param name="y">The y-coordinate of the point to test</param>
 		/// <param name="delta">Specifies the tolerance of the calculation</param>
-		public static bool LineContainsPoint(float p1x, float p1y, float p2x, float p2y, bool isSegment, float x, float y, float delta) {
-			if (p2x == p1x)
-				return (p1x - delta <= x && x <= p1x + delta);
-			// check if point is inside the bounds of the line segment
-			if (isSegment) {
-				if (!(Math.Min(p1x - delta, p2x - delta) <= x && x <= Math.Max(p1x + delta, p2x + delta)) ||
-					 !(Math.Min(p1y - delta, p2y - delta) <= y && y <= Math.Max(p1y + delta, p2y + delta)))
-					return false;
-			}
-			float m = (p2y - p1y) / (p2x - p1x);
-			float c1 = m * p1x - p1y;
-			float c = m * x - y;
+		public static bool LineContainsPoint(float a1X, float a1Y, float a2X, float a2Y, bool isSegment, float x, float y, float delta) {
+			return Math.Abs(DistancePointLine(x, y, a1X, a1Y, a2X, a2Y, isSegment)) <= delta;
 
-			return (c1 - delta <= c && c <= c1 + delta);
+			// Works, but the version above is more than 2x faster...
+			//if (p2x == p1x)
+			//	return (p1x - delta <= x && x <= p1x + delta);
+			//// check if point is inside the bounds of the line segment
+			//if (isSegment) {
+			//	if (!(Math.Min(p1x - delta, p2x - delta) <= x && x <= Math.Max(p1x + delta, p2x + delta)) ||
+			//		 !(Math.Min(p1y - delta, p2y - delta) <= y && y <= Math.Max(p1y + delta, p2y + delta)))
+			//		return false;
+			//}
+			//float m = (p2y - p1y) / (p2x - p1x);
+			//float c1 = m * p1x - p1y;
+			//float c = m * x - y;
+
+			//return (c1 - delta <= c && c <= c1 + delta);
 		}
 
 
@@ -1959,10 +2096,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Returns true if the rectanlge defined by x, y, width and height contains the given rectangle.
 		/// </summary>
-		public static bool RectangleContainsRectangle(int x, int y, int width, int height, Rectangle rectangle) {
-			AssertIsValid(x, y, width, height);
+		public static bool RectangleContainsRectangle(int rX, int rY, int rWidth, int rHeight, Rectangle rectangle) {
+			AssertIsValid(rX, rY, rWidth, rHeight);
 			AssertIsValid(rectangle);
-			return rectangle.Left >= x && rectangle.Top >= y && rectangle.Right <= x + width && rectangle.Bottom <= y + height;
+			return rectangle.Left >= rX && rectangle.Top >= rY && rectangle.Right <= rX + rWidth && rectangle.Bottom <= rY + rHeight;
 		}
 
 
@@ -2026,7 +2163,8 @@ namespace Dataweb.NShape.Advanced {
 			float radiusX = ellipseWidth / 2f;
 			float radiusY = ellipseHeight / 2f;
 			// instead of rotating the ellipse, we rotate the line to the opposite side and then rotate intersection points back
-			if (ellipseAngleDeg != 0) RotatePoint(ellipseCenterX, ellipseCenterY, -ellipseAngleDeg, ref x, ref y);
+			if (ellipseAngleDeg != 0)
+				RotatePoint(ellipseCenterX, ellipseCenterY, -ellipseAngleDeg, ref x, ref y);
 			// transform x/y to the origin of the coordinate system
 			float x0 = x - ellipseCenterX;
 			float y0 = y - ellipseCenterY;
@@ -2066,7 +2204,8 @@ namespace Dataweb.NShape.Advanced {
 			float radiusX = ellipseWidth / 2f;
 			float radiusY = ellipseHeight / 2f;
 			// instead of rotating the ellipse, we rotate the line to the opposite side and then rotate intersection points back
-			if (ellipseAngleDeg != 0) RotatePoint(ellipseCenterX, ellipseCenterY, -ellipseAngleDeg, ref x, ref y);
+			if (ellipseAngleDeg != 0)
+				RotatePoint(ellipseCenterX, ellipseCenterY, -ellipseAngleDeg, ref x, ref y);
 			// transform x/y to the origin of the coordinate system
 			float x0 = x - ellipseCenterX;
 			float y0 = y - ellipseCenterY;
@@ -2319,7 +2458,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static bool PolygonIntersectsWithRectangle(PointF[] points, RectangleF rectangle) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			if (points.Length <= 0) return false;
 			int maxIdx = points.Length - 1;
 			for (int i = 0; i < maxIdx; ++i) {
@@ -2350,57 +2489,55 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Bestimmt, ob die beiden Geraden sich schneiden.
 		/// </summary>
-		public static bool LineIntersectsWithLine(Point line1Start, Point line1End, Point line2Start, Point line2End) {
-			return LineIntersectsWithLine(line1Start.X, line1Start.Y, line1End.X, line1End.Y, line2Start.X, line2Start.Y, line2End.X, line2End.Y);
+		public static bool LineIntersectsWithLine(Point a1, Point a2, Point b1, Point b2) {
+			return LineIntersectsWithLine(a1.X, a1.Y, a2.X, a2.Y, b1.X, b1.Y, b2.X, b2.Y);
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die beiden Geraden sich schneiden.
 		/// </summary>
-		public static bool LineIntersectsWithLine(Point line1Start, Point line1End, int line2StartX, int line2StartY, int line2EndX, int line2EndY) {
-			return LineIntersectsWithLine(line1Start.X, line1Start.Y, line1End.X, line1End.Y, line2StartX, line2StartY, line2EndX, line2EndY);
+		public static bool LineIntersectsWithLine(Point a1, Point a2, int b1X, int b1Y, int b2X, int b2Y) {
+			return LineIntersectsWithLine(a1.X, a1.Y, a2.X, a2.Y, b1X, b1Y, b2X, b2Y);
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die beiden Geraden sich schneiden.
 		/// </summary>
-		public static bool LineIntersectsWithLine(int line1StartX, int line1StartY, int line1EndX, int line1EndY, int line2StartX, int line2StartY, int line2EndX, int line2EndY) {
+		public static bool LineIntersectsWithLine(int a1X, int a1Y, int a2X, int a2Y, int b1X, int b1Y, int b2X, int b2Y) {
 			// Richtungsvectoren der beiden Geraden berechnen			
 			Point line1Vec = Point.Empty;               // Richtungsvektor Linie1
-			line1Vec.X = line1EndX - line1StartX;
-			line1Vec.Y = line1EndY - line1StartY;
+			line1Vec.Offset(a2X - a1X, a2Y - a1Y);
 			Point line2Vec = Point.Empty;               // Richtungsvector Linie2
-			line2Vec.X = line2EndX - line2StartX;
-			line2Vec.Y = line2EndY - line2StartY;
+			line2Vec.Offset(b2X - b1X, b2Y - b1Y);
 
 			// Determinante det berechnen
-			int det = line1Vec.Y * line2Vec.X - line1Vec.X * line2Vec.Y;
+			double det = (double)line1Vec.Y * line2Vec.X - (double)line1Vec.X * line2Vec.Y;
 
 			// Wenn det == 0 ist, sind die Linien parallel. 
-			if (det == 0) {
+			if (Equals(det, 0)) {
 				// Wenn die Linien gegensinnig laufen, also die Vektoren die Beträge [10|10] und [-10|-10] haben, schneiden sie 
 				// sich zwangsläufig - vorausgesetzt sie sind nicht parallel verschoben!
 				if (line1Vec.X == -line2Vec.X && line1Vec.Y == -line2Vec.Y) {
 					float m1, m2, c1, c2;
-					Geometry.CalcLine(line1StartX, line1StartY, line1EndX, line1EndY, out m1, out c1);
-					Geometry.CalcLine(line2StartX, line2StartY, line2EndX, line2EndY, out m2, out c2);
+					Geometry.CalcLine(a1X, a1Y, a2X, a2Y, out m1, out c1);
+					Geometry.CalcLine(b1X, b1Y, b2X, b2Y, out m2, out c2);
 					return (Math.Abs(c1 - c2) < EqualityDeltaFloat);
 				} else return false;
 			}
 
 			// Determinante det's berechnen 
-			int ds = (line2StartY - line1StartY) * line2Vec.X - (line2StartX - line1StartX) * line2Vec.Y;
+			double ds = (b1Y - a1Y) * (double)line2Vec.X - (b1X - a1X) * (double)line2Vec.Y;
 
 			// detdet / det berechnen und prüfen, ob s in den Grenzen liegt 
-			float s = ds / (float)det;
+			double s = ds / det;
 			if (s < 0.0f || s > 1.0f)
 				return false;
 
 			// dt und db berechnen.
-			float dt = (line2StartY - line1StartY) * line1Vec.X - (line2StartX - line1StartX) * line1Vec.Y;
-			float t = dt / det;
+			double dt = (b1Y - a1Y) * (double)line1Vec.X - (b1X - a1X) * (double)line1Vec.Y;
+			double t = dt / det;
 			if (t < 0.0f || t > 1.0f)
 				return false;
 
@@ -2411,49 +2548,49 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Bestimmt, ob die beiden Geraden sich schneiden.
 		/// </summary>
-		public static bool LineIntersectsWithLine(PointF line1Start, PointF line1End, PointF line2Start, PointF line2End) {
-			return LineIntersectsWithLine(line1Start.X, line1Start.Y, line1End.X, line1End.Y, line2Start.X, line2Start.Y, line2End.X, line2End.Y);
+		public static bool LineIntersectsWithLine(PointF a1, PointF a2, PointF b1, PointF b2) {
+			return LineIntersectsWithLine(a1.X, a1.Y, a2.X, a2.Y, b1.X, b1.Y, b2.X, b2.Y);
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die beiden Geraden sich schneiden.
 		/// </summary>
-		public static bool LineIntersectsWithLine(float line1StartX, float line1StartY, float line1EndX, float line1EndY, float line2StartX, float line2StartY, float line2EndX, float line2EndY) {
+		public static bool LineIntersectsWithLine(float a1X, float a1Y, float a2X, float a2Y, float b1X, float b1Y, float b2X, float b2Y) {
 			// Richtungsvectoren der beiden Geraden berechnen			
 			PointF line1Vec = Point.Empty;              // Richtungsvektor Linie1
-			line1Vec.X = line1EndX - line1StartX;
-			line1Vec.Y = line1EndY - line1StartY;
+			line1Vec.X = a2X - a1X;
+			line1Vec.Y = a2Y - a1Y;
 			PointF line2Vec = Point.Empty;              // Richtungsvector Linie2
-			line2Vec.X = line2EndX - line2StartX;
-			line2Vec.Y = line2EndY - line2StartY;
+			line2Vec.X = b2X - b1X;
+			line2Vec.Y = b2Y - b1Y;
 
 			// Determinante det berechnen
-			float det = line1Vec.Y * line2Vec.X - line1Vec.X * line2Vec.Y;
+			double det = line1Vec.Y * line2Vec.X - line1Vec.X * line2Vec.Y;
 
 			// Wenn det == 0 ist, sind die Linien parallel. 
-			if (det == 0) {
+			if (Equals(det, 0)) {
 				// Wenn die Linien gegensinnig laufen, also die Vektoren die Beträge [10|10] und [-10|-10] haben, schneiden sie 
 				// sich zwangsläufig - vorausgesetzt sie sind nicht parallel verschoben!
 				if (line1Vec.X == -line2Vec.X && line1Vec.Y == -line2Vec.Y) {
 					float m1, m2, c1, c2;
-					Geometry.CalcLine(line1StartX, line1StartY, line1EndX, line1EndY, out m1, out c1);
-					Geometry.CalcLine(line2StartX, line2StartY, line2EndX, line2EndY, out m2, out c2);
+					Geometry.CalcLine(a1X, a1Y, a2X, a2Y, out m1, out c1);
+					Geometry.CalcLine(b1X, b1Y, b2X, b2Y, out m2, out c2);
 					return (Math.Abs(c1 - c2) < EqualityDeltaFloat);
 				} else return false;
 			}
 
 			// Determinante det's berechnen 
-			float detdet = (line2StartY - line1StartY) * line2Vec.X - (line2StartX - line1StartX) * line2Vec.Y;
+			double detdet = (b1Y - a1Y) * line2Vec.X - (b1X - a1X) * line2Vec.Y;
 
 			// detdet / det berechnen und prüfen, ob das Ergebnis in den Grenzen liegt
-			float s = detdet / (float)det;
+			double s = detdet / det;
 			if (s < 0.0f || s > 1.0f)
 				return false;
 
 			// dt und db berechnen.
-			float dt = (line2StartY - line1StartY) * line1Vec.X - (line2StartX - line1StartX) * line1Vec.Y;
-			float t = dt / det;
+			double dt = (b1Y - a1Y) * line1Vec.X - (b1X - a1X) * line1Vec.Y;
+			double t = dt / det;
 			if (t < 0.0f || t > 1.0f)
 				return false;
 
@@ -2464,64 +2601,65 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Bestimmt, ob die Gerade sich mit der Strecke schneidet.
 		/// </summary>
-		public static bool LineIntersectsWithLineSegment(PointF line1Start, PointF line1End, float line2StartX, float line2StartY, float line2EndX, float line2EndY) {
-			return LineIntersectsWithLineSegment(line1Start.X, line1Start.Y, line1End.X, line1End.Y, line2StartX, line2StartY, line2EndX, line2EndY);
+		public static bool LineIntersectsWithLineSegment(PointF a1, PointF a2, float b1X, float b1Y, float b2X, float b2Y) {
+			return LineIntersectsWithLineSegment(a1.X, a1.Y, a2.X, a2.Y, b1X, b1Y, b2X, b2Y);
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die Gerade sich mit der Strecke schneidet.
 		/// </summary>
-		public static bool LineIntersectsWithLineSegment(float line1StartX, float line1StartY, float line1EndX, float line1EndY, float line2StartX, float line2StartY, float line2EndX, float line2EndY) {
-			return IsValid(IntersectLineWithLineSegment(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY));
+		public static bool LineIntersectsWithLineSegment(float a1X, float a1Y, float a2X, float a2Y, float b1X, float b1Y, float b2X, float b2Y) {
+			return IsValid(IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y));
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die Gerade sich mit der Strecke schneidet.
 		/// </summary>
-		public static bool LineIntersectsWithLineSegment(Point line1Start, Point line1End, Point line2Start, Point line2End) {
-			return LineIntersectsWithLineSegment(line1Start.X, line1Start.Y, line1End.X, line1End.Y, line2Start.X, line2Start.Y, line2End.X, line2End.Y);
+		public static bool LineIntersectsWithLineSegment(Point a1, Point a2, Point b1, Point b2) {
+			return LineIntersectsWithLineSegment(a1.X, a1.Y, a2.X, a2.Y, b1.X, b1.Y, b2.X, b2.Y);
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die Gerade sich mit der Strecke schneidet.
 		/// </summary>
-		public static bool LineIntersectsWithLineSegment(Point line1Start, Point line1End, int line2StartX, int line2StartY, int line2EndX, int line2EndY) {
-			return LineIntersectsWithLineSegment(line1Start.X, line1Start.Y, line1End.X, line1End.Y, line2StartX, line2StartY, line2EndX, line2EndY);
+		public static bool LineIntersectsWithLineSegment(Point a1, Point a2, int b1X, int b1Y, int b2X, int b2Y) {
+			return LineIntersectsWithLineSegment(a1.X, a1.Y, a2.X, a2.Y, b1X, b1Y, b2X, b2Y);
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die Gerade sich mit der Strecke schneidet.
 		/// </summary>
-		public static bool LineIntersectsWithLineSegment(int line1StartX, int line1StartY, int line1EndX, int line1EndY, int line2StartX, int line2StartY, int line2EndX, int line2EndY) {
-			return IsValid(IntersectLineWithLineSegment(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY));
+		public static bool LineIntersectsWithLineSegment(int a1X, int a1Y, int a2X, int a2Y, int b1X, int b1Y, int b2X, int b2Y) {
+			return IsValid(IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y));
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die beiden Strecken sich schneiden.
 		/// </summary>
-		public static bool LineSegmentIntersectsWithLineSegment(int line1StartX, int line1StartY, int line1EndX, int line1EndY, int line2StartX, int line2StartY, int line2EndX, int line2EndY) {
-			return IsValid(IntersectLineSegments(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY));
+		public static bool LineSegmentIntersectsWithLineSegment(int a1X, int a1Y, int a2X, int a2Y, int b1X, int b1Y, int b2X, int b2Y) {
+			return IsValid(IntersectLineSegments(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y));
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die beiden Strecken sich schneiden.
 		/// </summary>
-		public static bool LineSegmentIntersectsWithLineSegment(long line1StartX, long line1StartY, long line1EndX, long line1EndY, long line2StartX, long line2StartY, long line2EndX, long line2EndY) {
-			return IsValid(IntersectLineSegments(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY));
+		[Obsolete]
+		public static bool LineSegmentIntersectsWithLineSegment(long a1X, long a1Y, long a2X, long a2Y, long b1X, long b1Y, long b2X, long b2Y) {
+			return IsValid(IntersectLineSegments(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y));
 		}
 
 
 		/// <summary>
 		/// Bestimmt, ob die beiden Strecken sich schneiden.
 		/// </summary>
-		public static bool LineSegmentIntersectsWithLineSegment(float line1StartX, float line1StartY, float line1EndX, float line1EndY, float line2StartX, float line2StartY, float line2EndX, float line2EndY) {
-			return IsValid(IntersectLineSegments(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY));
+		public static bool LineSegmentIntersectsWithLineSegment(float a1X, float a1Y, float a2X, float a2Y, float b1X, float b1Y, float b2X, float b2Y) {
+			return IsValid(IntersectLineSegments(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y));
 		}
 
 
@@ -2529,8 +2667,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Checks whether the rectangle area intersects with the line. 
 		/// If isSegmnt is true, the line is treated as line segment.
 		/// </summary>
-		public static bool RectangleIntersectsWithLine(Rectangle rectangle, Point pt1, Point pt2, bool isSegment) {
-			return RectangleIntersectsWithLine(rectangle, pt1.X, pt1.Y, pt2.X, pt2.Y, isSegment);
+		public static bool RectangleIntersectsWithLine(Rectangle rectangle, Point a1, Point a2, bool isSegment) {
+			return RectangleIntersectsWithLine(rectangle, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
@@ -2538,29 +2676,29 @@ namespace Dataweb.NShape.Advanced {
 		/// Checks whether the rectangle intersects with the line. 
 		/// If isSegmnt is true, the line is treated as line segment.
 		/// </summary>
-		public static bool RectangleIntersectsWithLine(Rectangle rectangle, int pt1X, int pt1Y, int pt2X, int pt2Y, bool isSegment) {
+		public static bool RectangleIntersectsWithLine(Rectangle rectangle, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
 			// Strecke schneidet das Rechteck, wenn das Recteck einen der Linien-Endpunkte enthält 
 			// oder wenn sie eine der Seiten schneidet
-			if (RectangleContainsPoint(rectangle, pt1X, pt1Y) || RectangleContainsPoint(rectangle, pt2X, pt2Y))
+			if (RectangleContainsPoint(rectangle, a1X, a1Y) || RectangleContainsPoint(rectangle, a2X, a2Y))
 				return true;
 			else {
 				// sind beide Punkte der Strecke auf einer Seite des Rechtecks kann es keinen Schnittpunkt geben
-				if (isSegment && ((pt1X < rectangle.Left && pt2X < rectangle.Left)
-					|| (pt1X > rectangle.Right && pt2X > rectangle.Right)
-					|| (pt1Y < rectangle.Top && pt2Y < rectangle.Top)
-					|| (pt1Y > rectangle.Bottom && pt2Y > rectangle.Bottom)))
+				if (isSegment && ((a1X < rectangle.Left && a2X < rectangle.Left)
+					|| (a1X > rectangle.Right && a2X > rectangle.Right)
+					|| (a1Y < rectangle.Top && a2Y < rectangle.Top)
+					|| (a1Y > rectangle.Bottom && a2Y > rectangle.Bottom)))
 					return false;
 				else {
 					if (isSegment)
-						return (LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Top) ||
-								LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Right, rectangle.Top, rectangle.Right, rectangle.Bottom) ||
-								LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Bottom, rectangle.Right, rectangle.Bottom) ||
-								LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Top, rectangle.Left, rectangle.Bottom));
+						return (LineSegmentIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Top) ||
+								LineSegmentIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Right, rectangle.Top, rectangle.Right, rectangle.Bottom) ||
+								LineSegmentIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Bottom, rectangle.Right, rectangle.Bottom) ||
+								LineSegmentIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Top, rectangle.Left, rectangle.Bottom));
 					else
-						return (LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Top) ||
-								LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Right, rectangle.Top, rectangle.Right, rectangle.Bottom) ||
-								LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Bottom, rectangle.Right, rectangle.Bottom) ||
-								LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Top, rectangle.Left, rectangle.Bottom));
+						return (LineIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Top) ||
+								LineIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Right, rectangle.Top, rectangle.Right, rectangle.Bottom) ||
+								LineIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Bottom, rectangle.Right, rectangle.Bottom) ||
+								LineIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Top, rectangle.Left, rectangle.Bottom));
 				}
 			}
 		}
@@ -2570,8 +2708,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Checks whether the rectangle intersects with the line. 
 		/// If isSegmnt is true, the line is treated as line segment.
 		/// </summary>
-		public static bool RectangleIntersectsWithLine(RectangleF rectangle, PointF p1, PointF p2, bool isSegment) {
-			return RectangleIntersectsWithLine(rectangle, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static bool RectangleIntersectsWithLine(RectangleF rectangle, PointF a1, PointF a2, bool isSegment) {
+			return RectangleIntersectsWithLine(rectangle, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
@@ -2579,29 +2717,29 @@ namespace Dataweb.NShape.Advanced {
 		/// Checks whether the rectangle intersects with the line. 
 		/// If isSegmnt is true, the line is treated as line segment.
 		/// </summary>
-		public static bool RectangleIntersectsWithLine(RectangleF rectangle, float pt1X, float pt1Y, float pt2X, float pt2Y, bool isSegment) {
+		public static bool RectangleIntersectsWithLine(RectangleF rectangle, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
 			// Strecke schneidet das Rechteck, wenn das Recteck einen der Linien-Endpunkte enthält 
 			// oder wenn sie eine der Seiten schneidet
-			if (RectangleContainsPoint(rectangle, pt1X, pt1Y) || RectangleContainsPoint(rectangle, pt2X, pt2Y))
+			if (RectangleContainsPoint(rectangle, a1X, a1Y) || RectangleContainsPoint(rectangle, a2X, a2Y))
 				return true;
 			else {
 				// sind beide Punkte der Strecke auf einer Seite des Rectecks kann es keinen Schnittpunkt geben
-				if (isSegment && ((pt1X < rectangle.Left && pt2X < rectangle.Left)
-					|| (pt1X > rectangle.Right && pt2X > rectangle.Right)
-					|| (pt1Y < rectangle.Top && pt2Y < rectangle.Top)
-					|| (pt1Y > rectangle.Bottom && pt2Y > rectangle.Bottom)))
+				if (isSegment && ((a1X < rectangle.Left && a2X < rectangle.Left)
+					|| (a1X > rectangle.Right && a2X > rectangle.Right)
+					|| (a1Y < rectangle.Top && a2Y < rectangle.Top)
+					|| (a1Y > rectangle.Bottom && a2Y > rectangle.Bottom)))
 					return false;
 				else {
 					if (isSegment)
-						return (LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Top) ||
-								LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Right, rectangle.Top, rectangle.Right, rectangle.Bottom) ||
-								LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Bottom, rectangle.Right, rectangle.Bottom) ||
-								LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Top, rectangle.Left, rectangle.Bottom));
+						return (LineSegmentIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Top) ||
+								LineSegmentIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Right, rectangle.Top, rectangle.Right, rectangle.Bottom) ||
+								LineSegmentIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Bottom, rectangle.Right, rectangle.Bottom) ||
+								LineSegmentIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Top, rectangle.Left, rectangle.Bottom));
 					else
-						return (LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Top) ||
-								LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Right, rectangle.Top, rectangle.Right, rectangle.Bottom) ||
-								LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Bottom, rectangle.Right, rectangle.Bottom) ||
-								LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, rectangle.Left, rectangle.Top, rectangle.Left, rectangle.Bottom));
+						return (LineIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Top) ||
+								LineIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Right, rectangle.Top, rectangle.Right, rectangle.Bottom) ||
+								LineIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Bottom, rectangle.Right, rectangle.Bottom) ||
+								LineIntersectsWithLineSegment(a1X, a1Y, a2X, a2Y, rectangle.Left, rectangle.Top, rectangle.Left, rectangle.Bottom));
 				}
 			}
 		}
@@ -2611,43 +2749,43 @@ namespace Dataweb.NShape.Advanced {
 		/// Checks whether the rectangle intersects with the line. 
 		/// If isSegmnt is true, the line is treated as line segment.
 		/// </summary>
-		public static bool RectangleIntersectsWithLine(int left, int top, int right, int bottom, int pt1X, int pt1Y, int pt2X, int pt2Y, bool isSegment) {
-			return RectangleIntersectsWithLine(Rectangle.FromLTRB(left, top, right, bottom), pt1X, pt1Y, pt2X, pt2Y, isSegment);
+		public static bool RectangleIntersectsWithLine(int left, int top, int right, int bottom, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
+			return RectangleIntersectsWithLine(Rectangle.FromLTRB(left, top, right, bottom), a1X, a1Y, a2X, a2Y, isSegment);
 		}
 
 
 		/// <summary>
 		/// Checks if there is an intersection between the given rectangle (rotated around its center point) and the given line.
 		/// </summary>
-		/// <param name="rectangleCenterX">X coordinate of the rectangle's center</param>
-		/// <param name="rectangleCenterY">Y coordinate of the rectangle's center</param>
-		/// <param name="rectangleWidth">Width of the rectangle</param>
-		/// <param name="rectangleHeight">Height of the rectangle</param>
-		/// <param name="rectangleAngleDeg">Rotation of the rectangle</param>
-		/// <param name="x1">X coordinate of the line's first point</param>
-		/// <param name="y1">Y coordinate of the line's first point</param>
-		/// <param name="x2">X coordinate of the line's second point</param>
-		/// <param name="y2">Y coordinate of the line's second point</param>
+		/// <param name="rectCenterX">X coordinate of the rectangle's center</param>
+		/// <param name="rectCenterY">Y coordinate of the rectangle's center</param>
+		/// <param name="rectWidth">Width of the rectangle</param>
+		/// <param name="rectHeight">Height of the rectangle</param>
+		/// <param name="rectRotationDeg">Rotation of the rectangle in degrees</param>
+		/// <param name="a1X">X coordinate of the line's first point</param>
+		/// <param name="a1Y">Y coordinate of the line's first point</param>
+		/// <param name="a2X">X coordinate of the line's second point</param>
+		/// <param name="a2Y">Y coordinate of the line's second point</param>
 		/// <param name="isSegment">Specifies whether the line is a line segment</param>
 		/// <returns></returns>
-		public static bool RectangleIntersectsWithLine(int rectangleCenterX, int rectangleCenterY, int rectangleWidth, int rectangleHeight, float rectangleAngleDeg, int x1, int y1, int x2, int y2, bool isSegment) {
+		public static bool RectangleIntersectsWithLine(int rectCenterX, int rectCenterY, int rectWidth, int rectHeight, float rectRotationDeg, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
 			// Instead of rotating the rectangle, we translate both rectangle and line to the origin of the coordinate 
 			// system and rotate the line's points in the opposite direction:
 			//
 			// Calc unrotated but translated rectangle
 			RectangleF rect = Rectangle.Empty;
-			rect.X = -rectangleWidth / 2f;
-			rect.Y = -rectangleHeight / 2f;
-			rect.Width = rectangleWidth;
-			rect.Height = rectangleHeight;
+			rect.X = -rectWidth / 2f;
+			rect.Y = -rectHeight / 2f;
+			rect.Width = rectWidth;
+			rect.Height = rectHeight;
 			// Calc rotated and translated first point of the line
 			Point p1 = Point.Empty;
-			p1.Offset(x1 - rectangleCenterX, y1 - rectangleCenterY);
-			p1 = RotatePoint(Point.Empty, -rectangleAngleDeg, p1);
+			p1.Offset(a1X - rectCenterX, a1Y - rectCenterY);
+			p1 = RotatePoint(Point.Empty, -rectRotationDeg, p1);
 			// Calc rotated and translated second point of the line
 			Point p2 = Point.Empty;
-			p2.Offset(x2 - rectangleCenterX, y2 - rectangleCenterY);
-			p2 = RotatePoint(Point.Empty, -rectangleAngleDeg, p2);
+			p2.Offset(a2X - rectCenterX, a2Y - rectCenterY);
+			p2 = RotatePoint(Point.Empty, -rectRotationDeg, p2);
 			// check for intersection
 			return RectangleIntersectsWithLine(rect, p1, p2, isSegment);
 		}
@@ -2656,57 +2794,57 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Checks if there is an intersection between the given rectangle (rotated around its center point) and the given line.
 		/// </summary>
-		/// <param name="rectangleCenterX">X coordinate of the rectangle's center</param>
-		/// <param name="rectangleCenterY">Y coordinate of the rectangle's center</param>
-		/// <param name="rectangleWidth">Width of the rectangle</param>
-		/// <param name="rectangleHeight">Height of the rectangle</param>
-		/// <param name="rectangleAngleDeg">Rotation of the rectangle</param>
-		/// <param name="x1">X coordinate of the line's first point</param>
-		/// <param name="y1">Y coordinate of the line's first point</param>
-		/// <param name="x2">X coordinate of the line's second point</param>
-		/// <param name="y2">Y coordinate of the line's second point</param>
+		/// <param name="rectCenterX">X coordinate of the rectangle's center</param>
+		/// <param name="rectCenterY">Y coordinate of the rectangle's center</param>
+		/// <param name="rectWidth">Width of the rectangle</param>
+		/// <param name="rectHeight">Height of the rectangle</param>
+		/// <param name="rectRotationDeg">Rotation of the rectangle in degrees</param>
+		/// <param name="a1X">X coordinate of the line's first point</param>
+		/// <param name="a1Y">Y coordinate of the line's first point</param>
+		/// <param name="a2X">X coordinate of the line's second point</param>
+		/// <param name="a2Y">Y coordinate of the line's second point</param>
 		/// <param name="isSegment">Specifies whether the line is a line segment</param>
 		/// <returns></returns>
-		public static bool RectangleIntersectsWithLine(float rectangleCenterX, float rectangleCenterY, float rectangleWidth, float rectangleHeight, float rectangleAngleDeg, float x1, float y1, float x2, float y2, bool isSegment) {
+		public static bool RectangleIntersectsWithLine(float rectCenterX, float rectCenterY, float rectWidth, float rectHeight, float rectRotationDeg, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
 			// Instead of rotating the rectangle, we translate both rectangle and line to the origin of the coordinate 
 			// system and rotate the line's points in the opposite direction:
 			//
 			// Calc unrotated but translated rectangle
 			RectangleF rect = Rectangle.Empty;
-			rect.X = -rectangleWidth / 2f;
-			rect.Y = -rectangleHeight / 2f;
-			rect.Width = rectangleWidth;
-			rect.Height = rectangleHeight;
+			rect.X = -rectWidth / 2f;
+			rect.Y = -rectHeight / 2f;
+			rect.Width = rectWidth;
+			rect.Height = rectHeight;
 			// Calc rotated and translated first point of the line
 			PointF p1 = Point.Empty;
-			p1.X = x1 - rectangleCenterX;
-			p1.Y = y1 - rectangleCenterY;
-			p1 = RotatePoint(PointF.Empty, -rectangleAngleDeg, p1);
+			p1.X = a1X - rectCenterX;
+			p1.Y = a1Y - rectCenterY;
+			p1 = RotatePoint(PointF.Empty, -rectRotationDeg, p1);
 			// Calc rotated and translated second point of the line
 			PointF p2 = Point.Empty;
-			p2.X = x2 - rectangleCenterX;
-			p2.Y = y2 - rectangleCenterY;
-			p2 = RotatePoint(PointF.Empty, -rectangleAngleDeg, p2);
+			p2.X = a2X - rectCenterX;
+			p2.Y = a2Y - rectCenterY;
+			p2 = RotatePoint(PointF.Empty, -rectRotationDeg, p2);
 			// check for intersection
 			return RectangleIntersectsWithLine(rect, p1, p2, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool CircleIntersectsWithLine(PointF center, float radius, PointF p1, PointF p2, bool isSegment) {
-			return Math.Abs(DistancePointLine(center.X, center.Y, p1.X, p1.Y, p2.X, p2.Y, isSegment)) <= radius;
+		public static bool CircleIntersectsWithLine(PointF center, float radius, PointF a1, PointF a2, bool isSegment) {
+			return Math.Abs(DistancePointLine(center.X, center.Y, a1.X, a1.Y, a2.X, a2.Y, isSegment)) <= radius;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool CircleIntersectsWithLine(float centerX, float centerY, float radius, float x1, float y1, float x2, float y2, bool isSegment) {
-			return Math.Abs(DistancePointLine(centerX, centerY, x1, y1, x2, y2, isSegment)) <= radius;
+		public static bool CircleIntersectsWithLine(float centerX, float centerY, float radius, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
+			return Math.Abs(DistancePointLine(centerX, centerY, a1X, a1Y, a2X, a2Y, isSegment)) <= radius;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool ArcIntersectsWithLine(float startPtX, float startPtY, float radiusPtX, float radiusPtY, float endPtX, float endPtY, float x1, float y1, float x2, float y2, bool isSegment) {
-			foreach (PointF p in IntersectArcLine(startPtX, startPtY, radiusPtX, radiusPtY, endPtX, endPtY, x1, y1, x2, y2, isSegment))
+		public static bool ArcIntersectsWithLine(float startPtX, float startPtY, float radiusPtX, float radiusPtY, float endPtX, float endPtY, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
+			foreach (PointF p in IntersectArcLine(startPtX, startPtY, radiusPtX, radiusPtY, endPtX, endPtY, a1X, a1Y, a2X, a2Y, isSegment))
 				return true;
 			return false;
 		}
@@ -2822,10 +2960,11 @@ namespace Dataweb.NShape.Advanced {
 			float radiusSq = radius * radius;
 
 			// Translate coordinates, placing center at the origin.
-			int left = rect.Left - centerX;
-			int top = rect.Top - centerY;
-			int right = left + rect.Width;
-			int bottom = top + rect.Height;
+			// Use float in order to avoid Arithmetic overflows (e.g. for right² + bottom², see below)
+			float left = rect.Left - centerX;
+			float top = rect.Top - centerY;
+			float right = left + rect.Width;
+			float bottom = top + rect.Height;
 
 			// rect to left of circle center
 			if (right < 0) {
@@ -2936,92 +3075,61 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool EllipseIntersectsWithLine(Point center, int ellipseWidth, int ellipseHeight, Point p1, Point p2, bool isSegment) {
-			return EllipseIntersectsWithLine(center.X, center.Y, ellipseWidth, ellipseHeight, 0, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static bool EllipseIntersectsWithLine(Point center, int ellipseWidth, int ellipseHeight, Point a1, Point a2, bool isSegment) {
+			return EllipseIntersectsWithLine(center.X, center.Y, ellipseWidth, ellipseHeight, 0, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool EllipseIntersectsWithLine(Point center, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, Point p1, Point p2, bool isSegment) {
-			return EllipseIntersectsWithLine(center.X, center.Y, ellipseWidth, ellipseHeight, ellipseAngleDeg, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static bool EllipseIntersectsWithLine(Point center, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, Point a1, Point a2, bool isSegment) {
+			return EllipseIntersectsWithLine(center.X, center.Y, ellipseWidth, ellipseHeight, ellipseAngleDeg, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool EllipseIntersectsWithLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, int x1, int y1, int x2, int y2, bool isSegment) {
-			return EllipseIntersectsWithLine(centerX, centerY, ellipseWidth, ellipseHeight, 0, x1, y1, x2, y2, isSegment);
+		public static bool EllipseIntersectsWithLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
+			return EllipseIntersectsWithLine(centerX, centerY, ellipseWidth, ellipseHeight, 0, a1X, a1Y, a2X, a2Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool EllipseIntersectsWithLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, int x1, int y1, int x2, int y2, bool isSegment) {
-			Point result = Point.Empty;
-			float radiusX = ellipseWidth / 2f;
-			float radiusY = ellipseHeight / 2f;
-			float rrx = radiusX * radiusX;
-			float rry = radiusY * radiusY;
-			if (ellipseAngleDeg != 0) {
-				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref x1, ref y1);
-				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref x2, ref y2);
-			}
-			int x21 = x2 - x1;
-			int y21 = y2 - y1;
-			int x10 = x1 - centerX;
-			int y10 = y1 - centerY;
-			double a = x21 * x21 / (double)rrx + y21 * y21 / (double)rry;
-			double b = x21 * x10 / (double)rrx + y21 * y10 / (double)rry;
-			double c = x10 * x10 / (double)rrx + y10 * y10 / (double)rry;
-			double d = b * b - a * (c - 1);
-			if (d < 0)
-				return false;
-			else {
-				if (isSegment) {
-					double rd = Math.Sqrt(d);
-					double u1 = (-b - rd) / a;
-					double u2 = (-b + rd) / a;
-					return ((0 <= u1 && u1 <= 1) || (0 <= u2 && u2 <= 1));
-				} else return true;
-			}
+		public static bool EllipseIntersectsWithLine(Point center, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, PointF a1, PointF a2, bool isSegment) {
+			return EllipseIntersectsWithLine(center.X, center.Y, ellipseWidth, ellipseHeight, ellipseAngleDeg, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool EllipseIntersectsWithLine(Point center, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, PointF p1, PointF p2, bool isSegment) {
-			return EllipseIntersectsWithLine(center.X, center.Y, ellipseWidth, ellipseHeight, ellipseAngleDeg, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static bool EllipseIntersectsWithLine(Point center, int ellipseWidth, int ellipseHeight, PointF a1, PointF a2, bool isSegment) {
+			return EllipseIntersectsWithLine(center.X, center.Y, ellipseWidth, ellipseHeight, 0, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool EllipseIntersectsWithLine(Point center, int ellipseWidth, int ellipseHeight, PointF p1, PointF p2, bool isSegment) {
-			return EllipseIntersectsWithLine(center.X, center.Y, ellipseWidth, ellipseHeight, 0, p1.X, p1.Y, p2.X, p2.Y, isSegment);
-		}
-
-
-		/// <ToBeCompleted></ToBeCompleted>
-		public static bool EllipseIntersectsWithLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, float x1, float y1, float x2, float y2, bool isSegment) {
+		public static bool EllipseIntersectsWithLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
 			// instead of rotating the ellipse, we rotate the line in the opposite direction
-			return EllipseIntersectsWithLine(centerX, centerY, ellipseWidth, ellipseHeight, 0, x1, y1, x2, y2, isSegment);
+			return EllipseIntersectsWithLine(centerX, centerY, ellipseWidth, ellipseHeight, 0, a1X, a1Y, a2X, a2Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool EllipseIntersectsWithLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, float x1, float y1, float x2, float y2, bool isSegment) {
+		public static bool EllipseIntersectsWithLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
 			Point result = Point.Empty;
-			float radiusX = ellipseWidth / 2f;
-			float radiusY = ellipseHeight / 2f;
-			float rrx = radiusX * radiusX;
-			float rry = radiusY * radiusY;
+			// Use only double or only float but do not mix! (Results in much better performance)
+			double radiusX = ellipseWidth / 2f;
+			double radiusY = ellipseHeight / 2f;
+			double rrx = radiusX * radiusX;
+			double rry = radiusY * radiusY;
 			if (ellipseAngleDeg != 0) {
-				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref x1, ref y1);
-				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref x2, ref y2);
+				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref a1X, ref a1Y);
+				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref a2X, ref a2Y);
 			}
-			float x21 = x2 - x1;
-			float y21 = y2 - y1;
-			float x10 = x1 - centerX;
-			float y10 = y1 - centerY;
-			double a = x21 * x21 / (double)rrx + y21 * y21 / (double)rry;
-			double b = x21 * x10 / (double)rrx + y21 * y10 / (double)rry;
-			double c = x10 * x10 / (double)rrx + y10 * y10 / (double)rry;
+			double x21 = a2X - a1X;
+			double y21 = a2Y - a1Y;
+			double x10 = a1X - centerX;
+			double y10 = a1Y - centerY;
+			double a = x21 * x21 / rrx + y21 * y21 / rry;
+			double b = x21 * x10 / rrx + y21 * y10 / rry;
+			double c = x10 * x10 / rrx + y10 * y10 / rry;
 			double d = b * b - a * (c - 1);
 			if (d < 0)
 				return false;
@@ -3030,12 +3138,15 @@ namespace Dataweb.NShape.Advanced {
 					double rd = Math.Sqrt(d);
 					double u1 = (-b - rd) / a;
 					double u2 = (-b + rd) / a;
-					if (double.IsNaN(u1) && (0 <= u1 && u1 <= 1))
+					// If the line has length 0 or the line starts at the center of the ellipse, u1 and/or u2 will be NaN.
+					if (!double.IsNaN(u1) && (0 <= u1 && u1 <= 1))
 						return true;
 					else if (!double.IsNaN(u2) && (0 <= u2 && u2 <= 1))
 						return true;
-					else return false;
-				} else return true;
+					else
+						return false;
+				} else
+					return true;
 			}
 		}
 
@@ -3146,14 +3257,14 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool RectangleIntersectsWithRectangle(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
+		public static bool RectangleIntersectsWithRectangle(int r1X, int r1Y, int r1Width, int r1Height, int r2X, int r2Y, int r2Width, int r2Height) {
 			Rectangle r1 = Rectangle.Empty, r2 = Rectangle.Empty;
-			r1.Offset(x1, y1);
-			r1.Width = w1;
-			r1.Height = h1;
-			r2.Offset(x2, y2);
-			r2.Width = w2;
-			r2.Height = h2;
+			r1.Offset(r1X, r1Y);
+			r1.Width = r1Width;
+			r1.Height = r1Height;
+			r2.Offset(r2X, r2Y);
+			r2.Width = r2Width;
+			r2.Height = r2Height;
 			return RectangleIntersectsWithRectangle(r1, r2);
 		}
 
@@ -3175,14 +3286,14 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static bool RectangleIntersectsWithRectangle(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2) {
+		public static bool RectangleIntersectsWithRectangle(float r1X, float r1Y, float r1Width, float r1Height, float r2X, float r2Y, float r2Width, float r2Height) {
 			RectangleF r1 = RectangleF.Empty, r2 = RectangleF.Empty;
-			r1.Offset(x1, y1);
-			r1.Width = w1;
-			r1.Height = h1;
-			r2.Offset(x2, y2);
-			r2.Width = w2;
-			r2.Height = h2;
+			r1.Offset(r1X, r1Y);
+			r1.Width = r1Width;
+			r1.Height = r1Height;
+			r2.Offset(r2X, r2Y);
+			r2.Width = r2Width;
+			r2.Height = r2Height;
 			return RectangleIntersectsWithRectangle(r1, r2);
 		}
 
@@ -3192,8 +3303,10 @@ namespace Dataweb.NShape.Advanced {
 		#region Intersection calculation functions
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static bool IntersectLineWithLineSegment(int aLine, int bLine, int cLine, Point p1, Point p2, out int x, out int y) {
-			int aSegment, bSegment, cSegment;
+			x = InvalidCoordinateValue; y = InvalidCoordinateValue;
+			int aSegment, bSegment; long cSegment;
 			CalcLine(p1.X, p1.Y, p2.X, p2.Y, out aSegment, out bSegment, out cSegment);
 			if (IntersectLines(aLine, bLine, cLine, aSegment, bSegment, cSegment, out x, out y)) {
 				return (Math.Min(p1.X, p2.X) <= x && x <= Math.Max(p1.X, p2.X)
@@ -3203,6 +3316,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static bool IntersectLineWithLineSegment(float aLine, float bLine, float cLine, PointF p1, PointF p2, out float x, out float y) {
 			float aSegment, bSegment, cSegment;
 			CalcLine(p1.X, p1.Y, p2.X, p2.Y, out aSegment, out bSegment, out cSegment);
@@ -3214,9 +3328,31 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
+		public static bool IntersectLineWithLineSegment(float aLine, float bLine, float cLine, PointF p1, PointF p2, out int x, out int y) {
+			x = y = InvalidCoordinateValue;
+			float aSegment, bSegment, cSegment;
+			CalcLine(p1.X, p1.Y, p2.X, p2.Y, out aSegment, out bSegment, out cSegment);
+			if (IntersectLines(aLine, bLine, cLine, aSegment, bSegment, cSegment, out float _x, out float _y)) {
+				x = (int)Math.Round(_x);
+				y = (int)Math.Round(_y);
+				if (Math.Min(p1.X, p2.X) <= x && x <= Math.Max(p1.X, p2.X)
+					&& Math.Min(p1.Y, p2.Y) <= y && y <= Math.Max(p1.Y, p2.Y))
+					return true;
+				else {
+					x = y = InvalidCoordinateValue;
+					return false;
+				}
+			} else return false;
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static Point IntersectLineWithLineSegment(int aLine, int bLine, int cLine, Point p1, Point p2) {
 			Point result = InvalidPoint;
-			int x, y, aSegment, bSegment, cSegment;
+			int x, y;
+			int aSegment, bSegment; long cSegment;
 			CalcLine(p1.X, p1.Y, p2.X, p2.Y, out aSegment, out bSegment, out cSegment);
 			if (IntersectLines(aLine, bLine, cLine, aSegment, bSegment, cSegment, out x, out y)) {
 				if (Math.Min(p1.X, p2.X) <= x && x <= Math.Max(p1.X, p2.X)
@@ -3230,6 +3366,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static PointF IntersectLineWithLineSegment(float aLine, float bLine, float cLine, PointF p1, PointF p2) {
 			PointF result = InvalidPointF;
 			float x, y, aSegment, bSegment, cSegment;
@@ -3252,46 +3389,38 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static Point IntersectLineSegments(int p1X, int p1Y, int p2X, int p2Y, int p3X, int p3Y, int p4X, int p4Y) {
-			Point result = InvalidPoint;
-			int x21 = p2X - p1X;
-			int y21 = p2Y - p1Y;
-			int x13 = p1X - p3X;
-			int y13 = p1Y - p3Y;
-			int x43 = p4X - p3X;
-			int y43 = p4Y - p3Y;
-			float d = y43 * x21 - x43 * y21;
-			if (d != 0) {
-				float u2 = ((x21 * y13 - y21 * x13) / d);
-				if (!float.IsNaN(u2) && 0 <= u2 && u2 <= 1) {
-					float u1 = (x43 * y13 - y43 * x13) / d;
-					if (!float.IsNaN(u1) && 0 <= u1 && u1 <= 1) {
-						result.X = (int)Math.Round(p1X + x21 * u1);
-						result.Y = (int)Math.Round(p1Y + y21 * u1);
-					}
-				}
-			}
+		public static Point IntersectLineSegments(int a1X, int a1Y, int a2X, int a2Y, int b1X, int b1Y, int b2X, int b2Y) {
+			IntersectLines(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y, out long x, out long y);
+			// Now check, whether the intersection is on the segments.
+			if (x < int.MinValue || x > int.MaxValue || y < int.MinValue || y > int.MaxValue)
+				return InvalidPoint;
+			Point result = Point.Empty;
+			result.Offset((int)x, (int)y);
+			if (!IsPointInRect(result.X, result.Y, a1X, a1Y, a2X, a2Y) || !IsPointInRect(result.X, result.Y, b1X, b1Y, b2X, b2Y))
+				return InvalidPoint;
 			return result;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static Point IntersectLineSegments(long p1X, long p1Y, long p2X, long p2Y, long p3X, long p3Y, long p4X, long p4Y) {
+		[Obsolete]
+		public static Point IntersectLineSegments(long a1X, long a1Y, long a2X, long a2Y, long b1X, long b1Y, long b2X, long b2Y) 
+		{
 			Point result = InvalidPoint;
-			long x21 = p2X - p1X;
-			long y21 = p2Y - p1Y;
-			long x13 = p1X - p3X;
-			long y13 = p1Y - p3Y;
-			long x43 = p4X - p3X;
-			long y43 = p4Y - p3Y;
+			long x21 = a2X - a1X;
+			long y21 = a2Y - a1Y;
+			long x13 = a1X - b1X;
+			long y13 = a1Y - b1Y;
+			long x43 = b2X - b1X;
+			long y43 = b2Y - b1Y;
 			double d = y43 * x21 - x43 * y21;
 			if (d != 0) {
 				double u2 = ((x21 * y13 - y21 * x13) / d);
 				if (!double.IsNaN(u2) && 0 <= u2 && u2 <= 1) {
 					double u1 = (x43 * y13 - y43 * x13) / d;
 					if (!double.IsNaN(u1) && 0 <= u1 && u1 <= 1) {
-						result.X = (int)Math.Round(p1X + x21 * u1);
-						result.Y = (int)Math.Round(p1Y + y21 * u1);
+						result.X = (int)Math.Round(a1X + x21 * u1);
+						result.Y = (int)Math.Round(a1Y + y21 * u1);
 					}
 				}
 			}
@@ -3300,28 +3429,28 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static PointF IntersectLineSegments(PointF p1, PointF p2, PointF p3, PointF p4) {
-			return IntersectLineSegments(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y, p4.X, p4.Y);
+		public static PointF IntersectLineSegments(PointF a1, PointF a2, PointF b1, PointF b2) {
+			return IntersectLineSegments(a1.X, a1.Y, a2.X, a2.Y, b1.X, b1.Y, b2.X, b2.Y);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static PointF IntersectLineSegments(float p1X, float p1Y, float p2X, float p2Y, float p3X, float p3Y, float p4X, float p4Y) {
-			float x21 = p2X - p1X;
-			float y21 = p2Y - p1Y;
-			float x13 = p1X - p3X;
-			float y13 = p1Y - p3Y;
-			float x43 = p4X - p3X;
-			float y43 = p4Y - p3Y;
-			float d = y43 * x21 - x43 * y21;
+		public static PointF IntersectLineSegments(float a1X, float a1Y, float a2X, float a2Y, float b1X, float b1Y, float b2X, float b2Y) {
+			float x21 = a2X - a1X;
+			float y21 = a2Y - a1Y;
+			float x13 = a1X - b1X;
+			float y13 = a1Y - b1Y;
+			float x43 = b2X - b1X;
+			float y43 = b2Y - b1Y;
+			double d = y43 * x21 - x43 * y21;
 			PointF result = InvalidPointF;
 			if (d != 0) {
-				float u2 = (x21 * y13 - y21 * x13) / d;
-				if (!float.IsNaN(u2) && 0 <= u2 && u2 <= 1) {
-					float u1 = (x43 * y13 - y43 * x13) / d;
-					if (!float.IsNaN(u1) && 0 <= u1 && u1 <= 1) {
-						result.X = p1X + x21 * u1;
-						result.Y = p1Y + y21 * u1;
+				double u2 = (x21 * y13 - y21 * x13) / d;
+				if (!double.IsNaN(u2) && 0 <= u2 && u2 <= 1) {
+					double u1 = (x43 * y13 - y43 * x13) / d;
+					if (!double.IsNaN(u1) && 0 <= u1 && u1 <= 1) {
+						result.X = (float)(a1X + x21 * u1);
+						result.Y = (float)(a1Y + y21 * u1);
 					}
 				}
 			}
@@ -3329,40 +3458,50 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
-		public static Point IntersectLineWithLineSegment(int lineStartX, int lineStartY, int lineEndX, int lineEndY, int lineSegmentStartX, int lineSegmentStartY, int lineSegmentEndX, int lineSegmentEndY) {
-			Point result = InvalidPoint;
-			float a1, b1, c1, a2, b2, c2;
-			CalcLine(lineStartX, lineStartY, lineEndX, lineEndY, out a1, out b1, out c1);
-			CalcLine(lineSegmentStartX, lineSegmentStartY, lineSegmentEndX, lineSegmentEndY, out a2, out b2, out c2);
-			float x, y;
-			if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
-				if (Math.Min(lineSegmentStartX, lineSegmentEndX) <= x && x <= Math.Max(lineSegmentStartX, lineSegmentEndX)
-					&& Math.Min(lineSegmentStartY, lineSegmentEndY) <= y && y <= Math.Max(lineSegmentStartY, lineSegmentEndY)) {
-					result.X = (int)Math.Round(x);
-					result.Y = (int)Math.Round(y);
-				}
-			}
+		/// <summary>
+		/// Intersects the line a1-a2 with the line segment b1-b2.
+		/// Returns Geometry.InvalidPoint if there is no intersection.
+		/// </summary>
+		public static Point IntersectLineWithLineSegment(int a1X, int a1Y, int a2X, int a2Y, int b1X, int b1Y, int b2X, int b2Y)
+		{
+			IntersectLines(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y, out long x, out long y);
+			if (x < int.MinValue || x > int.MaxValue || y < int.MinValue || y > int.MaxValue)
+				return InvalidPoint;
+			Point result = Point.Empty;
+			result.Offset((int)x, (int)y);
+			if (!IsPointInRect(result.X, result.Y, b1X, b1Y, b2X, b2Y))
+				return InvalidPoint;
 			return result;
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
-		public static PointF IntersectLineWithLineSegment(float lineStartX, float lineStartY, float lineEndX, float lineEndY, float lineSegmentStartX, float lineSegmentStartY, float lineSegmentEndX, float lineSegmentEndY) {
-			PointF result = InvalidPointF;
-			float a1, b1, c1, a2, b2, c2;
-			CalcLine(lineStartX, lineStartY, lineEndX, lineEndY, out a1, out b1, out c1);
-			CalcLine(lineSegmentStartX, lineSegmentStartY, lineSegmentEndX, lineSegmentEndY, out a2, out b2, out c2);
-			float x, y;
-			//if (SolveLinear22System(a1, b1, a2, b2, c1, c2, out x, out y)) {
-			if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
-				if (Math.Min(lineSegmentStartX, lineSegmentEndX) <= x && x <= Math.Max(lineSegmentStartX, lineSegmentEndX)
-					&& Math.Min(lineSegmentStartY, lineSegmentEndY) <= y && y <= Math.Max(lineSegmentStartY, lineSegmentEndY)) {
-					result.X = x;
-					result.Y = y;
-				}
-			}
+		/// <summary>
+		/// Calculates the intersection point of line a1-a2 and line segment b1-b2.
+		/// Returns Geometry.InvalidPoint if there is no intersection.
+		/// </summary>
+		public static PointF IntersectLineWithLineSegment(float a1X, float a1Y, float a2X, float a2Y, float b1X, float b1Y, float b2X, float b2Y) {
+			IntersectLines(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y, out double x, out double y);
+			if (x < int.MinValue || x > int.MaxValue || y < int.MinValue || y > int.MaxValue)
+				return InvalidPointF;
+			PointF result = PointF.Empty;
+			result.X = (float)x;
+			result.Y = (float)y;
+			if (!IsPointInRect(result.X, result.Y, b1X, b1Y, b2X, b2Y))
+				return InvalidPointF;
 			return result;
+
+			//float a1, b1, c1, a2, b2, c2;
+			//CalcLine(a1X, a1Y, a2X, a2Y, out a1, out b1, out c1);
+			//CalcLine(b1X, b1Y, b2X, b2Y, out a2, out b2, out c2);
+			//float x, y;
+			//if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
+			//	if (Math.Min(b1X, b2X) <= x && x <= Math.Max(b1X, b2X)
+			//		&& Math.Min(b1Y, b2Y) <= y && y <= Math.Max(b1Y, b2Y)) {
+			//		result.X = x;
+			//		result.Y = y;
+			//	}
+			//}
+			//return result;
 		}
 
 
@@ -3379,46 +3518,147 @@ namespace Dataweb.NShape.Advanced {
 		// [1] - [2] results in
 		// a1 b2 x - a2 b1 x = - b2 c1 - b1 c2   [3]
 		// [3] divided through a1 b2 - a2 b1 results in the equation for x (analog for y)
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static bool IntersectLines(float a1, float b1, float c1, float a2, float b2, float c2, out int x, out int y) {
-			double det = (float)a1 * (float)b2 - (float)a2 * (float)b1;
-			if (det == 0) {
+			double det = (double)a1 * b2 - (double)a2 * b1;
+			if (Equals(det, 0)) {
 				x = InvalidPoint.X; y = InvalidPoint.Y;
 				return false;
 			} else {
-				x = (int)Math.Round(((float)b2 * (float)-c1 - (float)b1 * (float)-c2) / det);
-				y = (int)Math.Round(((float)a1 * (float)-c2 - (float)a2 * (float)-c1) / det);
+				x = (int)Math.Round(((double)b2 * -c1) / det - ((double)b1 * -c2) / det);
+				y = (int)Math.Round(((double)a1 * -c2) / det - ((double)a2 * -c1) / det);
+				return true;
+			}
+		}
+
+
+		internal static bool IntersectLines(float a1X, float a1Y, float a2X, float a2Y, float b1X, float b1Y, float b2X, float b2Y, out double x, out double y) {
+			if (a1X == a2X && b1X == b2X) {
+				// Both line segments are vertical, no intersection point
+				x = InvalidCoordinateValueL;
+				y = InvalidCoordinateValueL;
+				return false;
+			} else if (a1X == a2X) {
+				// First line segment is vertical
+				x = a1X;
+				y = x * (double)(b2Y - b1Y) / (b2X - b1X) + b1Y - (b2Y - b1Y) * (double)b1X / (b2X - b1X);
+				return true;
+			} else if (b1X == b2X) {
+				// Second line segment is vertical
+				x = b1X;
+				y = x * (double)(a2Y - a1Y) / (a2X - a1X) + a1Y - (a2Y - a1Y) * (double)a1X / (a2X - a1X);
+				return true;
+			} else if ((double)(a2Y - a1Y) * (b2X - b1X) - (double)(b2Y - b1Y) * (a2X - a1X) == 0) {
+				// No intersection point
+				x = InvalidCoordinateValueL;
+				y = InvalidCoordinateValueL;
+				return false;
+			} else {
+				// We equal the y value of mx + t and solve for x.
+				x = (double)(b1Y - a1Y) * (a2X - a1X) * (b2X - b1X) - (double)b1X * (b2Y - b1Y) * (a2X - a1X)
+					+ (double)a1X * (a2Y - a1Y) * (b2X - b1X);
+				x /= (double)(a2Y - a1Y) * (b2X - b1X) - (double)(b2Y - b1Y) * (a2X - a1X);
+				// We cannot calculate y as the value of mx + t, because if the line is almost vertical,
+				// there might be only two different values for x. Therefore we equal the x value of mx + t
+				// for both lines and solve for y.
+				y = -(double)b1Y * (b2X - b1X) * (a2Y - a1Y) + (double)(b2Y - b1Y) * (a2Y - a1Y) * b1X + (double)a1Y * (a2X - a1X) * (b2Y - b1Y) - (double)(a2Y - a1Y) * (b2Y - b1Y) * a1X;
+				y /= (double)(b2Y - b1Y) * (a2X - a1X) - (double)(a2Y - a1Y) * (b2X - b1X);
+				return true;
+			}
+		}
+
+
+		/// <summary>
+		/// Intersects two lines and returns the intersection point.
+		/// Must not be published, because the intersection point can lay outside the valid coordinates.
+		/// </summary>
+		internal static bool IntersectLines(int a1X, int a1Y, int a2X, int a2Y, int b1X, int b1Y, int b2X, int b2Y, out long x, out long y)
+		{
+			if (a1X == a2X && b1X == b2X) {
+				// Both line segments are vertical, no intersection point
+				x = InvalidCoordinateValueL;
+				y = InvalidCoordinateValueL;
+				return false;
+			} else if (a1X == a2X) {
+				// First line segment is vertical
+				x = a1X;
+				y = x * (long)(b2Y - b1Y) / (b2X - b1X) + b1Y - (b2Y - b1Y) * (long)b1X / (b2X - b1X);
+				return true;
+			} else if (b1X == b2X) {
+				// Second line segment is vertical
+				x = b1X;
+				y = x * (long)(a2Y - a1Y) / (a2X - a1X) + a1Y - (a2Y - a1Y) * (long)a1X / (a2X - a1X);
+				return true;
+			} else if ((long)(a2Y - a1Y) * (b2X - b1X) - (long)(b2Y - b1Y) * (a2X - a1X) == 0) {
+				// No intersection point
+				x = InvalidCoordinateValueL;
+				y = InvalidCoordinateValueL;
+				return false;
+			} else {
+				// We equal the y value of mx + t and solve for x.
+				x = (long)(b1Y - a1Y) * (a2X - a1X) * (b2X - b1X) - (long)b1X * (b2Y - b1Y) * (a2X - a1X)
+					+ (long)a1X * (a2Y - a1Y) * (b2X - b1X);
+				x /= (long)(a2Y - a1Y) * (b2X - b1X) - (long)(b2Y - b1Y) * (a2X - a1X);
+				// We cannot calculate y as the value of mx + t, because if the line is almost vertical,
+				// there might be only two different values for x. Therefore we equal the x value of mx + t
+				// for both lines and solve for y.
+				y = -(long)b1Y * (b2X - b1X) * (a2Y - a1Y) + (long)(b2Y - b1Y) * (a2Y - a1Y) * b1X + (long)a1Y * (a2X - a1X) * (b2Y - b1Y) - (long)(a2Y - a1Y) * (b2Y - b1Y) * a1X;
+				y /= (long)(b2Y - b1Y) * (a2X - a1X) - (long)(a2Y - a1Y) * (b2X - b1X);
 				return true;
 			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use IntersectLines with two-point form instead.")]
 		public static bool IntersectLines(int a1, int b1, int c1, int a2, int b2, int c2, out int x, out int y) {
 			x = InvalidPoint.X; y = InvalidPoint.Y;
-			double det = (float)a1 * (float)b2 - (float)a2 * (float)b1;
-			if (det == 0) return false;
+			float det = (float)a1 * b2 - (float)a2 * b1;
+			if (Equals(det, 0)) return false;
 			else {
-				x = (int)Math.Round(((float)b2 * (float)-c1 - (float)b1 * (float)-c2) / det);
-				y = (int)Math.Round(((float)a1 * (float)-c2 - (float)a2 * (float)-c1) / det);
+				x = (int)Math.Round(((float)b2 * -c1 - (float)b1 * -c2) / det);
+				y = (int)Math.Round(((float)a1 * -c2 - (float)a2 * -c1) / det);
 				return true;
 			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
+		public static bool IntersectLines(int a1, int b1, long c1, int a2, int b2, long c2, out int x, out int y) {
+			// Use double for more precise atithmetics because performance is equal to float! (At least on a 'Core i9 9900K' CPU)
+			// Performance inprovement of using double instead of long:
+			// 1665 ms (all double) versus 3490 ms ('det' is double) versus 5251 ms (all long)
+			x = InvalidPoint.X; y = InvalidPoint.Y;
+			long _c1 = c1, _c2 = c2;
+			double det = (long)a1 * b2 - (long)a2 * b1;
+			if (Equals(det, 0)) return false;
+			else {
+				// Pure integer division delivers is not always correct
+				x = (int)Math.Round((b2 * -_c1 - b1 * -_c2) / det);
+				y = (int)Math.Round((a1 * -_c2 - a2 * -_c1) / det);
+				return true;
+			}
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static bool IntersectLines(float a1, float b1, float c1, float a2, float b2, float c2, out float x, out float y) {
+			// This is the fastest version (690 ms vs 820 ms for int version) because the datatype does not change.
 			x = InvalidPointF.X; y = InvalidPointF.Y;
-			double det = (float)a1 * (float)b2 - (float)a2 * (float)b1;
-			if (det == 0) return false;
+			float det = a1 * b2 - a2 * b1;
+			if (Equals(det, 0)) return false;
 			else {
-				x = (float)((b2 * -c1 - b1 * -c2) / det);
-				y = (float)((a1 * -c2 - a2 * -c1) / det);
+				x = (b2 * -c1 - b1 * -c2) / det;
+				y = (a1 * -c2 - a2 * -c1) / det;
 				return true;
 			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static Point IntersectLines(int a1, int b1, int c1, int a2, int b2, int c2) {
 			Point result = InvalidPoint;
 			int x, y;
@@ -3431,10 +3671,11 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static Point IntersectLines(int a1, int b1, int c1, Point a, Point b) {
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
+		public static Point IntersectLines(int a1, int b1, int c1, Point p1, Point p2) {
 			Point result = InvalidPoint;
-			int a2, b2, c2;
-			CalcLine(a.X, a.Y, b.X, b.Y, out a2, out b2, out c2);
+			int a2, b2; long c2;
+			CalcLine(p1.X, p1.Y, p2.X, p2.Y, out a2, out b2, out c2);
 			int x, y;
 			if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
 				result.X = x;
@@ -3445,6 +3686,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static PointF IntersectLines(float a1, float b1, float c1, PointF a, PointF b) {
 			PointF result = InvalidPointF;
 			float a2, b2, c2;
@@ -3459,6 +3701,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static PointF IntersectLines(float a1, float b1, float c1, float a2, float b2, float c2) {
 			PointF result = InvalidPointF;
 			float x, y;
@@ -3471,105 +3714,123 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static PointF IntersectLines(float line1StartX, float line1StartY, float line1EndX, float line1EndY, float line2StartX, float line2StartY, float line2EndX, float line2EndY) {
-			PointF result = InvalidPointF;
-			float a1, b1, c1, a2, b2, c2;
-			CalcLine(line1StartX, line1StartY, line1EndX, line1EndY, out a1, out b1, out c1);
-			CalcLine(line2StartX, line2StartY, line2EndX, line2EndY, out a2, out b2, out c2);
-			float x, y;
-			if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
-				result.X = x;
-				result.Y = y;
-			}
+		public static PointF IntersectLines(float a1X, float a1Y, float a2X, float a2Y, float b1X, float b1Y, float b2X, float b2Y) {
+			IntersectLines(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y, out double x, out double y);
+			// Now check, whether the intersection is on the segments.
+			if (x <= int.MinValue || x > int.MaxValue || y <= int.MinValue || y > int.MaxValue)
+				return InvalidPointF;
+			PointF result = PointF.Empty;
+			result.X = (float)x;
+			result.Y = (float)y;
 			return result;
+
+			//PointF result = InvalidPointF;
+			//float a1, b1, c1, a2, b2, c2;
+			//CalcLine(line1StartX, line1StartY, line1EndX, line1EndY, out a1, out b1, out c1);
+			//CalcLine(line2StartX, line2StartY, line2EndX, line2EndY, out a2, out b2, out c2);
+			//float x, y;
+			//if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
+			//	result.X = x;
+			//	result.Y = y;
+			//}
+			//return result;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static Point IntersectLines(int line1StartX, int line1StartY, int line1EndX, int line1EndY, int line2StartX, int line2StartY, int line2EndX, int line2EndY) {
-			Point result = InvalidPoint;
-			int a1, b1, c1, a2, b2, c2;
-			CalcLine(line1StartX, line1StartY, line1EndX, line1EndY, out a1, out b1, out c1);
-			CalcLine(line2StartX, line2StartY, line2EndX, line2EndY, out a2, out b2, out c2);
-			int x, y;
-			if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
-				result.X = x;
-				result.Y = y;
-			}
+		public static Point IntersectLines(int a1X, int a1Y, int a2X, int a2Y, int b1X, int b1Y, int b2X, int b2Y) {
+			IntersectLines(a1X, a1Y, a2X, a2Y, b1X, b1Y, b2X, b2Y, out long x, out long y);
+			// Now check, whether the intersection is on the segments.
+			if (x <= int.MinValue || x > int.MaxValue || y <= int.MinValue || y > int.MaxValue)
+				return InvalidPoint;
+			Point result = Point.Empty;
+			result.Offset((int)x, (int)y);
 			return result;
+
+			//// Not really slower than float version (100.000.000 calls):
+			//// int/long: 2409 ms, long: 2399 ms
+			//Point result = InvalidPoint;
+			////CalcLine(p1X, p1Y, p2X, p2Y, out int a1, out int b1, out long c1);
+			//CalcLine(p3X, p3Y, p4X, p4Y, out int a2, out int b2, out long c2);
+			//int x, y;
+			//if (IntersectLines(a1, b1, c1, a2, b2, c2, out x, out y)) {
+			//	result.X = x;
+			//	result.Y = y;
+			//}
+			//return result;
 		}
 
 
 		/// <summary>
 		/// Calculates the intersection point of the line with the rectangle that is nearer to point 1 of the line.
 		/// </summary>
-		public static Point IntersectLineWithRectangle(int lineX1, int lineY1, int lineX2, int lineY2, int rectX1, int rectY1, int rectX2, int rectY2) {
+		public static Point IntersectLineWithRectangle(int a1X, int a1Y, int a2X, int a2Y, int r1X, int r1Y, int r2X, int r2Y) {
 			Point result = InvalidPoint;
-			if (lineX1 == lineX2 && lineY1 == lineY2)
+			if (a1X == a2X && a1Y == a2Y)
 				return result;
 
-			if (lineY1 <= rectY1) {
-				if (lineY2 > rectY1) {
-					if (lineX1 <= rectX1) {
+			if (a1Y <= r1Y) {
+				if (a2Y > r1Y) {
+					if (a1X <= r1X) {
 						// links oben
-						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX1, rectY2);
+						result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r1X, r1Y, r1X, r2Y);
 						if (!IsValid(result))
-							result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX2, rectY1);
-					} else if (lineX1 >= rectX2) {
+							result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r1X, r1Y, r2X, r1Y);
+					} else if (a1X >= r2X) {
 						// rechts oben
-						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX2, rectY1, rectX2, rectY2);
+						result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r2X, r1Y, r2X, r2Y);
 						if (!IsValid(result))
-							result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX2, rectY1);
+							result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r1X, r1Y, r2X, r1Y);
 					} else { // Mitte oben
-						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX2, rectY1);
+						result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r1X, r1Y, r2X, r1Y);
 					}
 				}
-			} else if (lineY1 >= rectY2) {
-				if (lineY2 < rectY2) {
-					if (lineX1 <= rectX1) { // links unten
-						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX1, rectY2);
+			} else if (a1Y >= r2Y) {
+				if (a2Y < r2Y) {
+					if (a1X <= r1X) { // links unten
+						result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r1X, r1Y, r1X, r2Y);
 						if (!IsValid(result))
-							result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY2, rectX2, rectY2);
-					} else if (lineX1 >= rectX2) { // rechts unten
-						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY2, rectX2, rectY2);
+							result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r1X, r2Y, r2X, r2Y);
+					} else if (a1X >= r2X) { // rechts unten
+						result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r1X, r2Y, r2X, r2Y);
 						if (!IsValid(result))
-							result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX2, rectY1, rectX2, rectY2);
+							result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r2X, r1Y, r2X, r2Y);
 					} else { // Mitte unten
-						result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY2, rectX2, rectY2);
+						result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r1X, r2Y, r2X, r2Y);
 					}
 				}
-			} else if (lineX1 <= rectX1) { // links mitte
-				result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX1, rectY1, rectX1, rectY2);
-			} else if (lineX1 >= rectX2) { // rechts mitte
-				result = IntersectLineWithLineSegment(lineX1, lineY1, lineX2, lineY2, rectX2, rectY1, rectX2, rectY2);
-			} else if (lineY2 <= rectY1 || lineY2 >= rectY2 || lineX2 <= rectX1 || lineX2 >= rectX2) {
-				result = IntersectLineWithRectangle(lineX2, lineY2, lineX1, lineY1, rectX1, rectY1, rectX2, rectY2);
+			} else if (a1X <= r1X) { // links mitte
+				result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r1X, r1Y, r1X, r2Y);
+			} else if (a1X >= r2X) { // rechts mitte
+				result = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, r2X, r1Y, r2X, r2Y);
+			} else if (a2Y <= r1Y || a2Y >= r2Y || a2X <= r1X || a2X >= r2X) {
+				result = IntersectLineWithRectangle(a2X, a2Y, a1X, a1Y, r1X, r1Y, r2X, r2Y);
 			} else { // Beide sind innen, wir verlängern die Gerade über X2, Y2 hinaus
 				int newLineX1, newLineY1;
-				if (Math.Abs(lineX2 - lineX1) >= Math.Abs(lineY2 - lineY1)) { // X in den Nenner, Y durch Rechteck bestimmen
-					if (lineX2 >= lineX1) newLineX1 = lineX1 + rectX2 - rectX1;
-					else newLineX1 = lineX1 + rectX1 - rectX2;
-					newLineY1 = lineY2 + (newLineX1 - lineX2) * (lineY1 - lineY2) / (lineX1 - lineX2);
+				if (Math.Abs(a2X - a1X) >= Math.Abs(a2Y - a1Y)) { // X in den Nenner, Y durch Rechteck bestimmen
+					if (a2X >= a1X) newLineX1 = a1X + r2X - r1X;
+					else newLineX1 = a1X + r1X - r2X;
+					newLineY1 = a2Y + (newLineX1 - a2X) * (a1Y - a2Y) / (a1X - a2X);
 				} else { // Y in den Nenner, X durch Rechteckbreite bestimmen
-					if (lineY2 >= lineY1) newLineY1 = lineY1 + rectY2 - rectY1;
-					else newLineY1 = lineY1 + rectY1 - rectY2;
-					newLineX1 = lineX2 + (newLineY1 - lineY2) * (lineX1 - lineX2) / (lineY1 - lineY2);
+					if (a2Y >= a1Y) newLineY1 = a1Y + r2Y - r1Y;
+					else newLineY1 = a1Y + r1Y - r2Y;
+					newLineX1 = a2X + (newLineY1 - a2Y) * (a1X - a2X) / (a1Y - a2Y);
 				}
-				result = IntersectLineWithRectangle(newLineX1, newLineY1, lineX2, lineY2, rectX1, rectY1, rectX2, rectY2);
+				result = IntersectLineWithRectangle(newLineX1, newLineY1, a2X, a2Y, r1X, r1Y, r2X, r2Y);
 			}
 			return result;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static Point IntersectCircleWithLine(Point center, int radius, Point p1, Point p2, bool isSegment) {
-			return IntersectCircleWithLine(center.X, center.Y, radius, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static Point IntersectCircleWithLine(Point center, int radius, Point a1, Point a2, bool isSegment) {
+			return IntersectCircleWithLine(center.X, center.Y, radius, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static PointF IntersectCircleWithLine(PointF center, float radius, PointF p1, PointF p2, bool isSegment) {
-			return IntersectCircleWithLine(center.X, center.Y, radius, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static PointF IntersectCircleWithLine(PointF center, float radius, PointF a1, PointF a2, bool isSegment) {
+			return IntersectCircleWithLine(center.X, center.Y, radius, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
@@ -3579,20 +3840,20 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="centerX">X Coordinate of the circle's center</param>
 		/// <param name="centerY">Y Coordinate of the circle's center</param>
 		/// <param name="radius">Radius of the circle</param>
-		/// <param name="x1">X coordinate of the first point of the line (segment)</param>
-		/// <param name="y1">Y coordinate of the first point of the line (segment)</param>
-		/// <param name="x2">X coordinate of the second point of the line (segment)</param>
-		/// <param name="y2">Y coordinate of the second point of the line (segment)</param>
+		/// <param name="a1X">X coordinate of the first point of the line (segment)</param>
+		/// <param name="a1Y">Y coordinate of the first point of the line (segment)</param>
+		/// <param name="a2X">X coordinate of the second point of the line (segment)</param>
+		/// <param name="a2Y">Y coordinate of the second point of the line (segment)</param>
 		/// <param name="isSegment">Specifies if the given line should be treated as a (endable) line segment instead of a (endless) line</param>
-		public static Point IntersectCircleWithLine(int centerX, int centerY, int radius, int x1, int y1, int x2, int y2, bool isSegment) {
+		public static Point IntersectCircleWithLine(int centerX, int centerY, int radius, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
 			Point result = InvalidPoint;
-			if (x1 == x2 && y1 == y2)
+			if (a1X == a2X && a1Y == a2Y)
 				return result;
-			float rr = radius * radius;
-			float x21 = x2 - x1;
-			float y21 = y2 - y1;
-			float x10 = x1 - centerX;
-			float y10 = y1 - centerY;
+			float rr = (float)radius * radius;
+			float x21 = a2X - a1X;
+			float y21 = a2Y - a1Y;
+			float x10 = a1X - centerX;
+			float y10 = a1Y - centerY;
 			float a = (x21 * x21 + y21 * y21) / rr;
 			float b = (x21 * x10 + y21 * y10) / rr;
 			float c = (x10 * x10 + y10 * y10) / rr;
@@ -3605,18 +3866,18 @@ namespace Dataweb.NShape.Advanced {
 				Point pt2 = InvalidPoint;
 				if (!isSegment || (!float.IsNaN(u1) && 0 <= u1 && u1 <= 1)) {
 					Point p = Point.Empty;
-					p.X = (int)Math.Round(x1 + x21 * u1);
-					p.Y = (int)Math.Round(y1 + y21 * u1);
+					p.X = (int)Math.Round(a1X + x21 * u1);
+					p.Y = (int)Math.Round(a1Y + y21 * u1);
 					pt1 = p;
 				}
 				if (!isSegment || (!float.IsNaN(u2) && 0 <= u2 && u2 <= 1)) {
 					Point p = Point.Empty;
-					p.X = (int)Math.Round(x1 + x21 * u2);
-					p.Y = (int)Math.Round(y1 + y21 * u2);
+					p.X = (int)Math.Round(a1X + x21 * u2);
+					p.Y = (int)Math.Round(a1Y + y21 * u2);
 					pt2 = p;
 				}
 				if (IsValid(pt1) && IsValid(pt2))
-					result = GetNearestPoint(x1, y1, pt1.X, pt1.Y, pt2.X, pt2.Y);
+					result = GetNearestPoint(a1X, a1Y, pt1.X, pt1.Y, pt2.X, pt2.Y);
 				else if (IsValid(pt1)) result = pt1;
 				else if (IsValid(pt2)) result = pt2;
 			}
@@ -3630,32 +3891,32 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="centerX">X Coordinate of the circle's center</param>
 		/// <param name="centerY">Y Coordinate of the circle's center</param>
 		/// <param name="radius">Radius of the circle</param>
-		/// <param name="x1">X coordinate of the first point of the line (segment)</param>
-		/// <param name="y1">Y coordinate of the first point of the line (segment)</param>
-		/// <param name="x2">X coordinate of the second point of the line (segment)</param>
-		/// <param name="y2">Y coordinate of the second point of the line (segment)</param>
+		/// <param name="a1X">X coordinate of the first point of the line (segment)</param>
+		/// <param name="a1Y">Y coordinate of the first point of the line (segment)</param>
+		/// <param name="a2X">X coordinate of the second point of the line (segment)</param>
+		/// <param name="a2Y">Y coordinate of the second point of the line (segment)</param>
 		/// <param name="isSegment">Specifies if the given line should be treated as a (endable) line segment instead of a (endless) line</param>
-		public static PointF IntersectCircleWithLine(float centerX, float centerY, float radius, float x1, float y1, float x2, float y2, bool isSegment) {
+		public static PointF IntersectCircleWithLine(float centerX, float centerY, float radius, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
 			PointF p = Point.Empty;
-			p.X = x1; p.Y = y1;
-			return GetNearestPoint(p, GetAllCircleLineIntersections(centerX, centerY, radius, x1, y1, x2, y2, isSegment));
+			p.X = a1X; p.Y = a1Y;
+			return GetNearestPoint(p, GetAllCircleLineIntersections(centerX, centerY, radius, a1X, a1Y, a2X, a2Y, isSegment));
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<PointF> GetAllCircleLineIntersections(PointF center, float radius, PointF pt1, PointF pt2, bool isSegment) {
-			return GetAllCircleLineIntersections(center.X, center.Y, radius, pt1.X, pt1.Y, pt2.X, pt2.Y, isSegment);
+		public static IEnumerable<PointF> GetAllCircleLineIntersections(PointF center, float radius, PointF a1, PointF a2, bool isSegment) {
+			return GetAllCircleLineIntersections(center.X, center.Y, radius, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<PointF> GetAllCircleLineIntersections(float centerX, float centerY, float radius, float x1, float y1, float x2, float y2, bool isSegment) {
+		public static IEnumerable<PointF> GetAllCircleLineIntersections(float centerX, float centerY, float radius, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
 			PointF result = PointF.Empty;
 			double rr = radius * radius;
-			float x21 = x2 - x1;
-			float y21 = y2 - y1;
-			float x10 = x1 - centerX;
-			float y10 = y1 - centerY;
+			float x21 = a2X - a1X;
+			float y21 = a2Y - a1Y;
+			float x10 = a1X - centerX;
+			float y10 = a1Y - centerY;
 			double a = (x21 * x21 + y21 * y21) / rr;
 			double b = (x21 * x10 + y21 * y10) / rr;
 			double c = (x10 * x10 + y10 * y10) / rr;
@@ -3665,13 +3926,13 @@ namespace Dataweb.NShape.Advanced {
 				double u1 = (-b - e) / a;
 				double u2 = (-b + e) / a;
 				if (!isSegment || (0 <= u1 && u1 <= 1)) {
-					result.X = (float)(x1 + x21 * u1);
-					result.Y = (float)(y1 + y21 * u1);
+					result.X = (float)(a1X + x21 * u1);
+					result.Y = (float)(a1Y + y21 * u1);
 					yield return result;
 				}
 				if (!isSegment || (0 <= u2 && u2 <= 1)) {
-					result.X = (float)(x1 + x21 * u2);
-					result.Y = (float)(y1 + y21 * u2);
+					result.X = (float)(a1X + x21 * u2);
+					result.Y = (float)(a1Y + y21 * u2);
 					yield return result;
 				}
 			}
@@ -3679,14 +3940,14 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Point> GetAllCircleLineIntersections(Point center, float radius, Point pt1, Point pt2, bool isSegment) {
-			return GetAllCircleLineIntersections(center.X, center.Y, radius, pt1.X, pt1.Y, pt2.X, pt2.Y, isSegment);
+		public static IEnumerable<Point> GetAllCircleLineIntersections(Point center, float radius, Point a1, Point a2, bool isSegment) {
+			return GetAllCircleLineIntersections(center.X, center.Y, radius, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Point> GetAllCircleLineIntersections(int centerX, int centerY, float radius, int x1, int y1, int x2, int y2, bool isSegment) {
-			foreach (PointF p in GetAllCircleLineIntersections((float)centerX, (float)centerY, (float)radius, (float)x1, (float)y1, (float)x2, (float)y2, isSegment))
+		public static IEnumerable<Point> GetAllCircleLineIntersections(int centerX, int centerY, float radius, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
+			foreach (PointF p in GetAllCircleLineIntersections((float)centerX, (float)centerY, (float)radius, (float)a1X, (float)a1Y, (float)a2X, (float)a2Y, isSegment))
 				yield return Point.Round(p);
 		}
 
@@ -3810,146 +4071,106 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Point> IntersectArcLine(Point startPt, Point radiusPt, Point endPt, Point p1, Point p2, bool isSegment) {
-			return IntersectArcLine(startPt.X, startPt.Y, radiusPt.X, radiusPt.Y, endPt.X, endPt.Y, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static IEnumerable<Point> IntersectArcLine(Point startPt, Point radiusPt, Point endPt, Point a1, Point a2, bool isSegment) {
+			return IntersectArcLine(startPt.X, startPt.Y, radiusPt.X, radiusPt.Y, endPt.X, endPt.Y, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Point> IntersectArcLine(int startPtX, int startPtY, int radiusPtX, int radiusPtY, int endPtX, int endPtY, int x1, int y1, int x2, int y2, bool isSegment) {
+		public static IEnumerable<Point> IntersectArcLine(int startPtX, int startPtY, int radiusPtX, int radiusPtY, int endPtX, int endPtY, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
 			// calculate center point and radius
 			float radius;
 			PointF center;
 			CalcCircumCircle((float)startPtX, (float)startPtY, (float)radiusPtX, (float)radiusPtY, (float)endPtX, (float)endPtY, out center, out radius);
-			foreach (PointF p in GetAllCircleLineIntersections(center.X, center.Y, radius, x1, y1, x2, y2, isSegment))
+			foreach (PointF p in GetAllCircleLineIntersections(center.X, center.Y, radius, a1X, a1Y, a2X, a2Y, isSegment))
 				if (ArcContainsPoint(startPtX, startPtY, radiusPtX, radiusPtY, endPtX, endPtY, center.X, center.Y, radius, p.X, p.Y, 0.1f))
 					yield return Point.Round(p);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<PointF> IntersectArcLine(PointF startPt, PointF radiusPt, PointF endPt, PointF p1, PointF p2, bool isSegment) {
-			return IntersectArcLine(startPt.X, startPt.Y, radiusPt.X, radiusPt.Y, endPt.X, endPt.Y, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static IEnumerable<PointF> IntersectArcLine(PointF startPt, PointF radiusPt, PointF endPt, PointF a1, PointF a2, bool isSegment) {
+			return IntersectArcLine(startPt.X, startPt.Y, radiusPt.X, radiusPt.Y, endPt.X, endPt.Y, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<PointF> IntersectArcLine(float startPtX, float startPtY, float radiusPtX, float radiusPtY, float endPtX, float endPtY, float x1, float y1, float x2, float y2, bool isSegment) {
+		public static IEnumerable<PointF> IntersectArcLine(float startPtX, float startPtY, float radiusPtX, float radiusPtY, float endPtX, float endPtY, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
 			// calculate center point and radius
 			float radius;
 			PointF center;
 			CalcCircumCircle(startPtX, startPtY, radiusPtX, radiusPtY, endPtX, endPtY, out center, out radius);
-			foreach (PointF p in GetAllCircleLineIntersections(center.X, center.Y, radius, x1, y1, x2, y2, isSegment))
+			foreach (PointF p in GetAllCircleLineIntersections(center.X, center.Y, radius, a1X, a1Y, a2X, a2Y, isSegment))
 				if (ArcContainsPoint(startPtX, startPtY, radiusPtX, radiusPtY, endPtX, endPtY, center.X, center.Y, radius, p.X, p.Y, 0.1f))
 					yield return p;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Point> IntersectPolygonLine(Point[] points, Point p1, Point p2, bool isSegment) {
-			return IntersectPolygonLine(points, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static IEnumerable<Point> IntersectPolygonLine(Point[] points, Point a1, Point a2, bool isSegment) {
+			return IntersectPolygonLine(points, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Point> IntersectPolygonLine(Point[] points, int pt1X, int pt1Y, int pt2X, int pt2Y, bool isSegment) {
-			if (points == null) throw new ArgumentNullException("points");
-			Point result = Point.Empty;
-			Point polyPt1 = Point.Empty;
-			Point polyPt2 = Point.Empty;
-
-			int a, b, c;
-			int aLine, bLine, cLine;
-			CalcLine(pt1X, pt1Y, pt2X, pt2Y, out aLine, out bLine, out cLine);
+		public static IEnumerable<Point> IntersectPolygonLine(Point[] points, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
+			if (points == null) throw new ArgumentNullException(nameof(points));
 
 			int maxIdx = points.Length - 1;
-			for (int i = 0; i < maxIdx; ++i) {
-				polyPt1 = points[i];
-				polyPt2 = points[i + 1];
-				if (isSegment ?
-					LineSegmentIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y)
-					: LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y)) {
-					CalcLine(polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y, out a, out b, out c);
-					int x, y;
-					if (IntersectLines(a, b, c, aLine, bLine, cLine, out x, out y)) {
-						result.X = x;
-						result.Y = y;
-						yield return result;
-					}
-				}
+			for (int idxPt1 = 0; idxPt1 < maxIdx; ++idxPt1) {
+				int idxPt2 = idxPt1 + 1;
+				// Instead of checking if there is an intersection and then calculating the intersection point again, 
+				// we calculate the intersection point in the first place and then check if it's valid
+				Point r = isSegment ? IntersectLineSegments(a1X, a1Y, a2X, a2Y, points[idxPt1].X, points[idxPt1].Y, points[idxPt2].X, points[idxPt2].Y)
+					: IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, points[idxPt1].X, points[idxPt1].Y, points[idxPt2].X, points[idxPt2].Y);
+				if (IsValid(r))
+					yield return r;
 			}
 			if (points[0] != points[maxIdx]) {
-				polyPt1.X = points[0].X;
-				polyPt1.Y = points[0].Y;
-				polyPt2.X = points[maxIdx].X;
-				polyPt2.Y = points[maxIdx].Y;
-				if (isSegment ?
-					LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y,
-						polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y)
-					: LineIntersectsWithLine(pt1X, pt1Y, pt2X, pt2Y,
-						polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y)) {
-					CalcLine(polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y, out a, out b, out c);
-					int x, y;
-					if (IntersectLines(a, b, c, aLine, bLine, cLine, out x, out y)) {
-						result.X = x;
-						result.Y = y;
-						yield return result;
-					}
-				}
+				int idxPt1 = maxIdx, idxPt2 = 0;
+				Point r = isSegment ? IntersectLineSegments(a1X, a1Y, a2X, a2Y, points[idxPt1].X, points[idxPt1].Y, points[idxPt2].X, points[idxPt2].Y)
+					: IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, points[idxPt1].X, points[idxPt1].Y, points[idxPt2].X, points[idxPt2].Y);
+				if (IsValid(r))
+					yield return r;
 			}
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Point> IntersectPolygonLine(PointF[] points, PointF p1, PointF p2, bool isSegment) {
-			return IntersectPolygonLine(points, p1, p2, isSegment);
+		public static IEnumerable<Point> IntersectPolygonLine(PointF[] points, PointF a1, PointF a2, bool isSegment) {
+			return IntersectPolygonLine(points, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public static IEnumerable<Point> IntersectPolygonLine(PointF[] points, float pt1X, float pt1Y, float pt2X, float pt2Y, bool isSegment) {
-			if (points == null) throw new ArgumentNullException("points");
+		public static IEnumerable<Point> IntersectPolygonLine(PointF[] points, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			Point result = Point.Empty;
 
-			float a, b, c;
-			float aLine, bLine, cLine;
-			CalcLine(pt1X, pt1Y, pt2X, pt2Y, out aLine, out bLine, out cLine);
-
-			PointF polyPt1 = Point.Empty, polyPt2 = Point.Empty;
+			PointF polyPt1, polyPt2;
 			int maxIdx = points.Length - 1;
 			for (int i = 0; i < maxIdx; ++i) {
 				polyPt1 = points[i];
 				polyPt2 = points[i + 1];
-				bool intersection;
+				PointF intersection;
 				if (isSegment)
-					intersection = LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y);
-				else intersection = LineIntersectsWithLine(pt1X, pt1Y, pt2X, pt2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y);
-				if (intersection) {
-					CalcLine(polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y, out a, out b, out c);
-					float x, y;
-					if (IntersectLines(a, b, c, aLine, bLine, cLine, out x, out y)) {
-						result.X = (int)Math.Round(x);
-						result.Y = (int)Math.Round(y);
-						yield return result;
-					}
+					intersection = IntersectLineSegments(a1X, a1Y, a2X, a2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y);
+				else 
+					intersection = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y);
+				if (IsValid(intersection)) {
+					yield return Point.Round(intersection);
 				}
 			}
 			if (points[0] != points[maxIdx]) {
 				polyPt1 = points[0];
 				polyPt2 = points[maxIdx];
-				bool intersection;
+				PointF intersection;
 				if (isSegment)
-					intersection = LineIntersectsWithLineSegment(pt1X, pt1Y, pt2X, pt2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y);
-				else intersection = LineIntersectsWithLine(pt1X, pt1Y, pt2X, pt2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y);
-				if (intersection) {
-					CalcLine(polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y, out a, out b, out c);
-					float x, y;
-					if (IntersectLines(a, b, c, aLine, bLine, cLine, out x, out y)) {
-						result.X = (int)Math.Round(x);
-						result.Y = (int)Math.Round(y);
-						yield return result;
-					}
-				}
+					intersection = IntersectLineSegments(a1X, a1Y, a2X, a2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y);
+				else 
+					intersection = IntersectLineWithLineSegment(a1X, a1Y, a2X, a2Y, polyPt1.X, polyPt1.Y, polyPt2.X, polyPt2.Y);
+				if (IsValid(intersection))
+					yield return Point.Round(intersection);
 			}
 		}
 
@@ -3961,12 +4182,12 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="ellipseWidth">Width of the ellipse.</param>
 		/// <param name="ellipseHeight">Height of the ellipse.</param>
 		/// <param name="ellipseAngleDeg">Rotation angle of the ellipse in degrees.</param>
-		/// <param name="p1">First point of the line segment.</param>
-		/// <param name="p2">Second point of the line segment.</param>
+		/// <param name="a1">First point of the line segment.</param>
+		/// <param name="a2">Second point of the line segment.</param>
 		/// <param name="isSegment">Specifies whether the tested line should be treated as line or as line segment.</param>
 		/// <returns>Intersection points of the line with the ellipse.</returns>		
-		public static IEnumerable<Point> IntersectEllipseLine(Point center, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, Point p1, Point p2, bool isSegment) {
-			return IntersectEllipseLine(center.X, center.Y, ellipseWidth, ellipseHeight, ellipseAngleDeg, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static IEnumerable<Point> IntersectEllipseLine(Point center, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, Point a1, Point a2, bool isSegment) {
+			return IntersectEllipseLine(center.X, center.Y, ellipseWidth, ellipseHeight, ellipseAngleDeg, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
@@ -3976,12 +4197,12 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="center">Center point of the ellipse.</param>
 		/// <param name="ellipseWidth">Width of the ellipse.</param>
 		/// <param name="ellipseHeight">Height of the ellipse.</param>
-		/// <param name="p1">First point of the line segment.</param>
+		/// <param name="a1">First point of the line segment.</param>
 		/// <param name="p2">Second point of the line segment.</param>
 		/// <param name="isSegment">Specifies whether the tested line should be treated as line or as line segment.</param>
 		/// <returns>Intersection points of the line with the ellipse.</returns>		
-		public static IEnumerable<Point> IntersectEllipseLine(Point center, int ellipseWidth, int ellipseHeight, Point p1, Point p2, bool isSegment) {
-			return IntersectEllipseLine(center.X, center.Y, ellipseWidth, ellipseHeight, 0, p1.X, p1.Y, p2.X, p2.Y, isSegment);
+		public static IEnumerable<Point> IntersectEllipseLine(Point center, int ellipseWidth, int ellipseHeight, Point a1, Point p2, bool isSegment) {
+			return IntersectEllipseLine(center.X, center.Y, ellipseWidth, ellipseHeight, 0, a1.X, a1.Y, p2.X, p2.Y, isSegment);
 		}
 
 
@@ -3992,14 +4213,14 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="centerY">Y coordinate of the ellipse center point.</param>
 		/// <param name="ellipseWidth">Width of the ellipse.</param>
 		/// <param name="ellipseHeight">Height of the ellipse.</param>
-		/// <param name="x1">X coordinate of the line segments first point.</param>
-		/// <param name="y1">Y coordinate of the line segments first point.</param>
-		/// <param name="x2">X coordinate of the line segments second point.</param>
-		/// <param name="y2">Y coordinate of the line segments second point.</param>
+		/// <param name="a1X">X coordinate of the line segments first point.</param>
+		/// <param name="a1Y">Y coordinate of the line segments first point.</param>
+		/// <param name="a2X">X coordinate of the line segments second point.</param>
+		/// <param name="a2Y">Y coordinate of the line segments second point.</param>
 		/// <param name="isSegment">Specifies whether the tested line should be treated as line or as line segment.</param>
 		/// <returns>Intersection points of the line with the ellipse.</returns>		
-		public static IEnumerable<Point> IntersectEllipseLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, int x1, int y1, int x2, int y2, bool isSegment) {
-			return IntersectEllipseLine(centerX, centerY, ellipseWidth, ellipseHeight, 0, x1, y1, x2, y2, isSegment);
+		public static IEnumerable<Point> IntersectEllipseLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
+			return IntersectEllipseLine(centerX, centerY, ellipseWidth, ellipseHeight, 0, a1X, a1Y, a2X, a2Y, isSegment);
 		}
 
 
@@ -4011,13 +4232,13 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="ellipseWidth">Width of the ellipse.</param>
 		/// <param name="ellipseHeight">Height of the ellipse.</param>
 		/// <param name="ellipseAngleDeg">Specifies the rotation angle of the ellipse in degrees.</param>
-		/// <param name="x1">X coordinate of the line segments first point.</param>
-		/// <param name="y1">Y coordinate of the line segments first point.</param>
-		/// <param name="x2">X coordinate of the line segments second point.</param>
-		/// <param name="y2">Y coordinate of the line segments second point.</param>
+		/// <param name="a1X">X coordinate of the line segments first point.</param>
+		/// <param name="a1Y">Y coordinate of the line segments first point.</param>
+		/// <param name="a2X">X coordinate of the line segments second point.</param>
+		/// <param name="a2Y">Y coordinate of the line segments second point.</param>
 		/// <param name="isSegment">Specifies whether the tested line should be treated as line or as line segment.</param>
 		/// <returns>Intersection points of the line with the ellipse.</returns>		
-		public static IEnumerable<Point> IntersectEllipseLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, int x1, int y1, int x2, int y2, bool isSegment) {
+		public static IEnumerable<Point> IntersectEllipseLine(int centerX, int centerY, int ellipseWidth, int ellipseHeight, float ellipseAngleDeg, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
 			Point result = Point.Empty;
 			float x, y;
 			float radiusX = ellipseWidth / 2f;
@@ -4026,13 +4247,13 @@ namespace Dataweb.NShape.Advanced {
 			float rry = radiusY * radiusY;
 			// instead of rotating the ellipse, we rotate the line to the opposite side and then rotate intersection points back
 			if (ellipseAngleDeg != 0) {
-				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref x1, ref y1);
-				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref x2, ref y2);
+				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref a1X, ref a1Y);
+				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref a2X, ref a2Y);
 			}
-			int dXLine = x2 - x1;
-			int dYLine = y2 - y1;
-			int dXCenter = x1 - centerX;
-			int dYCenter = y1 - centerY;
+			int dXLine = a2X - a1X;
+			int dYLine = a2Y - a1Y;
+			int dXCenter = a1X - centerX;
+			int dYCenter = a1Y - centerY;
 			float a = (((float)dXLine * (float)dXLine) / rrx) + ((float)dYLine * (float)dYLine / rry);
 			float b = (((float)dXLine * (float)dXCenter) / rrx) + ((float)dYLine * (float)dYCenter / rry);
 			float c = (((float)dXCenter * (float)dXCenter) / rrx) + ((float)dYCenter * (float)dYCenter / rry);
@@ -4042,16 +4263,16 @@ namespace Dataweb.NShape.Advanced {
 				float u1 = (-b - rd) / a;
 				float u2 = (-b + rd) / a;
 				if (!float.IsNaN(u1) && (0 <= u1 && u1 <= 1 || !isSegment)) {
-					x = (float)(x1 + dXLine * u1);
-					y = (float)(y1 + dYLine * u1);
+					x = (float)(a1X + dXLine * u1);
+					y = (float)(a1Y + dYLine * u1);
 					if (ellipseAngleDeg != 0) RotatePoint(centerX, centerY, ellipseAngleDeg, ref x, ref y);
 					result.X = (int)Math.Round(x);
 					result.Y = (int)Math.Round(y);
 					yield return result;
 				}
 				if (!float.IsNaN(u2) && (0 <= u2 && u2 <= 1 || !isSegment)) {
-					x = (float)(x1 + dXLine * u2);
-					y = (float)(y1 + dYLine * u2);
+					x = (float)(a1X + dXLine * u2);
+					y = (float)(a1Y + dYLine * u2);
 					if (ellipseAngleDeg != 0) RotatePoint(centerX, centerY, ellipseAngleDeg, ref x, ref y);
 					result.X = (int)Math.Round(x);
 					result.Y = (int)Math.Round(y);
@@ -4069,13 +4290,13 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="ellipseWidth">Width of the ellipse.</param>
 		/// <param name="ellipseHeight">Height of the ellipse.</param>
 		/// <param name="ellipseAngleDeg">Rotation angle of the ellipse.</param>
-		/// <param name="x1">X coordinate of the line segments first point.</param>
-		/// <param name="y1">Y coordinate of the line segments first point.</param>
-		/// <param name="x2">X coordinate of the line segments second point.</param>
-		/// <param name="y2">Y coordinate of the line segments second point.</param>
+		/// <param name="a1X">X coordinate of the line segments first point.</param>
+		/// <param name="a1Y">Y coordinate of the line segments first point.</param>
+		/// <param name="a2X">X coordinate of the line segments second point.</param>
+		/// <param name="a2Y">Y coordinate of the line segments second point.</param>
 		/// <param name="isSegment">Specifies whether the tested line should be treated as line or as line segment.</param>
 		/// <returns>Intersection points of the line with the ellipse.</returns>		
-		public static IEnumerable<PointF> IntersectEllipseLine(float centerX, float centerY, float ellipseWidth, float ellipseHeight, float ellipseAngleDeg, float x1, float y1, float x2, float y2, bool isSegment) {
+		public static IEnumerable<PointF> IntersectEllipseLine(float centerX, float centerY, float ellipseWidth, float ellipseHeight, float ellipseAngleDeg, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
 			PointF result = PointF.Empty;
 			float x, y;
 			float radiusX = ellipseWidth / 2f;
@@ -4084,13 +4305,13 @@ namespace Dataweb.NShape.Advanced {
 			float rry = radiusY * radiusY;
 			// Instead of rotating the ellipse, we rotate the line to the opposite side and then rotate intersection points back
 			if (ellipseAngleDeg != 0) {
-				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref x1, ref y1);
-				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref x2, ref y2);
+				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref a1X, ref a1Y);
+				RotatePoint(centerX, centerY, -ellipseAngleDeg, ref a2X, ref a2Y);
 			}
-			float dXLine = x2 - x1;
-			float dYLine = y2 - y1;
-			float dXCenter = x1 - centerX;
-			float dYCenter = y1 - centerY;
+			float dXLine = a2X - a1X;
+			float dYLine = a2Y - a1Y;
+			float dXCenter = a1X - centerX;
+			float dYCenter = a1Y - centerY;
 			double a = ((dXLine * dXLine) / (double)rrx) + (dYLine * dYLine / (double)rry);
 			double b = ((dXLine * dXCenter) / (double)rrx) + (dYLine * dYCenter / (double)rry);
 			double c = ((dXCenter * dXCenter) / (double)rrx) + (dYCenter * dYCenter / (double)rry);
@@ -4100,16 +4321,16 @@ namespace Dataweb.NShape.Advanced {
 				double u1 = (-b - rd) / a;
 				double u2 = (-b + rd) / a;
 				if (!double.IsNaN(u1) && (0 <= u1 && u1 <= 1 || !isSegment)) {
-					x = (float)(x1 + dXLine * u1);
-					y = (float)(y1 + dYLine * u1);
+					x = (float)(a1X + dXLine * u1);
+					y = (float)(a1Y + dYLine * u1);
 					if (ellipseAngleDeg != 0) RotatePoint(centerX, centerY, ellipseAngleDeg, ref x, ref y);
 					result.X = x;
 					result.Y = y;
 					yield return result;
 				}
 				if (!double.IsNaN(u2) && (0 <= u2 && u2 <= 1 || !isSegment)) {
-					x = (float)(x1 + dXLine * u2);
-					y = (float)(y1 + dYLine * u2);
+					x = (float)(a1X + dXLine * u2);
+					y = (float)(a1Y + dYLine * u2);
 					if (ellipseAngleDeg != 0) RotatePoint(centerX, centerY, ellipseAngleDeg, ref x, ref y);
 					result.X = x;
 					result.Y = y;
@@ -4122,34 +4343,35 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the intersection points of the line segment from p1 to p2 with the (rotated) rectangle.
 		/// </summary>
-		public static IEnumerable<Point> IntersectRectangleLine(Rectangle rectangle, float angleDeg, Point p1, Point p2, bool isSegment) {
-			// Calc unrotated but translated rectangle
+		public static IEnumerable<Point> IntersectRectangleLine(Rectangle rectangle, float angleDeg, Point a1, Point a2, bool isSegment) {
+			// Instead of rotating the rectangle and checking the 4 sides of the rectangle for intersection with the unrotated line,
+			// we rotate the line around the rectangle's center in the opposite direction
 			float centerX = rectangle.X + (rectangle.Width / 2f);
 			float centerY = rectangle.Y + (rectangle.Height / 2f);
 
-			PointF tl = RotatePoint(centerX, centerY, angleDeg, rectangle.Left, rectangle.Top);
-			PointF tr = RotatePoint(centerX, centerY, angleDeg, rectangle.Right, rectangle.Top);
-			PointF bl = RotatePoint(centerX, centerY, angleDeg, rectangle.Left, rectangle.Bottom);
-			PointF br = RotatePoint(centerX, centerY, angleDeg, rectangle.Right, rectangle.Bottom);
+			Point tl = Point.Round(RotatePoint(centerX, centerY, angleDeg, rectangle.Left, rectangle.Top));
+			Point tr = Point.Round(RotatePoint(centerX, centerY, angleDeg, rectangle.Right, rectangle.Top));
+			Point bl = Point.Round(RotatePoint(centerX, centerY, angleDeg, rectangle.Left, rectangle.Bottom));
+			Point br = Point.Round(RotatePoint(centerX, centerY, angleDeg, rectangle.Right, rectangle.Bottom));
 			if (isSegment) {
-				PointF p;
-				p = IntersectLineWithLineSegment(p1.X, p1.Y, p2.X, p2.Y, tl.X, tl.Y, tr.X, tr.Y);
+				Point p;
+				p = IntersectLineWithLineSegment(a1.X, a1.Y, a2.X, a2.Y, tl.X, tl.Y, tr.X, tr.Y);
 				if (IsValid(p)) yield return Point.Round(p);
-				p = IntersectLineWithLineSegment(p1.X, p1.Y, p2.X, p2.Y, tr.X, tr.Y, br.X, br.Y);
+				p = IntersectLineWithLineSegment(a1.X, a1.Y, a2.X, a2.Y, tr.X, tr.Y, br.X, br.Y);
 				if (IsValid(p)) yield return Point.Round(p);
-				p = IntersectLineWithLineSegment(p1.X, p1.Y, p2.X, p2.Y, bl.X, bl.Y, br.X, br.Y);
+				p = IntersectLineWithLineSegment(a1.X, a1.Y, a2.X, a2.Y, bl.X, bl.Y, br.X, br.Y);
 				if (IsValid(p)) yield return Point.Round(p);
-				p = IntersectLineWithLineSegment(p1.X, p1.Y, p2.X, p2.Y, tl.X, tl.Y, br.X, br.Y);
+				p = IntersectLineWithLineSegment(a1.X, a1.Y, a2.X, a2.Y, tl.X, tl.Y, br.X, br.Y);
 				if (IsValid(p)) yield return Point.Round(p);
 			} else {
-				PointF p;
-				p = IntersectLineSegments(p1.X, p1.Y, p2.X, p2.Y, tl.X, tl.Y, tr.X, tr.Y);
+				Point p;
+				p = IntersectLineSegments(a1.X, a1.Y, a2.X, a2.Y, tl.X, tl.Y, tr.X, tr.Y);
 				if (IsValid(p)) yield return Point.Round(p);
-				p = IntersectLineSegments(p1.X, p1.Y, p2.X, p2.Y, tr.X, tr.Y, br.X, br.Y);
+				p = IntersectLineSegments(a1.X, a1.Y, a2.X, a2.Y, tr.X, tr.Y, br.X, br.Y);
 				if (IsValid(p)) yield return Point.Round(p);
-				p = IntersectLineSegments(p1.X, p1.Y, p2.X, p2.Y, bl.X, bl.Y, br.X, br.Y);
+				p = IntersectLineSegments(a1.X, a1.Y, a2.X, a2.Y, bl.X, bl.Y, br.X, br.Y);
 				if (IsValid(p)) yield return Point.Round(p);
-				p = IntersectLineSegments(p1.X, p1.Y, p2.X, p2.Y, tl.X, tl.Y, br.X, br.Y);
+				p = IntersectLineSegments(a1.X, a1.Y, a2.X, a2.Y, tl.X, tl.Y, br.X, br.Y);
 				if (IsValid(p)) yield return Point.Round(p);
 			}
 		}
@@ -4162,10 +4384,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculate the distance between the two points {x1 | y1} and {x2 | y2}
 		/// </summary>
-		public static float DistancePointPoint(int x1, int y1, int x2, int y2) {
-			int d1 = x1 - x2;
-			int d2 = y1 - y2;
-			return (float)Math.Sqrt((float)d1 * (float)d1 + (float)d2 * (float)d2);
+		public static float DistancePointPoint(int aX, int aY, int bX, int bY) {
+			int d1 = aX - bX;
+			int d2 = aY - bY;
+			return (float)Math.Sqrt((double)d1 * d1 + (double)d2 * d2);
 		}
 
 
@@ -4175,16 +4397,16 @@ namespace Dataweb.NShape.Advanced {
 		public static float DistancePointPoint(Point a, Point b) {
 			int d1 = a.X - b.X;
 			int d2 = a.Y - b.Y;
-			return (float)Math.Sqrt((float)d1 * (float)d1 + (float)d2 * (float)d2);
+			return (float)Math.Sqrt((double)d1 * d1 + (double)d2 * d2);
 		}
 
 
 		/// <summary>
 		/// Calculate the distance between the two points a and b
 		/// </summary>
-		public static float DistancePointPoint(float x1, float y1, float x2, float y2) {
-			float d1 = x1 - x2;
-			float d2 = y1 - y2;
+		public static float DistancePointPoint(float aX, float aY, float bX, float bY) {
+			float d1 = aX - bX;
+			float d2 = aY - bY;
 			return (float)Math.Sqrt(d1 * d1 + d2 * d2);
 		}
 
@@ -4202,9 +4424,9 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the approximate distance between the two points {x1 | y1} and {x2 | y2}
 		/// </summary>
-		public static int DistancePointPointFast(int x1, int y1, int x2, int y2) {
-			int dx = x2 - x1;
-			int dy = y2 - y1;
+		public static int DistancePointPointFast(int aX, int aY, int bX, int bY) {
+			int dx = bX - aX;
+			int dy = bY - aY;
 			int min, max;
 			if (dx < 0) dx = -dx;
 			if (dy < 0) dy = -dy;
@@ -4226,8 +4448,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the approximate distance between the two points {x1 | y1} and {x2 | y2}
 		/// </summary>
-		public static int DistancePointPointFast(int x, int y, Point p) {
-			return DistancePointPointFast(x, y, p.X, p.Y);
+		public static int DistancePointPointFast(int aX, int aY, Point b) {
+			return DistancePointPointFast(aX, aY, b.X, b.Y);
 		}
 
 
@@ -4235,84 +4457,58 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates the approximate distance betwenn the two points.
 		/// </summary>
 		public static int DistancePointPointFast(Point a, Point b) {
-			int dx = b.X - a.X;
-			int dy = b.Y - a.Y;
-			int min, max;
-			if (dx < 0) dx = -dx;
-			if (dy < 0) dy = -dy;
-			if (dx < dy) {
-				min = dx;
-				max = dy;
-			} else {
-				min = dy;
-				max = dx;
-			}
-			// coefficients equivalent to ( 123/128 * max ) and ( 51/128 * min )
-			return (((max << 8) + (max << 3) - (max << 4) - (max << 1) +
-						(min << 7) - (min << 5) + (min << 3) - (min << 1)) >> 8);
+			return DistancePointPointFast(a.X, a.Y, b.X, b.Y);
 		}
 
 
 		/// <summary>
 		/// Calculates the distance of point p from the line through a and b. The result can be positive or negative.
 		/// </summary>
-		public static float DistancePointLine2(Point p, Point a, Point b) {
-			return DistancePointLine2(p.X, p.Y, a.X, a.Y, b.X, b.Y);
+		public static float DistancePointLine2(Point p, Point a1, Point a2) {
+			return DistancePointLine2(p.X, p.Y, a1.X, a1.Y, a2.X, a2.Y);
 		}
 
 
 		/// <summary>
 		/// Calculates the distance of point p from the line through a and b. The result can be positive or negative.
 		/// </summary>
-		public static float DistancePointLine2(int pX, int pY, int aX, int aY, int bX, int bY) {
-			return DistancePointPoint(pX, pY, aX, aY) * (float)Math.Sin(Angle(aX, aY, pX, pY, bX, bY));
+		public static float DistancePointLine2(int pX, int pY, int a1X, int a1Y, int a2X, int a2Y) {
+			return DistancePointPoint(pX, pY, a1X, a1Y) * (float)Math.Sin(Angle(a1X, a1Y, pX, pY, a2X, a2Y));
 		}
 
 
 		/// <summary>
 		/// Berechnet den Abstand des Punktes p von der Geraden linePt1 - linePt2
 		/// </summary>
-		public static float DistancePointLine2(float pX, float pY, float aX, float aY, float bX, float bY) {
-			return DistancePointPoint(pX, pY, aX, aY) * (float)Math.Sin(Angle(aX, aY, pX, pY, bX, bY));
+		public static float DistancePointLine2(float pX, float pY, float a1X, float a1Y, float a2X, float a2Y) {
+			return DistancePointPoint(pX, pY, a1X, a1Y) * (float)Math.Sin(Angle(a1X, a1Y, pX, pY, a2X, a2Y));
 		}
 
 
 		/// <summary>
 		/// Calculates the distance of point p from the line segment a to b. The result is always >= 0.
 		/// </summary>
-		public static float DistancePointLineSegment2(Point p, Point a, Point b) {
-			float result;
-			// Liegt der Lotpunkt auf der Strecke?
-			// Abstand des Lotpunktes von linePt1 in Richtung linePt2
-			float d = DistancePointPoint(p, a) * (float)Math.Cos(Angle(a, p, b));
-			// Falls ja ist der Abstand gleich dem Abstand von der Geraden
-			// Falls nein ist der Abstand der zum näher liegenden Strecken-Endpunkt.
-			if (d < 0)
-				result = DistancePointPoint(p, a);
-			else if (d > DistancePointPoint(b, a))
-				result = DistancePointPoint(p, b);
-			else
-				result = Math.Abs(DistancePointLine2(p, a, b));
-			return result;
+		public static float DistancePointLineSegment2(Point p, Point a1, Point a2) {
+			return DistancePointLineSegment2(p.X, p.Y, a1.X, a1.Y, a2.X, a2.Y);
 		}
 
 
 		/// <summary>
 		/// Calculates the distance of point p from the line segment a to b. The result is always >= 0.
 		/// </summary>
-		public static float DistancePointLineSegment2(int pX, int pY, int aX, int aY, int bX, int bY) {
+		public static float DistancePointLineSegment2(int pX, int pY, int a1X, int a1Y, int a2X, int a2Y) {
 			float result;
 			// Liegt der Lotpunkt auf der Strecke?
 			// Abstand des Lotpunktes von linePt1 in Richtung linePt2
-			float d = DistancePointPoint(pX, pY, aX, aY) * (float)Math.Cos(Angle(aX, aY, pX, pY, bX, bY));
+			float d = DistancePointPoint(pX, pY, a1X, a1Y) * (float)Math.Cos(Angle(a1X, a1Y, pX, pY, a2X, a2Y));
 			// Falls ja ist der Abstand gleich dem Abstand von der Geraden
 			// Falls nein ist der Abstand der zum näher liegenden Strecken-Endpunkt.
 			if (d < 0)
-				result = DistancePointPoint(pX, pY, aX, aY);
-			else if (d > DistancePointPoint(bX, bY, aX, aY))
-				result = DistancePointPoint(pX, pY, bX, bY);
+				result = DistancePointPoint(pX, pY, a1X, a1Y);
+			else if (d > DistancePointPoint(a2X, a2Y, a1X, a1Y))
+				result = DistancePointPoint(pX, pY, a2X, a2Y);
 			else
-				result = Math.Abs(DistancePointLine2(pX, pY, aX, aY, bX, bY));
+				result = Math.Abs(DistancePointLine2(pX, pY, a1X, a1Y, a2X, a2Y));
 			return result;
 		}
 
@@ -4321,8 +4517,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculate the distance from p to ab. 
 		/// If isSegment is true, ab is not a line but a line segment. This also means that the calculated value is always >= 0.
 		/// </summary>
-		public static float DistancePointLine(Point p, Point a, Point b, bool isSegment) {
-			return DistancePointLine(p.X, p.Y, a.X, a.Y, b.X, b.Y, isSegment);
+		public static float DistancePointLine(Point p, Point a1, Point a2, bool isSegment) {
+			return DistancePointLine(p.X, p.Y, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
@@ -4330,23 +4526,29 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculate the distance from p to ab. 
 		/// If isSegment is true, ab is not a line but a line segment. This also means that the calculated value is always >= 0.
 		/// </summary>
-		public static float DistancePointLine(int pX, int pY, int aX, int aY, int bX, int bY, bool isSegment) {
-			if ((pX == aX && pY == aY) || (pX == bX && pY == bY)) return 0;
+		public static float DistancePointLine(int pX, int pY, int a1X, int a1Y, int a2X, int a2Y, bool isSegment) {
+			// Note on performance:
+			// Lines:
+			// Faster than the float version: 1811 ms versus 2032 ms for the float version (100.000.000 calls, Release)
+			// Line Segments:
+			// Slower than the float version: 2702 ms versus 1622 ms for the float version (100.000.000 calls, Release)
+
+			if ((pX == a1X && pY == a1Y) || (pX == a2X && pY == a2Y)) return 0;
 			if (isSegment) {
-				float l = DistancePointPoint(aX, aY, bX, bY);
-				if (l == 0) return DistancePointPoint(pX, pY, aX, aY);
+				float l = DistancePointPoint(a1X, a1Y, a2X, a2Y);
+				if (Equals(l, 0)) return DistancePointPoint(pX, pY, a1X, a1Y);
 			}
 			// Vector cross product is the size of the parallelogram A, B, P, A'. Dived by the length of 
 			// the base line, the result is the requested distance.
-			float dist = VectorCrossProduct(aX, aY, bX, bY, pX, pY) / DistancePointPoint(aX, aY, bX, bY);
+			float dist = VectorCrossProductL(a1X, a1Y, a2X, a2Y, pX, pY) / DistancePointPoint(a1X, a1Y, a2X, a2Y);
 			if (!isSegment) return dist;
 			else {
 				// If one of the angles is larger than 90 degree, there is no perpendicular and we must calculate
 				// the distance to the nearer point of the two.
-				int dot1 = VectorDotProduct(aX, aY, bX, bY, pX, pY);
-				if (dot1 > 0) return DistancePointPoint(bX, bY, pX, pY);
-				int dot2 = VectorDotProduct(bX, bY, aX, aY, pX, pY);
-				if (dot2 > 0) return DistancePointPoint(aX, aY, pX, pY);
+				if (VectorDotProductL(a1X, a1Y, a2X, a2Y, pX, pY) > 0)
+					return DistancePointPoint(a2X, a2Y, pX, pY);
+				if (VectorDotProductL(a2X, a2Y, a1X, a1Y, pX, pY) > 0)
+					return DistancePointPoint(a1X, a1Y, pX, pY);
 				return Math.Abs(dist);
 			}
 		}
@@ -4356,18 +4558,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculate the distance from p to ab. 
 		/// If isSegment is true, ab is not a line but a line segment. This also means that the calculated value is always >= 0.
 		/// </summary>
-		public static float DistancePointLine(PointF p, PointF a, PointF b, bool isSegment) {
-			if (p == a || p == b)
-				return 0;
-			float dist = VectorCrossProduct(a, b, p) / DistancePointPoint(a, b);
-			if (isSegment) return dist;
-			else {
-				float dot1 = VectorDotProduct(a, b, p);
-				if (dot1 > 0) return DistancePointPoint(b, p);
-				float dot2 = VectorDotProduct(b, a, p);
-				if (dot2 > 0) return DistancePointPoint(a, p);
-				return Math.Abs(dist);
-			}
+		public static float DistancePointLine(PointF p, PointF a1, PointF a2, bool isSegment) {
+			return DistancePointLine(p.X, p.Y, a1.X, a1.Y, a2.X, a2.Y, isSegment);
 		}
 
 
@@ -4375,16 +4567,16 @@ namespace Dataweb.NShape.Advanced {
 		///Calculate the distance from p to ab. If isSegment is true, ab is not not a line but a line segment.
 		///If isSegment is true, ab is not not a line but a line segment. This also means that the calculated value is always >= 0.
 		///</summary>
-		public static float DistancePointLine(float pX, float pY, float aX, float aY, float bX, float bY, bool isSegment) {
-			if ((pX == aX && pY == aY) || (pX == bX && pY == bY))
+		public static float DistancePointLine(float pX, float pY, float a1X, float a1Y, float a2X, float a2Y, bool isSegment) {
+			if ((pX == a1X && pY == a1Y) || (pX == a2X && pY == a2Y))
 				return 0;
-			float dist = VectorCrossProduct(aX, aY, bX, bY, pX, pY) / DistancePointPoint(aX, aY, bX, bY);
+			float dist = VectorCrossProduct(a1X, a1Y, a2X, a2Y, pX, pY) / DistancePointPoint(a1X, a1Y, a2X, a2Y);
 			if (isSegment) return dist;
 			else {
-				float dot1 = VectorDotProduct(aX, aY, bX, bY, pX, pY);
-				if (dot1 > 0) return DistancePointPoint(bX, bY, pX, pY);
-				float dot2 = VectorDotProduct(bX, bY, aX, aY, pX, pY);
-				if (dot2 > 0) return DistancePointPoint(aX, aY, pX, pY);
+				if (VectorDotProduct(a1X, a1Y, a2X, a2Y, pX, pY) >= EqualityDeltaFloat)
+					return DistancePointPoint(a2X, a2Y, pX, pY);
+				if (VectorDotProduct(a2X, a2Y, a1X, a1Y, pX, pY) >= EqualityDeltaFloat)
+					return DistancePointPoint(a1X, a1Y, pX, pY);
 				return Math.Abs(dist);
 			}
 		}
@@ -4394,31 +4586,31 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Rotation and angle calculation functions
 		/// <summary>
-		/// Berechnet den Winkel zwischen x1,y1 und x2,y2 mit Scheitel x0,y0 in Radians
+		/// Berechnet den Winkel zwischen p1 und p2 mit Scheitel p0 in Radians
 		/// </summary>
-		public static float Angle(int x0, int y0, int x1, int y1, int x2, int y2) {
-			return (float)(Math.Atan2(x1 - x0, y1 - y0) - Math.Atan2(x2 - x0, y2 - y0));
+		public static float Angle(int p0X, int p0Y, int p1X, int p1Y, int p2X, int p2Y) {
+			return (float)(Math.Atan2(p1X - p0X, p1Y - p0Y) - Math.Atan2(p2X - p0X, p2Y - p0Y));
 		}
 
 
 		/// <summary>
-		/// Berechnet den Winkel zwischen x1,y1 und x2,y2 mit Scheitel x0,y0 in Radians
+		/// Berechnet den Winkel zwischen p1 und p2 mit Scheitel p0 in Radians
 		/// </summary>
-		public static float Angle(float x0, float y0, float x1, float y1, float x2, float y2) {
-			return (float)(Math.Atan2(x1 - x0, y1 - y0) - Math.Atan2(x2 - x0, y2 - y0));
+		public static float Angle(float p0X, float p0Y, float p1X, float p1Y, float p2X, float p2Y) {
+			return (float)(Math.Atan2(p1X - p0X, p1Y - p0Y) - Math.Atan2(p2X - p0X, p2Y - p0Y));
 		}
 
 
 		/// <summary>
-		/// Berechnet den Winkel zwischen x1,y1 und x2,y2 mit Scheitel x0,y0 in Radians
+		/// Berechnet den Winkel zwischen p1 und p2 mit Scheitel p0 in Radians
 		/// </summary>
-		public static float Angle(Point vertex, Point p1, Point p2) {
-			return Angle(vertex.X, vertex.Y, p1.X, p1.Y, p2.X, p2.Y);
+		public static float Angle(Point p0, Point p1, Point p2) {
+			return Angle(p0.X, p0.Y, p1.X, p1.Y, p2.X, p2.Y);
 		}
 
 
 		/// <summary>
-		/// Berechnet den Winkel (in Radians) von linePt1 zum Scheitelpunkt center.
+		/// Berechnet den Winkel (in Radians) von p1 zum Scheitelpunkt p0.
 		/// </summary>
 		public static float Angle(Point p0, Point p1) {
 			return (float)Math.Atan2(p1.Y - p0.Y, p1.X - p0.X);
@@ -4426,10 +4618,10 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <summary>
-		/// Berechnet den Winkel zwischen x1,y1 und x2,y2 mit Scheitel x0,y0 in Radians
+		/// Berechnet den Winkel zwischen p1 und p2 mit Scheitel p0 in Radians
 		/// </summary>
-		public static float Angle(PointF vertex, PointF p1, PointF p2) {
-			return Angle(vertex.X, vertex.Y, p1.X, p1.Y, p2.X, p2.Y);
+		public static float Angle(PointF p0, PointF p1, PointF p2) {
+			return Angle(p0.X, p0.Y, p1.X, p1.Y, p2.X, p2.Y);
 		}
 
 
@@ -4444,16 +4636,16 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the angle (in radians) between p1 and the center point p0.
 		/// </summary>
-		public static float Angle(int p0x, int p0y, int p1x, int p1y) {
-			return (float)Math.Atan2(p1y - p0y, p1x - p0x);
+		public static float Angle(int p0X, int p0Y, int p1X, int p1Y) {
+			return (float)Math.Atan2(p1Y - p0Y, p1X - p0X);
 		}
 
 
 		/// <summary>
 		/// Calculates the angle (in radians) between p1 and the center point p0.
 		/// </summary>
-		public static float Angle(float p0x, float p0y, float p1x, float p1y) {
-			return (float)Math.Atan2(p1y - p0y, p1x - p0x);
+		public static float Angle(float p0X, float p0Y, float p1X, float p1Y) {
+			return (float)Math.Atan2(p1Y - p0Y, p1X - p0X);
 		}
 
 
@@ -4473,12 +4665,12 @@ namespace Dataweb.NShape.Advanced {
 			double cos = Math.Cos(a);
 			double sin = Math.Sin(a);
 
-			point.X = point.X - rotationCenterX;
-			point.Y = point.Y - rotationCenterY;
-			double dX = (point.X * cos) - (point.Y * sin);
-			double dY = (point.X * sin) + (point.Y * cos);
-			point.X = (float)(dX + rotationCenterX);
-			point.Y = (float)(dY + rotationCenterY);
+			float x = point.X - rotationCenterX;
+			float y = point.Y - rotationCenterY;
+			float dX = (float)((x * cos) - (y * sin));
+			float dY = (float)((x * sin) + (y * cos));
+			point.X = dX + rotationCenterX;
+			point.Y = dY + rotationCenterY;
 
 			return point;
 		}
@@ -4520,10 +4712,10 @@ namespace Dataweb.NShape.Advanced {
 			double cos = Math.Cos(a);
 			double sin = Math.Sin(a);
 
-			point.X = point.X - rotationCenterX;
-			point.Y = point.Y - rotationCenterY;
-			int dX = (int)Math.Round((point.X * cos) - (point.Y * sin));
-			int dY = (int)Math.Round((point.X * sin) + (point.Y * cos));
+			int x = point.X - rotationCenterX;
+			int y = point.Y - rotationCenterY;
+			int dX = (int)Math.Round((x * cos) - (y * sin));
+			int dY = (int)Math.Round((x * sin) + (y * cos));
 			point.X = dX + rotationCenterX;
 			point.Y = dY + rotationCenterY;
 
@@ -4539,12 +4731,12 @@ namespace Dataweb.NShape.Advanced {
 			double cos = Math.Cos(a);
 			double sin = Math.Sin(a);
 
-			x = x - rotationCenterX;
-			y = y - rotationCenterY;
-			double dX = (x * cos) - (y * sin);
-			double dY = (x * sin) + (y * cos);
-			x = (float)(dX + rotationCenterX);
-			y = (float)(dY + rotationCenterY);
+			float _x = x - rotationCenterX;
+			float _y = y - rotationCenterY;
+			float dX = (float)((_x * cos) - (_y * sin));
+			float dY = (float)((_x * sin) + (_y * cos));
+			x = dX + rotationCenterX;
+			y = dY + rotationCenterY;
 		}
 
 
@@ -4556,10 +4748,10 @@ namespace Dataweb.NShape.Advanced {
 			double cos = Math.Cos(a);
 			double sin = Math.Sin(a);
 
-			x = x - rotationCenterX;
-			y = y - rotationCenterY;
-			int dX = (int)Math.Round((x * cos) - (y * sin));
-			int dY = (int)Math.Round((x * sin) + (y * cos));
+			float _x = x - rotationCenterX;
+			float _y = y - rotationCenterY;
+			int dX = (int)Math.Round((_x * cos) - (_y * sin));
+			int dY = (int)Math.Round((_x * sin) + (_y * cos));
 			x = dX + rotationCenterX;
 			y = dY + rotationCenterY;
 		}
@@ -4568,17 +4760,17 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Rotates the given line around the given center
 		/// </summary>
-		public static void RotateLine(Point center, float angleDeg, ref Point a, ref Point b) {
-			RotateLine(center.X, center.Y, angleDeg, ref a, ref b);
+		public static void RotateLine(Point center, float angleDeg, ref Point a1, ref Point a2) {
+			RotateLine(center.X, center.Y, angleDeg, ref a1, ref a2);
 		}
 
 
 		/// <summary>
 		/// Rotates the given line around the given center
 		/// </summary>
-		public static void RotateLine(int centerX, int centerY, float angleDeg, ref Point a, ref Point b) {
-			a = RotatePoint(centerX, centerY, angleDeg, a);
-			b = RotatePoint(centerX, centerY, angleDeg, b);
+		public static void RotateLine(int centerX, int centerY, float angleDeg, ref Point a1, ref Point a2) {
+			a1 = RotatePoint(centerX, centerY, angleDeg, a1);
+			a2 = RotatePoint(centerX, centerY, angleDeg, a2);
 		}
 
 
@@ -4884,7 +5076,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates the balance point of a polygon
 		/// </summary>
 		public static PointF CalcPolygonBalancePoint(IEnumerable<PointF> points) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			PointF result = PointF.Empty;
 			int pointCnt = 0;
 			foreach (PointF p in points) {
@@ -4902,7 +5094,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates the balance point of a polygon
 		/// </summary>
 		public static void CalcPolygonBalancePoint(IEnumerable<PointF> points, out float x, out float y) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			x = 0; y = 0;
 			int pointCnt = 0;
 			foreach (PointF p in points) {
@@ -4919,7 +5111,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates the balance point of a polygon
 		/// </summary>
 		public static Point CalcPolygonBalancePoint(IEnumerable<Point> points) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			Point result = Point.Empty;
 			int pointCnt = 0;
 			foreach (Point p in points) {
@@ -4936,7 +5128,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates the balance point of a polygon
 		/// </summary>
 		public static void CalcPolygonBalancePoint(IEnumerable<Point> points, out int x, out int y) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			x = 0; y = 0;
 			int pointCnt = 0;
 			foreach (Point p in points) {
@@ -4954,7 +5146,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The Vertices in the collections are neither copied nor changed.
 		/// </summary>
 		public static void CalcBoundingRectangle(IEnumerable<Point> points, int rotationCenterX, int rotationCenterY, float angleDeg, out Rectangle rectangle) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			rectangle = Rectangle.Empty;
 			int left = int.MaxValue;
 			int top = int.MaxValue;
@@ -4983,7 +5175,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="points">The point array</param>
 		/// <param name="rectangle">The resulting bounding rectangle</param>
 		public static void CalcBoundingRectangle(IEnumerable<Point> points, out Rectangle rectangle) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			rectangle = Rectangle.Empty;
 			int left = int.MaxValue;
 			int top = int.MaxValue;
@@ -5009,7 +5201,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="rectangle">The resulting bounding rectangle</param>
 		/// <param name="floor">Specifies if PointF values should be floored or ceiled</param>
 		public static void CalcBoundingRectangle(IEnumerable<PointF> points, out Rectangle rectangle, bool floor) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			rectangle = Rectangle.Empty;
 			float left = int.MaxValue;
 			float top = int.MaxValue;
@@ -5173,7 +5365,7 @@ namespace Dataweb.NShape.Advanced {
 			//result.Y = ptY;
 			//return result;
 			float dist = DistancePointPoint(startX, startY, endX, endY);
-			if (dist == 0) return new PointF(startX, startY);
+			if (Equals(dist, 0)) return new PointF(startX, startY);
 			return VectorLinearInterpolation(startX, startY, endX, endY, distanceFromStart / dist);
 		}
 
@@ -5181,6 +5373,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the parameters a, b and c of the line formula ax + by + c = 0 from two given points
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static void CalcLine(Point p1, Point p2, out int a, out int b, out int c) {
 			CalcLine(p1.X, p1.Y, p2.X, p2.Y, out a, out b, out c);
 		}
@@ -5191,10 +5384,30 @@ namespace Dataweb.NShape.Advanced {
 		/// In order to be compatible with the Hesse normal form, c is always negative, -c is the distance 
 		/// of the line from the origin. The vector A-B points from the origin towards the line.
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static void CalcLine(int x1, int y1, int x2, int y2, out int a, out int b, out int c) {
 			a = y2 - y1;
 			b = x2 - x1;
-			c = a * x1 - b * y1;
+			c = (int)((long)a * x1 - (long)b * y1);
+			if (c > 0) { b = -b; c = -c; } else a = -a;
+		}
+
+
+		// Calculation speed analysis for 100.000.000 function calls:
+		// ~310ms for int and float version
+		// ~820ms for version with "out long a, out long b, out long c".
+		// ~330ms for version with "out int a, out int b, out long c".
+		/// <summary>
+		/// Calculates the parameters a, b and c of the line formula ax + by + c = 0 from two given points.
+		/// In order to be compatible with the Hesse normal form, c is always negative, -c is the distance 
+		/// of the line from the origin. The vector A-B points from the origin towards the line.
+		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
+		internal static void CalcLine(int x1, int y1, int x2, int y2, out int a, out int b, out long c) {
+			// This version is nearly as fast as the pure int version, but's safe in respect of arithmetic overflow.
+			a = y2 - y1;
+			b = x2 - x1;
+			c = (long)a * x1 - (long)b * y1;
 			if (c > 0) { b = -b; c = -c; } else a = -a;
 		}
 
@@ -5202,6 +5415,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the parameters a, b and c of the line formula ax + by + c = 0 from two given points
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static void CalcLine(PointF p1, PointF p2, out float a, out float b, out float c) {
 			CalcLine(p1.X, p1.Y, p2.X, p2.Y, out a, out b, out c);
 		}
@@ -5212,6 +5426,7 @@ namespace Dataweb.NShape.Advanced {
 		/// In order to be compatible with the Hesse normal form, c is always negative, -c is the distance 
 		/// of the line from the origin. The vector A-B points from the origin towards the line.
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static void CalcLine(float x1, float y1, float x2, float y2, out float a, out float b, out float c) {
 			a = y2 - y1;
 			b = x2 - x1;
@@ -5223,44 +5438,44 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Calculates the parameters m and c of the line formula y = mx + c from two given points
 		/// </summary>
-		public static void CalcLine(Point p1, Point p2, out float m, out float c) {
-			CalcLine(p1.X, p1.Y, p2.X, p2.Y, out m, out c);
+		public static void CalcLine(Point a1, Point a2, out float m, out float c) {
+			CalcLine(a1.X, a1.Y, a2.X, a2.Y, out m, out c);
 		}
 
 
 		/// <summary>
 		/// Calculates the parameters m and c of the line formula y = mx + c from two given points
 		/// </summary>
-		public static void CalcLine(int x1, int y1, int x2, int y2, out float m, out float c) {
+		public static void CalcLine(int a1X, int a1Y, int a2X, int a2Y, out float m, out float c) {
 			m = 0;
 			c = 0;
-			int m1 = y1 - y2;
-			int m2 = x1 - x2;
+			int m1 = a1Y - a2Y;
+			int m2 = a1X - a2X;
 			if (m2 != 0)
 				m = m1 / (float)m2;
 			else {
 				if (m1 < 0) m = float.NegativeInfinity;
 				else m = float.PositiveInfinity;
 			}
-			c = y1 - (m * x1);
+			c = a1Y - (m * a1X);
 		}
 
 
 		/// <summary>
 		/// Calculates the parameters m and c of the line formula y = mx + c from two given points
 		/// </summary>
-		public static void CalcLine(float x1, float y1, float x2, float y2, out float m, out float c) {
+		public static void CalcLine(float a1X, float a1Y, float a2X, float a2Y, out float m, out float c) {
 			m = 0;
 			c = 0;
-			float m1 = y1 - y2;
-			float m2 = x1 - x2;
+			float m1 = a1Y - a2Y;
+			float m2 = a1X - a2X;
 			if (m2 != 0)
 				m = m1 / m2;
 			else {
 				if (m1 < 0) m = float.NegativeInfinity;
 				else m = float.PositiveInfinity;
 			}
-			c = y1 - (m * x1);
+			c = a1Y - (m * a1X);
 		}
 
 
@@ -5301,33 +5516,102 @@ namespace Dataweb.NShape.Advanced {
 			center = Geometry.InvalidPointF;
 			radius = 0;
 
-			// Geradengleichung der Kreissehne StartPoint/RadiusPoint
-			float a1s, b1s, c1s;
-			CalcLine(startPtX, startPtY, radiusPtX, radiusPtY, out a1s, out b1s, out c1s);
-			// Geradengleichung der Mittelsenkrechten der Kresissehne StartPoint/RadiusPoint
-			float a1m, b1m, c1m;
-			CalcPerpendicularBisector(startPtX, startPtY, radiusPtX, radiusPtY, out a1m, out b1m, out c1m);
-			// Schnittpunkt der Mittelsenkrechten mit der Kreissehne berechnen berechnen
-			float pt1X, pt1Y;
-			IntersectLines(a1s, b1s, c1s, a1m, b1m, c1m, out pt1X, out pt1Y);
+			//// Geradengleichung der Kreissehne StartPoint/RadiusPoint
+			//float a1s, b1s, c1s;
+			//CalcLine(startPtX, startPtY, radiusPtX, radiusPtY, out a1s, out b1s, out c1s);
+			//// Geradengleichung der Mittelsenkrechten der Kreisssehne StartPoint/RadiusPoint
+			//float a1m, b1m, c1m;
+			//CalcPerpendicularBisector(startPtX, startPtY, radiusPtX, radiusPtY, out a1m, out b1m, out c1m);
+			//// Schnittpunkt der Mittelsenkrechten mit der Kreissehne berechnen berechnen
+			//float pt1X, pt1Y;
+			//IntersectLines(a1s, b1s, c1s, a1m, b1m, c1m, out pt1X, out pt1Y);
 
-			// Geradengleichung der Kreissehne EndPoint/RadiusPoint
-			float a2s, b2s, c2s;
-			CalcLine(endPtX, endPtY, radiusPtX, radiusPtY, out a2s, out b2s, out c2s);
-			// Geradengleichung der Mittelsenkrechten der Strecke EndPoint-RadiusPoint
-			float a2m, b2m, c2m;
-			CalcPerpendicularBisector(endPtX, endPtY, radiusPtX, radiusPtY, out a2m, out b2m, out c2m);
-			// Schnittpunkt der Mittelsenkrechten mit der Kreissehne berechnen berechnen
-			float pt2X, pt2Y;
-			IntersectLines(a2s, b2s, c2s, a2m, b2m, c2m, out pt2X, out pt2Y);
+			//// Geradengleichung der Kreissehne EndPoint/RadiusPoint
+			//float a2s, b2s, c2s;
+			//CalcLine(endPtX, endPtY, radiusPtX, radiusPtY, out a2s, out b2s, out c2s);
+			//// Geradengleichung der Mittelsenkrechten der Strecke EndPoint-RadiusPoint
+			//float a2m, b2m, c2m;
+			//CalcPerpendicularBisector(endPtX, endPtY, radiusPtX, radiusPtY, out a2m, out b2m, out c2m);
+			//// Schnittpunkt der Mittelsenkrechten mit der Kreissehne berechnen berechnen
+			//float pt2X, pt2Y;
+			//IntersectLines(a2s, b2s, c2s, a2m, b2m, c2m, out pt2X, out pt2Y);
 
-			// Schnittpunkte der Mittelsenkrechten berechnen
-			float cX, cY;
-			IntersectLines(a1m, b1m, c1m, a2m, b2m, c2m, out cX, out cY);
+			//// Schnittpunkte der Mittelsenkrechten berechnen
+			//float cX, cY;
+			//IntersectLines(a1m, b1m, c1m, a2m, b2m, c2m, out cX, out cY);
 
-			radius = DistancePointPoint(cX, cY, radiusPtX, radiusPtY);
-			center.X = cX;
-			center.Y = cY;
+			// Schnittpunkt der Kreissehne StartPoint/RadiusPoint mit ihrer Mittelsenkrechten berechnen
+			float b1P1X, b1P1Y, b1P2X, b1P2Y;
+			CalcPerpendicularBisector(startPtX, startPtY, radiusPtX, radiusPtY, out b1P1X, out b1P1Y, out b1P2X, out b1P2Y);
+			// Schnittpunkt der Kreissehne EndPoint/RadiusPoint mit ihrer Mittelsenkrechten berechnen
+			float b2P1X, b2P1Y, b2P2X, b2P2Y;
+			CalcPerpendicularBisector(endPtX, endPtY, radiusPtX, radiusPtY, out b2P1X, out b2P1Y, out b2P2X, out b2P2Y);
+
+			// Schnittpunkt der beiden Mittelsenkrechten berechnen
+			center = IntersectLines(b1P1X, b1P1Y, b1P2X, b1P2Y, b2P1X, b2P1Y, b2P2X, b2P2Y);
+			if (IsValid(center))
+				radius = DistancePointPoint(center.X, center.Y, radiusPtX, radiusPtY);
+		}
+
+
+		/// <summary>Berechnet die Lotrechte durch den Punkt x1/y1</summary>
+		public static void CalcPerpendicularLine(int a1X, int a1Y, int a2X, int a2Y, out int b1X, out int b1Y, out int b2X, out int b2Y) {
+			// Steigung
+			int dX = (int)Math.Round((a2X - a1X) / 2f);
+			int dY = (int)Math.Round((a2Y - a1Y) / 2f);
+			b1X = a1X + dY;
+			b1Y = a1Y - dX;
+			b2X = a1X - dY;
+			b2Y = a1Y + dX;
+		}
+
+
+		/// <summary>Berechnet die Lotrechte durch den Punkt x1/y1</summary>
+		public static void CalcPerpendicularLine(float a1X, float a1Y, float a2X, float a2Y, out float b1X, out float b1Y, out float b2X, out float b2Y) {
+			// Steigung
+			float dX = (a2X - a1X) / 2f;
+			float dY = (a2Y - a1Y) / 2f;
+			b1X = a1X + dY;
+			b1Y = a1Y - dX;
+			b2X = a1X - dY;
+			b2Y = a1Y + dX;
+		}
+
+
+		/// <summary>Calculates the perpendicular line through p.</summary>
+		public static void CalcPerpendicularLine(Point a1, Point a2, Point p, out Point p2) {
+			CalcPerpendicularLine(a1.X, a1.Y, a2.X, a2.Y, p.X, p.Y, out int p2X, out int p2Y);
+			p2 = Point.Empty;
+			p2.Offset(p2X, p2Y);
+		}
+
+
+		/// <summary>Calculates the perpendicular line through p.</summary>
+		public static void CalcPerpendicularLine(Point a1, Point a2, int pX, int pY, out int p2X, out int p2Y) {
+			CalcPerpendicularLine(a1.X, a1.Y, a2.X, a2.Y, pX, pY, out p2X, out p2Y);
+		}
+
+
+		/// <summary>Calculates the perpendicular line through pX/pY</summary>
+		public static void CalcPerpendicularLine(int a1X, int a1Y, int a2X, int aY2, int pX, int pY, out int p2X, out int p2Y) {
+			// Steigung der Geraden
+			int dX = a2X - a1X;
+			int dY = aY2 - a1Y;
+			//
+			p2X = pX - dY;
+			p2Y = pY + dX;
+		}
+
+
+
+		/// <summary>Calculates the perpendicular line through pX/pY</summary>
+		public static void CalcPerpendicularLine(float a1X, float a1Y, float a2X, float a2Y, float pX, float pY, out float p2X, out float p2Y) {
+			// Steigung der Geraden
+			float dX = a2X - a1X;
+			float dY = a2Y - a1Y;
+			//
+			p2X = pX - dY;
+			p2Y = pY + dX;
 		}
 
 
@@ -5335,12 +5619,13 @@ namespace Dataweb.NShape.Advanced {
 		/// Berechnet die Lotrechte durch den Punkt x1/y1 
 		/// Das Ergebnis ist die Normalform der Geraden ax + by + c = 0
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static void CalcPerpendicularLine(int x1, int y1, int x2, int y2, out int a, out int b, out int c) {
 			// Steigung
 			a = x1 - x2;
 			b = y1 - y2;
 			// Konstante
-			c = -a * x1 - b * y1;
+			c = (int)((long)-a * x1 - (long)b * y1);
 		}
 
 
@@ -5348,6 +5633,21 @@ namespace Dataweb.NShape.Advanced {
 		/// Berechnet die Lotrechte durch den Punkt x1/y1 
 		/// Das Ergebnis ist die Normalform der Geraden ax + by + c = 0
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
+		public static void CalcPerpendicularLine(int x1, int y1, int x2, int y2, out int a, out int b, out long c) {
+			// Steigung
+			a = x1 - x2;
+			b = y1 - y2;
+			// Konstante
+			c = ((long)-a * x1 - (long)b * y1);
+		}
+
+
+		/// <summary>
+		/// Berechnet die Lotrechte durch den Punkt x1/y1 
+		/// Das Ergebnis ist die Normalform der Geraden ax + by + c = 0
+		/// </summary>
+		[Obsolete]
 		public static void CalcPerpendicularLine(float x1, float y1, float x2, float y2, out float a, out float b, out float c) {
 			// Steigung
 			a = x1 - x2;
@@ -5358,14 +5658,25 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static void CalcPerpendicularLine(int x, int y, int a, int b, int c, out int aP, out int bP, out int cP) {
 			aP = b;
 			bP = -a;
-			cP = -(aP * x + bP * y);
+			cP = (int)-((long)aP * x + (long)bP * y);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
+		internal static void CalcPerpendicularLine(int x, int y, int a, int b, long c, out int aP, out int bP, out long cP) {
+			aP = b;
+			bP = -a;
+			cP = -((long)aP * x + (long)bP * y);
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static void CalcPerpendicularLine(float x, float y, float a, float b, float c, out float aP, out float bP, out float cP) {
 			aP = b;
 			bP = -a;
@@ -5373,16 +5684,25 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
-		// Berechnet die Gerade (2D), welche im Mittelpunkt zwischen linePt1 und linePt2 senkrecht 
-		// auf der Verbindungsstrecke steht. Das Ergebnis ist die Normalform der Geraden
-		// ax + by + c = 0
 		/// <ToBeCompleted></ToBeCompleted>
-		public static void CalcPerpendicularBisector(int x1, int y1, int x2, int y2, out int a, out int b, out int c) {
-			// Steigung
-			a = x1 - x2;
-			b = y1 - y2;
-			// Konstante
-			c = (int)Math.Round((-a * (x1 + x2)) / 2f - (b * (y1 + y2)) / 2f);
+		public static void CalcPerpendicularBisector(int a1X, int a1Y, int a2X, int a2Y, out int b1X, out int b1Y, out int b2X, out int b2Y) {
+			float dX = (a2X - a1X) / 2f;
+			float dY = (a2Y - a1Y) / 2f;
+			b1X = (int)Math.Round(a1X + dX - dY);
+			b1Y = (int)Math.Round(a1Y + dX + dY);
+			b2X = (int)Math.Round(a2X - dX + dY);
+			b2Y = (int)Math.Round(a2Y - dX - dY);
+		}
+
+
+		/// <ToBeCompleted></ToBeCompleted>
+		public static void CalcPerpendicularBisector(float a1X, float a1Y, float a2X, float a2Y, out float b1X, out float b1Y, out float b2X, out float b2Y) {
+			float dX = (a2X - a1X) / 2f;
+			float dY = (a2Y - a1Y) / 2f;
+			b1X = a1X + dX - dY;
+			b1Y = a1Y + dX + dY;
+			b2X = a2X - dX + dY;
+			b2Y = a2Y - dX - dY;
 		}
 
 
@@ -5390,6 +5710,35 @@ namespace Dataweb.NShape.Advanced {
 		// auf der Verbindungsstrecke steht. Das Ergebnis ist die Normalform der Geraden
 		// ax + by + c = 0
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead")]
+		public static void CalcPerpendicularBisector(int x1, int y1, int x2, int y2, out int a, out int b, out int c) {
+			// Steigung
+			a = x1 - x2;
+			b = y1 - y2;
+			// Konstante (Cast zu float wg Wertebereich und weil ohnehin durch 2f geteilt wird!)
+			c = (int)Math.Round((-a * (float)(x1 + x2)) / 2f - (b * (float)(y1 + y2)) / 2f);
+		}
+
+
+		// Berechnet die Gerade (2D), welche im Mittelpunkt zwischen linePt1 und linePt2 senkrecht 
+		// auf der Verbindungsstrecke steht. Das Ergebnis ist die Normalform der Geraden
+		// ax + by + c = 0
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead")]
+		public static void CalcPerpendicularBisector(int x1, int y1, int x2, int y2, out int a, out int b, out long c) {
+			// Steigung
+			a = x1 - x2;
+			b = y1 - y2;
+			// Konstante (Cast zu float wg Wertebereich und weil ohnehin durch 2f geteilt wird!)
+			c = (long)Math.Round((-a * (float)(x1 + x2)) / 2f - (b * (float)(y1 + y2)) / 2f);
+		}
+
+
+		// Berechnet die Gerade (2D), welche im Mittelpunkt zwischen linePt1 und linePt2 senkrecht 
+		// auf der Verbindungsstrecke steht. Das Ergebnis ist die Normalform der Geraden
+		// ax + by + c = 0
+		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates, use version with two-point form instead.")]
 		public static void CalcPerpendicularBisector(float x1, float y1, float x2, float y2, out float a, out float b, out float c) {
 			// Steigung
 			a = x1 - x2;
@@ -5401,24 +5750,49 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <summary>
 		/// Calculates the coordinates of the base point (fX, fY) of the perpendicular from point (pX, pY) 
-		/// to line (aX, aY) - (bX, bY).
+		/// to line a1-a2.
 		/// </summary>
 		/// <remarks>The foot is the solution of equation (p - d) . (a - b) = 0</remarks>
-		public static void CalcDroppedPerpendicularFoot(int pX, int pY, int aX, int aY, int bX, int bY, out int fX, out int fY) {
-			if (aX == bX && aY == bY) {
-				fX = aX;
-				fY = aY;
+		public static void CalcDroppedPerpendicularFoot(int pX, int pY, int a1X, int a1Y, int a2X, int a2Y, out int fX, out int fY) {
+			if (a1X == a2X && a1Y == a2Y) {
+				fX = a1X;
+				fY = a1Y;
 			} else {
-				int a1, b1, c1;
-				// Calculate line formula parameters for the line a - b.
-				CalcLine(aX, aY, bX, bY, out a1, out b1, out c1);
-				// Calculate perpendicular through p
-				int a2, b2, c2;
-				a2 = aX - bX;
-				b2 = aY - bY;
-				c2 = bX * pX - aX * pX + bY * pY - aY * pY;
-				// Now intersect the two lines
-				IntersectLines(a1, b1, c1, a2, b2, c2, out fX, out fY);
+				//// Calculate line formula parameters for the line a - b.
+				//CalcLine(aX, aY, bX, bY, out int a1, out int b1, out long c1);
+				//// Calculate perpendicular through p
+				//int a2 = aX - bX;
+				//int b2 = aY - bY;
+				//long c2 = (long)bX * pX - (long)aX * pX + (long)bY * pY - (long)aY * pY;
+				//// Now intersect the two lines
+				//IntersectLines(a1, b1, c1, a2, b2, c2, out fX, out fY);
+
+				// Calc perpendicular line through p
+				CalcPerpendicularLine(a1X, a1Y, a2X, a2Y, pX, pY, out int toX, out int toY);
+				// Intersect perpendicular line with line segment
+				Point r = IntersectLines(pX, pY, toX, toY, a1X, a1Y, a2X, a2Y);
+				fX = r.X;
+				fY = r.Y;
+			}
+		}
+
+
+		/// <summary>
+		/// Calculates the coordinates of the base point (fX, fY) of the perpendicular from point (pX, pY) 
+		/// to line a1-a2.
+		/// </summary>
+		/// <remarks>The foot is the solution of equation (p - d) . (a - b) = 0</remarks>
+		public static void CalcDroppedPerpendicularFoot(float pX, float pY, float a1X, float a1Y, float a2X, float a2Y, out float fX, out float fY) {
+			if (a1X == a2X && a1Y == a2Y) {
+				fX = a1X;
+				fY = a1Y;
+			} else {
+				// Calc perpendicular line through p
+				CalcPerpendicularLine(a1X, a1Y, a2X, a2Y, pX, pY, out float toX, out float toY);
+				// Intersect perpendicular line with line segment
+				PointF r = IntersectLines(pX, pY, toX, toY, a1X, a1Y, a2X, a2Y);
+				fX = r.X;
+				fY = r.Y;
 			}
 		}
 
@@ -5426,15 +5800,27 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Translates the given line in Hesse normal form to point p.
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static void TranslateLine(int a, int b, int c, Point p, out int aT, out int bT, out int cT) {
 			aT = a; bT = b;
-			cT = -((a * p.X) + (b * p.Y));
+			cT = -(a * p.X + b * p.Y);
+		}
+
+		
+		/// <summary>
+		/// Translates the given line in Hesse normal form to point p.
+		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
+		public static void TranslateLine(int a, int b, long c, Point p, out int aT, out int bT, out long cT) {
+			aT = a; bT = b;
+			cT = -((long)a * p.X + (long)b * p.Y);
 		}
 
 
 		/// <summary>
 		/// Translates the given line in Hesse normal form to point p.
 		/// </summary>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static void TranslateLine(float a, float b, float c, Point p, out float aT, out float bT, out float cT) {
 			aT = a; bT = b;
 			cT = -((a * p.X) + (b * p.Y));
@@ -5531,27 +5917,29 @@ namespace Dataweb.NShape.Advanced {
 
 		// Löst das lineare Gleichungssystem Ax + b = 0
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete("CAUTION: Arithmetic overflows with large coordinates.")]
 		public static bool SolveLinear22System(int a11, int a12, int a21, int a22, int b1, int b2, out int x, out int y) {
 			bool result = false;
 			x = InvalidPoint.X; y = InvalidPoint.Y;
+			long det = ((long)a11 * a22 - (long)a12 * a21);
 			// if det == 0, there is no solution
-			int det = (a11 * a22 - a12 * a21);
-			if (det != 0) {
+			if (!Equals(det, 0)) {
 				result = true;
-				x = (int)Math.Round((b2 * a12 - b1 * a22) / (float)det);
-				y = (int)Math.Round((b1 * a21 - b2 * a11) / (float)det);
+				x = (int)Math.Round(((long)b2 * a12 - (long)b1 * a22) / (double)det);
+				y = (int)Math.Round(((long)b1 * a21 - (long)b2 * a11) / (double)det);
 			}
 			return result;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
+		[Obsolete]
 		public static bool SolveLinear22System(float a11, float a12, float a21, float a22, float b1, float b2, out float x, out float y) {
 			bool result = false;
 			x = InvalidPointF.X; y = InvalidPointF.Y;
 			// if det == 0, there is no solution
-			float det = ((a11 * a22) - (a12 * a21));
-			if (det != 0) {
+			float det = a11 * a22 - a12 * a21;
+			if (!Equals(det, 0)) {
 				result = true;
 				x = (b2 * a12 - b1 * a22) / det;
 				y = (b1 * a21 - b2 * a11) / det;
@@ -5665,7 +6053,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns the nearest point to x/y (if there is one) or null
 		/// </summary>
 		public static Point GetNearestPoint(int x, int y, IEnumerable<Point> points) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			Point result = InvalidPoint;
 			float d, lowest = float.MaxValue;
 			foreach (Point point in points) {
@@ -5691,7 +6079,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns the nearest point to x/y (if there is one) or null
 		/// </summary>
 		public static PointF GetNearestPoint(float x, float y, IEnumerable<PointF> points) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			PointF result = InvalidPointF;
 			float d, lowest = float.MaxValue;
 			foreach (PointF point in points) {
@@ -5709,7 +6097,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns the furthest point from p (if one exists) or null.
 		/// </summary>
 		public static Point GetFurthestPoint(Point p, IEnumerable<Point> points) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			Point result = InvalidPoint;
 			float d, greatest = int.MinValue;
 			foreach (Point point in points) {
@@ -5727,7 +6115,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns the furthest point from p (if one exists) or null.
 		/// </summary>
 		public static PointF GetFurthestPoint(PointF p, IEnumerable<PointF> points) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			PointF result = InvalidPointF;
 			float d, greatest = int.MinValue;
 			foreach (PointF point in points) {
@@ -5809,16 +6197,12 @@ namespace Dataweb.NShape.Advanced {
 			//	nY = bY;
 			//}
 
-			CalcLine(aX, aY, bX, bY, out float aL, out float bL, out float cL);
-			CalcPerpendicularLine(pX, pY, aL, bL, cL, out float aP, out float bP, out float cP);
-			PointF nP = IntersectLines(aL, bL, cL, aP, bP, cP);
-			nX = (int)Math.Round(nP.X);
-			nY = (int)Math.Round(nP.Y);
-			if (!LineContainsPoint(aX, aY, bX, bY, true, nX, nY, 0.75f)) {
-				Point ep = GetNearestPoint(nX, nY, aX, aY, bX, bY);
-				nX = ep.X;
-				nY = ep.Y;
-			}
+			CalcPerpendicularLine(aX, aY, bX, bY, pX, pY, out int p2X, out int p2Y);
+			Point nP = IntersectLines(pX, pY, p2X, p2Y, aX, aY, bX, bY);
+			if (!LineContainsPoint(aX, aY, bX, bY, true, nP.X, nP.Y, 0.75f))
+				nP = GetNearestPoint(nP.X, nP.Y, aX, aY, bX, bY);
+			nX = nP.X;
+			nY = nP.Y;
 		}
 
 
@@ -5889,7 +6273,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Tests if the given rectangle has valid coordinates and a valid size.
 		/// </summary>
 		public static bool IsValid(Rectangle r) {
-			return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
+			//return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
+			return IsValid(r.Location) && IsValid(r.Size);
 		}
 
 
@@ -5897,7 +6282,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Tests if the given rectangle has valid coordinates and a valid size.
 		/// </summary>
 		public static bool IsValid(RectangleF r) {
-			return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
+			//return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
+			return IsValid(r.Location) && IsValid(r.Size);
 		}
 
 
@@ -5931,95 +6317,6 @@ namespace Dataweb.NShape.Advanced {
 		public static bool IsValid(SizeF s) {
 			return IsValidSize(s.Width) && IsValidSize(s.Height);
 		}
-
-
-		///// <summary>
-		///// Tests if the given point has valid coordinates. 
-		///// The parameter will not be changed, ref is used for improved performance only.
-		///// </summary>
-		//public static bool IsValid(ref Point p) {
-		//	return IsValidCoordinate(p.X) && IsValidCoordinate(p.Y);
-		//}
-
-
-		///// <summary>
-		///// Tests if the given point has valid coordinates.
-		///// The parameter will not be changed, ref is used for improved performance only.
-		///// </summary>
-		//public static bool IsValid(ref PointF p) {
-		//	return IsValidCoordinate(p.X) && IsValidCoordinate(p.Y);
-		//}
-
-
-		///// <summary>
-		///// Tests if the given coordinates are considered as valid.
-		///// The parameter will not be changed, ref is used for improved performance only.
-		///// </summary>
-		//public static bool IsValid(ref int x, ref int y) {
-		//	return IsValidCoordinate(ref x) && IsValidCoordinate(ref y);
-		//}
-
-
-		///// <summary>
-		///// Tests if the given coordinates are considered as valid.
-		///// The parameter will not be changed, ref is used for improved performance only.
-		///// </summary>
-		//public static bool IsValid(ref float x, ref float y) {
-		//	return IsValidCoordinate(ref x) && IsValidCoordinate(ref y);
-		//}
-
-
-		///// <summary>
-		///// Tests if the given rectangle has valid coordinates and a valid size.
-		///// The parameter will not be changed, ref is used for improved performance only.
-		///// </summary>
-		//public static bool IsValid(ref Rectangle r) {
-		//	return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
-		//}
-
-
-		///// <summary>
-		///// Tests if the given rectangle has valid coordinates and a valid size.
-		///// The parameter will not be changed, ref is used for improved performance only.
-		///// </summary>
-		//public static bool IsValid(ref RectangleF r) {
-		//	return IsValidCoordinate(r.X) && IsValidCoordinate(r.Y) && IsValidSize(r.Width) && IsValidSize(r.Height);
-		//}
-
-
-		///// <summary>
-		///// Tests if the given rectangle has valid coordinates and a valid size.
-		///// The parameter will not be changed, ref is used for improved performance only.
-		///// </summary>
-		//public static bool IsValid(ref int x, ref int y, ref int width, ref int height) {
-		//	return IsValidCoordinate(ref x) && IsValidCoordinate(ref y) && IsValidSize(ref width) && IsValidSize(ref height);
-		//}
-
-
-		///// <summary>
-		///// Tests if the given rectangle has valid coordinates and a valid size.
-		///// The parameter will not be changed, ref is used for improved performance only.
-		///// </summary>
-		//public static bool IsValid(ref float x, ref float y, ref float width, ref float height) {
-		//	return IsValidCoordinate(ref x) && IsValidCoordinate(ref y) && IsValidSize(ref width) && IsValidSize(ref height);
-		//}
-
-
-		///// <summary>
-		///// Tests if the given size is considered as valid.
-		///// The parameter will not be changed, ref is used for improved performance only.
-		///// </summary>
-		//public static bool IsValid(ref Size s) {
-		//	return IsValidSize(s.Width) && IsValidSize(s.Height);
-		//}
-
-
-		///// <summary>
-		///// Tests if the given size is considered as valid.
-		///// </summary>
-		//public static bool IsValid(ref SizeF s) {
-		//	return IsValidSize(s.Width) && IsValidSize(s.Height);
-		//}
 
 		#endregion
 
@@ -6150,6 +6447,15 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Definitions for invalid geometric structs
 
+		/// <summary>Defines a coordinate value considered as invalid.</summary>
+		public const int InvalidCoordinateValue = int.MinValue;
+
+		/// <summary>Defines a coordinate value considered as invalid.</summary>
+		public const long InvalidCoordinateValueL = long.MinValue;
+
+		/// <summary>Defines a coordinate value considered as invalid.</summary>
+		public const int InvalidSizeValue = int.MinValue;
+
 		/// <summary>Defines a point considered as invalid.</summary>
 		public static readonly Point InvalidPoint;
 
@@ -6199,7 +6505,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Tests if the given coordinate is considered as valid.
 		/// </summary>
-		private static bool IsValidCoordinate(int c) {
+		public static bool IsValidCoordinate(int c) {
 			return c > InvalidCoordinateValue;
 		}
 
@@ -6207,7 +6513,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Tests if the given coordinate is considered as valid.
 		/// </summary>
-		private static bool IsValidCoordinate(float c) {
+		public static bool IsValidCoordinate(float c) {
 			return !float.IsNaN(c) && !float.IsInfinity(c) && c > InvalidCoordinateValue;
 		}
 
@@ -6215,7 +6521,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Tests if the given size is considered as valid.
 		/// </summary>
-		private static bool IsValidSize(int s) {
+		public static bool IsValidSize(int s) {
 			return s >= 0;
 		}
 
@@ -6223,7 +6529,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Tests if the given size is considered as valid.
 		/// </summary>
-		private static bool IsValidSize(float s) {
+		public static bool IsValidSize(float s) {
 			return !float.IsNaN(s) && !float.IsInfinity(s) && s >= 0;
 		}
 
@@ -6232,7 +6538,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Tests if the given coordinate is considered as valid.
 		/// Parameter will not be modified, ref is for improved performance only.
 		/// </summary>
-		private static bool IsValidCoordinate(ref int c) {
+		public static bool IsValidCoordinate(ref int c) {
 			return c > InvalidCoordinateValue;
 		}
 
@@ -6304,8 +6610,6 @@ namespace Dataweb.NShape.Advanced {
 
 		private static Matrix matrix = new Matrix();
 
-		private const int InvalidCoordinateValue = int.MinValue;
-		private const int InvalidSizeValue = int.MinValue;
 		private const double RadiansFactor = 0.017453292519943295769236907684886d;  // = Math.PI / 180
 		private const double EqualityDeltaDouble = 0.000001d;
 		private const float EqualityDeltaFloat = 0.000001f;

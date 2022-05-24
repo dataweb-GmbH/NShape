@@ -43,7 +43,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;DEBUG_UI;REPOSITORY_CHECK</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;REPOSITORY_CHECK;DEBUG_UI;DEBUG_DIAGNOSTICS;_DEBUG_COMPATIBILITY</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -60,7 +60,7 @@
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <DocumentationFile>..\..\bin\Release\Dataweb.NShape.xml</DocumentationFile>
-    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <DebugSymbols>true</DebugSymbols>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
@@ -120,6 +120,7 @@
     <Compile Include="CaptionedShapeBase.cs" />
     <Compile Include="CircularArcBase.cs" />
     <Compile Include="CursorProvider.cs" />
+    <Compile Include="DebugDiagnostics.cs" />
     <Compile Include="DiagramModelObject.cs" />
     <Compile Include="FlowLayouter.cs" />
     <Compile Include="FreeHandTool.cs" />

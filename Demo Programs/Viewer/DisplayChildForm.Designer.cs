@@ -211,7 +211,7 @@
 			this.display.TabIndex = 0;
 			this.display.ToolPreviewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(119)))), ((int)(((byte)(136)))), ((int)(((byte)(153)))));
 			this.display.ToolPreviewColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(70)))), ((int)(((byte)(130)))), ((int)(((byte)(180)))));
-			this.display.ZoomLevel = 100;
+			this.display.ZoomLevelHD = 10000;
 			this.display.ZoomWithMouseWheel = true;
 			this.display.DiagramChanged += new System.EventHandler(this.display_DiagramChanged);
 			this.display.Scroll += new System.Windows.Forms.ScrollEventHandler(this.display_Scroll);

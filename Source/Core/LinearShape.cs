@@ -111,7 +111,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Connect(ControlPointId ownPointId, Shape otherShape, ControlPointId otherPointId) {
-			if (otherShape == null) throw new ArgumentNullException("otherShape");
+			if (otherShape == null) throw new ArgumentNullException(nameof(otherShape));
 			if (otherShape.IsConnected(ControlPointId.Any, this) == ControlPointId.Reference)
 				throw new InvalidOperationException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_TheSpecified0IsAlreadyConnectedToThis1ViaPointToShapeConnection, otherShape.Type.Name, this.Type.Name));
 			base.Connect(ownPointId, otherShape, otherPointId);
@@ -798,6 +798,8 @@ namespace Dataweb.NShape.Advanced {
 			// Do not delete shapePoints or cap buffers here for performance reasons
 			_startCapAngle = _endCapAngle = float.NaN;
 			_startCapBounds = _endCapBounds = Geometry.InvalidRectangle;
+			GdiHelpers.DisposeObject(ref _startCapPath);
+			GdiHelpers.DisposeObject(ref _endCapPath);
 		}
 
 
@@ -815,10 +817,14 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void RecalcDrawCache() {
-			if (IsShapedLineCap(StartCapStyleInternal))
+			if (IsShapedLineCap(StartCapStyleInternal)) {
 				DoRecalcCapPoints(ControlPointId.FirstVertex, StartCapStyleInternal, StartCapAngle, ref _startCapPointBuffer);
-			if (IsShapedLineCap(EndCapStyleInternal))
+				DoRecalcCapPath(ControlPointId.FirstVertex, StartCapStyleInternal, StartCapAngle, ref _startCapPath);
+			}
+			if (IsShapedLineCap(EndCapStyleInternal)) {
 				DoRecalcCapPoints(ControlPointId.LastVertex, EndCapStyleInternal, EndCapAngle, ref _endCapPointBuffer);
+				DoRecalcCapPath(ControlPointId.LastVertex, EndCapStyleInternal, EndCapAngle, ref _endCapPath);
+			}
 			DrawCacheIsInvalid = false;
 		}
 
@@ -982,19 +988,7 @@ namespace Dataweb.NShape.Advanced {
 		protected void DrawStartCapBackground(Graphics graphics, int pointX, int pointY) {
 			if (IsShapedLineCap(StartCapStyleInternal)) {
 				Brush capBrush = ToolCache.GetBrush(StartCapStyleInternal.ColorStyle, LineStyle);
-				GraphicsPath capPath = ToolCache.GetCapPath(StartCapStyleInternal, LineStyle);
-				// Due to the fact that GDI+ scales CustomCaps along with the LineWidth of its 
-				// pen, we have to upscale the GraphicsPath for drawing the bounds.
-				Matrix.Reset();
-				Matrix.Rotate(90 + StartCapAngle, MatrixOrder.Append);
-				Matrix.Translate(pointX, pointY, MatrixOrder.Append);
-				try {
-					capPath.Transform(Matrix);
-					graphics.FillPath(capBrush, capPath);
-				} finally {
-					Matrix.Invert();
-					capPath.Transform(Matrix);
-				}
+				graphics.FillPath(capBrush, _startCapPath);
 			}
 		}
 
@@ -1005,20 +999,7 @@ namespace Dataweb.NShape.Advanced {
 		protected void DrawEndCapBackground(Graphics graphics, int pointX, int pointY) {
 			if (IsShapedLineCap(EndCapStyleInternal)) {
 				Brush capBrush = ToolCache.GetBrush(EndCapStyleInternal.ColorStyle, LineStyle);
-				GraphicsPath capPath = ToolCache.GetCapPath(EndCapStyleInternal, LineStyle);
-				// Due to the fact that GDI+ scales CustomCaps along with the LineWidth of its Pen.
-				// Therefore, we have to upscale the Graphicspath again for drawing the bounds.
-				Matrix.Reset();
-				Matrix.Scale(LineStyle.LineWidth, LineStyle.LineWidth, MatrixOrder.Append);
-				Matrix.Rotate(90 + EndCapAngle, MatrixOrder.Append);
-				Matrix.Translate(pointX, pointY, MatrixOrder.Append);
-				try {
-					capPath.Transform(Matrix);
-					graphics.FillPath(capBrush, capPath);
-				} finally {
-					Matrix.Invert();
-					capPath.Transform(Matrix);
-				}
+				graphics.FillPath(capBrush, _endCapPath);				
 			}
 		}
 
@@ -1177,7 +1158,7 @@ namespace Dataweb.NShape.Advanced {
 
 			/// <ToBeCompleted></ToBeCompleted>
 			public LineControlPoint(LineControlPoint source) {
-				if (source == null) throw new ArgumentNullException("source");
+				if (source == null) throw new ArgumentNullException(nameof(source));
 				this.controlPointId = source.controlPointId;
 				this.SetPosition(source.GetPosition());
 			}
@@ -1258,7 +1239,7 @@ namespace Dataweb.NShape.Advanced {
 
 			/// <ToBeCompleted></ToBeCompleted>
 			protected void CopyCore(AbsoluteLineControlPoint source) {
-				if (source == null) throw new ArgumentNullException("source");
+				if (source == null) throw new ArgumentNullException(nameof(source));
 				this.Id = source.Id;
 				this.position = source.position;
 			}
@@ -1311,7 +1292,7 @@ namespace Dataweb.NShape.Advanced {
 
 			/// <ToBeCompleted></ToBeCompleted>
 			protected void CopyCore(RelativeLineControlPoint source) {
-				if (source == null) throw new ArgumentNullException("source");
+				if (source == null) throw new ArgumentNullException(nameof(source));
 				this.Id = source.Id;
 				this.owner = source.owner;
 				this.relativePosition = source.relativePosition;
@@ -1403,31 +1384,43 @@ namespace Dataweb.NShape.Advanced {
 			Point p = _controlPoints[ptIdx].GetPosition();
 			p.Offset(-X, -Y);
 
-			//int vertexIdx = GetVertexIndex(pointId);
-			//Point p = shapePoints[vertexIdx];
-
 			// get untransfomed cap points and transform it to the start point (relative to origin of coordinates)
 			ToolCache.GetCapPoints(capStyle, LineStyle, ref pointBuffer);
 			TransformCapToOrigin(p.X, p.Y, capAngle, ref pointBuffer);
 		}
 
 
-		/// <summary>
-		/// Calculate LineCap
-		/// </summary>
-		/// <param name="pointIndex"></param>
-		/// <param name="capAngle"></param>
-		/// <param name="capStyle"></param>
-		/// <param name="lineStyle"></param>
-		/// <param name="capBounds"></param>
-		/// <param name="pointBuffer"></param>
-		private void CalcCapPoints(int pointIndex, float capAngle, ICapStyle capStyle, ILineStyle lineStyle, ref Rectangle capBounds, ref PointF[] pointBuffer) {
-			// get untransfomed shape points
-			ToolCache.GetCapPoints(capStyle, lineStyle, ref pointBuffer);
-			// translate, rotate and scale shapePoints
-			Point p = GetControlPoint(pointIndex).GetPosition();
-			TransformCapToOrigin(p.X, p.Y, capAngle, ref pointBuffer);
+		private void DoRecalcCapPath(ControlPointId pointId, ICapStyle capStyle, float capAngle, ref GraphicsPath capPath) {
+			int ptIdx = GetControlPointIndex(pointId);
+			Point p = _controlPoints[ptIdx].GetPosition();
+
+			capPath = ToolCache.CreateCapPath(capStyle, LineStyle);
+			// Due to the fact that GDI+ scales CustomCaps along with the LineWidth of its 
+			// pen, we have to upscale the GraphicsPath for drawing the bounds.
+			Matrix.Reset();
+			Matrix.Scale(LineStyle.LineWidth, LineStyle.LineWidth, MatrixOrder.Append);
+			Matrix.Rotate(90 + capAngle, MatrixOrder.Append);
+			Matrix.Translate(p.X, p.Y, MatrixOrder.Append);
+			capPath.Transform(Matrix);
 		}
+
+
+		///// <summary>
+		///// Calculate LineCap
+		///// </summary>
+		///// <param name="pointIndex"></param>
+		///// <param name="capAngle"></param>
+		///// <param name="capStyle"></param>
+		///// <param name="lineStyle"></param>
+		///// <param name="capBounds"></param>
+		///// <param name="pointBuffer"></param>
+		//private void CalcCapPoints(int pointIndex, float capAngle, ICapStyle capStyle, ILineStyle lineStyle, ref Rectangle capBounds, ref PointF[] pointBuffer) {
+		//	// get untransfomed shape points
+		//	ToolCache.GetCapPoints(capStyle, lineStyle, ref pointBuffer);
+		//	// translate, rotate and scale shapePoints
+		//	Point p = GetControlPoint(pointIndex).GetPosition();
+		//	TransformCapToOrigin(p.X, p.Y, capAngle, ref pointBuffer);
+		//}
 
 
 		/// <summary>
@@ -1610,7 +1603,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void CopyControlPoints(LineShapeBase source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) throw new ArgumentNullException(nameof(source));
 			// Ensure that the number of control points matches the source
 			if (_controlPoints.Count > source.ControlPointCount)
 				_controlPoints.RemoveRange(source.ControlPointCount, _controlPoints.Count - source.ControlPointCount);
@@ -1716,8 +1709,9 @@ namespace Dataweb.NShape.Advanced {
 				Enumerator result;
 				result._shape = shape;
 				result._flags = flags;
-				// We use Reference id as the start value: RefId -> FirstVertex -> Id's -> LastVertex -> None
-				result._currentId = ControlPointId.Reference;
+				// We use Any as initial value (which will never be returned):
+				// [Any] -> ReferencePoint -> FirstVertex -> Ids -> LastVertex -> None
+				result._currentId = ControlPointId.Any;
 				result._ctrlPointCnt = shape.ControlPointCount;
 				return result;
 			}
@@ -1746,7 +1740,9 @@ namespace Dataweb.NShape.Advanced {
 			public bool MoveNext() {
 				bool result = false;
 				do {
-					if (_currentId == ControlPointId.Reference) 
+					if (_currentId == ControlPointId.Any)
+						_currentId = ControlPointId.Reference;
+					else if (_currentId == ControlPointId.Reference) 
 						_currentId = ControlPointId.FirstVertex;
 					else _currentId = _shape.GetNextPointIdCore(_currentId, ControlPointCapabilities.All, +1);
 
@@ -1847,7 +1843,9 @@ namespace Dataweb.NShape.Advanced {
 		private Rectangle _startCapBounds = Rectangle.Empty;		// Rectangle for invalidating the line caps
 		private Rectangle _endCapBounds = Rectangle.Empty;		// Rectangle for invalidating the line caps
 		private PointF[] _startCapPointBuffer = null;			// buffer for the startCap - used for drawing and hit- / intersection testing
-		private PointF[] _endCapPointBuffer = null;				// buffer for the startCap - used for drawing and hit- / intersection testing
+		private PointF[] _endCapPointBuffer = null;             // buffer for the startCap - used for drawing and hit- / intersection testing
+		private GraphicsPath _startCapPath = null;
+		private GraphicsPath _endCapPath = null;
 
 		#endregion
 	}

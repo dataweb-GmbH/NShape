@@ -52,7 +52,7 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		public ModelController(DiagramSetController diagramSetController)
 			: this() {
-			if (diagramSetController == null) throw new ArgumentNullException("diagramSetController");
+			if (diagramSetController == null) throw new ArgumentNullException(nameof(diagramSetController));
 			DiagramSetController = diagramSetController;
 		}
 
@@ -62,7 +62,7 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		public ModelController(Project project)
 			: this() {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			Project = project;
 		}
 
@@ -152,17 +152,17 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void RenameModelObject(IModelObject modelObject, string newName) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			throw new NotImplementedException();
 		}
 
 
 		/// <summary>
-		/// Deletes the given model obejcts and their attached shapes
+		/// Deletes the given model objects and their attached shapes
 		/// </summary>
 		/// <param name="modelObjects"></param>
 		public void DeleteModelObjects(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			ICommand cmd = new DeleteModelObjectsCommand (modelObjects);
 			Project.ExecuteCommand(cmd);
 		}
@@ -170,7 +170,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void SetModelObjectParent(IModelObject modelObject, IModelObject parent) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			ICommand cmd = new SetModelObjectParentCommand(modelObject, parent);
 			Project.ExecuteCommand(cmd);
 		}
@@ -178,7 +178,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Copy(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			_copyPasteBuffer.Clear();
 			_copyPasteBuffer.Add(modelObject.Clone());
 		}
@@ -186,7 +186,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Copy(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			_copyPasteBuffer.Clear();
 			foreach (IModelObject mo in modelObjects)
 				_copyPasteBuffer.Add(mo.Clone());
@@ -209,14 +209,14 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public IEnumerable<IModelObject> GetChildModelObjects(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			return Project.Repository.GetModelObjects(modelObject);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void FindShapes(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			if (_diagramSetController == null) throw new InvalidOperationException(Dataweb.NShape.Properties.Resources.MessageTxt_DiagramSetControllerIsNotSet);
 			_diagramSetController.SelectModelObjects(modelObjects);
 		}
@@ -226,7 +226,7 @@ namespace Dataweb.NShape.Controllers {
 		/// Returns a collection of <see cref="T:Dataweb.NShape.Advanced.MenuItemDef" /> for constructing context menus etc.
 		/// </summary>
 		public IEnumerable<MenuItemDef> GetMenuItemDefs(IReadOnlyCollection<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			
 			// New...
 			// Rename
@@ -492,7 +492,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ModelObjectSelectedEventArgs(IEnumerable<IModelObject> selectedModelObjects, bool ensureVisibility) {
-			if (selectedModelObjects == null) throw new ArgumentNullException("selectedModelObjects");
+			if (selectedModelObjects == null) throw new ArgumentNullException(nameof(selectedModelObjects));
 			this._modelObjects = new List<IModelObject>(selectedModelObjects);
 			this._ensureVisibility = ensureVisibility;
 		}

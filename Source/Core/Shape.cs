@@ -879,16 +879,7 @@ namespace Dataweb.NShape
 
 		/// <override></override>
 		public override int GetHashCode() {
-			// Overflow is fine, just wrap
-			unchecked {
-				// We use prime numbers 17 and 23, could also be other prime numbers
-				int result = 17;
-				result = result * 23 + otherPointId.GetHashCode();
-				result = result * 23 + ownPointId.GetHashCode();
-				if (otherShape != null)
-					result = result * 23 + otherShape.GetHashCode();
-				return result;
-			}
+			return HashCodeGenerator.CalculateHashCode(ownPointId, otherShape, otherPointId);
 		}
 
 
@@ -1244,13 +1235,13 @@ namespace Dataweb.NShape
 
 		/// <override></override>
 		public override int GetHashCode() {
-			return (A.GetHashCode() ^ B.GetHashCode() ^ C.GetHashCode());
+			return HashCodeGenerator.CalculateHashCode(A, B, C);
 		}
 
 
 		/// <override></override>
 		public override string ToString() {
-			return string.Format("A={0},B={1}C={2}", A, B, C);
+			return string.Format("A={0}, B={1}, C={2}", A, B, C);
 		}
 
 		

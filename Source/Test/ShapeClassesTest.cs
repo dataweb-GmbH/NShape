@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
+
 using Dataweb.NShape;
 using Dataweb.NShape.Advanced;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Dataweb.NShape.FlowChartShapes;
 using Dataweb.NShape.ElectricalShapes;
+using Dataweb.NShape.FlowChartShapes;
 using Dataweb.NShape.GeneralShapes;
 using Dataweb.NShape.SoftwareArchitectureShapes;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace NShapeTest {
@@ -43,6 +45,119 @@ namespace NShapeTest {
 						// Get all control point id's defined by constants of the specific shape type
 						// and check whether the point has the expected capabilities
 						ControlPointsByTypeTest(shape);
+					}
+				}
+			} finally {
+				project.Close();
+			}
+		}
+
+
+		[TestMethod]
+		public void GetControlPointIdsTest() {
+
+			Project project = CreateTestProject();
+			try {
+				foreach (ShapeType shapeType in project.ShapeTypes) {
+					using (Shape shape = shapeType.CreateInstance()) {
+						// Prepare shapes
+						if (shape is PolylineBase polylineBase) {
+							Point startPt = polylineBase.GetControlPointPosition(ControlPointId.FirstVertex);
+							Point endPt = polylineBase.GetControlPointPosition(ControlPointId.LastVertex);
+
+							Point cp1 = Geometry.VectorLinearInterpolation(startPt, endPt, 0.3333333f);
+							Point cp2 = Geometry.VectorLinearInterpolation(startPt, endPt, 0.6666666f);
+							polylineBase.AddConnectionPoint(cp1.X, cp1.Y);
+							polylineBase.AddConnectionPoint(cp2.X, cp2.Y);
+						}
+
+
+						// Get all control point ids and store them
+						Dictionary<ControlPointCapabilities, List<ControlPointId>> ControlPointIds = new Dictionary<ControlPointCapabilities, List<ControlPointId>>();
+						foreach (ControlPointCapabilities capabilities in Enum<ControlPointCapabilities>.GetValues()) {
+							ControlPointIds.Add(capabilities, new List<ControlPointId>(shape.GetControlPointIds(capabilities)));
+							Assert.IsFalse(ControlPointIds[capabilities].Contains(ControlPointId.Any));
+							Assert.IsFalse(ControlPointIds[capabilities].Contains(ControlPointId.None));
+							if ((shape is ILinearShape) == false) {
+								Assert.IsFalse(ControlPointIds[capabilities].Contains(ControlPointId.FirstVertex));
+								Assert.IsFalse(ControlPointIds[capabilities].Contains(ControlPointId.LastVertex));
+								Assert.IsFalse(ControlPointIds[capabilities].Contains(ControlPointId.Reference));
+							}
+						}
+						//
+						// All control point ids
+						if (ControlPointIds[ControlPointCapabilities.All] is List<ControlPointId> allPointIds) {
+							Assert.IsTrue(allPointIds.Count >= 1);
+							Assert.IsTrue(ContainsControlPoint(shape, allPointIds, ControlPointId.Reference));
+							if (shape is ILinearShape) {
+								Assert.IsTrue(ContainsControlPoint(shape, allPointIds, ControlPointId.FirstVertex));
+								Assert.IsTrue(ContainsControlPoint(shape, allPointIds, ControlPointId.LastVertex));
+							}
+						}
+						//
+						// Reference point id
+						if (ControlPointIds[ControlPointCapabilities.Reference] is List<ControlPointId> refPointIds)
+							Assert.IsTrue(ContainsControlPoint(shape, refPointIds, ControlPointId.Reference));
+						//
+						// Connection point ids
+						if (ControlPointIds[ControlPointCapabilities.Connect] is List<ControlPointId> connectPointIds) {
+							Assert.IsTrue(ContainsControlPoint(shape, connectPointIds, ControlPointId.Reference));
+							// ...
+						}
+						//
+						// Glue point ids
+						if (ControlPointIds[ControlPointCapabilities.Glue] is List<ControlPointId> gluePointIds) {
+							if (shape is ILinearShape) {
+								if (shape is BusBarSymbol)
+									Assert.IsTrue(gluePointIds.Count == 0);
+								else {
+									Assert.IsTrue(ContainsControlPoint(shape, gluePointIds, ControlPointId.FirstVertex));
+									Assert.IsTrue(ContainsControlPoint(shape, gluePointIds, ControlPointId.LastVertex));
+								}
+							}
+							if (shape is LabelBase)
+								Assert.IsTrue(gluePointIds.Count == 1);
+						}
+						//
+						// Rotate point id
+						if (ControlPointIds[ControlPointCapabilities.Rotate] is List<ControlPointId> rotatePointIds) {
+							if (shape is ILinearShape)
+								Assert.IsTrue(rotatePointIds.Count == 0);
+							else if (shape is VectorImage)
+								Assert.IsTrue(rotatePointIds.Count == 0);
+							else
+								Assert.IsTrue(rotatePointIds.Count == 1);
+						}
+						//
+						// Resize point id
+						if (ControlPointIds[ControlPointCapabilities.Resize] is List<ControlPointId> resizePointIds) {
+							if (shape is ILinearShape linearShape)
+								Assert.IsTrue(resizePointIds.Count == linearShape.VertexCount);
+							if (shape is PathBasedPlanarShape planarShape) {
+								if (shape is LabelBase labelShape && labelShape.AutoSize)
+									Assert.IsTrue(resizePointIds.Count == 1);
+								else if (shape is TextBase textShape && textShape.AutoSize)
+									Assert.IsTrue(resizePointIds.Count == 0);
+								else if (shape is ExtractSymbol || shape is MergeSymbol || shape is CommLinkSymbol)
+									Assert.IsTrue(resizePointIds.Count == 4);
+								else if (shape is CircleBase || shape is EllipseBase || shape is DiamondBase || shape is ProcessSymbol || shape is CloudSymbol || shape is ComponentSymbol)
+									Assert.IsTrue(resizePointIds.Count == 8);
+								else
+									Assert.IsTrue(resizePointIds.Count == planarShape.ControlPointCount - 1);
+							}
+						}
+						//
+						// Resize point id
+						if (ControlPointIds[ControlPointCapabilities.Movable] is List<ControlPointId> movablePointIds) {
+							if (shape is ILinearShape linearShape) {
+								if (shape is PolylineBase)
+									Assert.IsTrue(movablePointIds.Count == 2);
+								else
+									Assert.IsTrue(movablePointIds.Count >= 0);
+							}
+							if (shape is PathBasedPlanarShape planarShape)
+								Assert.IsTrue(movablePointIds.Count == 0);
+						}
 					}
 				}
 			} finally {
@@ -2115,6 +2230,16 @@ namespace NShapeTest {
 
 
 		#region [Private] Helper Methods
+
+		private static bool ContainsControlPoint(Shape s, IEnumerable<ControlPointId> pointIds, ControlPointId pointId) {
+			Point ptPos = s.GetControlPointPosition(pointId);
+			foreach (ControlPointId id in pointIds) {
+				if (s.GetControlPointPosition(id) == ptPos)
+					return true;
+			}
+			return true;
+		}
+
 
 		private Project CreateTestProject() {
 			// -- Create a project --

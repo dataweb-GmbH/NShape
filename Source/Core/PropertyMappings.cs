@@ -234,7 +234,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void AssignId(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			if (this._id != null) throw new InvalidOperationException(string.Format("{0} has already a id.", GetType().Name));
 			this._id = id;
 
@@ -243,7 +243,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual void LoadFields(IRepositoryReader reader, int version) {
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			_shapePropertyId = reader.ReadInt32();
 			_modelPropertyId = reader.ReadInt32();
 		}
@@ -251,15 +251,15 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual void LoadInnerObjects(string propertyName, IRepositoryReader reader, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			//nothing to do
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual void SaveFields(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			writer.WriteInt32(_shapePropertyId);
 			writer.WriteInt32(_modelPropertyId);
 		}
@@ -267,15 +267,15 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public virtual void SaveInnerObjects(string propertyName, IRepositoryWriter writer, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			// nothing to do
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Delete(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			foreach (EntityPropertyDefinition pi in GetPropertyDefinitions(version)) {
 				if (pi is EntityInnerObjectsDefinition)
 					writer.DeleteInnerObjects();
@@ -757,8 +757,7 @@ namespace Dataweb.NShape.Advanced {
 		public string Format {
 			get { return _format; }
 			set {
-				if (value == null) throw new ArgumentNullException("Format");
-				if (value == string.Empty) throw new ArgumentException("Format");
+				if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(Format));
 				_format = value;
 			}
 		}

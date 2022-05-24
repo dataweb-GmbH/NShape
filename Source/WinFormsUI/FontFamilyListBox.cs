@@ -342,7 +342,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods
 
 		private void Construct(IWindowsFormsEditorService editorService) {
-			if (editorService == null) throw new ArgumentNullException("editorService");
+			if (editorService == null) throw new ArgumentNullException(nameof(editorService));
 			this._editorService = editorService;
 
 			this.IntegralHeight = false;

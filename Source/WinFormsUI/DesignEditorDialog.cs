@@ -52,7 +52,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public DesignEditorDialog(Project project)
 			: this() {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			this.Project = project;
 		}
 

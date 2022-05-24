@@ -31,7 +31,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="fileName">The file name of the cursor resource.</param>
 		/// <returns>Id of the cursor.</returns>
 		public static int RegisterCursor(string fileName) {
-			if (fileName == null) throw new ArgumentNullException("fileName");
+			if (fileName == null) throw new ArgumentNullException(nameof(fileName));
 			byte[] resource = null;
 			FileStream stream = new FileStream(fileName, FileMode.Open);
 			try {
@@ -52,8 +52,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="resourceName">The name of the cursor resource.</param>
 		/// <returns>Id of the cursor.</returns>
 		public static int RegisterCursor(Assembly resourceAssembly, string resourceName) {
-			if (resourceAssembly == null) throw new ArgumentNullException("resourceAssembly");
-			if (resourceName == null) throw new ArgumentNullException("resourceName");
+			if (resourceAssembly == null) throw new ArgumentNullException(nameof(resourceAssembly));
+			if (resourceName == null) throw new ArgumentNullException(nameof(resourceName));
 			byte[] resource = null;
 			Stream stream = resourceAssembly.GetManifestResourceStream(resourceName);
 			try {
@@ -73,7 +73,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="resource">The cursor resource.</param>
 		/// <returns>Id of the cursor.</returns>
 		public static int RegisterCursor(byte[] resource) {
-			if (resource == null) throw new ArgumentNullException("resource");
+			if (resource == null) throw new ArgumentNullException(nameof(resource));
 			return RegisterCursorResource(resource);
 		}
 

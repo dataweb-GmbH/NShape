@@ -64,7 +64,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The given <see cref="T:System.Drawing.Imaging.MetaFile" /> is set to an invalid state inside this function.
 		/// </summary>
 		static public bool SaveEnhMetaFile(string fileName, Metafile metafile){
-			if (metafile == null) throw new ArgumentNullException("metafile");
+			if (metafile == null) throw new ArgumentNullException(nameof(metafile));
 			bool result = false;
 			IntPtr hEmf = metafile.GetHenhmetafile();
 			if (hEmf != IntPtr.Zero) {
@@ -85,7 +85,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The given <see cref="T:System.Drawing.Imaging.MetaFile" /> is set to an invalid state inside this function.
 		/// </summary>
 		static public bool SaveEnhMetaFile(Stream stream, Metafile metafile) {
-			if (metafile == null) throw new ArgumentNullException("metafile");
+			if (metafile == null) throw new ArgumentNullException(nameof(metafile));
 			bool result = false;
 			IntPtr hEmf = metafile.GetHenhmetafile();
 			if (hEmf != IntPtr.Zero) {
@@ -123,7 +123,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The given <see cref="T:System.Drawing.Imaging.MetaFile" /> is set to an invalid state and deleted inside this function.
 		/// </summary>
 		public static bool AddEnhMetafileToClipboard(Metafile metafile) {
-			if (metafile == null) throw new ArgumentNullException("metafile");
+			if (metafile == null) throw new ArgumentNullException(nameof(metafile));
 			bool result = false;
 			IntPtr hEMF, hEMF2;
 			hEMF = metafile.GetHenhmetafile(); // invalidates metafile
@@ -156,7 +156,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The given <see cref="T:System.Drawing.Imaging.MetaFile" /> is set to an invalid state and deleted inside this function.
 		/// </summary>
 		public static bool PutEnhMetafileOnClipboard(IntPtr hWnd, Metafile metafile, bool clearClipboard) {
-			if (metafile == null) throw new ArgumentNullException("metafile");
+			if (metafile == null) throw new ArgumentNullException(nameof(metafile));
 			bool result = false;
 			if (OpenClipboard(hWnd)) {
 				try {
@@ -178,7 +178,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The given <see cref="T:System.Drawing.Imaging.MetaFile" /> is set to an invalid state inside this function.
 		/// </summary>
 		public static bool AddBitmapToClipboard(Bitmap bitmap) {
-			if (bitmap == null) throw new ArgumentNullException("bitmap");
+			if (bitmap == null) throw new ArgumentNullException(nameof(bitmap));
 			bool result = false;
 			IntPtr hBMP, hBMP2;
 			hBMP = bitmap.GetHbitmap(); // invalidates bitmap
@@ -215,7 +215,7 @@ namespace Dataweb.NShape.Advanced {
 		/// The given <see cref="T:System.Drawing.Imaging.MetaFile" /> is set to an invalid state inside this function.
 		/// </summary>
 		public static bool PutBitmapOnClipboard(IntPtr hWnd, Bitmap bitmap, bool clearClipboard) {
-			if (bitmap == null) throw new ArgumentNullException("bitmap");
+			if (bitmap == null) throw new ArgumentNullException(nameof(bitmap));
 			bool result = false;
 			if (OpenClipboard(hWnd)) {
 				try {

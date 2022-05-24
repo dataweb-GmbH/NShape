@@ -175,7 +175,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			DrawPath(graphics, LineStyle, FillStyle);
 			DrawCaption(graphics);
 			base.Draw(graphics);	// Draw children and outline
@@ -629,7 +629,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		//public override void Draw(Graphics graphics) {
-		//   if (graphics == null) throw new ArgumentNullException("graphics");
+		//   if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 		//   DrawPath(graphics, LineStyle, FillStyle);
 		//   DrawCaption(graphics);
 
@@ -742,7 +742,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		//protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-	//   if (index != 0) throw new ArgumentOutOfRangeException("index");
+	//   if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 		//   Geometry.CalcBoundingRectangle(shapePoints, out captionBounds);
 		//}
 

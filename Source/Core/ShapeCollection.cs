@@ -192,7 +192,7 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.ShapeCollection" />.
 		/// </summary>
 		public ShapeCollection(IEnumerable<Shape> collection) {
-			if (collection == null) throw new ArgumentNullException("collection");
+			if (collection == null) throw new ArgumentNullException(nameof(collection));
 			if (collection is ICollection)
 				Construct(((ICollection)collection).Count);
 			else Construct(0);
@@ -216,7 +216,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <param name="shapes"></param>
 		public void AddRange(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			AddRangeCore(shapes);
 		}
 
@@ -225,8 +225,8 @@ namespace Dataweb.NShape {
 		/// Replaces a shape by another.
 		/// </summary>
 		public void Replace(Shape oldShape, Shape newShape) {
-			if (oldShape == null) throw new ArgumentNullException("oldShape");
-			if (newShape == null) throw new ArgumentNullException("newShape");
+			if (oldShape == null) throw new ArgumentNullException(nameof(oldShape));
+			if (newShape == null) throw new ArgumentNullException(nameof(newShape));
 			ReplaceCore(oldShape, newShape);
 		}
 
@@ -235,8 +235,8 @@ namespace Dataweb.NShape {
 		/// Replaces multiple shapes by others.
 		/// </summary>
 		public void ReplaceRange(IEnumerable<Shape> oldShapes, IEnumerable<Shape> newShapes) {
-			if (oldShapes == null) throw new ArgumentNullException("oldShapes");
-			if (newShapes == null) throw new ArgumentNullException("newShapes");
+			if (oldShapes == null) throw new ArgumentNullException(nameof(oldShapes));
+			if (newShapes == null) throw new ArgumentNullException(nameof(newShapes));
 			ReplaceRangeCore(oldShapes, newShapes);
 		}
 
@@ -245,7 +245,7 @@ namespace Dataweb.NShape {
 		/// Removes multiple shapes.
 		/// </summary>
 		public bool RemoveRange(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			return RemoveRangeCore(shapes);
 		}
 
@@ -295,7 +295,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <param name="shape">The shape trying to move</param>
 		public virtual void NotifyChildMoving(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			MapRemove(shape);
 			ResetBoundingRectangles();
 		}
@@ -306,7 +306,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <param name="shape">The shape trying to move</param>
 		public virtual void NotifyChildResizing(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			MapRemove(shape);
 			ResetBoundingRectangles();
 		}
@@ -317,7 +317,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <param name="shape">The shape trying to move</param>
 		public virtual void NotifyChildRotating(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			MapRemove(shape);
 			ResetBoundingRectangles();
 		}
@@ -328,7 +328,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <param name="shape"></param>
 		public virtual void NotifyChildMoved(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			MapInsert(shape);
 		}
 
@@ -337,7 +337,7 @@ namespace Dataweb.NShape {
 		/// Notifies the parent that its child shape has resized.
 		/// </summary>
 		public virtual void NotifyChildResized(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			MapInsert(shape);
 		}
 
@@ -346,7 +346,7 @@ namespace Dataweb.NShape {
 		/// Notifies the parent that its child shape has rotated.
 		/// </summary>
 		public virtual void NotifyChildRotated(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			MapInsert(shape);
 		}
 
@@ -369,7 +369,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public bool ContainsAll(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shape");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			bool isEmpty = true;
 			foreach (Shape shape in shapes) {
 				if (isEmpty) isEmpty = false;
@@ -381,7 +381,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public bool ContainsAny(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shape");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			bool result = false;
 			foreach (Shape shape in shapes) {
 				if (Contains(shape)) {
@@ -448,14 +448,14 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public int GetZOrder(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			return shape.ZOrder;
 		}
 
 
 		/// <override></override>
 		public void SetZOrder(Shape shape, int zOrder) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Remove(shape);
 			shape.ZOrder = zOrder;
 			Add(shape);
@@ -468,7 +468,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public void Add(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			AddCore(shape);
 			// Reset bounding rectangles
 			boundingRectangleTight = boundingRectangleLoose = Geometry.InvalidRectangle;
@@ -477,7 +477,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public void Add(Shape shape, int zOrder) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			shape.ZOrder = zOrder;
 			Add(shape);
 		}
@@ -491,14 +491,14 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public bool Contains(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			return _shapeSet.Contains(shape);
 		}
 
 
 		/// <override></override>
 		public void CopyTo(Shape[] array, int arrayIndex) {
-			if (array == null) throw new ArgumentNullException("array");
+			if (array == null) throw new ArgumentNullException(nameof(array));
 			Shapes.CopyTo(array, arrayIndex);
 		}
 
@@ -517,7 +517,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public bool Remove(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			return RemoveCore(shape);
 		}
 
@@ -547,7 +547,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public void CopyTo(Array array, int index) {
-			if (array == null) throw new ArgumentNullException("array");
+			if (array == null) throw new ArgumentNullException(nameof(array));
 			Array.Copy(Shapes.ToArray(), index, array, 0, array.Length);
 		}
 
@@ -799,7 +799,7 @@ namespace Dataweb.NShape {
 		/// Adds the given shape into the collection's indexes.
 		/// </summary>
 		protected void AddShapeToIndex(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			_shapeSet.Add(shape);
 			MapInsert(shape);
 		}
@@ -809,7 +809,7 @@ namespace Dataweb.NShape {
 		/// removes the given shape from the collection's indexes.
 		/// </summary>
 		protected void RemoveShapeFromIndex(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			MapRemove(shape);
 			_shapeSet.Remove(shape);
 		}
@@ -838,7 +838,10 @@ namespace Dataweb.NShape {
 		}
 
 
-		private uint CalcMapHashCode(Point cellIndex) {
+		/// <summary>
+		/// Calculates a hash code for the spatial index.
+		/// </summary>
+		public static uint CalcMapHashCode(Point cellIndex) {
 			unchecked {
 				uint x = (uint)(cellIndex.X);
 				uint y = (uint)(cellIndex.Y);
@@ -852,12 +855,11 @@ namespace Dataweb.NShape {
 		/// Inserts the given shape into the shape map (spatial index).
 		/// </summary>
 		private void MapInsert(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_shapeMap != null) {
 				//Debug.Assert(CellsAreValid(shape));
-				foreach (Point p in shape.CalculateCells(Diagram.CellSize)) {
+				foreach (Point p in shape.CalculateCells(Diagram.IndexCellSize))
 					_shapeMap.Add(CalcMapHashCode(p), shape);
-				}
 			}
 		}
 
@@ -866,11 +868,13 @@ namespace Dataweb.NShape {
 		/// Removes the given shape into the shape map (spatial index).
 		/// </summary>
 		private void MapRemove(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_shapeMap != null) {
 				//Debug.Assert(CellsAreValid(shape));
-				foreach (Point p in shape.CalculateCells(Diagram.CellSize))
+				foreach (Point p in shape.CalculateCells(Diagram.IndexCellSize)) {
+					uint key = CalcMapHashCode(p);
 					_shapeMap.Remove(CalcMapHashCode(p), shape);
+				}
 			}
 		}
 
@@ -883,28 +887,27 @@ namespace Dataweb.NShape {
 			int listCnt = 0;
 
 			Point p = Point.Empty;
-			int minCellX = x / Diagram.CellSize;
+			int minCellX = x / Diagram.IndexCellSize;
 			if (x < 0) --minCellX;
-			int minCellY = y / Diagram.CellSize;
+			int minCellY = y / Diagram.IndexCellSize;
 			if (y < 0) --minCellY;
-			int maxCellX = width / Diagram.CellSize;
-			int maxCellY = height / Diagram.CellSize;
+			int maxCellX = width / Diagram.IndexCellSize;
+			int maxCellY = height / Diagram.IndexCellSize;
 			for (p.X = minCellX; p.X <= maxCellX; ++p.X) {
 				for (p.Y = minCellY; p.Y <= maxCellY; ++p.Y) {
 					int listLength = 0;
 					foreach (Shape s in _shapeMap[CalcMapHashCode(p)]) {
-						s.Invalidate();
-
-						int left = p.X * Diagram.CellSize;
-						int top = p.Y * Diagram.CellSize;
-						if (s.IntersectsWith(left, top, Diagram.CellSize, Diagram.CellSize)
-						   || Geometry.RectangleContainsRectangle(left, top, Diagram.CellSize, Diagram.CellSize, s.GetBoundingRectangle(false))) {
-						   graphics.FillRectangle(_occupiedBrush, left, top, Diagram.CellSize, Diagram.CellSize);
-						} else graphics.FillRectangle(_emptyBrush, left, top, Diagram.CellSize, Diagram.CellSize);
+						int left = p.X * Diagram.IndexCellSize;
+						int top = p.Y * Diagram.IndexCellSize;
+						if (s.IntersectsWith(left, top, Diagram.IndexCellSize, Diagram.IndexCellSize)
+							|| Geometry.RectangleIntersectsWithRectangle(s.GetBoundingRectangle(false), left, top, Diagram.IndexCellSize, Diagram.IndexCellSize))
+							graphics.FillRectangle(_occupiedBrush, left, top, Diagram.IndexCellSize, Diagram.IndexCellSize);
+						else
+							graphics.FillRectangle(_emptyBrush, left, top, Diagram.IndexCellSize, Diagram.IndexCellSize);
 						++listLength;
 					}
-					// Collect list statistics: Maximum list length and average list 
-					// length (populated lists only)
+					// Collect list statistics:
+					// Maximum list length and average list length (populated lists only)
 					if (listLength > 0) {
 						if (listLength > maxListLength) maxListLength = listLength;
 						itemCnt += listLength;
@@ -916,18 +919,18 @@ namespace Dataweb.NShape {
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
+		/// <summary>Returns the number of shapes at the given diagram coordinates.</summary>
 		public int GetShapeCount(int x, int y) {
 			Point p = Point.Empty;
-			p.Offset(x / Diagram.CellSize, y / Diagram.CellSize);
+			p.Offset(x / Diagram.IndexCellSize, y / Diagram.IndexCellSize);
 			return GetShapeCount(p);
 		}
 
 
-		/// <ToBeCompleted></ToBeCompleted>
-		public int GetShapeCount(Point cellIndex) {
+		/// <summary>Gets the number of shapes in the specified cell.</summary>
+		public int GetShapeCount(Point cell) {
 			int result = 0;
-			foreach (Shape s in _shapeMap[CalcMapHashCode(cellIndex)])
+			foreach (Shape s in _shapeMap[CalcMapHashCode(cell)])
 				++result;
 			return result;
 		}
@@ -937,7 +940,7 @@ namespace Dataweb.NShape {
 		private bool CellsAreValid(Shape shape) {
 			int left = int.MaxValue, top = int.MaxValue;
 			int right = int.MinValue, bottom = int.MinValue;
-			foreach (Point p in shape.CalculateCells(Diagram.CellSize)) {
+			foreach (Point p in shape.CalculateCells(Diagram.IndexCellSize)) {
 				if (p.X < left) left = p.X;
 				if (p.X > right) right = p.X;
 				if (p.Y < top) top = p.Y;
@@ -947,13 +950,13 @@ namespace Dataweb.NShape {
 			if (left == int.MaxValue && top == int.MaxValue && right == int.MinValue && bottom == int.MinValue)
 				return true;
 
-			Rectangle cellBounds = Rectangle.FromLTRB(left * Diagram.CellSize, top * Diagram.CellSize,
-				(right * Diagram.CellSize) + Diagram.CellSize, (bottom * Diagram.CellSize) + Diagram.CellSize);
+			Rectangle cellBounds = Rectangle.FromLTRB(left * Diagram.IndexCellSize, top * Diagram.IndexCellSize,
+				(right * Diagram.IndexCellSize) + Diagram.IndexCellSize, (bottom * Diagram.IndexCellSize) + Diagram.IndexCellSize);
 			Rectangle shapeBounds = shape.GetBoundingRectangle(true);
 
 			if (!Geometry.RectangleContainsRectangle(cellBounds, shapeBounds))
 				return false;
-			int doubleCellSize = Diagram.CellSize * 2;
+			int doubleCellSize = Diagram.IndexCellSize * 2;
 			if (Math.Abs(cellBounds.Left - shapeBounds.Left) >= doubleCellSize
 				|| Math.Abs(cellBounds.Top - shapeBounds.Top) >= doubleCellSize
 				|| Math.Abs(shapeBounds.Right - cellBounds.Right) >= doubleCellSize
@@ -1019,8 +1022,8 @@ namespace Dataweb.NShape {
 			int range = w / 2;
 			if (_shapeMap != null) {
 				int fromX, fromY, toX, toY;
-				ShapeUtils.CalcCell(x, y, Diagram.CellSize, out fromX, out fromY);
-				ShapeUtils.CalcCell(x + w, y + h, Diagram.CellSize, out toX, out toY);
+				ShapeUtils.CalcCell(x, y, Diagram.IndexCellSize, out fromX, out fromY);
+				ShapeUtils.CalcCell(x + w, y + h, Diagram.IndexCellSize, out toX, out toY);
 				Point p = Point.Empty;
 				for (p.X = fromX; p.X <= toX; p.X += 1)
 					for (p.Y = fromY; p.Y <= toY; p.Y += 1)

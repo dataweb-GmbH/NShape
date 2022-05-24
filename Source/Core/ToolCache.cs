@@ -79,7 +79,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Releases resources used for styles of the given <see cref="T:Dataweb.NShape.IStyleSet" />.
 		/// </summary>
 		public static void RemoveStyleSetTools(IStyleSet styleSet) {
-			if (styleSet == null) throw new ArgumentNullException("styleSet");
+			if (styleSet == null) throw new ArgumentNullException(nameof(styleSet));
 
 			// Delete GDI+ objects created from styles
 			foreach (ICapStyle style in styleSet.CapStyles)
@@ -101,7 +101,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Deletes all cached instances of the given <see cref="T:Dataweb.NShape.IStyle" />.
 		/// </summary>
 		public static void NotifyStyleChanged(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			if (style is ICapStyle) NotifyCapStyleChanged((ICapStyle)style);
 			else if (style is ICharacterStyle) NotifyCharacterStyleChanged((ICharacterStyle)style);
 			else if (style is IColorStyle) NotifyColorStyleChanged((IColorStyle)style);
@@ -121,7 +121,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="center">Specifies the rotation center.</param>
 		/// <param name="angle">Specifies the rotation angle in tenths of degrees.</param>
 		public static Brush GetTransformedBrush(IFillStyle fillStyle, Rectangle unrotatedBounds, Point center, int angle) {
-			if (fillStyle == null) throw new ArgumentNullException("fillStyle");
+			if (fillStyle == null) throw new ArgumentNullException(nameof(fillStyle));
+			if (!Geometry.IsValid(unrotatedBounds)) throw new ArgumentException("Rectangle is not valid.", nameof(unrotatedBounds));
 
 			Brush brush = GetBrush(fillStyle);
 			float angleDeg = Geometry.TenthsOfDegreeToDegrees(angle);
@@ -139,8 +140,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns the untransformed axis aligned bounding rectangle of the line cap defined by the given styles.
 		/// </summary>
 		public static Rectangle GetCapBounds(ICapStyle capStyle, ILineStyle lineStyle, float angleDeg) {
-			if (capStyle == null) throw new ArgumentNullException("capStyle");
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (capStyle == null) throw new ArgumentNullException(nameof(capStyle));
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 			Rectangle result = Geometry.InvalidRectangle;
 			PointF[] buffer = null;
 			GetCapPoints(capStyle, lineStyle, ref buffer);
@@ -164,8 +165,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Constructs a polygon from the given cap style used for drawing the line cap's interior.
 		/// </summary>
 		public static void GetCapPoints(ICapStyle capStyle, ILineStyle lineStyle, ref PointF[] capPoints) {
-			if (capStyle == null) throw new ArgumentNullException("capStyle");
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (capStyle == null) throw new ArgumentNullException(nameof(capStyle));
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 			// Copy path points to point buffer
 			GraphicsPath capPath = GetCapPath(capStyle, lineStyle);
 			if (capPoints == null)
@@ -176,13 +177,32 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 
+
+		/// <summary>
+		/// Creates a new <see cref="T:System.Drawing.Drawing2D.GraphicsPath" /> used for creating the line cap for the given cap style. 
+		/// Can be used for drawing the line cap's interior. 
+		/// </summary>
+		public static GraphicsPath CreateCapPath(ICapStyle capStyle, ILineStyle lineStyle) {
+			if (capStyle == null) throw new ArgumentNullException(nameof(capStyle));
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
+
+			// Create CapPath
+			// Do not cache the cap path and re-calculate it each time in order to avoid cumulating numeric errors when transforming 
+			GraphicsPath capPath = null;
+			// Scale GraphicsPath down for correcting the automatic scaling that is applied to
+			// LineCaps by GDI+ when altering the LineWidth of the pen
+			CalcCapShape(ref capPath, capStyle.CapShape, capStyle.CapSize * (1f / lineStyle.LineWidth));
+			return capPath;
+		}
+
+
 		/// <summary>
 		/// Finds and returns the <see cref="T:System.Drawing.Drawing2D.GraphicsPath" /> used for creating the line cap for the given cap style. 
 		/// Can be used for drawing the line cap's interior.
 		/// </summary>
 		public static GraphicsPath GetCapPath(ICapStyle capStyle, ILineStyle lineStyle) {
-			if (capStyle == null) throw new ArgumentNullException("capStyle");
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (capStyle == null) throw new ArgumentNullException(nameof(capStyle));
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 
 			// Build CapKey
 			CapKey capKey;
@@ -202,7 +222,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static Pen GetPen(ILineStyle lineStyle, ICapStyle startCapStyle, ICapStyle endCapStyle) {
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 			
 			PenKey penKey;
 			penKey.LineStyle = lineStyle;
@@ -239,7 +259,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Creates a solid color brush from the given <see cref="T:Dataweb.NShape.IColorStyle"/>.
 		/// </summary>
 		public static Brush GetBrush(IColorStyle colorStyle) {
-			if (colorStyle == null) throw new ArgumentNullException("colorStyle");
+			if (colorStyle == null) throw new ArgumentNullException(nameof(colorStyle));
 			
 			SolidBrush brush = null;
 			if (!_solidBrushCache.TryGetValue(colorStyle, out brush)) {
@@ -256,8 +276,8 @@ namespace Dataweb.NShape.Advanced {
 		/// If the color style is ColorStyle.Empty, the line style's color style is used.
 		/// </summary>
 		public static Brush GetBrush(IColorStyle colorStyle, ILineStyle lineStyle) {
-			if (colorStyle == null) throw new ArgumentNullException("colorStyle");
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (colorStyle == null) throw new ArgumentNullException(nameof(colorStyle));
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 			if (colorStyle == ColorStyle.Empty)
 				return GetBrush(lineStyle.ColorStyle);
 			else return GetBrush(colorStyle);
@@ -271,7 +291,7 @@ namespace Dataweb.NShape.Advanced {
 		/// a <see cref="T:System.Drawing.TextureBrush"/>.
 		/// </summary>
 		public static Brush GetBrush(IFillStyle fillStyle) {
-			if (fillStyle == null) throw new ArgumentNullException("fillStyle");
+			if (fillStyle == null) throw new ArgumentNullException(nameof(fillStyle));
 			BrushKey brushKey;
 			brushKey.FillStyle = fillStyle;
 			brushKey.Image = null;
@@ -327,7 +347,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="characterStyle"></param>
 		/// <returns></returns>
 		public static Font GetFont(ICharacterStyle characterStyle) {
-			if (characterStyle == null) throw new ArgumentNullException("characterStyle");
+			if (characterStyle == null) throw new ArgumentNullException(nameof(characterStyle));
 
 			Font font = null;
 			if (!_fontCache.TryGetValue(characterStyle, out font)) {
@@ -371,7 +391,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Returns a <see cref="T:System.Drawing.StringFormat"/> from the given <see cref="T:Dataweb.NShape.IParagraphStyle"/>.
 		/// </summary>
 		public static StringFormat GetStringFormat(IParagraphStyle paragraphStyle) {
-			if (paragraphStyle == null) throw new ArgumentNullException("paragraphStyle");
+			if (paragraphStyle == null) throw new ArgumentNullException(nameof(paragraphStyle));
 			
 			StringFormat stringFormat = null;
 			if (!_stringFormatCache.TryGetValue(paragraphStyle, out stringFormat)) {
@@ -629,7 +649,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		private static TextureBrush GetBrush(Image image, ImageLayoutMode imageLayout, float gamma, byte transparency, bool grayScale) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			BrushKey brushKey;
 			brushKey.FillStyle = null;
 			brushKey.Image = image;
@@ -676,8 +696,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Finds and returns the <see cref="T:System.Drawing.Drawing2D.CustomLineCap" /> for the given <see cref="T:Dataweb.NShape.ICapStyle" /> and <see cref="T:Dataweb.NShape.ILineStyle" />.
 		/// </summary>
 		private static CustomLineCap GetCustomLineCap(ICapStyle capStyle, ILineStyle lineStyle) {
-			if (capStyle == null) throw new ArgumentNullException("capStyle");
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (capStyle == null) throw new ArgumentNullException(nameof(capStyle));
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 
 			// Build CapKey
 			CapKey capKey;
@@ -709,8 +729,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private static void SetLineCap(Pen pen, ILineStyle lineStyle, ICapStyle capStyle, bool isStartCap) {
-			if (pen == null) throw new ArgumentNullException("pen");
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 			LineCap cap = LineCap.Round;
 			if (capStyle != null) {
 				switch (capStyle.CapShape) {
@@ -856,11 +876,7 @@ namespace Dataweb.NShape.Advanced {
 
 			/// <override></override>
 			public override int GetHashCode() {
-				int hashCode = 0;
-				if (LineStyle != null) hashCode ^= LineStyle.GetHashCode();
-				if (StartCapStyle != null) hashCode ^= StartCapStyle.GetHashCode();
-				if (EndCapStyle != null) hashCode ^= EndCapStyle.GetHashCode();
-				return hashCode;
+				return HashCodeGenerator.CalculateHashCode(LineStyle, StartCapStyle, EndCapStyle);
 			}
 
 		}
@@ -888,11 +904,9 @@ namespace Dataweb.NShape.Advanced {
 
 			/// <override></override>
 			public override int GetHashCode() {
-				int hashCode = 0;
-				if (LineStyle != null) hashCode ^= LineStyle.GetHashCode();
-				if (CapStyle != null) hashCode ^= CapStyle.GetHashCode();
-				return hashCode;
+				return HashCodeGenerator.CalculateHashCode(LineStyle, CapStyle);
 			}
+
 		}
 
 
@@ -923,28 +937,22 @@ namespace Dataweb.NShape.Advanced {
 
 			/// <override></override>
 			public override int GetHashCode() {
-				int hashCode = 0;
-				if (FillStyle != null) {
-					hashCode ^= FillStyle.GetHashCode();
-					//if (FillStyle.AdditionalColorStyle!= null)
-					//   hashCode ^= FillStyle.AdditionalColorStyle.GetHashCode();
-					//if (FillStyle.BaseColorStyle != null)
-					//   hashCode ^= FillStyle.BaseColorStyle.GetHashCode();
-					//if (FillStyle.Image != null)
-					//   hashCode ^= FillStyle.Image.GetHashCode();
-					//hashCode ^= FillStyle.ConvertToGrayScale.GetHashCode();
-					//hashCode ^= FillStyle.FillMode.GetHashCode();
-					//hashCode ^= FillStyle.FillPattern.GetHashCode();
-					//hashCode ^= FillStyle.GradientAngle.GetHashCode();
-					//hashCode ^= FillStyle.ImageGammaCorrection.GetHashCode();
-					//hashCode ^= FillStyle.ImageLayout.GetHashCode();
-					//hashCode ^= FillStyle.ImageTransparency.GetHashCode();
-					//hashCode ^= FillStyle.Name.GetHashCode();
-				}
-				if (Image != null)
-					hashCode ^= Image.GetHashCode();
-				return hashCode;
-			}
+				return HashCodeGenerator.CalculateHashCode(FillStyle, Image);
+				//if (FillStyle.AdditionalColorStyle!= null)
+				//   hashCode ^= FillStyle.AdditionalColorStyle.GetHashCode();
+				//if (FillStyle.BaseColorStyle != null)
+				//   hashCode ^= FillStyle.BaseColorStyle.GetHashCode();
+				//if (FillStyle.Image != null)
+				//   hashCode ^= FillStyle.Image.GetHashCode();
+				//hashCode ^= FillStyle.ConvertToGrayScale.GetHashCode();
+				//hashCode ^= FillStyle.FillMode.GetHashCode();
+				//hashCode ^= FillStyle.FillPattern.GetHashCode();
+				//hashCode ^= FillStyle.GradientAngle.GetHashCode();
+				//hashCode ^= FillStyle.ImageGammaCorrection.GetHashCode();
+				//hashCode ^= FillStyle.ImageLayout.GetHashCode();
+				//hashCode ^= FillStyle.ImageTransparency.GetHashCode();
+				//hashCode ^= FillStyle.Name.GetHashCode();
+		}
 
 		}
 

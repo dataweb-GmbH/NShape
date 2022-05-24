@@ -168,7 +168,7 @@ namespace Dataweb.NShape {
 		/// Generates a hash code for the current <see cref="T:Dataweb.NShape.TextPadding" />.
 		/// </summary>
 		public override int GetHashCode() {
-			return base.GetHashCode();
+			return HashCodeGenerator.CalculateHashCode(_left, _top, _right, _bottom, _all);
 		}
 
 
@@ -176,7 +176,7 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.TextPadding" />.
 		/// </summary>
 		public TextPadding(int all) {
-			if (all < 0) throw new ArgumentOutOfRangeException("all");
+			if (all < 0) throw new ArgumentOutOfRangeException(nameof(all));
 			this._all = true;
 			this._left = this._top = this._right = this._bottom = all;
 		}
@@ -186,10 +186,10 @@ namespace Dataweb.NShape {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.TextPadding" />.
 		/// </summary>
 		public TextPadding(int left, int top, int right, int bottom) {
-			if (left < 0) throw new ArgumentOutOfRangeException("left");
-			if (top < 0) throw new ArgumentOutOfRangeException("top");
-			if (right < 0) throw new ArgumentOutOfRangeException("right");
-			if (bottom < 0) throw new ArgumentOutOfRangeException("bottom");
+			if (left < 0) throw new ArgumentOutOfRangeException(nameof(left));
+			if (top < 0) throw new ArgumentOutOfRangeException(nameof(top));
+			if (right < 0) throw new ArgumentOutOfRangeException(nameof(right));
+			if (bottom < 0) throw new ArgumentOutOfRangeException(nameof(bottom));
 			this._all = false;
 			this._left = left;
 			this._top = top;
@@ -206,7 +206,7 @@ namespace Dataweb.NShape {
 		public int Left {
 			get { return _left; }
 			set {
-				if (value < 0) throw new ArgumentOutOfRangeException("value");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
 				if (_all || _left != value) {
 					_left = value;
 					CheckAll();
@@ -222,7 +222,7 @@ namespace Dataweb.NShape {
 		public int Top {
 			get { return _all ? _left : _top; }
 			set {
-				if (value < 0) throw new ArgumentOutOfRangeException("value");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
 				if (_all || _top != value) {
 					_top = value;
 					CheckAll();
@@ -238,7 +238,7 @@ namespace Dataweb.NShape {
 		public int Right {
 			get { return _all ? _left : _right; }
 			set {
-				if (value < 0) throw new ArgumentOutOfRangeException("value");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
 				if (_all || _right != value) {
 					_right = value;
 					CheckAll();
@@ -254,7 +254,7 @@ namespace Dataweb.NShape {
 		public int Bottom {
 			get { return _all ? _left : _bottom; }
 			set {
-				if (value < 0) throw new ArgumentOutOfRangeException("value");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
 				if (_all || _bottom != value) {
 					_bottom = value;
 					CheckAll();
@@ -270,7 +270,7 @@ namespace Dataweb.NShape {
 		public int All {
 			get { return _all ? _left : -1; }
 			set {
-				if (value < 0) throw new ArgumentOutOfRangeException("value");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
 				_left = _top = _right = _bottom = value;
 				CheckAll();
 			}
@@ -848,8 +848,8 @@ namespace Dataweb.NShape {
 		/// <param name="style">Specifies the copy source.</param>
 		/// <param name="findStyleCallback">A callback method that obtains a style.</param>
 		public virtual void Assign(IStyle style, FindStyleCallback findStyleCallback) {
-			if (style == null) throw new ArgumentNullException("style");
-			if (findStyleCallback == null) throw new ArgumentNullException("findStyleCallback");
+			if (style == null) throw new ArgumentNullException(nameof(style));
+			if (findStyleCallback == null) throw new ArgumentNullException(nameof(findStyleCallback));
 			if (this.Name != style.Name) this.Name = style.Name;
 			this.Title = style.Title;
 		}
@@ -957,7 +957,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public virtual void AssignId(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			if (this._id != null) {
 				//throw new InvalidOperationException("Style has already an id.");
 			}else 
@@ -967,7 +967,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public virtual void LoadFields(IRepositoryReader reader, int version) {
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			_name = reader.ReadString();
 			if (version >= 3) _title = reader.ReadString();
 			_renameable = !IsStandardName(_name);
@@ -976,15 +976,15 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public virtual void LoadInnerObjects(string propertyName, IRepositoryReader reader, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			// nothing to do
 		}
 
 
 		/// <override></override>
 		public virtual void SaveFields(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			writer.WriteString(_name);
 			if (version >= 3) writer.WriteString(_title);
 		}
@@ -992,15 +992,15 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public virtual void SaveInnerObjects(string propertyName, IRepositoryWriter writer, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			// nothing to do
 		}
 
 
 		/// <override></override>
 		public virtual void Delete(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			foreach (EntityPropertyDefinition pi in GetPropertyDefinitions(version)) {
 				if (pi is EntityInnerObjectsDefinition)
 					writer.DeleteInnerObjects();
@@ -1699,7 +1699,7 @@ namespace Dataweb.NShape {
 
 		private void Construct(Color color, byte transparency) {
 			if (transparency < 0 || transparency > 100)
-				throw new ArgumentOutOfRangeException("transparency", Properties.Resources.MessageTxt_ValueHasToBeBetween0And100);
+				throw new ArgumentOutOfRangeException(nameof(transparency), Properties.Resources.MessageTxt_ValueHasToBeBetween0And100);
 			this._transparency = transparency;
 			this._color = Color.FromArgb(TransparencyToAlpha(transparency), color);
 		}
@@ -2063,15 +2063,15 @@ namespace Dataweb.NShape {
 
 
 		private void Construct(IColorStyle baseColorStyle, IColorStyle additionalColorStyle) {
-			if (baseColorStyle == null) throw new ArgumentNullException("baseColorStyle");
-			if (additionalColorStyle == null) throw new ArgumentNullException("additionalColorStyle");
+			if (baseColorStyle == null) throw new ArgumentNullException(nameof(baseColorStyle));
+			if (additionalColorStyle == null) throw new ArgumentNullException(nameof(additionalColorStyle));
 			this.BaseColorStyle = baseColorStyle;
 			this.AdditionalColorStyle = additionalColorStyle;
 		}
 
 
 		private void Construct(NamedImage image) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			this._image = image;
 		}
 
@@ -2647,7 +2647,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public TStyle GetPreviewStyle(TStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			// If the style has been renamed, the preview style won't be found by name,
 			// so we have to iterate through the elements and compare by reference.
 			TStyle result = null;
@@ -2664,15 +2664,15 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public TStyle GetPreviewStyle(string styleName) {
-			if (styleName == null) throw new ArgumentNullException("styleName");
+			if (styleName == null) throw new ArgumentNullException(nameof(styleName));
 			return internalList[styleName].PreviewStyle;
 		}
 
 
 		/// <override></override>
 		public void Add(TStyle style, TStyle previewStyle) {
-			if (style == null) throw new ArgumentNullException("style");
-			if (previewStyle == null) throw new ArgumentNullException("previewStyle");
+			if (style == null) throw new ArgumentNullException(nameof(style));
+			if (previewStyle == null) throw new ArgumentNullException(nameof(previewStyle));
 			internalList.Add(style.Name, new StylePair<TStyle>(style, previewStyle));
 			RegisterEventHandler(style);
 		}
@@ -2696,7 +2696,7 @@ namespace Dataweb.NShape {
 		/// style is a preview style, the style for the given preview style.
 		/// </summary>
 		public bool Contains(TStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			foreach (KeyValuePair<string, StylePair<TStyle>> item in internalList) {
 				if (item.Value.Style == style || item.Value.PreviewStyle == style)
 					return true;
@@ -2707,7 +2707,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public bool Contains(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			return internalList.ContainsKey(name);
 		}
 
@@ -2717,7 +2717,7 @@ namespace Dataweb.NShape {
 		/// case the given style is a preview style, the given preview style itself.
 		/// </summary>
 		public bool ContainsPreviewStyle(TStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			foreach (KeyValuePair<string, StylePair<TStyle>> item in internalList) {
 				if (item.Value.Style == style)
 					return (item.Value.PreviewStyle != null);
@@ -2730,7 +2730,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool ContainsPreviewStyle(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			if (internalList.ContainsKey(name))
 				return (internalList[name].PreviewStyle != null);
 			else return false;
@@ -2739,7 +2739,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public int IndexOf(TStyle item) {
-			if (item == null) throw new ArgumentNullException("item");
+			if (item == null) throw new ArgumentNullException(nameof(item));
 			foreach (StylePair<TStyle> stylePair in internalList.Values) {
 				if (stylePair.Style == item || stylePair.PreviewStyle == item)
 					return internalList.IndexOfValue(stylePair);
@@ -2750,14 +2750,14 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public int IndexOf(string styleName) {
-			if (styleName == null) throw new ArgumentNullException("styleName");
+			if (styleName == null) throw new ArgumentNullException(nameof(styleName));
 			return internalList.IndexOfKey(styleName);
 		}
 
 
 		/// <override></override>
 		public bool Remove(TStyle style) {
-			if (style == null) throw new ArgumentNullException("item");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			UnregisterEventHandler(style);
 			return internalList.Remove(style.Name);
 		}
@@ -2783,18 +2783,18 @@ namespace Dataweb.NShape {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public void SetPreviewStyle(string baseStyleName, TStyle value) {
-			if (baseStyleName == null) throw new ArgumentNullException("baseStyle");
-			if (value == null) throw new ArgumentNullException("value");
-			internalList[baseStyleName].PreviewStyle = value;
+		public void SetPreviewStyle(string baseStyleName, TStyle style) {
+			if (baseStyleName == null) throw new ArgumentNullException(nameof(baseStyleName));
+			if (style == null) throw new ArgumentNullException(nameof(style));
+			internalList[baseStyleName].PreviewStyle = style;
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		public void SetPreviewStyle(TStyle baseStyle, TStyle value) {
-			if (baseStyle == null) throw new ArgumentNullException("baseStyle");
-			if (value == null) throw new ArgumentNullException("value");
-			internalList[baseStyle.Name].PreviewStyle = value;
+		public void SetPreviewStyle(TStyle baseStyle, TStyle style) {
+			if (baseStyle == null) throw new ArgumentNullException(nameof(baseStyle));
+			if (style == null) throw new ArgumentNullException(nameof(style));
+			internalList[baseStyle.Name].PreviewStyle = style;
 		}
 
 		#endregion
@@ -2802,8 +2802,8 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetStyle(TStyle style, TStyle previewStyle) {
-			if (style == null) throw new ArgumentNullException("style");
-			if (previewStyle == null) throw new ArgumentNullException("previewStyle");
+			if (style == null) throw new ArgumentNullException(nameof(style));
+			if (previewStyle == null) throw new ArgumentNullException(nameof(previewStyle));
 			internalList[style.Name].Style = style;
 			internalList[style.Name].PreviewStyle = previewStyle;
 		}
@@ -2880,7 +2880,7 @@ namespace Dataweb.NShape {
 
 			/// <summary>Constructs a new enumerator instance</summary>
 			public static StyleCollectionEnumerator Create(StyleCollection<TStyle, TStyleInterface> collection) {
-				if (collection == null) throw new ArgumentNullException("collection");
+				if (collection == null) throw new ArgumentNullException(nameof(collection));
 				StyleCollectionEnumerator result = StyleCollectionEnumerator.Empty;
 				result._collection = collection;
 				result._enumerator = collection.internalList.GetEnumerator();
@@ -2889,7 +2889,7 @@ namespace Dataweb.NShape {
 
 			/// <summary>Constructs a new enumerator instance</summary>
 			public StyleCollectionEnumerator(StyleCollection<TStyle, TStyleInterface> collection) {
-				if (collection == null) throw new ArgumentNullException("collection");
+				if (collection == null) throw new ArgumentNullException(nameof(collection));
 				this._collection = collection;
 				this._enumerator = collection.internalList.GetEnumerator();
 			}
@@ -2973,7 +2973,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool IsStandardStyle(CapStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			return CapStyle.StandardNames.EqualsAny(style.Name);
 		}
 
@@ -3049,7 +3049,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool IsStandardStyle(CharacterStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			return CharacterStyle.StandardNames.EqualsAny(style.Name);
 		}
 
@@ -3124,7 +3124,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool IsStandardStyle(ColorStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			return ColorStyle.StandardNames.EqualsAny(style.Name);
 		}
 
@@ -3248,7 +3248,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool IsStandardStyle(FillStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			return FillStyle.StandardNames.EqualsAny(style.Name);
 		}
 
@@ -3322,7 +3322,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool IsStandardStyle(LineStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			return LineStyle.StandardNames.EqualsAny(style.Name);
 		}
 
@@ -3436,7 +3436,7 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public override bool IsStandardStyle(ParagraphStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			return ParagraphStyle.StandardNames.EqualsAny(style.Name);
 		}
 

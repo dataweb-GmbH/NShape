@@ -41,7 +41,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public ImageEditor(string fileName)
 			: this() {
-			if (fileName == null) throw new ArgumentNullException("fileName");
+			if (fileName == null) throw new ArgumentNullException(nameof(fileName));
 			_resultImage.Load(fileName);
 		}
 
@@ -51,8 +51,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public ImageEditor(Image image, string path)
 			: this() {
-			if (image == null) throw new ArgumentNullException("image");
-			if (path == null) throw new ArgumentNullException("name");
+			if (image == null) throw new ArgumentNullException(nameof(image));
+			if (path == null) throw new ArgumentNullException(nameof(path));
 			_resultImage.Image = (Image)image.Clone();
 			_resultImage.Name = path;
 		}
@@ -71,7 +71,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public ImageEditor(NamedImage namedImage) {
 			InitializeComponent();
-			if (namedImage == null) throw new ArgumentNullException("namedImage");
+			if (namedImage == null) throw new ArgumentNullException(nameof(namedImage));
 			if (namedImage.Image != null)
 				_resultImage.Image = (Image)namedImage.Image.Clone();
 			_resultImage.FilePath = namedImage.FilePath;

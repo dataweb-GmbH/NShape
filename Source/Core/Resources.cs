@@ -30,35 +30,35 @@ namespace Dataweb.Utilities {
 	static class Resources {
 
 		public static string GetString(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			EnsureResourceManager();
 			return _resourceManager.GetString(name);
 		}
 
 
 		public static string FormatString(string formatName, object arg0) {
-			if (formatName == null) throw new ArgumentNullException("formatName");
+			if (formatName == null) throw new ArgumentNullException(nameof(formatName));
 			EnsureResourceManager();
 			return string.Format(_resourceManager.GetString(formatName), arg0);
 		}
 
 
 		public static string FormatString(string formatName, object arg0, object arg1) {
-			if (formatName == null) throw new ArgumentNullException("formatName");
+			if (formatName == null) throw new ArgumentNullException(nameof(formatName));
 			EnsureResourceManager();
 			return string.Format(_resourceManager.GetString(formatName), arg0, arg1);
 		}
 
 
 		public static string FormatString(string formatName, object arg0, object arg1, object arg2) {
-			if (formatName == null) throw new ArgumentNullException("formatName");
+			if (formatName == null) throw new ArgumentNullException(nameof(formatName));
 			EnsureResourceManager();
 			return string.Format(_resourceManager.GetString(formatName), arg0, arg1, arg2);
 		}
 
 
 		public static string FormatString(string formatName, params object[] args) {
-			if (formatName == null) throw new ArgumentNullException("formatName");
+			if (formatName == null) throw new ArgumentNullException(nameof(formatName));
 			EnsureResourceManager();
 			return string.Format(_resourceManager.GetString(formatName), args);
 		}

@@ -132,14 +132,14 @@ namespace Dataweb.NShape.Advanced {
 			Bitmap freehandReferenceImage,
 			bool supportsTemplates) {
 			// Sanity check
-			if (name == null) throw new ArgumentNullException("Shape type name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			if (!Project.IsValidName(name))
 				throw new ArgumentException(string.Format("'{0}' is not a valid shape type name.", name));
-			if (libraryName == null) throw new ArgumentNullException("Namespace name");
+			if (libraryName == null) throw new ArgumentNullException(nameof(libraryName));
 			if (!Project.IsValidName(libraryName))
 				throw new ArgumentException("'{0}' is not a valid library name.", libraryName);
-			if (createShapeDelegate == null) throw new ArgumentNullException("Shape creation delegate");
-			if (getPropertyDefinitionsDelegate == null) throw new ArgumentNullException("Property infos");
+			if (createShapeDelegate == null) throw new ArgumentNullException(nameof(createShapeDelegate));
+			if (getPropertyDefinitionsDelegate == null) throw new ArgumentNullException(nameof(getPropertyDefinitionsDelegate));
 			//
 			this._name = name;
 			this._libraryName = libraryName;
@@ -235,7 +235,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Create a new shape based on a template. The shape will use the template's styles.
 		/// </summary>
 		public Shape CreateInstance(Template template) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			Shape result = _createShapeDelegate(this, template);
 			result.CopyFrom(template.Shape);    // Template will not be copied
 			return result;
@@ -254,7 +254,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Creates an exact clone of the given shape that uses preview styles.
 		/// </summary>
 		public Shape CreatePreviewInstance(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Shape result = ShapeDuplicator.CloneShapeAndModelObject(shape);
 			Debug.Assert(shape.ModelObject == null || shape.ModelObject != result.ModelObject);
 			result.MakePreview(_styleSetProvider.StyleSet);
@@ -356,13 +356,13 @@ namespace Dataweb.NShape.Advanced {
 		/// Adds a shape type to the collection.
 		/// </summary>
 		public void Add(ShapeType shapeType) {
-			if (shapeType == null) throw new ArgumentNullException("shapeType");
+			if (shapeType == null) throw new ArgumentNullException(nameof(shapeType));
 			_shapeTypes.Add(shapeType.FullName, shapeType);
 		}
 
 
 		public bool Remove(ShapeType shapeType) {
-			if (shapeType == null) throw new ArgumentNullException("shapeType");
+			if (shapeType == null) throw new ArgumentNullException(nameof(shapeType));
 			return _shapeTypes.Remove(shapeType.FullName);
 		}
 
@@ -403,7 +403,7 @@ namespace Dataweb.NShape.Advanced {
 		#region ICollection Members
 
 		public void CopyTo(Array array, int index) {
-			if (array == null) throw new ArgumentNullException("array");
+			if (array == null) throw new ArgumentNullException(nameof(array));
 			_shapeTypes.Values.CopyTo((ShapeType[])array, index);
 		}
 

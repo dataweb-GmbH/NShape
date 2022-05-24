@@ -75,12 +75,12 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public DiagramModelObjectType(string name, string libraryName, string categoryTitle, CreateDiagramModelObjectDelegate createDiagramModelObjectDelegate,
 			GetPropertyDefinitionsDelegate getPropertyDefinitionsDelegate) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			if (!Project.IsValidName(name)) throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidModelObjectTypeName, name));
-			if (libraryName == null) throw new ArgumentNullException("libraryName");
+			if (libraryName == null) throw new ArgumentNullException(nameof(libraryName));
 			if (!Project.IsValidName(libraryName)) throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_0IsNotAValidLibraryName, libraryName));
-			if (createDiagramModelObjectDelegate == null) throw new ArgumentNullException("createDiagramModelObjectDelegate");
-			if (getPropertyDefinitionsDelegate == null) throw new ArgumentNullException("getPropertyDefinitionsDelegate");
+			if (createDiagramModelObjectDelegate == null) throw new ArgumentNullException(nameof(createDiagramModelObjectDelegate));
+			if (getPropertyDefinitionsDelegate == null) throw new ArgumentNullException(nameof(getPropertyDefinitionsDelegate));
 			//
 			_name = name;
 			_libraryName = libraryName;
@@ -200,7 +200,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="diagramModelObjectType"></param>
 		public void Add(DiagramModelObjectType diagramModelObjectType) {
-			if (diagramModelObjectType == null) throw new ArgumentNullException("diagramModelObjectType");
+			if (diagramModelObjectType == null) throw new ArgumentNullException(nameof(diagramModelObjectType));
 			_diagramModelObjectTypes.Add(diagramModelObjectType.FullName, diagramModelObjectType);
 		}
 
@@ -210,7 +210,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="modelObjectType"></param>
 		public bool Remove(ModelObjectType modelObjectType) {
-			if (modelObjectType == null) throw new ArgumentNullException("modelObjectType");
+			if (modelObjectType == null) throw new ArgumentNullException(nameof(modelObjectType));
 			return _diagramModelObjectTypes.Remove(modelObjectType.FullName);
 		}
 
@@ -221,7 +221,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="typeName">Either a full (i.e. including the namespace) or partial model object type name</param>
 		/// <returns>ModelObjectTypes object type with given name.</returns>
 		public DiagramModelObjectType GetDiagramModelObjectType(string typeName) {
-			if (typeName == null) throw new ArgumentNullException("typeName");
+			if (typeName == null) throw new ArgumentNullException(nameof(typeName));
 			DiagramModelObjectType result = null;
 			if (!_diagramModelObjectTypes.TryGetValue(typeName, out result)) {
 				foreach (KeyValuePair<string, DiagramModelObjectType> item in _diagramModelObjectTypes) {
@@ -284,7 +284,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void CopyTo(Array array, int index) {
-			if (array == null) throw new ArgumentNullException("array");
+			if (array == null) throw new ArgumentNullException(nameof(array));
 			_diagramModelObjectTypes.Values.CopyTo((DiagramModelObjectType[])array, index);
 		}
 
@@ -391,7 +391,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void AttachDiagram(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			//if (_diagram != null) throw new NShapeException(Properties.Resources.MessageFmt_01IsAlreadyAttachedToADiagram, Type.Name, Name);
 			if (diagram.ModelObject != this) diagram.ModelObject = this;
 			else _diagram = diagram;
@@ -426,40 +426,40 @@ namespace Dataweb.NShape.Advanced {
 
 
 		void IEntity.AssignId(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			if (this._id != null) throw new InvalidOperationException("Model object has already an id.");
 			this._id = id;
 		}
 
 
 		void IEntity.LoadFields(IRepositoryReader reader, int version) {
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			LoadFieldsCore(reader, version);
 		}
 
 
 		void IEntity.LoadInnerObjects(string propertyName, IRepositoryReader reader, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			LoadInnerObjectsCore(propertyName, reader, version);
 		}
 
 
 		void IEntity.SaveFields(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			SaveFieldsCore(writer, version);
 		}
 
 
 		void IEntity.SaveInnerObjects(string propertyName, IRepositoryWriter writer, int version) {
-			if (propertyName == null) throw new ArgumentNullException("propertyName");
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			SaveInnerObjectsCore(propertyName, writer, version);
 		}
 
 
 		void IEntity.Delete(IRepositoryWriter writer, int version) {
-			if (writer == null) throw new ArgumentNullException("writer");
+			if (writer == null) throw new ArgumentNullException(nameof(writer));
 			foreach (EntityPropertyDefinition pi in GetPropertyDefinitions(version)) {
 				if (pi is EntityInnerObjectsDefinition) {
 					writer.DeleteInnerObjects();
@@ -482,7 +482,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected internal DiagramModelObjectBase(DiagramModelObjectType diagramModelObjectType) {
-			if (diagramModelObjectType == null) throw new ArgumentNullException("ModelObjectType");
+			if (diagramModelObjectType == null) throw new ArgumentNullException(nameof(diagramModelObjectType));
 			this._diagramModelObjectType = diagramModelObjectType;
 			this._name = diagramModelObjectType.GetDefaultName();
 		}
@@ -540,7 +540,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static GenericDiagramModelObject CreateInstance(DiagramModelObjectType diagramModelObjectType) {
-			if (diagramModelObjectType == null) throw new ArgumentNullException("diagramModelObjectType");
+			if (diagramModelObjectType == null) throw new ArgumentNullException(nameof(diagramModelObjectType));
 			return new GenericDiagramModelObject(diagramModelObjectType);
 		}
 
@@ -556,7 +556,7 @@ namespace Dataweb.NShape.Advanced {
 			get { return _securityDomainName; }
 			set {
 				if (value < 'A' || value > 'Z')
-					throw new ArgumentOutOfRangeException("SecurityDomainName", Dataweb.NShape.Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
+					throw new ArgumentOutOfRangeException(nameof(SecurityDomainName), Dataweb.NShape.Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
 				_securityDomainName = value;
 			}
 		}

@@ -52,7 +52,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void CopyFrom(Shape source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) throw new ArgumentNullException(nameof(source));
 
 			this._permissionSetName = source.SecurityDomainName;
 			this._tag = source.Tag;
@@ -247,7 +247,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override RelativePosition CalculateRelativePosition(int x, int y) {
-			if (!Geometry.IsValid(x, y)) throw new ArgumentOutOfRangeException("x, y");
+			if (!Geometry.IsValid(x, y)) throw new ArgumentOutOfRangeException("x / y");
 			RelativePosition result = RelativePosition.Empty;
 			// Calculate unrotated position of x/y
 			Point pos = Geometry.RotatePoint(X, Y, Geometry.TenthsOfDegreeToDegrees(-Angle), x, y);
@@ -259,7 +259,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override Point CalculateAbsolutePosition(RelativePosition relativePosition) {
-			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException("relativePosition");
+			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException(nameof(relativePosition));
 			Point result = Point.Empty;
 			result.X = relativePosition.A + X;
 			result.Y = relativePosition.B + Y;
@@ -572,22 +572,22 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			ChildrenCollection.Draw(graphics);
 		}
 
 
 		/// <override></override>
 		public override void DrawOutline(Graphics graphics, Pen pen) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			ChildrenCollection.DrawOutline(graphics, pen);
 		}
 
 
 		/// <override></override>
 		public override void DrawThumbnail(Image image, int margin, Color transparentColor) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			using (Graphics gfx = Graphics.FromImage(image)) {
 				GdiHelpers.ApplyGraphicsSettings(gfx, RenderingQuality.MaximumQuality);
 				gfx.Clear(transparentColor);
@@ -667,7 +667,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override sealed void AssignIdCore(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			if (this._id != null) throw new InvalidOperationException("Shape group has already an id.");
 			this._id = id;
 		}
@@ -745,7 +745,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected internal ShapeGroup(ShapeType shapeType, Template template)
 			: base() {
-			if (shapeType == null) throw new ArgumentNullException("shapeType");
+			if (shapeType == null) throw new ArgumentNullException(nameof(shapeType));
 			this._shapeType = shapeType;
 			this._template = template;
 			ChildrenCollection = (GroupShapeAggregation)CreateChildrenCollection(DefaultCapacity);
@@ -755,7 +755,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <override></override>
 		protected internal ShapeGroup(ShapeType shapeType, IStyleSet styleSet)
 			: base() {
-			if (shapeType == null) throw new ArgumentNullException("shapeType");
+			if (shapeType == null) throw new ArgumentNullException(nameof(shapeType));
 			this._shapeType = shapeType;
 			this._template = null;
 			ChildrenCollection = (GroupShapeAggregation)CreateChildrenCollection(DefaultCapacity);

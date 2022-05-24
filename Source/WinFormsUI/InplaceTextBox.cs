@@ -188,6 +188,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		}
 
 
+		/// <override></override>
 		protected override void OnParentChanged(EventArgs e) {
 			base.OnParentChanged(e);
 			InvalidateEx();
@@ -276,9 +277,9 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods
 
 		private void Construct(IDiagramPresenter owner, ICaptionedShape shape, int captionIndex, string currentText, string newText) {
-			if (owner == null) throw new ArgumentNullException("owner");
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (captionIndex < 0 || captionIndex >= shape.CaptionCount) throw new ArgumentOutOfRangeException("captionIndex");
+			if (owner == null) throw new ArgumentNullException(nameof(owner));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (captionIndex < 0 || captionIndex >= shape.CaptionCount) throw new ArgumentOutOfRangeException(nameof(captionIndex));
 			// Set control styles
 			// Caution:
 			// Even though the docs of "SupportsTransparentBackColor" says "Transparency will be simulated only if the ControlStyles.UserPaint 
@@ -309,7 +310,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			try {
 				this.WordWrap = _paragraphStyle.WordWrap;
 				this.Font = ToolCache.GetFont(_characterStyle);
-				this.ZoomFactor = owner.ZoomLevel / 100f;
+				this.ZoomFactor = owner.ZoomFactor;
 
 				// Get line height
 				_lineHeight = CalcTextSize("Iq").Height;
@@ -496,7 +497,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Returns a <see cref="T:System.Drawing.StringFormat"/> from the given <see cref="T:Dataweb.NShape.IParagraphStyle"/>.
 		/// </summary>
 		private static TextFormatFlags GetTextFormatFlags(IParagraphStyle paragraphStyle) {
-			if (paragraphStyle == null) throw new ArgumentNullException("paragraphStyle");
+			if (paragraphStyle == null) throw new ArgumentNullException(nameof(paragraphStyle));
 
 			TextFormatFlags textFormat = TextFormatFlags.TextBoxControl;
 			switch (paragraphStyle.Alignment) {
@@ -554,7 +555,6 @@ namespace Dataweb.NShape.WinFormsUI {
 		private IDiagramPresenter _owner;
 		private ICaptionedShape _shape;
 		private int _captionIndex;
-		private bool _invalidating = false;
 		
 		private string _originalText = string.Empty;
 		private IParagraphStyle _paragraphStyle;

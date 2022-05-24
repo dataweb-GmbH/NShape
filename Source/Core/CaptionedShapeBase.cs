@@ -156,8 +156,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="paragraphStyle">Paragraph style of the caption</param>
 		/// <returns></returns>
 		public bool CalculatePath(int layoutX, int layoutY, int layoutW, int layoutH, ICharacterStyle characterStyle, IParagraphStyle paragraphStyle) {
-			if (characterStyle == null) throw new ArgumentNullException("charStyle");
-			if (paragraphStyle == null) throw new ArgumentNullException("paragraphStyle");
+			if (characterStyle == null) throw new ArgumentNullException(nameof(characterStyle));
+			if (paragraphStyle == null) throw new ArgumentNullException(nameof(paragraphStyle));
 			if (string.IsNullOrEmpty(_captionText))
 				return true;
 			else if (_textPath != null /*&& layoutW > 0 && layoutH > 0*/) {
@@ -191,7 +191,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="matrix"></param>
 		public void TransformPath(Matrix matrix) {
-			if (matrix == null) throw new ArgumentNullException("matrix");
+			if (matrix == null) throw new ArgumentNullException(nameof(matrix));
 			if (_textPath != null) _textPath.Transform(matrix);
 		}
 
@@ -200,9 +200,9 @@ namespace Dataweb.NShape.Advanced {
 		/// Draws the caption.
 		/// </summary>
 		public void Draw(Graphics graphics, ICharacterStyle characterStyle, IParagraphStyle paragraphStyle) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (characterStyle == null) throw new ArgumentNullException("charStyle");
-			if (paragraphStyle == null) throw new ArgumentNullException("paragraphStyle");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (characterStyle == null) throw new ArgumentNullException(nameof(characterStyle));
+			if (paragraphStyle == null) throw new ArgumentNullException(nameof(paragraphStyle));
 			if (_textPath != null && _textPath.PointCount > 0) {
 				Brush brush = ToolCache.GetBrush(characterStyle.ColorStyle);
 				graphics.FillPath(brush, _textPath);
@@ -460,7 +460,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Calculates four points that define the (rotated) maximum area the specified caption's text may occupy.
 		/// </summary>
 		public virtual bool GetCaptionBounds(int index, out Point topLeft, out Point topRight, out Point bottomRight, out Point bottomLeft) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			//if (caption == null) {
 			//   topLeft = topRight = bottomLeft = bottomRight = Center;
 			//   return false;
@@ -479,7 +479,7 @@ namespace Dataweb.NShape.Advanced {
 		/// If the caption's text is empty, place holder bounds will be calculated.
 		/// </summary>
 		public virtual bool GetCaptionTextBounds(int index, out Point topLeft, out Point topRight, out Point bottomRight, out Point bottomLeft) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			bool result;
 			Rectangle captionBounds = Rectangle.Empty;
 			CalcCaptionBounds(index, out captionBounds);

@@ -132,7 +132,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public EntityFieldDefinition(string name, Type type)
 			: base(name) {
-			if (type == null) throw new ArgumentNullException("type");
+			if (type == null) throw new ArgumentNullException(nameof(type));
 			this._type = type;
 		}
 
@@ -306,9 +306,9 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public EntityType(string entityTypeName, EntityCategory category, int version,
 			CreateInstanceDelegate createInstanceDelegate, IEnumerable<EntityPropertyDefinition> propertyDefinitions) {
-			if (entityTypeName == null) throw new ArgumentNullException("entityTypeName");
-			if (createInstanceDelegate == null) throw new ArgumentNullException("createInstanceDelegate");
-			if (propertyDefinitions == null) throw new ArgumentNullException("propertyDefinitions");
+			if (entityTypeName == null) throw new ArgumentNullException(nameof(entityTypeName));
+			if (createInstanceDelegate == null) throw new ArgumentNullException(nameof(createInstanceDelegate));
+			if (propertyDefinitions == null) throw new ArgumentNullException(nameof(propertyDefinitions));
 			//
 			this._name = entityTypeName;
 			this._category = category;

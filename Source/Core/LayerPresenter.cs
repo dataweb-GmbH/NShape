@@ -362,8 +362,8 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private void GetLayerState(Layer layer, out bool isActive, out bool isVisible) {
-			if (layer == null) throw new ArgumentNullException("layer");
-			if (_diagramPresenter == null) throw new ArgumentNullException("DiagramPresener");
+			if (layer == null) throw new ArgumentNullException(nameof(layer));
+			if (_diagramPresenter == null) throw new ArgumentNullException(nameof(DiagramPresenter));
 			isActive = _diagramPresenter.IsLayerActive(layer.LayerId);
 			isVisible = _diagramPresenter.IsLayerVisible(layer.LayerId);
 		}
@@ -388,7 +388,7 @@ namespace Dataweb.NShape.Controllers {
 
 
 		private void AssertControllerIsSet() {
-			if (LayerController == null) throw new ArgumentNullException("Controller");
+			if (LayerController == null) throw new ArgumentNullException(nameof(LayerController));
 		}
 
 		#endregion
@@ -690,7 +690,7 @@ namespace Dataweb.NShape.Controllers {
 	public class LayerMouseEventArgs : MouseEventArgsDg {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload that takes selected layers.")]
+		[Obsolete("Use an overloaded version that takes selected layers.")]
 		public LayerMouseEventArgs(Layer layer, LayerItem item, 
 			MouseEventType eventType, MouseButtonsDg buttons, int clickCount, int wheelDelta, 
 			Point position, KeysDg modifiers)
@@ -699,7 +699,7 @@ namespace Dataweb.NShape.Controllers {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload that takes selected layers.")]
+		[Obsolete("Use an overloaded version that takes selected layers.")]
 		public LayerMouseEventArgs(Layer layer, LayerItem item, MouseEventArgsDg mouseEventArgs)
 			: this(layer, item, EnumerationHelper.Enumerate(layer), mouseEventArgs.EventType, mouseEventArgs.Buttons, mouseEventArgs.Clicks, mouseEventArgs.WheelDelta, mouseEventArgs.Position, mouseEventArgs.Modifiers) {
 		}

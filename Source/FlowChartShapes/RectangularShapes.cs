@@ -80,7 +80,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			int left = (int)Math.Round(-Width / 2f);
 			int top = (int)Math.Round(-Height / 2f);
 			captionBounds = Rectangle.Empty;
@@ -278,7 +278,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			base.CalcCaptionBounds(index, out captionBounds);
 			captionBounds.X = (int)Math.Round(-(Width / 2f) + (Width / 8f));
 			captionBounds.Width = Width - (Width / 4);
@@ -400,7 +400,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			base.CalcCaptionBounds(index, out captionBounds);
 		}
 
@@ -482,7 +482,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			base.CalcCaptionBounds(index, out captionBounds);
 			captionBounds.Height -= (2 * CalcTearOffHeight());
 		}
@@ -655,7 +655,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			base.CalcCaptionBounds(index, out captionBounds);
 			int top = (int)Math.Round(-Height / 2f);
 			captionBounds.Y = top + (int)Math.Round(Height / 4f);
@@ -767,7 +767,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			base.CalcCaptionBounds(index, out captionBounds);
 			int left = (int)Math.Round(-Width / 2f);
 			int top = (int)Math.Round(-Height / 2f);
@@ -857,7 +857,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			int left = (int)Math.Round(-Width / 2f);
 			int top = (int)Math.Round(-Height / 2f);
 			int arcRadius = GetArcRadius();
@@ -956,7 +956,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			base.CalcCaptionBounds(index, out captionBounds);
 			int left = (int)Math.Round(-Width / 2f);
 			int top = (int)Math.Round(-Height / 2f);
@@ -1385,7 +1385,7 @@ namespace Dataweb.NShape.FlowChartShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			base.CalcCaptionBounds(index, out captionBounds);
 			int tearOffSize = CalcTearOffSize();
 			captionBounds.Y += tearOffSize;

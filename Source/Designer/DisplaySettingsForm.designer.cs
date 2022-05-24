@@ -48,10 +48,10 @@
 			this.hideDeniedMenuItemsCheckBox = new System.Windows.Forms.CheckBox();
 			this.colorDialog = new System.Windows.Forms.ColorDialog();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
+			this.enterAppliesTextCheckBox = new System.Windows.Forms.CheckBox();
 			this.hideScrollBarsCheckBox = new System.Windows.Forms.CheckBox();
 			this.wheelZoomCheckBox = new System.Windows.Forms.CheckBox();
 			this.showSheetCheckBox = new System.Windows.Forms.CheckBox();
-			this.enterAppliesTextCheckBox = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.gridSizeUpDown)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.snapDistanceUpDown)).BeginInit();
 			this.groupBox1.SuspendLayout();
@@ -135,7 +135,7 @@
 			// 
 			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelButton.Location = new System.Drawing.Point(227, 432);
+			this.cancelButton.Location = new System.Drawing.Point(214, 432);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
 			this.cancelButton.TabIndex = 14;
@@ -146,7 +146,7 @@
 			// okButton
 			// 
 			this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.okButton.Location = new System.Drawing.Point(146, 432);
+			this.okButton.Location = new System.Drawing.Point(133, 432);
 			this.okButton.Name = "okButton";
 			this.okButton.Size = new System.Drawing.Size(75, 23);
 			this.okButton.TabIndex = 15;
@@ -178,7 +178,7 @@
 			this.groupBox1.Controls.Add(this.snapToGridCheckBox);
 			this.groupBox1.Location = new System.Drawing.Point(12, 130);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(289, 98);
+			this.groupBox1.Size = new System.Drawing.Size(276, 98);
 			this.groupBox1.TabIndex = 17;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Grid Settings";
@@ -223,7 +223,7 @@
 			this.groupBox2.Controls.Add(this.label3);
 			this.groupBox2.Location = new System.Drawing.Point(12, 234);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(289, 100);
+			this.groupBox2.Size = new System.Drawing.Size(276, 100);
 			this.groupBox2.TabIndex = 18;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Control Point Settings";
@@ -287,7 +287,7 @@
 			this.groupBox3.Controls.Add(this.hideDeniedMenuItemsCheckBox);
 			this.groupBox3.Location = new System.Drawing.Point(12, 340);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(289, 81);
+			this.groupBox3.Size = new System.Drawing.Size(276, 81);
 			this.groupBox3.TabIndex = 19;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "Permissions";
@@ -308,7 +308,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.hideDeniedMenuItemsCheckBox.Location = new System.Drawing.Point(6, 19);
 			this.hideDeniedMenuItemsCheckBox.Name = "hideDeniedMenuItemsCheckBox";
-			this.hideDeniedMenuItemsCheckBox.Size = new System.Drawing.Size(277, 30);
+			this.hideDeniedMenuItemsCheckBox.Size = new System.Drawing.Size(264, 30);
 			this.hideDeniedMenuItemsCheckBox.TabIndex = 0;
 			this.hideDeniedMenuItemsCheckBox.Text = "Hide menu items that are not allowed due to insufficent permissions.";
 			this.hideDeniedMenuItemsCheckBox.UseVisualStyleBackColor = true;
@@ -320,16 +320,28 @@
 			// 
 			// groupBox4
 			// 
+			this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox4.Controls.Add(this.enterAppliesTextCheckBox);
 			this.groupBox4.Controls.Add(this.hideScrollBarsCheckBox);
 			this.groupBox4.Controls.Add(this.wheelZoomCheckBox);
 			this.groupBox4.Controls.Add(this.showSheetCheckBox);
 			this.groupBox4.Location = new System.Drawing.Point(12, 12);
 			this.groupBox4.Name = "groupBox4";
-			this.groupBox4.Size = new System.Drawing.Size(289, 112);
+			this.groupBox4.Size = new System.Drawing.Size(276, 112);
 			this.groupBox4.TabIndex = 17;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "Display Settings";
+			// 
+			// enterAppliesTextCheckBox
+			// 
+			this.enterAppliesTextCheckBox.AutoSize = true;
+			this.enterAppliesTextCheckBox.Location = new System.Drawing.Point(6, 88);
+			this.enterAppliesTextCheckBox.Name = "enterAppliesTextCheckBox";
+			this.enterAppliesTextCheckBox.Size = new System.Drawing.Size(211, 17);
+			this.enterAppliesTextCheckBox.TabIndex = 21;
+			this.enterAppliesTextCheckBox.Text = "Close Shape Text Editor with Enter Key";
+			this.enterAppliesTextCheckBox.UseVisualStyleBackColor = true;
 			// 
 			// hideScrollBarsCheckBox
 			// 
@@ -361,16 +373,6 @@
 			this.showSheetCheckBox.Text = "Show Diagram Sheet";
 			this.showSheetCheckBox.UseVisualStyleBackColor = true;
 			// 
-			// enterAppliesTextCheckBox
-			// 
-			this.enterAppliesTextCheckBox.AutoSize = true;
-			this.enterAppliesTextCheckBox.Location = new System.Drawing.Point(6, 88);
-			this.enterAppliesTextCheckBox.Name = "enterAppliesTextCheckBox";
-			this.enterAppliesTextCheckBox.Size = new System.Drawing.Size(211, 17);
-			this.enterAppliesTextCheckBox.TabIndex = 21;
-			this.enterAppliesTextCheckBox.Text = "Close Shape Text Editor with Enter Key";
-			this.enterAppliesTextCheckBox.UseVisualStyleBackColor = true;
-			// 
 			// DisplaySettingsForm
 			// 
 			this.AcceptButton = this.okButton;
@@ -378,14 +380,14 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoSize = true;
 			this.CancelButton = this.cancelButton;
-			this.ClientSize = new System.Drawing.Size(313, 467);
+			this.ClientSize = new System.Drawing.Size(300, 467);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.okButton);
 			this.Controls.Add(this.cancelButton);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
 			this.Name = "DisplaySettingsForm";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

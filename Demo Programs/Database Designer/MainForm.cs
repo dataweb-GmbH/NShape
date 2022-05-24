@@ -515,14 +515,14 @@ namespace Database_Designer {
 
 		
 		private void zoomInButton_Click(object sender, EventArgs e) {
-			if (display.ZoomLevel < 10000)
-				display.ZoomLevel += zoomStep;
+			if (display.ZoomLevelHD < 100000)
+				display.ZoomLevelHD += zoomStep;
 		}
 
 
 		private void zoomOutButton_Click(object sender, EventArgs e) {
-			if (display.ZoomLevel > zoomStep)
-				display.ZoomLevel -= zoomStep;
+			if (display.ZoomLevelHD > zoomStep)
+				display.ZoomLevelHD -= zoomStep;
 		}
 
 		
@@ -583,7 +583,7 @@ namespace Database_Designer {
 		#region NShape component's event handler implementations
 
 		private void display_ZoomChanged(object sender, EventArgs e) {
-			zoomLabel.Text = string.Format("{0} %", display.ZoomLevel);
+			zoomLabel.Text = string.Format("{0:F2} %", display.ZoomLevelHD / 100f);
 		}
 
 
@@ -607,7 +607,7 @@ namespace Database_Designer {
 		private PropertyWindow propertyWindow;
 		private Rectangle contentBounds = Rectangle.Empty;
 		private const int margin = 10;
-		private const int zoomStep = 5;
+		private const int zoomStep = 500;
 		private const string fileFilter = "NShape XML Repository Files|*.nspj;*.xml|All Files|*.*";
 		private const string defaultProjectName = "Project 1";
 

@@ -34,7 +34,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <param name="project"></param>
 		public LibraryManagementDialog(Project project) {
 			InitializeComponent();
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			this._project = project;
 			Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 		}
@@ -76,8 +76,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private ListViewItem CreateListViewItem(string assemblyPath, Assembly assembly) {
-			if (string.IsNullOrEmpty(assemblyPath)) throw new ArgumentNullException("assemblyPath");
-			if (assembly == null) throw new ArgumentNullException("assembly");
+			if (string.IsNullOrEmpty(assemblyPath)) throw new ArgumentNullException(nameof(assemblyPath));
+			if (assembly == null) throw new ArgumentNullException(nameof(assembly));
 			// Get assembly path, name and version
 			AssemblyName assemblyName = assembly.GetName();
 			ListViewItem item = new ListViewItem(assemblyName.Name);

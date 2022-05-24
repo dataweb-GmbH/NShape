@@ -130,8 +130,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Visualizing points - used for debugging purposes
 		/// </summary>
 		public static void DrawPoint(Graphics gfx, Pen pen, float x, float y, int radius) {
-			if (gfx == null) throw new ArgumentNullException("gfx");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (gfx == null) throw new ArgumentNullException(nameof(gfx));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			gfx.DrawLine(pen, x - radius, y, x + radius, y);
 			gfx.DrawLine(pen, x, y - radius, x, y + radius);
 		}
@@ -141,8 +141,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Visualizing angles - used for debugging purposes
 		/// </summary>
 		public static void DrawAngle(Graphics gfx, Brush brush, PointF center, float angle, int radius) {
-			if (gfx == null) throw new ArgumentNullException("gfx");
-			if (brush == null) throw new ArgumentNullException("brush");
+			if (gfx == null) throw new ArgumentNullException(nameof(gfx));
+			if (brush == null) throw new ArgumentNullException(nameof(brush));
 			Rectangle rect = Rectangle.Empty;
 			rect.X = (int)Math.Round(center.X - radius);
 			rect.Y = (int)Math.Round(center.Y - radius);
@@ -155,6 +155,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Visualizing lines - used for debugging purposes
 		/// </summary>
+		[Obsolete]
 		public static void DrawLine(Graphics graphics, Pen pen, PointF p1, PointF p2) {
 			float a, b, c;
 			Geometry.CalcLine(p1.X, p1.Y, p2.X, p2.Y, out a, out b, out c);
@@ -165,9 +166,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Visualizing lines - used for debugging purposes
 		/// </summary>
+		[Obsolete]
 		public static void DrawLine(Graphics graphics, Pen pen, float a, float b, float c) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			// Gleichung nach y auflösen, 2 Werte für X einsetzen und dann die zugehörigen y ausrechnen
 			float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 			if (b != 0) {
@@ -193,8 +195,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Visualizing angles - used for debugging purposes
 		/// </summary>
 		public static void DrawAngle(Graphics gfx, Brush brush, PointF center, float startAngle, float sweepAngle, int radius) {
-			if (gfx == null) throw new ArgumentNullException("gfx");
-			if (brush == null) throw new ArgumentNullException("brush");
+			if (gfx == null) throw new ArgumentNullException(nameof(gfx));
+			if (brush == null) throw new ArgumentNullException(nameof(brush));
 			Rectangle rect = Rectangle.Empty;
 			rect.X = (int)Math.Round(center.X - radius);
 			rect.Y = (int)Math.Round(center.Y - radius);
@@ -208,8 +210,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Visualizing rotated rectangles - used for debugging purposes
 		/// </summary>
 		public static void DrawRotatedRectangle(Graphics gfx, Pen pen, RectangleF rect, float angleDeg) {
-			if (gfx == null) throw new ArgumentNullException("gfx");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (gfx == null) throw new ArgumentNullException(nameof(gfx));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			PointF[] pts = new PointF[5] {
 				new PointF(rect.Left, rect.Top),
 				new PointF(rect.Right, rect.Top),
@@ -230,8 +232,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Visualizing rotated ellipses - used for debugging purposes
 		/// </summary>
 		public static void DrawRotatedEllipse(Graphics gfx, Pen pen, float centerX, float centerY, float width, float height, float angleDeg) {
-			if (gfx == null) throw new ArgumentNullException("gfx");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (gfx == null) throw new ArgumentNullException(nameof(gfx));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			using (GraphicsPath path = new GraphicsPath()) {
 				path.StartFigure();
 				path.AddEllipse(centerX - width / 2f, centerY - height / 2f, width, height);
@@ -253,7 +255,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Sets all parameters that affect rendering quality / rendering speed
 		/// </summary>
 		public static void ApplyGraphicsSettings(Graphics graphics, RenderingQuality renderingQuality) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			switch (renderingQuality) {
 				case RenderingQuality.MaximumQuality:
 					graphics.CompositingQuality = CompositingQuality.HighQuality;
@@ -297,8 +299,8 @@ namespace Dataweb.NShape.Advanced {
 		///  Copy all parameters that affect rendering quality / rendering speed from the given infoGraphics.
 		/// </summary>
 		public static void ApplyGraphicsSettings(Graphics graphics, Graphics infoGraphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (infoGraphics == null) throw new ArgumentNullException("infoGraphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (infoGraphics == null) throw new ArgumentNullException(nameof(infoGraphics));
 			graphics.SmoothingMode = infoGraphics.SmoothingMode;
 			graphics.TextRenderingHint = infoGraphics.TextRenderingHint;
 			graphics.InterpolationMode = infoGraphics.InterpolationMode;
@@ -316,7 +318,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Copies the given image. The given oldColor will be replaced by the given newColor (used for icon rendering).
 		/// </summary>
 		public static Bitmap GetIconBitmap(Bitmap sourceImg, Color oldBackgroundColor, Color newBackgroundColor) {
-			if (sourceImg == null) throw new ArgumentNullException("sourceImg");
+			if (sourceImg == null) throw new ArgumentNullException(nameof(sourceImg));
 			Bitmap result = new Bitmap(sourceImg.Width, sourceImg.Height, PixelFormat.Format32bppPArgb);
 			result.SetResolution(sourceImg.HorizontalResolution, sourceImg.VerticalResolution);
 			using (Graphics gfx = Graphics.FromImage(result)) {
@@ -414,7 +416,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Get ImageAttributes for drawing an images or creating a TextureBrush.
 		/// </summary>
 		public static ImageAttributes GetImageAttributes(ImageLayoutMode imageLayout, float gamma, byte transparency, bool grayScale, bool forPreview, Color transparentColor) {
-			if (transparency < 0 || transparency > 100) throw new ArgumentOutOfRangeException("transparency");
+			if (transparency < 0 || transparency > 100) throw new ArgumentOutOfRangeException(nameof(transparency));
 			ImageAttributes imageAttribs = new ImageAttributes();
 			//
 			// Set WrapMode
@@ -679,8 +681,8 @@ namespace Dataweb.NShape.Advanced {
 		/// Draw an image into the specified bounds
 		/// </summary>
 		public static void DrawImage(Graphics gfx, Image image, ImageAttributes imageAttribs, ImageLayoutMode imageLayout, Rectangle destinationBounds, Rectangle clipBounds, float angle, PointF rotationCenter) {
-			if (gfx == null) throw new ArgumentNullException("gfx");
-			if (image == null) throw new ArgumentNullException("image");
+			if (gfx == null) throw new ArgumentNullException(nameof(gfx));
+			if (image == null) throw new ArgumentNullException(nameof(image));
 
 			if (angle != 0) {
 				gfx.TranslateTransform(rotationCenter.X, rotationCenter.Y);
@@ -800,7 +802,7 @@ namespace Dataweb.NShape.Advanced {
 		/// If the desired size is more than half of the image's size, the original image will be returned.
 		/// </summary>
 		public static Image GetBrushImage(Image image, int desiredWidth, int desiredHeight) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			if (desiredWidth <= 0) desiredWidth = 1;
 			if (desiredHeight <= 0) desiredHeight = 1;
 			float scaleFactor = Geometry.CalcScaleFactor(
@@ -825,21 +827,21 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static TextureBrush CreateTextureBrush(Image image, int width, int height, ImageLayoutMode imageLayout, float gamma, byte transparency, bool grayScale) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			return CreateTextureBrush(image, width, height, GetImageAttributes(imageLayout, gamma, transparency, grayScale));
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static TextureBrush CreateTextureBrush(Image image, ImageLayoutMode imageLayout, float gamma, byte transparency, bool grayScale) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			return CreateTextureBrush(image, GetImageAttributes(imageLayout, gamma, transparency, grayScale));
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static TextureBrush CreateTextureBrush(Image image, ImageAttributes imageAttribs) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			Rectangle brushBounds = Rectangle.Empty;
 			brushBounds.X = 0;
 			brushBounds.Y = 0;
@@ -851,7 +853,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static TextureBrush CreateTextureBrush(Image image, int desiredWidth, int desiredHeight, ImageAttributes imageAttribs) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			if (!(image is Bitmap)) throw new NotSupportedException(string.Format("{0} images are not supported for this operation.", image.GetType().Name));
 			return CreateTextureBrush(GetBrushImage(image, desiredWidth, desiredHeight), imageAttribs);
 		}
@@ -859,8 +861,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void TransformLinearGradientBrush(LinearGradientBrush brush, float gradientAngleDeg, Rectangle unrotatedBounds, Point center, float angleDeg) {
-			if (brush == null) throw new ArgumentNullException("brush");
-			if (brush == null) throw new ArgumentNullException("brush");
+			if (brush == null) throw new ArgumentNullException(nameof(brush));
+			if (brush == null) throw new ArgumentNullException(nameof(brush));
 			// move brush higher than needed  and make the brush larger than needed
 			// (ensure that there are no false color pixels from antialiasing inside the gradient)
 			
@@ -883,7 +885,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void TransformLinearGradientBrush(LinearGradientBrush brush, float gradientAngleDeg, RectangleF unrotatedBounds, PointF center, float angleDeg) {
-			if (brush == null) throw new ArgumentNullException("brush");
+			if (brush == null) throw new ArgumentNullException(nameof(brush));
 			// move brush higher than needed  and make the brush larger than needed
 			// (ensure that there are no false color pixels from antialiasing inside the gradient)
 			float gradientSize = (CalculateGradientSize(angleDeg, gradientAngleDeg, center.X - unrotatedBounds.Left, Math.Max(center.Y - unrotatedBounds.Top, unrotatedBounds.Bottom - center.Y))) + 2;
@@ -910,7 +912,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void TransformTextureBrush(TextureBrush brush, ImageLayoutMode imageLayout, Rectangle unrotatedBounds, Point center, float angleDeg) {
-			if (brush == null) throw new ArgumentNullException("brush");
+			if (brush == null) throw new ArgumentNullException(nameof(brush));
 			// scale image
 			float scaleX, scaleY;
 			GdiHelpers.CalcImageScaleAndAspect(out scaleX, out scaleY, unrotatedBounds.Width, unrotatedBounds.Height, brush.Image, imageLayout);
@@ -1192,7 +1194,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void SaveImage(Image image, string filePath) {
-			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException("filePath");
+			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
 			using (Stream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Write))
 				SaveImage(image, stream);
 		}
@@ -1200,7 +1202,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void SaveImage(Image image, string filePath, ImageFileFormat imageFormat) {
-			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException("filePath");
+			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
 			using (Stream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Write))
 				SaveImage(image, stream, imageFormat);
 		}
@@ -1208,7 +1210,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void SaveImage(Image image, string filePath, ImageFileFormat imageFormat, int compressionQuality) {
-			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException("filePath");
+			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
 			using (Stream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Write))
 				SaveImage(image, stream, imageFormat, compressionQuality);
 		}
@@ -1228,8 +1230,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void SaveImage(Image image, Stream stream, ImageFileFormat imageFormat, int compressionQuality) {
-			if (image == null) throw new ArgumentNullException("image");
-			if (stream == null) throw new ArgumentNullException("stream");
+			if (image == null) throw new ArgumentNullException(nameof(image));
+			if (stream == null) throw new ArgumentNullException(nameof(stream));
 			if (image is Metafile) {
 				EmfHelper.SaveEnhMetaFile(stream, (Metafile)image.Clone());
 
@@ -1273,8 +1275,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public static void CreateMetafile(string filePath, ImageFileFormat imageFormat, int width, int height, DrawCallback callback) {
-			if (callback == null) throw new ArgumentNullException("callback");
-			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException("filePath");
+			if (callback == null) throw new ArgumentNullException(nameof(callback));
+			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
 			Metafile metaFile = null;
 			// Create a new metafile
 			using (Graphics gfx = Graphics.FromHwnd(IntPtr.Zero)) {
@@ -1567,8 +1569,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Loads an image from a file.
 		/// </summary>
-		public static NamedImage FromFile(string fileName) {
-			return new NamedImage(fileName);
+		public static NamedImage FromFile(string filePath) {
+			return new NamedImage(filePath);
 		}
 
 
@@ -1607,11 +1609,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.NamedImage" />.
 		/// </summary>
-		public NamedImage(string fileName)
+		public NamedImage(string filePath)
 			: this() {
-			if (fileName == null) throw new ArgumentNullException("fileName");
-			if (fileName == string.Empty) throw new ArgumentException("fileName");
-			Load(fileName);
+			if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
+			Load(filePath);
 		}
 
 
@@ -1621,8 +1622,8 @@ namespace Dataweb.NShape.Advanced {
 		/// <remarks>The given image will be cloned.</remarks>
 		public NamedImage(Image image, string name)
 			: this() {
-			if (image == null) throw new ArgumentNullException("image");
-			if (name == null) throw new ArgumentNullException("name");
+			if (image == null) throw new ArgumentNullException(nameof(image));
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			Image = image;
 			Name = name;
 		}
@@ -1632,13 +1633,13 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.NamedImage" />.
 		/// </summary>
 		/// <remarks>The given image will be cloned.</remarks>
-		public NamedImage(Image image, string fileName, string name)
+		public NamedImage(Image image, string filePath, string name)
 			: this() {
-			if (image == null) throw new ArgumentNullException("image");
-			if (fileName == null) throw new ArgumentNullException("fileName");
-			if (name == null) throw new ArgumentNullException("name");
+			if (image == null) throw new ArgumentNullException(nameof(image));
+			if (filePath == null) throw new ArgumentNullException(nameof(filePath));
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			Name = name;
-			FilePath = fileName;
+			FilePath = filePath;
 			Image = (Image)image.Clone();
 		}
 
@@ -1650,9 +1651,9 @@ namespace Dataweb.NShape.Advanced {
 		//public NamedImage(Image image, string fileName, string name, string hash)
 		//	: this()
 		//{
-		//	if (image == null) throw new ArgumentNullException("image");
-		//	if (fileName == null) throw new ArgumentNullException("fileName");
-		//	if (name == null) throw new ArgumentNullException("name");
+		//	if (image == null) throw new ArgumentNullException(nameof(image));
+		//	if (fileName == null) throw new ArgumentNullException(nameof(fileName));
+		//	if (name == null) throw new ArgumentNullException(nameof(name));
 		//	Name = name;
 		//	FilePath = fileName;
 		//	Image = (Image)image.Clone();
@@ -1665,7 +1666,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.NamedImage" />.
 		/// </summary>
 		public NamedImage(NamedImage source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) throw new ArgumentNullException(nameof(source));
 			Name = source.Name;
 			FilePath = source.FilePath;
 			//this.canLoadFromFile = source.canLoadFromFile;
@@ -1864,7 +1865,8 @@ namespace Dataweb.NShape.Advanced {
 			if (!Directory.Exists(directoryName))
 				throw new FileNotFoundException(Properties.Resources.MessageTxt_DirectoryDoesNotExist, directoryName);
 			string fileName = Name;
-			if (string.IsNullOrEmpty(fileName)) fileName = Guid.NewGuid().ToString();
+			if (string.IsNullOrEmpty(fileName)) 
+				fileName = Guid.NewGuid().ToString();
 			fileName += GetImageFormatExtension(format);
 			//_image.Save(Path.Combine(directoryName, fileName), format);
 			GdiHelpers.SaveImage(_image, Path.Combine(directoryName, fileName), GdiHelpers.GetImageFileFormat(format));
@@ -1920,20 +1922,28 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <summary>
+		/// Gets the appropriate file extension for the current image based on its RawFormat.
+		/// </summary>
+		private string GetImageFormatExtension() {
+			return GetImageFormatExtension(_image.RawFormat);
+		}
+
+
+		/// <summary>
 		/// Gets the appropriate file extension for the given ImageFormat.
 		/// </summary>
-		private string GetImageFormatExtension(ImageFormat imageFormat) {
+		private static string GetImageFormatExtension(ImageFormat imageFormat) {
 			string result = string.Empty;
-			if (_image.RawFormat.Guid == ImageFormat.Bmp.Guid) result = ".bmp";
-			else if (_image.RawFormat.Guid == ImageFormat.Emf.Guid) result = ".emf";
-			else if (_image.RawFormat.Guid == ImageFormat.Exif.Guid) result = ".exif";
-			else if (_image.RawFormat.Guid == ImageFormat.Gif.Guid) result = ".gif";
-			else if (_image.RawFormat.Guid == ImageFormat.Icon.Guid) result = ".ico";
-			else if (_image.RawFormat.Guid == ImageFormat.Jpeg.Guid) result = ".jpeg";
-			else if (_image.RawFormat.Guid == ImageFormat.MemoryBmp.Guid) result = ".bmp";
-			else if (_image.RawFormat.Guid == ImageFormat.Png.Guid) result = ".png";
-			else if (_image.RawFormat.Guid == ImageFormat.Tiff.Guid) result = ".tiff";
-			else if (_image.RawFormat.Guid == ImageFormat.Wmf.Guid) result = ".wmf";
+			if (imageFormat.Guid == ImageFormat.Bmp.Guid) result = ".bmp";
+			else if (imageFormat.Guid == ImageFormat.Emf.Guid) result = ".emf";
+			else if (imageFormat.Guid == ImageFormat.Exif.Guid) result = ".exif";
+			else if (imageFormat.Guid == ImageFormat.Gif.Guid) result = ".gif";
+			else if (imageFormat.Guid == ImageFormat.Icon.Guid) result = ".ico";
+			else if (imageFormat.Guid == ImageFormat.Jpeg.Guid) result = ".jpeg";
+			else if (imageFormat.Guid == ImageFormat.MemoryBmp.Guid) result = ".bmp";
+			else if (imageFormat.Guid == ImageFormat.Png.Guid) result = ".png";
+			else if (imageFormat.Guid == ImageFormat.Tiff.Guid) result = ".tiff";
+			else if (imageFormat.Guid == ImageFormat.Wmf.Guid) result = ".wmf";
 			else Debug.Fail("Unsupported image format.");
 			return result;
 		}

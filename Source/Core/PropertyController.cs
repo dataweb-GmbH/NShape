@@ -41,7 +41,7 @@ namespace Dataweb.NShape.Controllers {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Controllers.PropertyController" />.
 		/// </summary>
 		public PropertyController(Project project) {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			Project = project;
 		}
 
@@ -323,7 +323,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void SetObjects(int pageIndex, IEnumerable selectedObjects, bool arePersistent) {
-			if (selectedObjects == null) throw new ArgumentNullException("selectedObjects");
+			if (selectedObjects == null) throw new ArgumentNullException(nameof(selectedObjects));
 			AssertProjectExists();
 			OnSelectedObjectsChanging(pageIndex, selectedObjects);
 
@@ -552,7 +552,7 @@ namespace Dataweb.NShape.Controllers {
 			switch (pageIndex) {
 				case 0: selectedObjectsList = _selectedPrimaryObjects; break;
 				case 1: selectedObjectsList = _selectedSecondaryObjects; break;
-				default: throw new ArgumentOutOfRangeException("pageIndex");
+				default: throw new ArgumentOutOfRangeException(nameof(pageIndex));
 			}
 		}
 
@@ -915,8 +915,8 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		public PropertyControllerPropertyChangedEventArgs(int pageIndex, IEnumerable modifiedObjects, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
 			: base(pageIndex, modifiedObjects) {
-			if (modifiedObjects == null) throw new ArgumentNullException("modifiedObjects");
-			if (propertyInfo == null) throw new ArgumentNullException("propertyInfo");
+			if (modifiedObjects == null) throw new ArgumentNullException(nameof(modifiedObjects));
+			if (propertyInfo == null) throw new ArgumentNullException(nameof(propertyInfo));
 			// store modifiedObjects
 			this._oldValues = new List<object>(oldValues);
 			this._newValue = newValue;

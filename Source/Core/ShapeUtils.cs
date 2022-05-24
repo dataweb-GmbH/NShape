@@ -67,7 +67,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Inflates the bounding rectangle by the width of the given line style.
 		/// </summary>
 		public static void InflateBoundingRectangle(ref Rectangle boundingRectangle, ILineStyle lineStyle) {
-			if (lineStyle == null) throw new ArgumentNullException("lineStyle");
+			if (lineStyle == null) throw new ArgumentNullException(nameof(lineStyle));
 			Geometry.AssertIsValid(boundingRectangle);
 			if (lineStyle.LineWidth > 2) {
 				int halfLineWidth = (int)Math.Ceiling(lineStyle.LineWidth / 2f) - 1;
@@ -118,7 +118,7 @@ namespace Dataweb.NShape.Advanced {
 		/// the rest of the line is calculated, like GDI+ does.
 		/// </summary>
 		public static float CalcLineCapAngle(Point[] points, ControlPointId pointId, Pen pen) {
-			if (points == null) throw new ArgumentNullException("points");
+			if (points == null) throw new ArgumentNullException(nameof(points));
 			if (points.Length < 2) throw new ArgumentException("Parameter points must have at least 2 elements.");
 			if (pointId != ControlPointId.FirstVertex && pointId != ControlPointId.LastVertex) throw new ArgumentException("pointId");
 			float result = float.NaN;
@@ -164,9 +164,9 @@ namespace Dataweb.NShape.Advanced {
 		/// This method avoids OutOfMemoryExceptions being thrown in case of intersecting line caps.
 		/// </remarks>
 		public static void DrawLinesSafe(Graphics gfx, Pen pen, Point[] shapePoints) {
-			if (gfx == null) throw new ArgumentNullException("gfx");
-			if (pen == null) throw new ArgumentNullException("pen");
-			if (shapePoints == null) throw new ArgumentNullException("shapePoints");
+			if (gfx == null) throw new ArgumentNullException(nameof(gfx));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
+			if (shapePoints == null) throw new ArgumentNullException(nameof(shapePoints));
 			if (shapePoints.Length < 2) throw new ArgumentException("Not enough points for a line.");
 			try {
 				// GDI+ behaviour:

@@ -43,7 +43,7 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		public DiagramSetController(Project project)
 			: this() {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			Project = project;
 		}
 
@@ -125,7 +125,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public Diagram CreateDiagram(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			AssertProjectIsOpen();
 			// Create new diagram
 			Diagram diagram = new Diagram(name);
@@ -139,7 +139,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void CloseDiagram(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			AssertProjectIsOpen();
 			int idx = IndexOf(name);
 			if (idx >= 0) {
@@ -152,7 +152,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void CloseDiagram(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertProjectIsOpen();
 			int idx = DiagramControllerIndexOf(diagram);
 			if (idx >= 0) {
@@ -169,7 +169,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void DeleteDiagram(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			AssertProjectIsOpen();
 			int idx = IndexOf(name);
 			if (idx >= 0) {
@@ -182,7 +182,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void DeleteDiagram(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertProjectIsOpen();
 			int idx = DiagramControllerIndexOf(diagram);
 			if (idx >= 0) {
@@ -207,10 +207,10 @@ namespace Dataweb.NShape.Controllers {
 		/// The ZOrder of the shape will not be changed! 
 		/// If the shape does not have a defined ZOrder, set it after inserting the shape by calling diagram.Shapes.SetZorder().
 		/// </remarks>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void InsertShape(Diagram diagram, Shape shape, LayerIds activeLayers, bool withModelObjects) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			InsertShapes(diagram, SingleInstanceEnumerator<Shape>.Create(shape), Layer.NoLayerId, activeLayers, withModelObjects);
 		}
 
@@ -223,8 +223,8 @@ namespace Dataweb.NShape.Controllers {
 		/// If the shapes do not have a defined ZOrder (e.g. after creation), set it after inserting by calling diagram.Shapes.SetZorder().
 		/// </remarks>
 		public void InsertShapes(Diagram diagram, IEnumerable<Shape> shapes, int activeHomeLayer, LayerIds activeLayers, bool withModelObjects) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			ICommand cmd = new CreateShapesCommand(diagram, activeHomeLayer, activeLayers, shapes, withModelObjects, true);
 			Project.ExecuteCommand(cmd);
 		}
@@ -232,16 +232,16 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void DeleteShapes(Diagram diagram, Shape shape, bool withModelObjects) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			DeleteShapes(diagram, SingleInstanceEnumerator<Shape>.Create(shape), withModelObjects);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void DeleteShapes(Diagram diagram, IEnumerable<Shape> shapes, bool withModelObjects) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			if (withModelObjects) {
 				foreach (Shape s in shapes) {
 					if (!diagram.Shapes.Contains(s))
@@ -262,8 +262,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Creates and executes an (undoable) command that moves the given shapes by the specified delta.
 		/// </summary>
 		public void MoveShapes(Diagram diagram, IEnumerable<Shape> shapes, int deltaX, int deltaY) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			ICommand cmd = new MoveShapeByCommand(shapes, deltaX, deltaY);
 			Project.ExecuteCommand(cmd);
 		}
@@ -288,8 +288,8 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="withModelObjects">Specifies whether assigned model objects should be copied, too</param>
 		/// <param name="position">Mouse cursor position in diagram coordinates.</param>
 		public void Copy(Diagram diagram, IEnumerable<Shape> shapes, bool withModelObjects, Point position) {
-			if (diagram == null) throw new ArgumentNullException("source");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 
 			_editBuffer.Clear();
 			_editBuffer.action = EditAction.Copy;
@@ -325,8 +325,8 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="withModelObjects">Specifies whether assigned model objects should be cut, too</param>
 		/// <param name="position">Mouse cursor position in diagram coordinates.</param>
 		public void Cut(Diagram diagram, IEnumerable<Shape> shapes, bool withModelObjects, Point position) {
-			if (diagram == null) throw new ArgumentNullException("source");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			if (_project == null) throw new InvalidOperationException("Property Project not set!");
 			Dictionary<Shape, IModelObject> cutModelObjects = null;
 
@@ -345,10 +345,12 @@ namespace Dataweb.NShape.Controllers {
 				// Store all connections of *active* shapes to other shapes that were also cut
 				foreach (ShapeConnectionInfo ci in s.GetConnectionInfos(ControlPointId.Any, null)) {
 					// Skip shapes that are not the active shapes
-					if (s.HasControlPointCapability(ci.OwnPointId, ControlPointCapabilities.Glue)) continue;
+					if (s.HasControlPointCapability(ci.OwnPointId, ControlPointCapabilities.Glue) == false)
+						continue;
 					// Skip connections to shapes that were not cut
-					if (!_editBuffer.shapes.Contains(ci.OtherShape)) continue;
-
+					if (!_editBuffer.shapes.Contains(ci.OtherShape))
+						continue;
+					// Store connection of active shape
 					ShapeConnection conn = ShapeConnection.Empty;
 					conn.ConnectorShape = s;
 					conn.GluePointId = ci.OwnPointId;
@@ -374,7 +376,7 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		/// <param name="diagram">The diagram where to insert the previously cut/copied shapes.</param>
 		/// <param name="activeLayers">The layers which the inserted shapes will be assigned to.</param>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void Paste(Diagram diagram, LayerIds activeLayers) {
 			Paste(diagram, Layer.NoLayerId, activeLayers);
 		}
@@ -398,7 +400,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="activeLayers">The layers which the inserted shapes will be assigned to.</param>
 		/// <param name="position">Specifies the mouse cursor position in diagram coordinates where the shapes should be inserted.</param>
 		/// <remarks>Inserting at the specified position will only work if the shapes were copied/cut with a valid position.</remarks>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void Paste(Diagram diagram, LayerIds activeLayers, Point position) {
 			Paste(diagram, Layer.NoLayerId, activeLayers, position);
 		}
@@ -433,7 +435,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="activeLayers">The layers which the inserted shapes will be assigned to.</param>
 		/// <param name="offsetX">Specifies the offset on the X axis in diagram coordinates that will be applied to the inserted shape's position.</param>
 		/// <param name="offsetY">Specifies the offset on the Y axis in diagram coordinates that will be applied to the inserted shape's position.</param>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void Paste(Diagram diagram, LayerIds activeLayers, int offsetX, int offsetY) {
 			Paste(diagram, Layer.NoLayerId, activeLayers, offsetX, offsetX);
 		}
@@ -448,7 +450,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <param name="offsetX">Specifies the offset on the X axis in diagram coordinates that will be applied to the inserted shape's position.</param>
 		/// <param name="offsetY">Specifies the offset on the Y axis in diagram coordinates that will be applied to the inserted shape's position.</param>
 		public void Paste(Diagram diagram, int homeLayer, LayerIds supplementalLayers, int offsetX, int offsetY) {
-			if (diagram == null) throw new ArgumentNullException("destination");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			if (!_editBuffer.IsEmpty) {
 				++_editBuffer.pasteCount;
 
@@ -490,7 +492,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Aggregates the given shapes to a group.
 		/// </summary>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void GroupShapes(Diagram diagram, IEnumerable<Shape> shapes, LayerIds activeLayers) {
 			GroupShapes(diagram, shapes, Layer.NoLayerId, activeLayers);
 		}
@@ -500,8 +502,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Aggregates the given shapes to a group.
 		/// </summary>
 		public void GroupShapes(Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			int cnt = 0;
 			foreach (Shape s in shapes)
 				if (++cnt > 1) break;
@@ -519,7 +521,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Aggregate the given shapes to a composite shape based on the bottom shape.
 		/// </summary>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void AggregateCompositeShape(Diagram diagram, Shape compositeShape, IEnumerable<Shape> shapes, LayerIds layers) {
 			AggregateCompositeShape(diagram, compositeShape, shapes, Layer.NoLayerId, layers);
 		}
@@ -529,8 +531,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Aggregate the given shapes to a composite shape based on the bottom shape.
 		/// </summary>
 		public void AggregateCompositeShape(Diagram diagram, Shape compositeShape, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
-			if (compositeShape == null) throw new ArgumentNullException("compositeShape");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (compositeShape == null) throw new ArgumentNullException(nameof(compositeShape));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			// Add shapes to buffer (TopDown)
 			_shapeBuffer.Clear();
 			foreach (Shape shape in shapes) {
@@ -547,8 +549,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Ungroups the given shape group
 		/// </summary>
 		public void UngroupShapes(Diagram diagram, Shape groupShape) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (groupShape == null) throw new ArgumentNullException("groupShape");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (groupShape == null) throw new ArgumentNullException(nameof(groupShape));
 			if (!(groupShape is IShapeGroup))
 				throw new ArgumentException(string.Format(Properties.Resources.MessageFmt_GroupShapeDoesNotImplpementInterface0, typeof(IShapeGroup).Name));
 			// Add grouped shapes to shape buffer for selecting them later
@@ -566,9 +568,9 @@ namespace Dataweb.NShape.Controllers {
 		/// Splits the given composite shape into independent shapes.
 		/// </summary>
 		public void SplitCompositeShape(Diagram diagram, Shape compositeShape) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (compositeShape == null) throw new ArgumentNullException("compositeShape");
-			if (compositeShape == null) throw new ArgumentNullException("compositeShape");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (compositeShape == null) throw new ArgumentNullException(nameof(compositeShape));
+			if (compositeShape == null) throw new ArgumentNullException(nameof(compositeShape));
 			Debug.Assert(!(compositeShape is IShapeGroup));
 			// Add grouped shapes to shape buffer for selecting them later
 			_shapeBuffer.Clear();
@@ -585,7 +587,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Adds the given shapes to the given layers.
 		/// </summary>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void AddShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers) {
 			AddShapesToLayers(diagram, shapes, Layer.NoLayerId, layers);
 		}
@@ -595,8 +597,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Adds the given shapes to the given layers.
 		/// </summary>
 		public void AddShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			ICommand cmd = new AddShapesToLayersCommand(diagram, shapes, homeLayer, supplementalLayers);
 			Project.ExecuteCommand(cmd);
 		}
@@ -605,7 +607,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Assigns the given shapes to the given layers. If the shape was assigned to layers, these will be replaced.
 		/// </summary>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void AssignShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers) {
 			AssignShapesToLayers(diagram, shapes, Layer.NoLayerId, layers);
 		}
@@ -615,8 +617,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Assigns the given shapes to the given layers. If the shape was assigned to layers, these will be replaced.
 		/// </summary>
 		public void AssignShapesToLayers(Diagram diagram, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 
 			ICommand cmd = new AssignShapesToLayersCommand(diagram, shapes, homeLayer, supplementalLayers);
 			Project.ExecuteCommand(cmd);
@@ -634,7 +636,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <summary>
 		/// Removes the given shapes from the given layers.
 		/// </summary>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public void RemoveShapesFromLayers(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers) {
 			RemoveShapesFromLayers(diagram, shapes, LayerHelper.GetAllLayerIds(layers));
 		}
@@ -644,8 +646,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Removes the given shapes from the given layers.
 		/// </summary>
 		public void RemoveShapesFromLayers(Diagram diagram, IEnumerable<Shape> shapes, IEnumerable<int> layerIds) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 
 			ICommand cmd = new RemoveShapesFromLayersCommand(diagram, shapes);
 			Project.ExecuteCommand(cmd);
@@ -656,8 +658,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Lists one shape on top or to bottom
 		/// </summary>
 		public void LiftShape(Diagram diagram, Shape shape, ZOrderDestination liftMode) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			ICommand cmd = null;
 			cmd = new LiftShapeCommand(diagram, shape, liftMode);
 			Project.ExecuteCommand(cmd);
@@ -668,8 +670,8 @@ namespace Dataweb.NShape.Controllers {
 		/// Lifts a collection of shapes on top or to bottom.
 		/// </summary>
 		public void LiftShapes(Diagram diagram, IEnumerable<Shape> shapes, ZOrderDestination liftMode) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			ICommand cmd = new LiftShapeCommand(diagram, shapes, liftMode);
 			Project.ExecuteCommand(cmd);
 		}
@@ -677,8 +679,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanInsertShapes(Diagram diagram, IEnumerable<Shape> shapes, out string reason) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			reason = null;
 			if (!Project.SecurityManager.IsGranted(Permission.Insert, shapes)) {
 				reason = string.Format(Properties.Resources.MessageFmt_Permission0NotGranted, Permission.Insert);
@@ -699,8 +701,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanDeleteShapes(Diagram diagram, IEnumerable<Shape> shapes) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			return Project.SecurityManager.IsGranted(Permission.Delete, shapes)
 				&& diagram.Shapes.ContainsAll(shapes);
 		}
@@ -724,15 +726,15 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanCut(Diagram diagram, IEnumerable<Shape> shapes) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			return CanCopy(shapes) && CanDeleteShapes(diagram, shapes);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanCopy(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			// Check if shapes is not an empty collection
 			foreach (Shape s in shapes) return true;
 			return false;
@@ -748,7 +750,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanPaste(Diagram diagram, out string reason) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			reason = null;
 			if (_editBuffer.IsEmpty) {
 				reason = Properties.Resources.MessageTxt_NoShapesCutOrCopied;
@@ -767,7 +769,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanGroupShapes(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			int cnt= 0;
 			foreach (Shape shape in shapes) {
 				++cnt;
@@ -779,8 +781,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanUngroupShape(Diagram diagram, IEnumerable<Shape> shapes, out string reason) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			foreach (Shape shape in shapes) {
 				if (shape is IShapeGroup && shape.Parent == null)
 					return CanInsertShapes(diagram, shape.Children, out reason);
@@ -810,8 +812,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanAggregateShapes(Diagram diagram, IReadOnlyShapeCollection shapes, out string reason) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			reason = null;
 			Shape compositeShape = shapes.Bottom;
 			if (shapes.Count <= 1)
@@ -837,8 +839,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanSplitShapeAggregation(Diagram diagram, IReadOnlyShapeCollection shapes, out string reason) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			reason = null;
 			Shape compositeShape = shapes.TopMost;
 			if (shapes.Count == 0)
@@ -859,8 +861,8 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool CanLiftShapes(Diagram diagram, IEnumerable<Shape> shapes) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			return Project.SecurityManager.IsGranted(Permission.Layout, shapes)
 				&& diagram.Shapes.ContainsAll(shapes);
 		}
@@ -927,14 +929,14 @@ namespace Dataweb.NShape.Controllers {
 		// is split into DiagramPresenter and Display:IDiagramView
 		/// <ToBeCompleted></ToBeCompleted>
 		public DiagramController OpenDiagram(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			return DoAddDiagramController(diagram);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public DiagramController OpenDiagram(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			AssertProjectIsOpen();
 			// Try to find diagram with given name
 			Diagram diagram = null;
@@ -1106,14 +1108,14 @@ namespace Dataweb.NShape.Controllers {
 
 
 		//private DiagramShapesEventArgs GetShapeEventArgs(Shape shape, Diagram diagram) {
-		//    if (shape == null) throw new ArgumentNullException("shape");
+		//    if (shape == null) throw new ArgumentNullException(nameof(shape));
 		//    diagramShapeEventArgs.SetDiagramShapes(shape, diagram);
 		//    return diagramShapeEventArgs;
 		//}
 
 
 		//private DiagramShapesEventArgs GetShapeEventArgs(IEnumerable<Shape> shapes, Diagram diagram) {
-		//    if (shapes == null) throw new ArgumentNullException("shapes");
+		//    if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 		//    diagramShapeEventArgs.SetDiagramShapes(shapes, diagram);
 		//    return diagramShapeEventArgs;
 		//}
@@ -1845,7 +1847,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public DiagramEventArgs(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this.diagram = diagram;
 		}
 
@@ -1867,7 +1869,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ShapesEventArgs(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			this.shapes.AddRange(shapes);
 		}
 
@@ -1899,7 +1901,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ShapeEventArgs(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			this.shape = shape;
 		}
 
@@ -1924,7 +1926,7 @@ namespace Dataweb.NShape.Controllers {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public ModelObjectsEventArgs(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			this.modelObjects.AddRange(modelObjects);
 		}
 
@@ -1957,7 +1959,7 @@ namespace Dataweb.NShape.Controllers {
 		/// <ToBeCompleted></ToBeCompleted>
 		public DiagramShapesEventArgs(IEnumerable<Shape> shapes, Diagram diagram)
 			: base(shapes) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this.diagram = diagram;
 		}
 

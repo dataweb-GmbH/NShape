@@ -101,6 +101,23 @@ namespace Dataweb.NShape.WinFormsUI {
 		public const string MenuItemNameRedo = "RedoAction";
 
 
+		/// <summary>Specifies the lowest zoom factor that is possible.</summary>
+		/// <remarks>An OutOfMemoryException is thrown by the Graphics.DrawPath when zoom factor is ~0.00077.</remarks>
+		public const float MinimumZoomFactor = 0.001f;
+
+		/// <summary>Specifies the highest zoom factor that is possible.</summary>
+		/// <remarks>
+		/// This is not really a technical limit, but a zoom of >1000% has no real benefits.
+		/// </remarks>
+		public const float MaximumZoomFactor = 10;
+
+		/// <summary>
+		/// The factor for calculating the zoom level in percent from the ZoomLevelHD and vice versa.
+		/// </summary>
+		public const int ZoomLevelHDFactor = 100;
+
+
+
 		/// <summary>
 		/// Constructor
 		/// </summary>
@@ -253,7 +270,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		int IDiagramPresenter.ZoomedGripSize {
-			get { return Math.Max(1, (int)Math.Round(_handleRadius / _zoomfactor)); }
+			get { return Math.Max(1, (int)Math.Round(_handleRadius / _zoomFactor)); }
 		}
 
 
@@ -277,7 +294,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.InvalidateGrips(IEnumerable<Shape> shapes, ControlPointCapabilities controlPointCapability) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			Point p = Point.Empty;
 			int transformedHandleRadius;
 			ControlToDiagram(_handleRadius, out transformedHandleRadius);
@@ -292,10 +309,10 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.InvalidateSnapIndicators(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			int transformedPointRadius, transformedGridSize;
 			ControlToDiagram(GripSize, out transformedPointRadius);
-			transformedGridSize = (int)Math.Round(GridSize * (ZoomLevel / 100f));
+			transformedGridSize = (int)Math.Round(GridSize * ZoomFactor);
 
 			Rectangle bounds = shape.GetBoundingRectangle(false);
 			Point p = Point.Empty;
@@ -341,7 +358,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.DrawShape(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_currentGraphics == null) throw new InvalidOperationException(ErrMessageOnlyAllowedWhilePaining);
 			if (!_graphicsIsTransformed) throw new InvalidOperationException(ErrMessageRestoreTransformationHasNotBeenCalled);
 			shape.Draw(_currentGraphics);
@@ -350,7 +367,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.DrawShapes(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			if (_currentGraphics == null) throw new InvalidOperationException(ErrMessageOnlyAllowedWhilePaining);
 			if (!_graphicsIsTransformed) throw new InvalidOperationException(ErrMessageRestoreTransformationHasNotBeenCalled);
 			foreach (Shape shape in shapes)
@@ -360,7 +377,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.DrawResizeGrip(IndicatorDrawMode drawMode, Shape shape, ControlPointId pointId) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Point p = shape.GetControlPointPosition(pointId);
 			DrawResizeGripCore(p.X, p.Y, drawMode);
 		}
@@ -368,7 +385,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.DrawRotateGrip(IndicatorDrawMode drawMode, Shape shape, ControlPointId pointId) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Point p = shape.GetControlPointPosition(pointId);
 			DrawRotateGripCore(p.X, p.Y, drawMode);
 		}
@@ -376,7 +393,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.DrawConnectionPoint(IndicatorDrawMode drawMode, Shape shape, ControlPointId pointId) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Debug.Assert(shape.HasControlPointCapability(pointId, ControlPointCapabilities.Connect | ControlPointCapabilities.Glue));
 			// Get control point popsition
 			Point p = shape.GetControlPointPosition(pointId);
@@ -399,7 +416,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.DrawShapeOutline(IndicatorDrawMode drawMode, Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_currentGraphics == null) throw new InvalidOperationException(ErrMessageOnlyAllowedWhilePaining);
 			if (!_graphicsIsTransformed) throw new NShapeException(ErrMessageRestoreTransformationHasNotBeenCalled);
 			DoDrawShapeOutline(drawMode, shape);
@@ -408,7 +425,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		void IDiagramPresenter.DrawSnapIndicators(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_currentGraphics == null) throw new InvalidOperationException(ErrMessageOnlyAllowedWhilePaining);
 			int left = int.MaxValue;
 			int top = int.MaxValue;
@@ -447,8 +464,8 @@ namespace Dataweb.NShape.WinFormsUI {
 					p = shape.GetControlPointPosition(id);
 
 					// check if the point is on a gridline
-					bool hGridLineContainsPoint = p.X % (GridSize * _zoomfactor) == 0;
-					bool vGridLineContainsPoint = p.Y % (GridSize * _zoomfactor) == 0;
+					bool hGridLineContainsPoint = p.X % (GridSize * _zoomFactor) == 0;
+					bool vGridLineContainsPoint = p.Y % (GridSize * _zoomFactor) == 0;
 					// collect coordinates for bounding box
 					if (p.X < left) left = p.X;
 					if (p.X > right) right = p.X;
@@ -705,7 +722,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		public Diagram Diagram {
 			get { return _diagramController == null ? null : _diagramController.Diagram; }
 			set {
-				if (_diagramSetController == null) throw new ArgumentNullException("DiagramSetController");
+				if (_diagramSetController == null) throw new ArgumentNullException(nameof(DiagramSetController));
 				OnDiagramChanging(EventArgs.Empty);
 				if (Diagram != null)
 					DiagramController = null;   // Close diagram and unregister events
@@ -1007,19 +1024,52 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Public] Properties: Appearance
 
 		/// <summary>
-		/// Zoom in percentage.
+		/// Zoom level in percentage: 100 means 100%.
 		/// </summary>
+		[Obsolete]
 		[CategoryAppearance()]
 		[DefaultValue(Display.DefaultValueZoomLevel)]
 		public int ZoomLevel {
-			get { return _zoomLevel; }
+			get { return (int)Math.Round(ZoomFactor * 100); }
 			set {
 				if (value < 0) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ValueHasToBeGreaterThanZero);
-				if (_zoomLevel != value) {
+				if (ZoomLevel != value) {
+					ZoomFactor = value / 100f;
+				}
+			}
+		}
+
+
+		/// <summary>
+		/// High definition zoom level in 1/100 percent: 10000 means 100%
+		/// </summary>
+		[CategoryAppearance()]
+		[DefaultValue(Display.DefaultValueZoomLevelHD)]
+		public int ZoomLevelHD {
+			get { return (int)Math.Round(ZoomFactor * 100 * ZoomLevelHDFactor); }
+			set {
+				if (value < 0) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ValueHasToBeGreaterThanZero);
+				if (ZoomLevelHD != value) {
+					ZoomFactor = value / (100f * ZoomLevelHDFactor);
+				}
+			}
+		}
+
+
+		/// <summary>
+		/// Zoom factor: 1 means 100%.
+		/// </summary>
+		[CategoryAppearance()]
+		[DefaultValue(Display.DefaultValueZoomFactor)]
+		public float ZoomFactor {
+			get { return _zoomFactor; }
+			private set {
+				if (value < 0) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ValueHasToBeGreaterThanZero);
+				if (_zoomFactor != value) {
 					OnZoomChanging(EventArgs.Empty);
 
-					_zoomLevel = value;
-					_zoomfactor = Math.Max(value / 100f, 0.001f);
+					// An OutOfMemoryException is thrown by the Graphics context when zoom factor < 0.00077!
+					_zoomFactor = Math.Min(Math.Max(MinimumZoomFactor, value), MaximumZoomFactor);
 
 					DoCloseCaptionEditor(true);
 					UnselectShapesOfInvisibleLayers();
@@ -1061,7 +1111,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		public int GripSize {
 			get { return _handleRadius; }
 			set {
-				if (value <= 0) throw new ArgumentOutOfRangeException("value");
+				if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value));
 				if (_handleRadius != value) {
 					_handleRadius = value;
 					_invalidateDelta = _handleRadius;
@@ -1532,8 +1582,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Transformes diagram coordinates to control coordinates
 		/// </summary>
 		public void DiagramToControl(int dX, int dY, out int cX, out int cY) {
-			cX = _diagramPosX + (int)Math.Round((dX - _scrollPosX) * _zoomfactor);
-			cY = _diagramPosY + (int)Math.Round((dY - _scrollPosY) * _zoomfactor);
+			cX = _diagramPosX + (int)Math.Round((dX - _scrollPosX) * _zoomFactor);
+			cY = _diagramPosY + (int)Math.Round((dY - _scrollPosY) * _zoomFactor);
 		}
 
 
@@ -1543,8 +1593,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		public void DiagramToControl(Point dPt, out Point cPt) {
 			cPt = Point.Empty;
 			cPt.Offset(
-				_diagramPosX + (int)Math.Round((dPt.X - _scrollPosX) * _zoomfactor),
-				_diagramPosY + (int)Math.Round((dPt.Y - _scrollPosY) * _zoomfactor)
+				_diagramPosX + (int)Math.Round((dPt.X - _scrollPosX) * _zoomFactor),
+				_diagramPosY + (int)Math.Round((dPt.Y - _scrollPosY) * _zoomFactor)
 				);
 		}
 
@@ -1555,11 +1605,11 @@ namespace Dataweb.NShape.WinFormsUI {
 		public void DiagramToControl(Rectangle dRect, out Rectangle cRect) {
 			cRect = Rectangle.Empty;
 			cRect.Offset(
-				_diagramPosX + (int)Math.Round((dRect.X - _scrollPosX) * _zoomfactor),
-				_diagramPosY + (int)Math.Round((dRect.Y - _scrollPosY) * _zoomfactor)
+				_diagramPosX + (int)Math.Round((dRect.X - _scrollPosX) * _zoomFactor),
+				_diagramPosY + (int)Math.Round((dRect.Y - _scrollPosY) * _zoomFactor)
 				);
-			cRect.Width = (int)Math.Round(dRect.Width * _zoomfactor);
-			cRect.Height = (int)Math.Round(dRect.Height * _zoomfactor);
+			cRect.Width = (int)Math.Round(dRect.Width * _zoomFactor);
+			cRect.Height = (int)Math.Round(dRect.Height * _zoomFactor);
 		}
 
 
@@ -1567,7 +1617,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Transformes diagram coordinates to control coordinates
 		/// </summary>
 		public void DiagramToControl(int dDistance, out int cDistance) {
-			cDistance = (int)Math.Round(dDistance * _zoomfactor);
+			cDistance = (int)Math.Round(dDistance * _zoomFactor);
 		}
 
 
@@ -1576,8 +1626,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public void DiagramToControl(Size dSize, out Size cSize) {
 			cSize = Size.Empty;
-			cSize.Width = (int)Math.Round(dSize.Width * _zoomfactor);
-			cSize.Height = (int)Math.Round(dSize.Height * _zoomfactor);
+			cSize.Width = (int)Math.Round(dSize.Width * _zoomFactor);
+			cSize.Height = (int)Math.Round(dSize.Height * _zoomFactor);
 		}
 
 
@@ -1585,8 +1635,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Transformes control coordinates to diagram coordinates
 		/// </summary>
 		public void ControlToDiagram(int cX, int cY, out int dX, out int dY) {
-			dX = (int)Math.Round((cX - _diagramPosX) / _zoomfactor) + _scrollPosX;
-			dY = (int)Math.Round((cY - _diagramPosY) / _zoomfactor) + _scrollPosY;
+			dX = (int)Math.Round((cX - _diagramPosX) / _zoomFactor) + _scrollPosX;
+			dY = (int)Math.Round((cY - _diagramPosY) / _zoomFactor) + _scrollPosY;
 		}
 
 
@@ -1595,8 +1645,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public void ControlToDiagram(Point cPt, out Point dPt) {
 			dPt = Point.Empty;
-			dPt.X = (int)Math.Round((cPt.X - _diagramPosX) / _zoomfactor) + _scrollPosX;
-			dPt.Y = (int)Math.Round((cPt.Y - _diagramPosY) / _zoomfactor) + _scrollPosY;
+			dPt.X = (int)Math.Round((cPt.X - _diagramPosX) / _zoomFactor) + _scrollPosX;
+			dPt.Y = (int)Math.Round((cPt.Y - _diagramPosY) / _zoomFactor) + _scrollPosY;
 		}
 
 
@@ -1605,10 +1655,10 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public void ControlToDiagram(Rectangle cRect, out Rectangle dRect) {
 			dRect = Rectangle.Empty;
-			dRect.X = (int)Math.Round((cRect.X - _diagramPosX) / _zoomfactor) + _scrollPosX;
-			dRect.Y = (int)Math.Round((cRect.Y - _diagramPosY) / _zoomfactor) + _scrollPosY;
-			dRect.Width = (int)Math.Round((cRect.Width / _zoomfactor));
-			dRect.Height = (int)Math.Round((cRect.Height / _zoomfactor));
+			dRect.X = (int)Math.Round((cRect.X - _diagramPosX) / _zoomFactor) + _scrollPosX;
+			dRect.Y = (int)Math.Round((cRect.Y - _diagramPosY) / _zoomFactor) + _scrollPosY;
+			dRect.Width = (int)Math.Round((cRect.Width / _zoomFactor));
+			dRect.Height = (int)Math.Round((cRect.Height / _zoomFactor));
 		}
 
 
@@ -1617,8 +1667,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public void ControlToDiagram(Size cSize, out Size dSize) {
 			dSize = Size.Empty;
-			dSize.Width = (int)Math.Round((cSize.Width / _zoomfactor));
-			dSize.Height = (int)Math.Round((cSize.Height / _zoomfactor));
+			dSize.Width = (int)Math.Round((cSize.Width / _zoomFactor));
+			dSize.Height = (int)Math.Round((cSize.Height / _zoomFactor));
 		}
 
 
@@ -1626,7 +1676,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Transformes control coordinates to diagram coordinates
 		/// </summary>
 		public void ControlToDiagram(int cDistance, out int dDistance) {
-			dDistance = (int)Math.Round((cDistance / _zoomfactor));
+			dDistance = (int)Math.Round((cDistance / _zoomFactor));
 		}
 
 
@@ -1665,7 +1715,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Removes the given Shape from the current selection.
 		/// </summary>
 		public void UnselectShape(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_selectedShapes.Count > 0) {
 				DoUnselectShape(shape);
 				PerformSelectionNotifications();
@@ -1677,7 +1727,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Removes the given Shape from the current selection.
 		/// </summary>
 		private void UnselectShapes(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			if (_selectedShapes.Count > 0) {
 				DoSuspendUpdate();
 				foreach (Shape s in shapes) {
@@ -1704,7 +1754,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <param name="shape">Shape to be selected.</param>
 		/// <param name="addToSelection">If true, the given shape will be added to the current selection, otherwise the current selection will be cleared before selecting this shape.</param>
 		public void SelectShape(Shape shape, bool addToSelection) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			DoSelectShape(shape, addToSelection);
 			PerformSelectionNotifications();
 		}
@@ -1716,7 +1766,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <param name="shapes">Shape to be selected.</param>
 		/// <param name="addToSelection">If true, the given shape will be added to the current selection, otherwise the current selection will be cleared before selecting this shape.</param>
 		public void SelectShapes(IEnumerable<Shape> shapes, bool addToSelection) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			if (!addToSelection)
 				ClearSelection();
 			if (SelectedShapes.ContainsAll(shapes))
@@ -1756,7 +1806,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Selects all shapes of the given shape type.
 		/// </summary>
 		public void SelectShapes(ShapeType shapeType, bool addToSelection) {
-			if (shapeType == null) throw new ArgumentNullException("shapeType");
+			if (shapeType == null) throw new ArgumentNullException(nameof(shapeType));
 			if (Diagram != null) {
 				// Find all shapes of the same ShapeType
 				_shapeBuffer.Clear();
@@ -1773,7 +1823,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Selects all shapes based on the given template.
 		/// </summary>
 		public void SelectShapes(Template template, bool addToSelection) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			if (Diagram != null) {
 				// Find all shapes of the same ShapeType
 				_shapeBuffer.Clear();
@@ -1819,7 +1869,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Fetches the indicated diagram from the repository and displays it.
 		/// </summary>
 		public bool OpenDiagram(string diagramName) {
-			if (diagramName == null) throw new ArgumentNullException("diagramName");
+			if (diagramName == null) throw new ArgumentNullException(nameof(diagramName));
 			if (DiagramSetController == null) throw new NShapeException("Property DiagramSetController is not set!");
 			bool result = false;
 			// Clear current selectedShapes and models
@@ -1846,7 +1896,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Creates the indicated diagram, inserts it into the repository and displays it.
 		/// </summary>
 		public bool CreateDiagram(string diagramName) {
-			if (diagramName == null) throw new ArgumentNullException("diagramName");
+			if (diagramName == null) throw new ArgumentNullException(nameof(diagramName));
 			if (DiagramSetController == null) throw new NShapeException("Property DiagramSetController is not set!");
 			bool result = false;
 			// Clear current selectedShapes and models
@@ -2030,9 +2080,9 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <summary>
 		/// Executes a command that deletes the given shapes in the displayed diagram.
 		/// </summary>
-		public void DeleteShapes(IEnumerable<Shape> shapes, bool withModelObejcts) {
+		public void DeleteShapes(IEnumerable<Shape> shapes, bool withModelObjects) {
 			if (Diagram != null) {
-				DiagramSetController.DeleteShapes(Diagram, shapes, withModelObejcts);
+				DiagramSetController.DeleteShapes(Diagram, shapes, withModelObjects);
 				OnShapesRemoved(GetShapesEventArgs(shapes));
 				UnselectShapes(shapes);
 			}
@@ -2181,7 +2231,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		/// <param name="shape">The shape that should be completely visible.</param>
 		public void EnsureVisible(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			EnsureVisible(shape.GetBoundingRectangle(false));
 		}
 
@@ -2192,7 +2242,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <param name="shape">The shape that should be completely visible.</param>
 		/// <param name="margin">Specifies the margin (in diagram coordinates) around the area that should be visible.</param>
 		public void EnsureVisible(Shape shape, int margin) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			EnsureVisible(shape.GetBoundingRectangle(false), margin);
 		}
 
@@ -2219,7 +2269,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			// Check if Zoom has to be adjusted
 			if (areaBoundsDiag.Width < viewAreaDiagram.Width || areaBoundsDiag.Height < viewAreaDiagram.Height) {
 				float scale = Geometry.CalcScaleFactor(viewAreaDiagram.Width, viewAreaDiagram.Height, areaBoundsDiag.Width, areaBoundsDiag.Height);
-				ZoomLevel = Math.Max(1, (int)Math.Floor(ZoomLevel * scale));
+				ZoomFactor = Math.Max(MinimumZoomFactor, ZoomFactor * scale);
 			}
 
 			// Recalculate viewArea in case a new zoom level was applied
@@ -2268,7 +2318,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <summary>
 		/// Shows or hides the given layer(s).
 		/// </summary>
-		[Obsolete("Use an overload taking layer(s) or layer ids instead.")]
+		[Obsolete("Use an overloaded version taking layer(s) or layer ids instead.")]
 		public void SetLayerVisibility(LayerIds layers, bool visible) {
 			if (layers == LayerIds.All)
 				SetLayerVisibility(Diagram.Layers, visible);
@@ -2289,7 +2339,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Shows or hides the given layer(s).
 		/// </summary>
 		public void SetLayerVisibility(IEnumerable<int> layerIds, bool visible) {
-			if (layerIds == null) throw new ArgumentNullException("layerIds");
+			if (layerIds == null) throw new ArgumentNullException(nameof(layerIds));
 			SetLayerVisibility(Diagram.Layers.FindLayers(layerIds), visible);
 		}
 
@@ -2298,7 +2348,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Shows or hides the given layer(s).
 		/// </summary>
 		public void SetLayerVisibility(IEnumerable<Layer> layers, bool visible) {
-			if (layers == null) throw new ArgumentNullException("layers");
+			if (layers == null) throw new ArgumentNullException(nameof(layers));
 			// Hide or show layers
 			// Shared layers
 			if (visible) _hiddenSharedLayers ^= (_hiddenSharedLayers & Layer.ConvertToLayerIds(layers));
@@ -2325,7 +2375,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <summary>
 		/// Sets the given layers as active layers.
 		/// </summary>
-		[Obsolete("Use an overload taking layer(s) or layer ids instead.")]
+		[Obsolete("Use an overloaded version taking layer(s) or layer ids instead.")]
 		public void SetLayerActive(LayerIds layers, bool active) {
 			if (layers == LayerIds.All)
 				SetLayerActive(Diagram.Layers, active);
@@ -2349,7 +2399,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// If the layerIds contain more than one home layer id, the last home layer in the sequence will be activated.
 		/// </remarks>
 		public void SetLayerActive(IEnumerable<int> layerIds, bool active) {
-			if (layerIds == null) throw new ArgumentNullException("layerIds");
+			if (layerIds == null) throw new ArgumentNullException(nameof(layerIds));
 			SetLayerActive(Diagram.Layers.FindLayers(layerIds), active);
 		}
 
@@ -2361,7 +2411,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// If the layerIds contain more than one home layer id, the last home layer in the sequence will be activated.
 		/// </remarks>
 		public void SetLayerActive(IEnumerable<Layer> layers, bool active) {
-			if (layers == null) throw new ArgumentNullException("layers");
+			if (layers == null) throw new ArgumentNullException(nameof(layers));
 
 			// Split the given layers into combinable and uncombinable layers
 			int uncombinableLayer = Layer.NoLayerId;
@@ -2440,7 +2490,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <summary>
 		/// Tests whether all of the given layers are active.
 		/// </summary>
-		[Obsolete("Use an overload taking layer(s) or layer ids instead.")]
+		[Obsolete("Use an overloaded version taking layer(s) or layer ids instead.")]
 		public bool IsLayerActive(LayerIds layerId) {
 			foreach (int id in LayerHelper.GetAllLayerIds(layerId))
 				if (_activeLayerIds.Contains(id))
@@ -2598,15 +2648,18 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				if (components != null) {
-					components.Dispose();
-					components = null;
-				}
+				// Close and dispose caption editor 
+				DoCloseCaptionEditor(false);
 
 				// Detach components 
 				if (Diagram != null) Diagram = null;
 				if (DiagramController != null) DiagramController = null;
 				if (_diagramSetController != null) DiagramSetController = null;
+				//
+				if (components != null) {
+					components.Dispose();
+					components = null;
+				}
 
 				// Dispose timer
 				DisposeObject(ref _autoScrollTimer);
@@ -2754,24 +2807,35 @@ namespace Dataweb.NShape.WinFormsUI {
 					if (e.Delta != 0) {
 						// Calculate current zoom stepping according to the current zoom factor.
 						// With this kind of accelleration/decelleration zooming feels more natural/consant to the user
-						int currZoomStep;
-						if (ZoomLevel < 30) currZoomStep = 1;
-						else if (ZoomLevel < 60) currZoomStep = 2;
-						else if (_zoomLevel < 100) currZoomStep = 5;
-						else if (_zoomLevel < 300) currZoomStep = 10;
-						else currZoomStep = 50;
+						int currZoomHDStep;
+						int zoomHD = ZoomLevelHD;
+						if (zoomHD < 20) currZoomHDStep = 1;				//   <= 0.2% ->  0.01%
+						else if (zoomHD < 00050) currZoomHDStep = 2;		//   <= 0.5% ->  0.02%
+						else if (zoomHD < 00100) currZoomHDStep = 5;		//   <= 1.0% ->  0.05%
+						else if (zoomHD < 00200) currZoomHDStep = 10;		//   <= 3.3% ->  0.1%
+						else if (zoomHD < 00500) currZoomHDStep = 20;		//   <= 6.6% ->  0.2%
+						else if (zoomHD < 01000) currZoomHDStep = 50;		//  <= 10.0% ->  0.5%
+						else if (zoomHD < 02000) currZoomHDStep = 100;		//  <= 33.0% ->  1.0%
+						else if (zoomHD < 05000) currZoomHDStep = 200;		//  <= 66.0% ->  2.0%
+						else if (zoomHD < 10000) currZoomHDStep = 500;		// <= 100.0% ->  5.0%
+						else if (zoomHD < 20000) currZoomHDStep = 1000; 	// <= 200.0% -> 10.0%
+						else if (zoomHD < 50000) currZoomHDStep = 2000; 	// <= 500.0% -> 20.0%
+						else currZoomHDStep = 5000;							//           -> 50.0%
+						
 						// Calculate zoom direction
-						currZoomStep *= (int)(e.Delta / Math.Abs(e.Delta));
+						currZoomHDStep *= (e.Delta / Math.Abs(e.Delta));
 						// Set zoom level (and ensure the value is within a reasonable range)
-						ZoomLevel = Math.Min(Math.Max(0, (ZoomLevel + currZoomStep) - (ZoomLevel % currZoomStep)), 4000);
+						//ZoomLevel = Math.Min(Math.Max(0, (ZoomLevel + currZoomStep) - (ZoomLevel % currZoomStep)), 4000);
+						float newZoomFactor = (zoomHD + currZoomHDStep) / (100f * ZoomLevelHDFactor);
+						ZoomFactor = Math.Min(Math.Max(MinimumZoomFactor, newZoomFactor), MaximumZoomFactor);
 					}
 
 					// Restore mouse cursors's position by scrolling (zoom to cursor)
 					Point newMousePos = Point.Empty;
 					ControlToDiagram(e.Location, out newMousePos);
 					// Zoom to mouse position only if zoomed diagram is larger than the draw area!
-					float zoomedDiagramWidth = (ScrollAreaBounds.Width - (2 * DiagramMargin)) * _zoomfactor;
-					float zoomedDiagramHeight = (ScrollAreaBounds.Height - (2 * DiagramMargin)) * _zoomfactor;
+					float zoomedDiagramWidth = (ScrollAreaBounds.Width - (2 * DiagramMargin)) * _zoomFactor;
+					float zoomedDiagramHeight = (ScrollAreaBounds.Height - (2 * DiagramMargin)) * _zoomFactor;
 					int scrollDeltaX = (zoomedDiagramWidth > DrawBounds.Width) ? currMousePos.X - newMousePos.X : 0;
 					int scrollDeltaY = (zoomedDiagramHeight > DrawBounds.Height) ? currMousePos.Y - newMousePos.Y : 0;
 					ScrollBy(scrollDeltaX, scrollDeltaY);
@@ -2887,16 +2951,11 @@ namespace Dataweb.NShape.WinFormsUI {
 								deltaY = e.Y - autoScrollBounds.Bottom;
 							// Scale distance to move according to zoom factor
 							int slowDownFactor = 3;
-							deltaX = (int)Math.Round(deltaX / (_zoomfactor * slowDownFactor));
-							deltaY = (int)Math.Round(deltaY / (_zoomfactor * slowDownFactor));
+							deltaX = (int)Math.Round(deltaX / (_zoomFactor * slowDownFactor));
+							deltaY = (int)Math.Round(deltaY / (_zoomFactor * slowDownFactor));
 							// Perform scrolling
 							ScrollBy(deltaX, deltaY);
 
-							//int x, y;
-							//ControlToDiagram(e.X, e.Y, out x, out y);
-							//int margin;
-							//ControlToDiagram(autoScrollMargin, out margin);
-							//EnsureVisible(x, y, margin);
 							if (!_autoScrollTimer.Enabled)
 								_autoScrollTimer.Enabled = true;
 						} else if (_autoScrollTimer.Enabled) {
@@ -2912,6 +2971,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			_lastMousePos = e.Location;
 			//Console.WriteLine("[{0}]\t OnMouseMove (Leaving)", DateTime.Now.ToString("HH:mm:ss.ffff"));
 		}
+
 
 		/// <override></override>
 		protected override void OnMouseUp(MouseEventArgs e) {
@@ -2947,7 +3007,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 					// Display diagram properties
 					case MouseButtons.Left:
-						ShowDiagramProperties(e.Location);
+						if (Diagram != null && SelectedShapes.Count == 0)
+							ShowDiagramProperties(e.Location);
 						break;
 
 					// Start universal scroll
@@ -3885,7 +3946,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void DoInvalidateGrips(Shape shape, ControlPointCapabilities controlPointCapability) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Point p = Point.Empty;
 			int transformedHandleRadius;
 			ControlToDiagram(_handleRadius, out transformedHandleRadius);
@@ -3943,10 +4004,10 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods: Calculating and applying transformation
 
 		private void CalcDiagramPosition() {
-			float zoomedDiagramWidth = (ScrollAreaBounds.Width - (2 * DiagramMargin)) * _zoomfactor;
-			float zoomedDiagramHeight = (ScrollAreaBounds.Height - (2 * DiagramMargin)) * _zoomfactor;
-			float zoomedDiagramOffsetX = ((ScrollAreaBounds.X + DiagramMargin) * _zoomfactor);
-			float zoomedDiagramOffsetY = ((ScrollAreaBounds.Y + DiagramMargin) * _zoomfactor);
+			float zoomedDiagramWidth = (ScrollAreaBounds.Width - (2 * DiagramMargin)) * _zoomFactor;
+			float zoomedDiagramHeight = (ScrollAreaBounds.Height - (2 * DiagramMargin)) * _zoomFactor;
+			float zoomedDiagramOffsetX = ((ScrollAreaBounds.X + DiagramMargin) * _zoomFactor);
+			float zoomedDiagramOffsetY = ((ScrollAreaBounds.Y + DiagramMargin) * _zoomFactor);
 			float drawAreaCenterX = (DrawBounds.X + DrawBounds.Width) / 2f;
 			float drawAreaCenterY = (DrawBounds.Y + DrawBounds.Height) / 2f;
 			_diagramPosX = (int)Math.Round(-zoomedDiagramOffsetX + (drawAreaCenterX - (zoomedDiagramWidth / 2)));
@@ -3958,9 +4019,9 @@ namespace Dataweb.NShape.WinFormsUI {
 			if (_currentGraphics == null) throw new InvalidOperationException(ErrMessageOnlyAllowedWhilePaining);
 			if (_graphicsIsTransformed) throw new InvalidOperationException("Graphics context is already transformed.");
 			// transform graphics object
-			_currentGraphics.ScaleTransform(_zoomfactor, _zoomfactor, MatrixOrder.Prepend);
+			_currentGraphics.ScaleTransform(_zoomFactor, _zoomFactor, MatrixOrder.Prepend);
 			_currentGraphics.TranslateTransform(_diagramPosX, _diagramPosY, MatrixOrder.Append);
-			_currentGraphics.TranslateTransform(-_scrollPosX * _zoomfactor, -_scrollPosY * _zoomfactor, MatrixOrder.Append);
+			_currentGraphics.TranslateTransform(-_scrollPosX * _zoomFactor, -_scrollPosY * _zoomFactor, MatrixOrder.Append);
 			_graphicsIsTransformed = true;
 		}
 
@@ -3982,7 +4043,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// Draws the bounds of all captions of the shape
 		/// </summary>
 		private void DoDrawCaptionBounds(IndicatorDrawMode drawMode, ICaptionedShape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_graphicsIsTransformed) throw new NShapeException(ErrMessageResetTransformHasNotBeenCalled);
 			if (Project.SecurityManager.IsGranted(Permission.Data, (Shape)shape)) {
 				for (int i = shape.CaptionCount - 1; i >= 0; --i)
@@ -3992,7 +4053,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void DoDrawCaptionBounds(IndicatorDrawMode drawMode, ICaptionedShape shape, int captionIndex) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_currentGraphics == null) throw new InvalidOperationException(ErrMessageOnlyAllowedWhilePaining);
 			if (_graphicsIsTransformed) throw new NShapeException(ErrMessageResetTransformHasNotBeenCalled);
 			// Skip shapes that are not visible
@@ -4034,7 +4095,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void DoDrawControlPoints(Shape shape, ControlPointCapabilities capabilities, IndicatorDrawMode drawMode) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_graphicsIsTransformed) throw new NShapeException(ErrMessageResetTransformHasNotBeenCalled);
 			Point p = Point.Empty;
 			if (!IsLayerVisible(((Shape)shape).HomeLayer, ((Shape)shape).SupplementalLayers))
@@ -4090,8 +4151,8 @@ namespace Dataweb.NShape.WinFormsUI {
 				default: throw new NShapeUnsupportedValueException(typeof(IndicatorDrawMode), drawMode);
 			}
 			// scale lineWidth 
-			backgroundPen.Width = GripSize / _zoomfactor;
-			foregroundPen.Width = 1 / _zoomfactor;
+			backgroundPen.Width = GripSize / _zoomFactor;
+			foregroundPen.Width = 1 / _zoomFactor;
 
 			shape.DrawOutline(_currentGraphics, backgroundPen);
 			shape.DrawOutline(_currentGraphics, foregroundPen);
@@ -4168,8 +4229,8 @@ namespace Dataweb.NShape.WinFormsUI {
 					// so they are up to date when getting visible!
 					//if (HScrollBarVisible || VScrollBarVisible) 
 					{
-						int diagramPosXCtrlCoords = (int)Math.Round(_diagramPosX / _zoomfactor);
-						int diagramPosYCtrlCoords = (int)Math.Round(_diagramPosY / _zoomfactor);
+						int diagramPosXCtrlCoords = (int)Math.Round(_diagramPosX / _zoomFactor);
+						int diagramPosYCtrlCoords = (int)Math.Round(_diagramPosY / _zoomFactor);
 						int smallChange = 1;    // Math.Max(1, GridSize / 2);
 
 						// Set up vertical scrollbar's position, size and limits  (keep brackets for scoping local vars!)
@@ -4307,7 +4368,7 @@ namespace Dataweb.NShape.WinFormsUI {
 							}
 						}
 						// Now draw the shadow
-						int zoomedShadowSize = (int)Math.Round(shadowSize * _zoomfactor);
+						int zoomedShadowSize = (int)Math.Round(shadowSize * _zoomFactor);
 						// This feature is currently deactivated because it can be confusing for the
 						// user when the shadow shines through the diagram
 						//if (Diagram.BackgroundColor.A < 255 || Diagram.BackgroundGradientColor.A < 255)
@@ -4450,58 +4511,65 @@ namespace Dataweb.NShape.WinFormsUI {
 
 			// Draw debug infos
 #if DEBUG_UI
-			#region Fill occupied cells and draw cell borders
+			SmoothingMode origSmoothingMode = _currentGraphics.SmoothingMode;
+			try {
+				_currentGraphics.SmoothingMode = SmoothingMode.None;
 
-			if (_isCellOccupationVisible) {
-				Rectangle bounds = Geometry.UniteRectangles(0, 0, _diagramController.Diagram.Width, _diagramController.Diagram.Height,
-					(_diagramController.Diagram.Shapes.Count > 0) ? _diagramController.Diagram.Shapes.GetBoundingRectangle(false) : Rectangle.Empty);
+				#region Fill occupied cells and draw cell borders
+				if (_isCellOccupationVisible) {
+					Rectangle bounds = Geometry.UniteRectangles(0, 0, _diagramController.Diagram.Width, _diagramController.Diagram.Height,
+						(_diagramController.Diagram.Shapes.Count > 0) ? _diagramController.Diagram.Shapes.GetBoundingRectangle(false) : Rectangle.Empty);
 
-				int startX = ((bounds.X >= 0) ? bounds.X : (bounds.X / Diagram.CellSize) - 1) * Diagram.CellSize;
-				int startY = ((bounds.Y >= 0) ? bounds.Y : (bounds.Y / Diagram.CellSize) - 1) * Diagram.CellSize;
-				int endX = (bounds.Width + startX) - (bounds.Width % Diagram.CellSize) + ((bounds.X >= 0) ? Diagram.CellSize : 2 * Diagram.CellSize);
-				int endY = (bounds.Height + startY) - (bounds.Height % Diagram.CellSize) + ((bounds.Y >= 0) ? Diagram.CellSize : 2 * Diagram.CellSize);
+					int startX = ((bounds.X >= 0) ? bounds.X : (bounds.X / Diagram.IndexCellSize) - 1) * Diagram.IndexCellSize;
+					int startY = ((bounds.Y >= 0) ? bounds.Y : (bounds.Y / Diagram.IndexCellSize) - 1) * Diagram.IndexCellSize;
+					int endX = (bounds.Width + startX) - (bounds.Width % Diagram.IndexCellSize) + ((bounds.X >= 0) ? Diagram.IndexCellSize : 2 * Diagram.IndexCellSize);
+					int endY = (bounds.Height + startY) - (bounds.Height % Diagram.IndexCellSize) + ((bounds.Y >= 0) ? Diagram.IndexCellSize : 2 * Diagram.IndexCellSize);
 
-				((ShapeCollection)_diagramController.Diagram.Shapes).DrawOccupiedCells(_currentGraphics, startX, startY, endX, endY);
-				// Draw cell borders
-				for (int iX = startX; iX <= endX; iX += Diagram.CellSize)
-					_currentGraphics.DrawLine(Pens.Green, iX, startY, iX, endY);
-				for (int iY = startY; iY <= endY; iY += Diagram.CellSize)
-					_currentGraphics.DrawLine(Pens.Green, startX, iY, endX, iY);
-			}
-
-			#endregion
-
-			#region Visualize invalidated Rectangles
-			if (_isInvalidateAreasVisible) {
-				_clipRectBrush = (_clipRectBrush == _clipRectBrush1) ? _clipRectBrush2 : _clipRectBrush1;
-				_invalidatedAreaPen = (_invalidatedAreaPen == _invalidatedAreaPen1) ? _invalidatedAreaPen2 : _invalidatedAreaPen1;
-
-				if (_clipRectBuffer.Width < Bounds.Width && _clipRectBuffer.Height < Bounds.Height) {
-					Debug.Print("ClipRectangle = {0}, ClipRectBuffer = {1}", clipRectangle, _clipRectBuffer);
-					_currentGraphics.FillRectangle(_clipRectBrush, _clipRectBuffer);
+					((ShapeCollection)_diagramController.Diagram.Shapes).DrawOccupiedCells(_currentGraphics, startX, startY, endX, endY);
+					// Draw cell borders
+					for (int iX = startX; iX <= endX; iX += Diagram.IndexCellSize)
+						_currentGraphics.DrawLine(Pens.Green, iX, startY, iX, endY);
+					for (int iY = startY; iY <= endY; iY += Diagram.IndexCellSize)
+						_currentGraphics.DrawLine(Pens.Green, startX, iY, endX, iY);
 				}
 
-				if (_invalidatedAreas != null) {
-					foreach (Rectangle area in _invalidatedAreas)
-						_currentGraphics.DrawRectangle(_invalidatedAreaPen, area);
-					_invalidatedAreas.Clear();
+				#endregion
+
+				#region Visualize invalidated Rectangles
+				if (_isInvalidateAreasVisible) {
+					_clipRectBrush = (_clipRectBrush == _clipRectBrush1) ? _clipRectBrush2 : _clipRectBrush1;
+					_invalidatedAreaPen = (_invalidatedAreaPen == _invalidatedAreaPen1) ? _invalidatedAreaPen2 : _invalidatedAreaPen1;
+
+					if (_clipRectBuffer.Width < Bounds.Width && _clipRectBuffer.Height < Bounds.Height) {
+						Debug.Print("ClipRectangle = {0}, ClipRectBuffer = {1}", clipRectangle, _clipRectBuffer);
+						_currentGraphics.FillRectangle(_clipRectBrush, _clipRectBuffer);
+					}
+
+					if (_invalidatedAreas != null) {
+						foreach (Rectangle area in _invalidatedAreas)
+							_currentGraphics.DrawRectangle(_invalidatedAreaPen, area);
+						_invalidatedAreas.Clear();
+					}
 				}
+				#endregion
+
+				#region Visualize AutoScroll Bounds
+				//Rectangle autoScrollArea = DrawBounds;
+				//autoScrollArea.Inflate(-autoScrollMargin, -autoScrollMargin);
+				//ControlToDiagram(autoScrollArea, out autoScrollArea);
+				//currentGraphics.DrawRectangle(Pens.Blue, autoScrollArea);
+				//currentGraphics.DrawString(string.Format("AutoScroll Area: {0}", autoScrollArea), Font, Brushes.Blue, autoScrollArea.Location);
+
+				//Point p = PointToClient(Control.MousePosition);
+				//if (AutoScrollAreaContainsPoint(p.X, p.Y)) {
+				//   ControlToDiagram(p, out p);
+				//   GdiHelpers.DrawPoint(currentGraphics, Pens.Red, p.X, p.Y, 3);
+				//}
+				#endregion
+
+			} finally {
+				_currentGraphics.SmoothingMode = origSmoothingMode;
 			}
-			#endregion
-
-			#region Visualize AutoScroll Bounds
-			//Rectangle autoScrollArea = DrawBounds;
-			//autoScrollArea.Inflate(-autoScrollMargin, -autoScrollMargin);
-			//ControlToDiagram(autoScrollArea, out autoScrollArea);
-			//currentGraphics.DrawRectangle(Pens.Blue, autoScrollArea);
-			//currentGraphics.DrawString(string.Format("AutoScroll Area: {0}", autoScrollArea), Font, Brushes.Blue, autoScrollArea.Location);
-
-			//Point p = PointToClient(Control.MousePosition);
-			//if (AutoScrollAreaContainsPoint(p.X, p.Y)) {
-			//   ControlToDiagram(p, out p);
-			//   GdiHelpers.DrawPoint(currentGraphics, Pens.Red, p.X, p.Y, 3);
-			//}
-			#endregion
 
 			// Count invalidation
 			//++paintCounter;
@@ -4513,73 +4581,75 @@ namespace Dataweb.NShape.WinFormsUI {
 		private void DrawGrid(ref Rectangle clipRectangle, ref Rectangle diagramBounds) {
 			// We have to use floats for calculation or otherwise the rounding error sums up and 
 			// causes the grid to wander around when zooming...
-			float zoomedGridSpace = _gridSpace * _zoomfactor;
+			float zoomedGridSpace = _gridSpace * _zoomFactor;
 
 			// Reset smoothing mode to "None" for drawing the grid lines - there's no need for smoothing 
 			// horizontal / vertical 1-pixel lines anyway...
 			// This improves performance dramatically: ~3 ms vs ~9 ms for drawing an empty diagram sheet.
 			SmoothingMode origSmoothingMode = _currentGraphics.SmoothingMode;
-			_currentGraphics.SmoothingMode = SmoothingMode.None;
+			try {
+				_currentGraphics.SmoothingMode = SmoothingMode.None;
 
-			// Adjust grid spacing when zooming
-			float magnificationFactor = ((10 * _gridSpace) / (int)Math.Ceiling(zoomedGridSpace * 10));
-			if (magnificationFactor >= 2) {
-				zoomedGridSpace = (_gridSpace * magnificationFactor) * _zoomfactor;
-			} else if (zoomedGridSpace > _gridSpace * 2)
-				zoomedGridSpace = (_gridSpace / 2f) * _zoomfactor;
+				// Adjust grid spacing when zooming
+				float magnificationFactor = ((10 * _gridSpace) / (int)Math.Ceiling(zoomedGridSpace * 10));
+				if (magnificationFactor >= 2) {
+					zoomedGridSpace = (_gridSpace * magnificationFactor) * _zoomFactor;
+				} else if (zoomedGridSpace > _gridSpace * 2)
+					zoomedGridSpace = (_gridSpace / 2f) * _zoomFactor;
 
-			if (zoomedGridSpace > 1) {
-				// Calculate grid start/end positions for the given diagram rectangle
-				float startX = diagramBounds.Left - (DiagramBounds.X * _zoomfactor);
-				float startY = diagramBounds.Top - (DiagramBounds.Y * _zoomfactor);
-				float endX = diagramBounds.Right;
-				float endY = diagramBounds.Bottom;
+				if (zoomedGridSpace > 1) {
+					// Calculate grid start/end positions for the given diagram rectangle
+					float startX = diagramBounds.Left - (DiagramBounds.X * _zoomFactor);
+					float startY = diagramBounds.Top - (DiagramBounds.Y * _zoomFactor);
+					float endX = diagramBounds.Right;
+					float endY = diagramBounds.Bottom;
 
-				// Line grid
-				// (Use integer based drawing functions because they are faster)
-				// Draw vertical lines
-				int top = Math.Max(clipRectangle.Top, diagramBounds.Top - (int)Math.Round(DiagramBounds.Y * _zoomfactor));
-				int bottom = Math.Min(clipRectangle.Bottom, diagramBounds.Bottom);
-				int clipLeft = clipRectangle.Left; int clipRight = clipRectangle.Right;
-				for (float i = startX; i <= endX; i += zoomedGridSpace) {
-					if (i < clipLeft || i > clipRight) continue;
-					int p = (int)Math.Round(i);
-					_currentGraphics.DrawLine(GridPen, p, top, p, bottom);
+					// Line grid
+					// (Use integer based drawing functions because they are faster)
+					// Draw vertical lines
+					int top = Math.Max(clipRectangle.Top, diagramBounds.Top - (int)Math.Round(DiagramBounds.Y * _zoomFactor));
+					int bottom = Math.Min(clipRectangle.Bottom, diagramBounds.Bottom);
+					int clipLeft = clipRectangle.Left; int clipRight = clipRectangle.Right;
+					for (float i = startX; i <= endX; i += zoomedGridSpace) {
+						if (i < clipLeft || i > clipRight) continue;
+						int p = (int)Math.Round(i);
+						_currentGraphics.DrawLine(GridPen, p, top, p, bottom);
+					}
+					// Draw horizontal lines
+					int left = Math.Max(clipRectangle.Left, diagramBounds.Left - (int)Math.Round(DiagramBounds.X * _zoomFactor));
+					int right = Math.Min(clipRectangle.Right, diagramBounds.Right);
+					int clipTop = clipRectangle.Top; int clipBottom = clipRectangle.Bottom;
+					for (float i = startY; i <= endY; i += zoomedGridSpace) {
+						if (i < clipTop || i > clipBottom) continue;
+						int p = (int)Math.Round(i);
+						_currentGraphics.DrawLine(GridPen, left, p, right, p);
+					}
+
+					// Cross grid (very slow!)
+					// ToDo: Use a pen with a dash pattern
+					//for (int x = startX; x <= endX; x += zoomedGridSpace) {
+					//   for (int y = startY; y <= endY; mouseY += zoomedGridSpace) {
+					//      graphics.DrawLine(gridPen, x - 1, y, x + 1, y);
+					//      graphics.DrawLine(gridPen, x, y - 1, x, y + 1);
+					//   }
+					//}
+
+
+					// Point grid
+					//Rectangle r = Rectangle.Empty;
+					//r.X = startX;
+					//r.Y = startY;
+					//r.Width = endX;
+					//r.Height = endY;
+					//Size s = Size.Empty;
+					//s.Width = zoomedGridSpace;
+					//s.Height = zoomedGridSpace;
+					//ControlPaint.DrawGrid(graphics, r, s, Color.Transparent);
 				}
-				// Draw horizontal lines
-				int left = Math.Max(clipRectangle.Left, diagramBounds.Left - (int)Math.Round(DiagramBounds.X * _zoomfactor));
-				int right = Math.Min(clipRectangle.Right, diagramBounds.Right);
-				int clipTop = clipRectangle.Top; int clipBottom = clipRectangle.Bottom;
-				for (float i = startY; i <= endY; i += zoomedGridSpace) {
-					if (i < clipTop || i > clipBottom) continue;
-					int p = (int)Math.Round(i);
-					_currentGraphics.DrawLine(GridPen, left, p, right, p);
-				}
-
-				// Cross grid (very slow!)
-				// ToDo: Use a pen with a dash pattern
-				//for (int x = startX; x <= endX; x += zoomedGridSpace) {
-				//   for (int y = startY; y <= endY; mouseY += zoomedGridSpace) {
-				//      graphics.DrawLine(gridPen, x - 1, y, x + 1, y);
-				//      graphics.DrawLine(gridPen, x, y - 1, x, y + 1);
-				//   }
-				//}
-
-
-				// Point grid
-				//Rectangle r = Rectangle.Empty;
-				//r.X = startX;
-				//r.Y = startY;
-				//r.Width = endX;
-				//r.Height = endY;
-				//Size s = Size.Empty;
-				//s.Width = zoomedGridSpace;
-				//s.Height = zoomedGridSpace;
-				//ControlPaint.DrawGrid(graphics, r, s, Color.Transparent);
+			} finally {
+				// Restore smoothing mode
+				_currentGraphics.SmoothingMode = origSmoothingMode;
 			}
-
-			// Restore smoothing mode
-			_currentGraphics.SmoothingMode = origSmoothingMode;
 		}
 
 		#endregion
@@ -4719,7 +4789,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods: Caption editor implementation
 
 		private void DoOpenCaptionEditor(ICaptionedShape shape, int x, int y) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			_inplaceShape = shape;
 			_inplaceCaptionIndex = shape.FindCaptionFromPoint(x, y);
 			if (_inplaceCaptionIndex >= 0)
@@ -4728,16 +4798,16 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private void DoOpenCaptionEditor(ICaptionedShape captionedShape, int captionIndex, string newText) {
-			if (captionedShape == null) throw new ArgumentNullException("captionedShape");
-			if (captionIndex < 0) throw new ArgumentOutOfRangeException("labelIndex");
+			if (captionedShape == null) throw new ArgumentNullException(nameof(captionedShape));
+			if (captionIndex < 0) throw new ArgumentOutOfRangeException(nameof(captionIndex));
 			_inplaceShape = captionedShape;
 			_inplaceCaptionIndex = captionIndex;
 
-			// Store (and hide) caption's current text
-			string currentText = captionedShape.GetCaptionText(_inplaceCaptionIndex);
+			// Hide caption's text (the text will now be visible in the inplace edit textbox
 			captionedShape.HideCaptionText(_inplaceCaptionIndex);
 
 			// Create and show inplace text editor (if parameter 'newText' is null, 'currentText' will not be changed!)
+			string currentText = captionedShape.GetCaptionText(_inplaceCaptionIndex);
 			_inplaceTextbox = new InPlaceTextBox(this, _inplaceShape, _inplaceCaptionIndex, currentText, newText);
 			_inplaceTextbox.KeyDown += inPlaceTextBox_KeyDown;
 			_inplaceTextbox.Leave += inPlaceTextBox_Leave;
@@ -4847,7 +4917,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// <param name="shape">The shape that has to be selected</param>
 		/// <param name="addToSelection">Specifies whether the given shape is added to the current selection or the currenty selected shapes will be unseleted.</param>
 		private void DoSelectShape(Shape shape, bool addToSelection) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Debug.Assert(Diagram != null && (Diagram.Shapes.Contains(shape) || shape.Parent != null));
 			if (!IsLayerVisible(shape.HomeLayer, shape.SupplementalLayers))
 				return;
@@ -5147,9 +5217,9 @@ namespace Dataweb.NShape.WinFormsUI {
 					int minimumY = _universalScrollCursor.Size.Height / 2;
 					// Calculate distance to move 
 					int deltaX = (currentPos.X - _universalScrollStartPos.X);
-					deltaX = (Math.Abs(deltaX) < minimumX) ? 0 : (int)Math.Round(deltaX / (_zoomfactor * slowDownFactor));
+					deltaX = (Math.Abs(deltaX) < minimumX) ? 0 : (int)Math.Round(deltaX / (_zoomFactor * slowDownFactor));
 					int deltaY = (currentPos.Y - _universalScrollStartPos.Y);
-					deltaY = (Math.Abs(deltaY) < minimumY) ? 0 : (int)Math.Round(deltaY / (_zoomfactor * slowDownFactor));
+					deltaY = (Math.Abs(deltaY) < minimumY) ? 0 : (int)Math.Round(deltaY / (_zoomFactor * slowDownFactor));
 					// Perform scrolling
 					ScrollBy(deltaX, deltaY);
 					if (!_autoScrollTimer.Enabled) _autoScrollTimer.Enabled = true;
@@ -5227,8 +5297,8 @@ namespace Dataweb.NShape.WinFormsUI {
 			if (_panIsActive) {
 				Point scrollDelta = Point.Empty;
 				scrollDelta.Offset(
-					(int)Math.Round((_panStartPosCtrl.X - mousePosCtrl.X) / _zoomfactor),
-					(int)Math.Round((_panStartPosCtrl.Y - mousePosCtrl.Y) / _zoomfactor)
+					(int)Math.Round((_panStartPosCtrl.X - mousePosCtrl.X) / _zoomFactor),
+					(int)Math.Round((_panStartPosCtrl.Y - mousePosCtrl.Y) / _zoomFactor)
 				);
 
 				ScrollTo(_panStartScrollPos.X + scrollDelta.X, _panStartScrollPos.Y + scrollDelta.Y);
@@ -5405,7 +5475,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods: Creating MenuItemDefs
 
 		private string GetShapeDisplayName(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			return (shape.Template != null) ? string.Format("'{0}'", shape.Template.Title) : shape.Type.Name;
 		}
 
@@ -5827,7 +5897,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private bool IsActionGranted(Permission permission, IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			return Project.SecurityManager.IsGranted(permission, shapes);
 		}
 
@@ -6553,6 +6623,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		private const int DefaultValueGridSize = 20;
 		private const bool DefaultValueShowGrid = true;
 		private const int DefaultValueZoomLevel = 100;
+		private const int DefaultValueZoomLevelHD = 100 * ZoomLevelHDFactor;
+		private const float DefaultValueZoomFactor = 1;
 		private const bool DefaultValueHighQualityBackground = true;
 		private const bool DefaultValueHighQualityRendering = true;
 		private const ControlPointShape DefaultValueResizePointShape = ControlPointShape.Square;
@@ -6722,8 +6794,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		private bool _drawDiagramSheet = true;  // Specifies whether to draw the diagram sheet
 		private int _diagramPosX;       // Position of the left side of the Diagram on the control
 		private int _diagramPosY;       // Position of the upper side of the Diagram on the control
-		private int _zoomLevel = DefaultValueZoomLevel; // Zoom level in percentage
-		private float _zoomfactor = 1f;// zoomFactor for transforming Diagram coordinates to control coordinates (range: >0 to x, 100% == 1)
+		private int _zoomLevel = DefaultValueZoomLevel;		// Zoom level in percentage
+		private float _zoomFactor = DefaultValueZoomFactor;	// zoomFactor for transforming Diagram coordinates to control coordinates (range: >0 to x, 100% == 1)
 		private int _scrollPosX = 0;    // horizontal position of the scrolled Diagram (== horizontal scrollbar value)
 		private int _scrollPosY = 0;    // vertical position of the scrolled Diagram (== vertical scrollbar value)
 		private int _invalidateDelta;   // handle radius or selection outline lineWidth (amount of pixels the invalidated area has to be increased)

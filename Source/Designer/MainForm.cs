@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -215,13 +216,15 @@ namespace Dataweb.NShape.Designer {
 		}
 
 
-		public int Zoom {
-			get { return _zoom; }
+		public int ZoomHD {
+			get { return _zoomHD; }
 			set {
-				_zoom = value;
-				if (CurrentDisplay != null && CurrentDisplay.ZoomLevel != _zoom)
-					CurrentDisplay.ZoomLevel = _zoom;
-				UpdateZoomControl();
+				if (_zoomHD != value) {
+					_zoomHD = value;
+					if (CurrentDisplay != null && CurrentDisplay.ZoomLevelHD != _zoomHD)
+						CurrentDisplay.ZoomLevelHD = _zoomHD;
+					UpdateZoomControl();
+				}
 			}
 		}
 
@@ -276,7 +279,7 @@ namespace Dataweb.NShape.Designer {
 					_currentDisplay.IsDebugInfoInvalidateVisible = ShowInvalidatedAreas;
 #endif
 					// Apply display's zoom to the UI
-					Zoom = _currentDisplay.ZoomLevel;
+					ZoomHD = _currentDisplay.ZoomLevelHD;
 
 					if (_currentDisplay.Diagram != null) {
 						_currentDisplay.ActiveTool = toolSetController.SelectedTool;
@@ -1140,7 +1143,7 @@ namespace Dataweb.NShape.Designer {
 			if (zoomToolStripComboBox.Focused)
 				cursorPos = zoomToolStripComboBox.SelectionStart;
 
-			string txt = string.Format(PercentFormatStr, _currentDisplay.ZoomLevel);
+			string txt = string.Format(PercentFormatStr, _currentDisplay.ZoomFactor * 100);
 			if (txt != zoomToolStripComboBox.Text)
 				zoomToolStripComboBox.Text = txt;
 
@@ -1171,7 +1174,7 @@ namespace Dataweb.NShape.Designer {
 		/// Creates a ownerDisplay for each diagram in the project and a default one if there isn't any.
 		/// </summary>
 		private void DisplayDiagrams(bool isNewProject) {
-			// Display all diagramControllers of the project
+			// Display all diagrams of the project
 			bool diagramAdded = false;
 			foreach (Diagram diagram in project.Repository.GetDiagrams()) {
 				DisplayTabPage displayTabPage = CreateDiagramTabPage(diagram, !diagramAdded);
@@ -1214,7 +1217,7 @@ namespace Dataweb.NShape.Designer {
 			display.GripSize = ControlPointSize;
 			display.ResizeGripShape = ResizePointShape;
 			display.ConnectionPointShape = ConnectionPointShape;
-			display.ZoomLevel = Zoom;
+			display.ZoomLevelHD = ZoomHD;
 #if DEBUG_UI
 			display.IsDebugInfoCellOccupationVisible = ShowCellOccupation;
 			display.IsDebugInfoInvalidateVisible = ShowInvalidatedAreas;
@@ -1230,6 +1233,7 @@ namespace Dataweb.NShape.Designer {
 			//
 			return display;
 		}
+
 
 		private DisplayTabPage CreateDiagramTabPage(Diagram diagram, bool createDisplay) {
 			DisplayTabPage tabPage = new DisplayTabPage(diagram.Title);
@@ -1458,8 +1462,10 @@ namespace Dataweb.NShape.Designer {
 
 		private void repository_DiagramInserted(object sender, RepositoryDiagramEventArgs e) {
 			DisplayTabPage tabPage = FindDisplayTabPage(e.Diagram);
-			if (tabPage == null)
-				displayTabControl.TabPages.Add(CreateDiagramTabPage(e.Diagram, false));
+			if (tabPage == null) {
+				bool createDisplay = displayTabControl.TabCount == 0;
+				displayTabControl.TabPages.Add(CreateDiagramTabPage(e.Diagram, createDisplay));
+			}
 			UpdateAllMenuItems();
 			_projectIsModified = true;
 		}
@@ -1897,26 +1903,30 @@ namespace Dataweb.NShape.Designer {
 
 
 		private void zoomToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e) {
-			int zoom;
-			if (int.TryParse(zoomToolStripComboBox.Text.Replace('%', ' ').Trim(), out zoom)) {
-				if (Zoom != zoom) Zoom = zoom;
+			string zoomText = zoomToolStripComboBox.Text.Replace('%', ' ').Trim();
+			float zoom;
+			if (float.TryParse(zoomText, NumberStyles.Float, CultureInfo.InvariantCulture, out zoom) || float.TryParse(zoomText, NumberStyles.Float, CultureInfo.CurrentCulture, out zoom)) {
+				ZoomHD = (int)Math.Round(zoom * Display.ZoomLevelHDFactor);
 			}
 		}
 
 
-		private void toolStripComboBox1_TextChanged(object sender, EventArgs e) {
+		private void ZoomToolStripComboBox_TextChanged(object sender, EventArgs e) {
 			int cursorPos = -1;
 			if (zoomToolStripComboBox.Focused)
 				cursorPos = zoomToolStripComboBox.SelectionStart;
 
 			string txt = null;
 			if (zoomToolStripComboBox.Text.Contains("%"))
-				txt = zoomToolStripComboBox.Text.Replace("%", string.Empty);
-			else txt = zoomToolStripComboBox.Text;
+				txt = zoomToolStripComboBox.Text.Replace("%", string.Empty).Trim();
+			else
+				txt = zoomToolStripComboBox.Text.Trim();
 			// Parse text and set zoom level
-			int zoom;
-			if (int.TryParse(txt.Trim(), out zoom))
-				if (zoom > 0 && Zoom != zoom) Zoom = zoom;
+			float zoomInPercent;
+			if (float.TryParse(txt, NumberStyles.Float, CultureInfo.InvariantCulture, out zoomInPercent)
+					|| float.TryParse(txt, NumberStyles.Float, CultureInfo.CurrentCulture, out zoomInPercent))
+				if (zoomInPercent > 0)
+					ZoomHD = (int)Math.Round(zoomInPercent * Display.ZoomLevelHDFactor);
 
 			if (zoomToolStripComboBox.Focused)
 				zoomToolStripComboBox.SelectionStart = cursorPos;
@@ -2233,7 +2243,7 @@ namespace Dataweb.NShape.Designer {
 			ICommand cmd = new DeleteDiagramCommand(diagram);
 			project.ExecuteCommand(cmd);
 
-			// Try to remove Display (in case the Cache-Event was not handled)
+			// Try to remove Display (in case the Repository-Event was not handled)
 			RemoveDisplayOfDiagram(diagram);
 		}
 
@@ -2591,8 +2601,29 @@ namespace Dataweb.NShape.Designer {
 				else {
 					using (TestDataGeneratorDialog dlg = new TestDataGeneratorDialog(project)) {
 						DialogResult res = dlg.ShowDialog(this);
-						if (res == DialogResult.OK)
-							displayTabControl.SelectedTab = displayTabControl.TabPages[displayTabControl.TabCount - 1];
+						if (res == DialogResult.OK) {
+							Refresh();
+							try {
+								Cursor = Cursors.WaitCursor;
+
+								// Create test diagram
+								TestDataGenerator.CreateDiagram(project,
+									dlg.DiagramName,
+									dlg.ShapeSize,
+									dlg.ShapesPerRow,
+									dlg.ShapesPerColumn,
+									dlg.ConnectShapes,
+									dlg.CreateShapesWithModelObjects,
+									dlg.CreateModelMappings,
+									dlg.AddShapesToLayers);
+
+								displayTabControl.SelectedTab = displayTabControl.TabPages[displayTabControl.TabCount - 1];
+							} catch (Exception exc) {
+								MessageBox.Show(this, exc.Message, "Error while creating test data", MessageBoxButtons.OK, MessageBoxIcon.Error);
+							} finally {
+								Cursor = Cursors.Default;
+							}
+						}
 					}
 				}
 			} catch (Exception exc) {
@@ -2734,12 +2765,7 @@ namespace Dataweb.NShape.Designer {
 			}
 
 			public override int GetHashCode() {
-				int hashCode = base.GetHashCode();
-				if (location != null) hashCode ^= location.GetHashCode();
-				if (projectName != null) hashCode ^= projectName.GetHashCode();
-				if (computerName != null) hashCode ^= computerName.GetHashCode();
-				if (typeName != null) hashCode ^= typeName.GetHashCode();
-				return hashCode;
+				return HashCodeGenerator.CalculateHashCode(location, projectName, computerName, typeName);
 			}
 
 			public RepositoryInfo(string projectName, string typeName, string serverName, string dataSource) {
@@ -2811,7 +2837,7 @@ namespace Dataweb.NShape.Designer {
 		private const int RecentProjectsLimit = 15;
 
 		private const string ShapeCntFormatStr = "{0} Shape{1}";
-		private const string PercentFormatStr = "{0} %";
+		private const string PercentFormatStr = "{0:F1} %";
 		private const string PointFormatStr = "{0}, {1}";
 		private const string SizeFormatStr = "{0} x {1}";
 
@@ -2858,7 +2884,7 @@ namespace Dataweb.NShape.Designer {
 #endif
 
 		private string _configFolder;
-		private int _zoom = 100;
+		private int _zoomHD = 100 * Display.ZoomLevelHDFactor;
 		private bool _highQuality = true;
 
 		private List<RepositoryInfo> _recentProjects = new List<RepositoryInfo>(recentProjectsItemCount);

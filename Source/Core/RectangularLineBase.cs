@@ -27,6 +27,22 @@ namespace Dataweb.NShape.Advanced {
 
 		#region Shape Members
 
+		/// <override></override>
+		public override bool CanConnect(ControlPointId ownPointId, Shape otherShape, ControlPointId otherPointId) {
+			if (!base.CanConnect(ownPointId, otherShape, otherPointId))
+				return false;
+			// Do not allow point-to-shape connections with both glue points to the same shape
+			if (otherPointId == ControlPointId.Reference) {
+				foreach (ControlPointId gluePointId in GetControlPointIds(ControlPointCapabilities.Glue)) {
+					if (gluePointId == ownPointId) continue;
+					if (IsConnected(gluePointId, otherShape) == ControlPointId.Reference)
+						return false;
+				}
+			}
+			return true;
+		}
+
+
 		/// <summary>Overriden method. Check base class for documentation.</summary>
 		public override void CopyFrom(Shape source) {
 			base.CopyFrom(source);
@@ -87,7 +103,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>Overriden method. Check base class for documentation.</summary>
 		/// <remarks>See <see cref="CalculateRelativePosition">CalcRelativePosition</see> for definition of relative positions for rectangular lines.</remarks>
 		public override Point CalculateAbsolutePosition(RelativePosition relativePosition) {
-			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException("relativePosition");
+			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException(nameof(relativePosition));
 			Point result = Point.Empty;
 			//
 			// Find the relevant segment for this relative position.
@@ -230,7 +246,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <summary>Overriden method. Check base class for documentation.</summary>
 		// TODO 2: This function is identical to the one in Polyline.
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			UpdateDrawCache();
 			int lastIdx = ShapePoints.Length - 1;
 			if (lastIdx > 0) {
@@ -268,8 +284,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <summary>Overriden method. Check base class for documentation.</summary>
 		public override void DrawOutline(Graphics graphics, Pen pen) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (pen == null) throw new ArgumentNullException("pen");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (pen == null) throw new ArgumentNullException(nameof(pen));
 			ShapeUtils.DrawLinesSafe(graphics, pen, ShapePoints);
 			base.DrawOutline(graphics, pen);
 		}
@@ -277,7 +293,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <summary>Overriden method. Check base class for documentation.</summary>
 		public override void DrawThumbnail(Image image, int margin, Color transparentColor) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			using (Graphics g = Graphics.FromImage(image)) {
 				GdiHelpers.ApplyGraphicsSettings(g, RenderingQuality.MaximumQuality);
 				g.Clear(transparentColor);
@@ -399,7 +415,7 @@ namespace Dataweb.NShape.Advanced {
 			// Find position where to insert the new point
 			int pointIndex = GetControlPointIndex(beforePointId);
 			if (pointIndex < 0 || pointIndex > ControlPointCount)
-				throw new ArgumentOutOfRangeException("beforePointId");
+				throw new ArgumentOutOfRangeException(nameof(beforePointId));
 
 			// Create new vertex
 			newPointId = GetNewControlPointId();
@@ -416,7 +432,7 @@ namespace Dataweb.NShape.Advanced {
 			// Find position where to insert the new point
 			int pointIndex = GetControlPointIndex(beforePointId);
 			if (pointIndex < 0 || pointIndex > ControlPointCount)
-				throw new ArgumentOutOfRangeException("beforePointId");
+				throw new ArgumentOutOfRangeException(nameof(beforePointId));
 
 			// Create new vertex
 			newPointId = GetNewControlPointId();

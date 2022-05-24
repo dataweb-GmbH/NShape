@@ -24,7 +24,7 @@ using Dataweb.NShape;
 using Dataweb.NShape.Advanced;
 using Dataweb.NShape.GeneralShapes;
 using Dataweb.NShape.Commands;
-
+using Dataweb.Utilities;
 
 namespace NShapeTest {
 
@@ -130,6 +130,114 @@ namespace NShapeTest {
 			Assert.AreEqual(shapeCount, diagram.Shapes.Count);
 			Assert.AreEqual(shapeCount, c);
 			project.Close();
+		}
+
+
+		[TestMethod]
+		public void SpatialIndexTest() {
+			// -- Create a project --
+			Project project = new Project();
+			project.AutoLoadLibraries = true;
+			project.Name = "Test";
+			project.Repository = new CachedRepository();
+			((CachedRepository)project.Repository).Store = RepositoryHelper.CreateXmlStore();
+			project.Repository.Erase();
+			project.Create();
+
+			project.AddLibrary(typeof(Box).Assembly, true);
+			//
+			int[] sizes = new int[] { 40, 400, 4000, 40000 };
+			foreach (int size in sizes) {
+				Diagram diagram = new Diagram(string.Format("SpatialIndexTest Size {0}", size));
+				diagram.Width = size * 5;
+				diagram.Height = size * 5;
+				project.Repository.InsertAll(diagram);
+
+				Box shape = project.Repository.GetTemplate("Box").CreateShape<Box>();
+				shape.X = diagram.Width / 2;
+				shape.Y = diagram.Height / 2;
+				shape.Width = shape.Height = size;
+
+				// Add shape to diagram
+				diagram.Shapes.Add(shape);
+				foreach (Point cell in shape.CalculateCells(Diagram.IndexCellSize)) {
+					// Search shape in spatial index by the area covered by each index cell
+					int x = cell.X * Diagram.IndexCellSize;
+					int y = cell.Y * Diagram.IndexCellSize;
+					Assert.IsTrue(Geometry.RectangleIntersectsWithRectangle(shape.GetBoundingRectangle(true), x, y, Diagram.IndexCellSize, Diagram.IndexCellSize));
+					Shape foundShape = diagram.Shapes.FindShape(x, y, Diagram.IndexCellSize, Diagram.IndexCellSize, false, null);
+					Assert.IsNotNull(foundShape);
+				}
+			}
+		}
+
+
+		[TestMethod]
+		public void MultiHashListTest() {
+			MultiHashList<string> multiHashList = new MultiHashList<string>(1000);
+			Dictionary<Point, string> objects = new Dictionary<Point, string>();
+
+			/* Performance with diagram size 60.000 x 60.000 (Runtime on Core i9-9900):
+			 * Cell Size: 100,   Cells: 360.000,   Max List Length: 1085,   Non-Empty Lists: 333/333,   Runtime: ~63,8 s
+			 * Cell Size: 150,   Cells: 160.000,   Max List Length: 1448,   Non-Empty Lists: 111/333,   Runtime: ~28,7 s
+			 * Cell Size: 200,   Cells:  90.000,   Max List Length:  273,   Non-Empty Lists: 333/333,   Runtime:  ~1,7 s
+			 * Cell Size: 250,   Cells:  57.600,   Max List Length:  238,   Non-Empty Lists: 333/333,   Runtime:  ~0,6 s
+			 * Cell Size: 300,   Cells:  40.000,   Max List Length:  366,   Non-Empty Lists: 111/333,   Runtime:  ~0,9 s
+			 * Cell Size: 600,   Cells:  10.000,   Max List Length:   91,   Non-Empty Lists: 111/333,   Runtime:  ~0,0 s (68 ms)
+			*/
+			const int IndexCellSize = 200;
+			//
+			IEnumerable<Point> getCells(int cellSize) {
+				const int maxX = 60000;
+				const int maxY = 60000;
+				for (int y = 0; y < maxY; y += cellSize)
+					for (int x = 0; x < maxX; x += cellSize)
+						yield return new Point(x, y);
+			};
+
+			//==============================================================
+			// Test 1: Add a new object to each cell
+			//==============================================================
+			{
+				objects.Clear();
+				foreach (Point cell in getCells(IndexCellSize)) {
+					string obj = Guid.NewGuid().ToString();
+					objects.Add(cell, obj);
+
+					// Add a GUID for each cell and validate its existence.
+					uint key = ShapeCollection.CalcMapHashCode(cell);
+					multiHashList.Add(key, obj);
+					Assert.IsTrue(EnumerationHelper.Contains(multiHashList[key], obj));
+				}
+				// Check all created GUIDs again
+				foreach (KeyValuePair<Point, string> item in objects) {
+					Point cell = item.Key;
+					string obj = item.Value;
+					IEnumerable<string> cellObjects = multiHashList[ShapeCollection.CalcMapHashCode(cell)];
+					Assert.IsTrue(EnumerationHelper.Contains(cellObjects, obj));
+				}
+			}
+			//==============================================================
+			// Test 2: Add the same object to each cell
+			//==============================================================
+			{
+				objects.Clear();
+				string obj = Guid.NewGuid().ToString();
+				foreach (Point cell in getCells(IndexCellSize)) {
+					objects.Add(cell, obj);
+
+					// Add a GUID for each cell and validate its existence.
+					uint key = ShapeCollection.CalcMapHashCode(cell);
+					multiHashList.Add(key, obj);
+					Assert.IsTrue(EnumerationHelper.Contains(multiHashList[key], obj));
+				}
+				// Check all created GUIDs again
+				foreach (KeyValuePair<Point, string> item in objects) {
+					Point cell = item.Key;
+					IEnumerable<string> cellObjects = multiHashList[ShapeCollection.CalcMapHashCode(cell)];
+					Assert.IsTrue(EnumerationHelper.Contains(cellObjects, obj));
+				}
+			}
 		}
 
 
@@ -501,9 +609,10 @@ namespace NShapeTest {
 							if (modelMapping == null) continue;
 							//
 							// Assign suitable test data
+							// If CanSetInteger *or* CanGetInteger is true, use int test data in order to avoid arithmetic overflows!
 							object[] testValues = null;
-							if (modelMapping.CanSetFloat) testValues = floatTestData;
-							else if (modelMapping.CanSetInteger) testValues = intTestData;
+							if (modelMapping.CanSetInteger || modelMapping.CanGetInteger) testValues = intTestData;
+							else if (modelMapping.CanSetFloat) testValues = floatTestData;
 							else if (modelMapping.CanSetString) testValues = stringTestData;
 							//
 							// Fill Model mappings and set expected results
@@ -528,15 +637,29 @@ namespace NShapeTest {
 								int cnt = testValues.Length;
 								for (int i = 0; i < cnt; ++i) {
 									try {
+										if (testShape is IPlanarShape) {
+											if (testValues[i] is float floatVal) {
+												if (float.IsNaN(floatVal) || float.IsInfinity(floatVal) || floatVal <= 1100000000 || floatVal >= 1100000000)
+													continue;
+											} else if (testValues[i] is int intVal) {
+												switch (modelMapping.ShapePropertyId) {
+													case 9: // ThickArrow: BodyHeight
+														if (intVal < 40 || intVal > 40)
+															continue;
+														break;
+												}
+											}
+										}
+
 										// Assign the current test value to the model object's property value.
 										// The shape's property has to be changed by the ModelMapping.
-										object shapeValue = shapeProperty.GetValue(testShape, null);
+										object oldValue = shapeProperty.GetValue(testShape, null);
 										modelProperty.SetValue(testModel, testValues[i], null);
 										object resultValue = shapeProperty.GetValue(testShape, null);
 										object expectedValue = testResults[i] ?? templateShapePropValue;
 										// 
 										if (testShape is IPlanarShape && modelMapping.ShapePropertyId == 2) {
-											// Angle property: All values are vonverted to positive angles < 360° (0 <= value <= 3600)
+											// Angle property: All values are converted to positive angles < 360° (0 <= value <= 3600)
 											if (expectedValue is int)
 												expectedValue = ((3600 + (int)expectedValue) % 3600);
 											else if (expectedValue is float)
@@ -550,17 +673,18 @@ namespace NShapeTest {
 										else if (IsFloatType(resultValue.GetType()) && IsFloatType(expectedValue.GetType()))
 											areEqual = object.Equals(Convert.ToDouble(resultValue), Convert.ToDouble(expectedValue));
 										else
-											areEqual = object.Equals(resultValue, expectedValue);
+											areEqual = object.Equals(expectedValue, resultValue);
 										// Error reporting
 										if (!areEqual) {
-											if (object.Equals(shapeValue, resultValue))
+											// Expected and result values are not equal: Check if value has changed
+											if (object.Equals(oldValue, resultValue))
 												Assert.Fail(
 													"Assigning '{0}' to {1} had no effect on {2}'s property '{3}': Property value '{4}' did not change.",
 													testValues[i],
 													testModel.Type.Name,
 													testShape.Type.Name,
 													shapeProperty.Name,
-													shapeValue);
+													oldValue);
 											else
 												Assert.Fail(
 													"Assigning '{0}' to {1} had not the expected effect on {2}'s property '{3}': Property value '{4}' changed to '{5}' instead of '{6}'.",
@@ -568,7 +692,7 @@ namespace NShapeTest {
 													testModel.Type.Name,
 													testShape.Type.Name,
 													shapeProperty.Name,
-													shapeValue,
+													oldValue,
 													resultValue,
 													expectedValue);
 										}
@@ -861,23 +985,35 @@ namespace NShapeTest {
 
 		#region [Private] ModelMappingTest helper methods
 
+		// Define mapping
+		private const float Intercept = 100;
+		private const float Slope = 2;
+
+		// We cannot use int.MinValue/int.MaxValue because some values are modified
+		// by calculations (e.g. the angle is normalized by adding 3600 and 'div mod'-ing in setter).
+		// Moreover, values above/below +/-10.000.000 are too inaccurate when converting them between float and int.
+		// The numerical errors would cause failed tests.
+		private static readonly int Int32MinTestValue = -10000000;	// instead of the calculated -1073738112
+		private static readonly int Int32MaxTestValue =  10000000;	// instead of the calculated  1073738112
+
+
 		private object[] CreateFloatTestData() {
 			object[] result = new object[16];
 			result[0] = float.NaN;
 			result[1] = float.NegativeInfinity;
-			result[2] = int.MinValue;
-			result[3] = int.MinValue + 1;
-			result[4] = short.MinValue - 0.00001f;
-			result[5] = short.MinValue;
-			result[6] = short.MinValue + 0.00001f;
+			result[2] = (float)int.MinValue;
+			result[3] = (float)int.MinValue + 1;
+			result[4] = (float)short.MinValue - 0.00001f;
+			result[5] = (float)short.MinValue;
+			result[6] = (float)short.MinValue + 0.00001f;
 			result[7] = -float.Epsilon;
 			result[8] = 0;
 			result[9] = float.Epsilon;
-			result[10] = short.MaxValue - 0.00001f;
-			result[11] = short.MaxValue;
-			result[12] = short.MaxValue + 0.00001f;
-			result[13] = int.MaxValue - 1;
-			result[14] = int.MaxValue;
+			result[10] = (float)short.MaxValue - 0.00001f;
+			result[11] = (float)short.MaxValue;
+			result[12] = (float)short.MaxValue + 0.00001f;
+			result[13] = (float)int.MaxValue - 1;
+			result[14] = (float)int.MaxValue;
 			result[15] = float.PositiveInfinity;
 			return result;
 		}
@@ -885,8 +1021,10 @@ namespace NShapeTest {
 
 		private object[] CreateIntTestData() {
 			object[] result = new object[13];
-			result[0] = int.MinValue;
-			result[1] = int.MinValue + 1;
+			// Calculate the big values as float and cast to Int32 afterwards in order to avoid 
+			// test case errors caused by numerical errors.
+			result[0] = (int)(Int32MinTestValue / Slope + Intercept);
+			result[1] = (int)(Int32MinTestValue / Slope + Intercept) + 1;
 			result[2] = short.MinValue - 1;
 			result[3] = short.MinValue;
 			result[4] = short.MinValue + 1;
@@ -896,8 +1034,8 @@ namespace NShapeTest {
 			result[8] = short.MaxValue - 1;
 			result[9] = short.MaxValue;
 			result[10] = short.MaxValue + 1;
-			result[11] = int.MaxValue - 1;
-			result[12] = int.MaxValue;
+			result[11] = (int)(Int32MaxTestValue / Slope - Intercept) - 1;
+			result[12] = (int)(Int32MaxTestValue / Slope - Intercept);
 			return result;
 		}
 
@@ -913,29 +1051,29 @@ namespace NShapeTest {
 
 
 		private object[] GetNumericMappingResults(NumericModelMapping mapping, object[] testData) {
-			if (mapping == null) throw new ArgumentNullException("maping");
-			if (testData == null) throw new ArgumentNullException("testData");
-			// Define mapping
-			const float intercept = 100;
-			const float slope = 2;
+			if (mapping == null) throw new ArgumentNullException(nameof(mapping));
+			if (testData == null) throw new ArgumentNullException(nameof(testData));
 	
 			// Fill mapping
-			mapping.Intercept = intercept;
-			mapping.Slope = slope;
+			mapping.Intercept = Intercept;
+			mapping.Slope = Slope;
 
 			// Set expected results
 			int cnt = testData.Length;
 			object[] result = new object[cnt];
 			for (int i = 0; i < cnt; ++i) {
-				float value = Convert.ToSingle(testData[i]);
 				switch (mapping.Type) {
 					case NumericModelMapping.MappingType.FloatFloat:
+						result[i] = Intercept + (Convert.ToSingle(testData[i]) * Slope);
+						break;
 					case NumericModelMapping.MappingType.IntegerFloat:
-						result[i] = intercept + (value * slope);
+						result[i] = Intercept + (Convert.ToInt32(testData[i]) * Slope);
 						break;
 					case NumericModelMapping.MappingType.FloatInteger:
-					case NumericModelMapping.MappingType.IntegerInteger:
-						result[i] = (int)Math.Round(mapping.Intercept + (value * mapping.Slope));
+						result[i] = (int)Math.Round(mapping.Intercept + Convert.ToSingle(testData[i]) * mapping.Slope);
+						break;
+					case NumericModelMapping.MappingType.IntegerInteger: 
+						result[i] = (int)Math.Round(mapping.Intercept + Convert.ToInt32(testData[i]) * mapping.Slope);
 						break;
 					default: throw new NShapeUnsupportedValueException(mapping.Type);
 				}
@@ -945,8 +1083,8 @@ namespace NShapeTest {
 
 
 		private object[] GetFormatMappingResults(FormatModelMapping mapping, object[] testData) {
-			if (mapping == null) throw new ArgumentNullException("maping");
-			if (testData == null) throw new ArgumentNullException("testData");
+			if (mapping == null) throw new ArgumentNullException(nameof(mapping));
+			if (testData == null) throw new ArgumentNullException(nameof(testData));
 			// Define mapping
 			string formatString = modelMappingFormatPrefix + "{0}" + modelMappingFormatSuffix;
 			
@@ -971,8 +1109,8 @@ namespace NShapeTest {
 
 
 		private object[] GetStyleMappingResults(StyleModelMapping mapping, Type propertyType, object[] testData, Project project) {
-			if (mapping == null) throw new ArgumentNullException("maping");
-			if (testData == null) throw new ArgumentNullException("testData");
+			if (mapping == null) throw new ArgumentNullException(nameof(mapping));
+			if (testData == null) throw new ArgumentNullException(nameof(testData));
 			// Define mapping
 			int valueCnt = 5;
 			int[] values = new int[valueCnt];
@@ -1056,7 +1194,7 @@ namespace NShapeTest {
 
 
 		private int? GetPropertyId(PropertyInfo propertyInfo) {
-			if (propertyInfo == null) throw new ArgumentNullException("propertyInfo");
+			if (propertyInfo == null) throw new ArgumentNullException(nameof(propertyInfo));
 			object[] idAttribs = Attribute.GetCustomAttributes(propertyInfo, typeof(PropertyMappingIdAttribute), true);
 			if (idAttribs.Length == 1) {
 				Debug.Assert(idAttribs[0] is PropertyMappingIdAttribute);

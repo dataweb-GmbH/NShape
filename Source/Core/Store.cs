@@ -244,7 +244,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="storeCache"></param>
 		public virtual void Close(IStoreCache storeCache) {
-			if (storeCache == null) throw new ArgumentNullException("storeCache");
+			if (storeCache == null) throw new ArgumentNullException(nameof(storeCache));
 			// Nothing to do yet.
 		}
 

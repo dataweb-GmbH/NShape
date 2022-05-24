@@ -49,7 +49,7 @@ namespace NShapeViewer {
 
 		private void UpdateWindowTitle() {
 			if (display.Diagram != null)
-				Text = string.Format(windowTitleFormatStr, display.Diagram.Name, display.ZoomLevel);
+				Text = string.Format(windowTitleFormatStr, display.Diagram.Name, display.ZoomLevelHD);
 		}
 
 
@@ -58,7 +58,7 @@ namespace NShapeViewer {
 			display.ControlToDiagram(display.DrawBounds, out r);
 			topLeftLabel.Text = string.Format(pointFormatStr, r.Left, r.Top);
 			bottomRightLabel.Text = string.Format(pointFormatStr, r.Right, r.Bottom);
-			zoomLabel.Text = string.Format(percentFormatStr, display.ZoomLevel);
+			zoomLabel.Text = string.Format(percentFormatStr, display.ZoomLevelHD);
 		}
 
 

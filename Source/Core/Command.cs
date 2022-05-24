@@ -182,14 +182,14 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected ShapeCommand(IRepository repository, Shape shape)
 			: base(repository) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			this.Shape = shape;
 		}
 
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, SecurityAccess.Modify, Shape);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -216,14 +216,14 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected ShapesCommand(IRepository repository, IEnumerable<Shape> shapes)
 			: base(repository) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			this.Shapes = new List<Shape>(shapes);
 		}
 
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, Shapes);
 			exception = (!isGranted && createException) ? exception = new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -256,7 +256,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected TemplateCommand(IRepository repository, Template template)
 			: base(repository) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			this.Template = template;
 		}
 
@@ -269,7 +269,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("template");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -296,14 +296,14 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected DiagramCommand(IRepository repository, Diagram diagram)
 			: base(repository) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this.Diagram = diagram;
 		}
 
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, Diagram.SecurityDomainName);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -330,7 +330,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected DesignCommand(IRepository repository, Design design)
 			: base(repository) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			this.Design = design;
 		}
 
@@ -343,7 +343,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -443,7 +443,7 @@ namespace Dataweb.NShape.Commands {
 
 	//   protected InsertOrRemoveShapeCommand(Diagram diagram)
 	//      : base() {
-	//      if (diagram == null) throw new ArgumentNullException("diagram");
+	//      if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 	//      this.diagram = diagram;
 	//   }
 
@@ -475,7 +475,7 @@ namespace Dataweb.NShape.Commands {
 
 
 	//   protected void SetShapes(Shape shape) {
-	//      if (shape == null) throw new ArgumentNullException("shape");
+	//      if (shape == null) throw new ArgumentNullException(nameof(shape));
 	//      if (shapeLayers == null) shapeLayers = new List<LayerIds>(1);
 	//      else this.shapeLayers.Clear();
 	//      this.Shapes.Clear();
@@ -493,7 +493,7 @@ namespace Dataweb.NShape.Commands {
 
 
 	//   protected void SetShapes(IEnumerable<Shape> shapes, bool invertSortOrder) {
-	//      if (shapes == null) throw new ArgumentNullException("shapes");
+	//      if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 	//      this.Shapes.Clear();
 	//      if (shapeLayers == null) shapeLayers = new List<LayerIds>();
 	//      else this.shapeLayers.Clear();
@@ -525,7 +525,7 @@ namespace Dataweb.NShape.Commands {
 	//      int startIdx = Shapes.Count - 1;
 	//      if (startIdx < 0) throw new NShapeInternalException("No shapes set. Call SetShapes() before.");
 
-	//      if (Repository == null) throw new ArgumentNullException("Repository"); 
+	//      if (Repository == null) throw new ArgumentNullException(nameof(Repository)); 
 	//      for (int i = startIdx; i >= 0; --i) {
 	//         //if (Shapes[i].ZOrder == 0) 
 	//            Shapes[i].ZOrder = Repository.ObtainNewTopZOrder(diagram);
@@ -559,7 +559,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected InsertOrRemoveLayerCommand(IRepository repository, Diagram diagram, string layerName)
 			: base(repository, diagram) {
-			if (layerName == null) throw new ArgumentNullException("layerName");
+			if (layerName == null) throw new ArgumentNullException(nameof(layerName));
 			Layers = new List<Layer>(1);
 			Layer l = this.Diagram.Layers.FindLayer(layerName);
 			if (l == null) l = new Layer(layerName);
@@ -637,7 +637,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = true;
 			foreach (KeyValuePair<IModelObject, AttachedObjects> pair in ModelObjects) {
 				if (!IsAllowed(securityManager, pair.Value)) {
@@ -652,7 +652,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetModelObjects(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			Debug.Assert(this.ModelObjects.Count == 0);
 			ModelObjects.Add(modelObject, new AttachedObjects(modelObject, Repository));
 		}
@@ -660,7 +660,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetModelObjects(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			Debug.Assert(this.ModelObjects.Count == 0);
 			foreach (IModelObject modelObject in modelObjects)
 				ModelObjects.Add(modelObject, new AttachedObjects(modelObject, Repository));
@@ -838,14 +838,14 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected InsertOrRemoveShapeCommand(IRepository repository, Diagram diagram)
 			: base(repository) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this._diagram = diagram;
 		}
 
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, _shapes);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -891,7 +891,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetShape(Shape shape, bool withModelObject) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (_shapeLayers == null) _shapeLayers = new List<LayerInfo>(1);
 			else this._shapeLayers.Clear();
 			this.Shapes.Clear();
@@ -914,7 +914,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetShapes(IEnumerable<Shape> shapes, bool withModelObjects, SortOrder currentSortOrder, bool invertSortOrder) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			this.Shapes.Clear();
 			if (this._shapeLayers == null) _shapeLayers = new List<LayerInfo>();
 			else this._shapeLayers.Clear();
@@ -939,7 +939,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetModelObject(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			if (this._modelObjects == null) this._modelObjects = new List<IModelObject>();
 			if (!this._modelObjects.Contains(modelObject)) this._modelObjects.Add(modelObject);
 		}
@@ -947,7 +947,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetModelObjects(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			if (this._modelObjects == null) this._modelObjects = new List<IModelObject>();
 			foreach (IModelObject modelObject in modelObjects) {
 				if (!this._modelObjects.Contains(modelObject))
@@ -958,7 +958,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void SetModelObjects(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			foreach (Shape shape in shapes)
 				if (shape.ModelObject != null) SetModelObject(shape.ModelObject);
 		}
@@ -1139,8 +1139,8 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected ConnectionCommand(IRepository repository, Shape connectorShape, ControlPointId gluePointId, Shape targetShape, ControlPointId targetPointId)
 			: base(repository) {
-			if (connectorShape == null) throw new ArgumentNullException("connectorShape");
-			if (targetShape == null) throw new ArgumentNullException("targetShape");
+			if (connectorShape == null) throw new ArgumentNullException(nameof(connectorShape));
+			if (targetShape == null) throw new ArgumentNullException(nameof(targetShape));
 			this.ConnectorShape = connectorShape;
 			this.GluePointId = gluePointId;
 			this.TargetShape = targetShape;
@@ -1157,7 +1157,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		protected ConnectionCommand(IRepository repository, Shape connectorShape, ControlPointId gluePointId)
 			: base(repository) {
-			if (connectorShape == null) throw new ArgumentNullException("connectorShape");
+			if (connectorShape == null) throw new ArgumentNullException(nameof(connectorShape));
 			this.ConnectorShape = connectorShape;
 			this.GluePointId = gluePointId;
 			this.TargetShape = null;
@@ -1195,7 +1195,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, ConnectorShape);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -1250,9 +1250,9 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		protected void Construct(Diagram diagram, Shape aggregationShape, IEnumerable<Shape> shapes, int homeLayer, LayerIds supplementalLayers) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (aggregationShape == null) throw new ArgumentNullException("aggregationShape");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (aggregationShape == null) throw new ArgumentNullException(nameof(aggregationShape));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			this.Diagram = diagram;
 			this.AggregationShape = aggregationShape;
 			this.AggregationShapeOwnedByDiagram = diagram.Shapes.Contains(aggregationShape);
@@ -1349,7 +1349,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = (securityManager.IsGranted(Permission.Insert | Permission.Delete, Shapes)
 							&& securityManager.IsGranted(RequiredPermission, AggregationShape));
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
@@ -1424,7 +1424,7 @@ namespace Dataweb.NShape.Commands {
 		/// </summary>
 		public PropertySetCommand(IRepository repository, IEnumerable<T> modifiedObjects, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
 			: base() {
-			if (modifiedObjects == null) throw new ArgumentNullException("modifiedObjects");
+			if (modifiedObjects == null) throw new ArgumentNullException(nameof(modifiedObjects));
 			Construct(propertyInfo);
 			this.ModifiedObjects = new List<T>(modifiedObjects);
 			this.OldValues = new List<object>(oldValues);
@@ -1509,7 +1509,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = true;
 			for (int i = ModifiedObjects.Count - 1; i >= 0; --i) {
 				if (ModifiedObjects[i] is ISecurityDomainObject) {
@@ -1525,7 +1525,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		private void Construct(PropertyInfo propertyInfo) {
-			if (propertyInfo == null) throw new ArgumentNullException("propertyInfo");
+			if (propertyInfo == null) throw new ArgumentNullException(nameof(propertyInfo));
 			this.PropertyInfo = propertyInfo;
 			// Retrieve required permissions
 			RequiredPermissions = Permission.None;
@@ -1579,7 +1579,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public AggregatedCommand(IRepository repository, IEnumerable<ICommand> commands)
 			: base(repository) {
-			if (commands == null) throw new ArgumentNullException("commands");
+			if (commands == null) throw new ArgumentNullException(nameof(commands));
 			this.commands = new List<ICommand>(commands);
 			CreateLabelString();
 		}
@@ -1601,7 +1601,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Add(ICommand command) {
-			if (command == null) throw new ArgumentNullException("command");
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			command.Repository = Repository;
 			commands.Add(command);
 			Description = string.Empty;
@@ -1610,7 +1610,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Insert(int index, ICommand command) {
-			if (command == null) throw new ArgumentNullException("command");
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			command.Repository = Repository;
 			commands.Add(command);
 			Description = string.Empty;
@@ -1619,7 +1619,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Remove(ICommand command) {
-			if (command == null) throw new ArgumentNullException("command");
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			RemoveAt(commands.IndexOf(command));
 			Description = string.Empty;
 		}
@@ -1667,7 +1667,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			exception = null;
 			bool isGranted = true;
 			for (int i = 0; i < commands.Count; ++i) {
@@ -1790,7 +1790,7 @@ namespace Dataweb.NShape.Commands {
 	public class CreateShapesCommand : InsertOrRemoveShapeCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public CreateShapesCommand(Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder)
 			: this(null, diagram, layers, shape, withModelObjects, keepZOrder) {
 		}
@@ -1803,14 +1803,14 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public CreateShapesCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder)
 			: this(repository, diagram, Layer.NoLayerId, layers, shape, withModelObjects, keepZOrder) {
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public CreateShapesCommand(Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
 			: this(null, diagram, layers, shape, withModelObjects, keepZOrder, toX, toY) {
 		}
@@ -1819,14 +1819,14 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateShapesCommand(IRepository repository, Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape shape, bool withModelObjects, bool keepZOrder)
 			: base(repository, diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Construct(homeLayer, supplementalLayers, shape, 0, 0, keepZOrder, withModelObjects);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public CreateShapesCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
 			: this(repository, diagram, Layer.NoLayerId, layers, shape, withModelObjects, keepZOrder, toX, toY) {
 		}
@@ -1835,15 +1835,15 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateShapesCommand(IRepository repository, Diagram diagram, int homeLayer, LayerIds supplementalLayers, Shape shape, bool withModelObjects, bool keepZOrder, int toX, int toY)
 			: base(repository, diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Construct(homeLayer, supplementalLayers, shape, toX - shape.X, toY - shape.Y, keepZOrder, withModelObjects);
 			this.Description += string.Format(Dataweb.NShape.Properties.Resources.MessageTxt_At0, new Point(toX, toY));
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public CreateShapesCommand(Diagram diagram, LayerIds layers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
 			: this(null, diagram, layers, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
 		}
@@ -1856,7 +1856,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public CreateShapesCommand(IRepository repository, Diagram diagram, LayerIds layers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
 			:this(repository, diagram, Layer.NoLayerId, layers, shapes, withModelObjects, keepZOrder, deltaX, deltaY) {
 		}
@@ -1864,15 +1864,15 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateShapesCommand(IRepository repository, Diagram diagram, int homeLayer, LayerIds supplementalLayers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder, int deltaX, int deltaY)
 			: base(repository, diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			SortOrder currentSortOrder = SortOrder.TopDown; //GetCurrentSortOrder(shapes); 
 			Construct(homeLayer, supplementalLayers, shapes, deltaX, deltaY, currentSortOrder, keepZOrder, withModelObjects);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public CreateShapesCommand(Diagram diagram, LayerIds layers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder)
 			: this(diagram, Layer.NoLayerId, layers, shapes, withModelObjects, keepZOrder) {
 		}
@@ -1880,8 +1880,8 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateShapesCommand(Diagram diagram, int homeLayer, LayerIds supplementalLayers, IEnumerable<Shape> shapes, bool withModelObjects, bool keepZOrder)
 			: base(diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			SortOrder currentSortOrder = SortOrder.TopDown; //GetCurrentSortOrder(shapes)
 			Construct(homeLayer, supplementalLayers, shapes, 0, 0, currentSortOrder, keepZOrder, withModelObjects);
 		}
@@ -1922,7 +1922,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, Shapes);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -2149,7 +2149,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, _shapes);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -2157,8 +2157,8 @@ namespace Dataweb.NShape.Commands {
 
 
 		private void Construct(Diagram diagram, IEnumerable<Shape> shapes, ZOrderDestination liftMode) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			this._shapes = new ShapeCollection();
 			this._shapes.AddRange(shapes);
 			this._diagram = diagram;
@@ -2249,7 +2249,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public MoveShapeByCommand(IRepository repository, Shape shape, int dX, int dY)
 			: base(repository, SingleInstanceEnumerator<Shape>.Create(shape)) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Move0, shape.Type.Name);
 			this.dX = dX;
 			this.dY = dY;
@@ -2265,7 +2265,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public MoveShapeByCommand(IRepository repository, IEnumerable<Shape> shapes, int dX, int dY)
 			: base(repository, EmptyEnumerator<Shape>.Empty) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			//// This approach is too simple - it will not work satisfactory because connected shapes are moved twice 
 			//// (the shape is moved AND will follow its partner shape).
 			//// Label shapes will re-calculate their relative position in this case and therefore they are not moved as expected
@@ -2388,7 +2388,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		private bool IsConnectedToNonSelectedShapes(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			foreach (ControlPointId gluePointId in shape.GetControlPointIds(ControlPointCapabilities.Glue)) {
 				ShapeConnectionInfo sci = shape.GetConnectionInfo(gluePointId, null);
 				if (!sci.IsEmpty && Shapes.IndexOf(sci.OtherShape) < 0)
@@ -2429,7 +2429,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void AddMove(Shape shape, int dx, int dy) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			ShapeMove sm;
 			sm.shape = shape;
 			sm.dx = dx;
@@ -2471,7 +2471,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = true;
 			for (int i = shapeMoves.Count - 1; i >= 0; --i) {
 				if (!securityManager.IsGranted(RequiredPermission, shapeMoves[i].shape)) {
@@ -2529,7 +2529,7 @@ namespace Dataweb.NShape.Commands {
 		/// The given shape has to be either at the original position or at the target position.
 		/// </summary>
 		public void AddMoveTo(Shape shape, int x0, int y0, int x1, int y1) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			Debug.Assert((shape.X == x0 || shape.X == x1) && (shape.Y == y0 || shape.Y == y1));
 			ShapeMove sm;
 			sm.shape = shape;
@@ -2543,7 +2543,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void AddMoveBy(Shape shape, int dx, int dy) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			ShapeMove sm;
 			sm.shape = shape;
 			sm.origX = shape.X;
@@ -2587,7 +2587,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = true;
 			for (int i = shapeMoves.Count - 1; i >= 0; --i) {
 				if (!securityManager.IsGranted(RequiredPermission, shapeMoves[i].shape)) {
@@ -2867,7 +2867,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RotateShapesCommand(IRepository repository, IEnumerable<Shape> shapes, int tenthsOfDegree)
 			: base(repository) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			this._shapes = new List<Shape>(shapes);
 			this._angle = tenthsOfDegree;
 			if (this._shapes.Count == 1)
@@ -2886,7 +2886,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RotateShapesCommand(IRepository repository, IEnumerable<Shape> shapes, int tenthsOfDegree, int rotateCenterX, int rotateCenterY)
 			: base(repository) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			this._shapes = new List<Shape>(shapes);
 			for (int i = 0; i < this._shapes.Count; ++i) {
 				if (this._shapes[i] is ILinearShape) {
@@ -2938,7 +2938,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, _shapes);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -2967,7 +2967,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public SetCaptionTextCommand(IRepository repository, ICaptionedShape shape, int captionIndex, string oldValue, string newValue)
 			: base(repository) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			if (!(shape is Shape)) throw new ArgumentException(String.Format("{0} is not of type {1}.", shape.GetType().Name, typeof(Shape).Name));
 			this._modifiedLabeledShapes = new List<ICaptionedShape>(1);
 			this._modifiedLabeledShapes.Add(shape);
@@ -3004,7 +3004,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = true;
 			for (int i = _modifiedLabeledShapes.Count - 1; i >= 0; --i) {
 				if (!securityManager.IsGranted(RequiredPermission, (Shape)_modifiedLabeledShapes[i])) {
@@ -3112,7 +3112,7 @@ namespace Dataweb.NShape.Commands {
 	public class GroupShapesCommand : ShapeAggregationCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public GroupShapesCommand(Diagram diagram, LayerIds layers, Shape shapeGroup, IEnumerable<Shape> childShapes)
 			: this(null, diagram, Layer.NoLayerId, layers, shapeGroup, childShapes) {
 		}
@@ -3125,7 +3125,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public GroupShapesCommand(IRepository repository, Diagram diagram, LayerIds supplementalLayers, Shape shapeGroup, IEnumerable<Shape> childShapes)
 			: this(repository, diagram, Layer.NoLayerId, supplementalLayers, shapeGroup, childShapes) {
 		}
@@ -3218,7 +3218,7 @@ namespace Dataweb.NShape.Commands {
 	public class AggregateCompositeShapeCommand : ShapeAggregationCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AggregateCompositeShapeCommand(Diagram diagram, LayerIds layers, Shape parentShape, IEnumerable<Shape> childShapes)
 			: base(null, diagram, parentShape, childShapes, Layer.NoLayerId, layers) {
 		}
@@ -3231,7 +3231,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AggregateCompositeShapeCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape parentShape, IEnumerable<Shape> childShapes)
 			: base(null, diagram, parentShape, childShapes, Layer.NoLayerId, layers) {
 			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Aggregate0ShapesToACompositeShape, base.Shapes.Count);
@@ -3274,7 +3274,7 @@ namespace Dataweb.NShape.Commands {
 	public class SplitCompositeShapeCommand : ShapeAggregationCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public SplitCompositeShapeCommand(Diagram diagram, LayerIds layers, Shape parentShape)
 			: this(null, diagram, Layer.NoLayerId, layers, parentShape) {
 		}
@@ -3298,7 +3298,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public SplitCompositeShapeCommand(IRepository repository, Diagram diagram, LayerIds layers, Shape parentShape)
 			: this(repository, diagram, Layer.NoLayerId, layers, parentShape) {
 		}
@@ -3790,7 +3790,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public SetModelObjectParentCommand(IRepository repository, IModelObject modelObject, IModelObject parent)
 			: base(repository) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			if (modelObject.Parent != null && parent == null)
 				this.Description = string.Format(
 					Dataweb.NShape.Properties.Resources.MessageFmt_Remove01FromHierarchicalPositionUnder23,
@@ -3837,7 +3837,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, _newParent.Shapes);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -3866,8 +3866,8 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public AssignModelObjectCommand(IRepository repository, Shape shape, IModelObject modelObject)
 			: base(repository) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 
 			if (shape.ModelObject == null)
 				this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_Assign01To2, modelObject.Type.Name, modelObject.Name, shape.Type.Name);
@@ -3902,7 +3902,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, _shape);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -3952,14 +3952,14 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CopyTemplateFromTemplateCommand(IRepository repository, Template originalTemplate, Template changedTemplate)
 			: base(repository) {
-			if (originalTemplate == null) throw new ArgumentNullException("originalTemplate");
-			if (changedTemplate == null) throw new ArgumentNullException("changedTemplate");
-			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeTempate0, originalTemplate.Title);
-			this._originalTemplate = originalTemplate;
-			this._oldTemplate = new Template(originalTemplate.Name, originalTemplate.Shape.Clone());
-			this._oldTemplate.CopyFrom(originalTemplate);
-			this._newTemplate = new Template(changedTemplate.Name, changedTemplate.Shape.Clone());
-			this._newTemplate.CopyFrom(changedTemplate);
+			if (originalTemplate == null) throw new ArgumentNullException(nameof(originalTemplate));
+			if (changedTemplate == null) throw new ArgumentNullException(nameof(changedTemplate));
+			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeTempate0, originalTemplate.Title);
+			_originalTemplate = originalTemplate;
+			_oldTemplate = new Template(originalTemplate.Name, originalTemplate.Shape.Clone());
+			_oldTemplate.CopyFrom(originalTemplate);
+			_newTemplate = new Template(changedTemplate.Name, changedTemplate.Shape.Clone());
+			_newTemplate.CopyFrom(changedTemplate);
 		}
 
 
@@ -3983,7 +3983,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -4110,8 +4110,8 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateTemplateCommand(IRepository repository, string templateName, Shape baseShape)
 			: base(repository) {
-			if (string.IsNullOrEmpty(templateName)) throw new ArgumentNullException("templateName");
-			if (baseShape == null) throw new ArgumentNullException("baseShape");
+			if (string.IsNullOrEmpty(templateName)) throw new ArgumentNullException(nameof(templateName));
+			if (baseShape == null) throw new ArgumentNullException(nameof(baseShape));
 			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_CreateNewTempate0BasedOn1, templateName, baseShape.Type.Name);
 			this._templateName = templateName;
 			this._baseShape = baseShape;
@@ -4213,16 +4213,16 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public ExchangeTemplateShapeCommand(IRepository repository, Template originalTemplate, Template changedTemplate)
 			: base(repository) {
-			if (originalTemplate == null) throw new ArgumentNullException("originalTemplate");
-			if (changedTemplate == null) throw new ArgumentNullException("changedTemplate");
-			this.Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeShapeOfTempate0From1To2, originalTemplate.Title, originalTemplate.Shape.Type.Name, changedTemplate.Shape.Type.Name);
-			this._originalTemplate = originalTemplate;
-			this._oldTemplate = originalTemplate.Clone();	// Shape and ModelObject(!) are also cloned in this step
-			this._newTemplate = changedTemplate;
+			if (originalTemplate == null) throw new ArgumentNullException(nameof(originalTemplate));
+			if (changedTemplate == null) throw new  ArgumentNullException(nameof(changedTemplate));
+			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_ChangeShapeOfTempate0From1To2, originalTemplate.Title, originalTemplate.Shape.Type.Name, changedTemplate.Shape.Type.Name);
+			_originalTemplate = originalTemplate;
+			_oldTemplate = originalTemplate.Clone();	// Shape and ModelObject(!) are also cloned in this step
+			_newTemplate = changedTemplate;
 
-			this._oldTemplateShape = originalTemplate.Shape;	// Should we store the orignial model object, too?
-			this._newTemplateShape = changedTemplate.Shape;
-			this._newTemplateShape.DisplayService = _oldTemplateShape.DisplayService;
+			_oldTemplateShape = originalTemplate.Shape;	// Should we store the orignial model object, too?
+			_newTemplateShape = changedTemplate.Shape;
+			_newTemplateShape.DisplayService = _oldTemplateShape.DisplayService;
 		}
 
 
@@ -4380,7 +4380,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -4508,7 +4508,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public CreateStyleCommand(IRepository repository, Design design, Style style)
 			: base(repository, design) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_CreateStyle0, style.Title);
 			this.Design = design;
 			this._style = style;
@@ -4560,7 +4560,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public DeleteStyleCommand(IRepository repository, Design design, Style style)
 			: base(repository, design) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			Description = string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_DeleteStyle0, style.Title);
 			this.Design = design;
 			this._style = style;
@@ -4736,7 +4736,7 @@ namespace Dataweb.NShape.Commands {
 	public class AddShapesToLayersCommand : ShapeLayersCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AddShapesToLayersCommand(Diagram diagram, Shape shape, LayerIds layers)
 			: this(null, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layers) {
 		}
@@ -4752,7 +4752,7 @@ namespace Dataweb.NShape.Commands {
 		}
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AddShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, LayerIds layers)
 			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layers) {
 		}
@@ -4771,7 +4771,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AddShapesToLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers)
 			: this(null, diagram, shapes, layers) {
 		}
@@ -4790,7 +4790,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AddShapesToLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers)
 			: this(repository, diagram, shapes, Layer.NoLayerId, layers) {
 		}
@@ -4818,7 +4818,7 @@ namespace Dataweb.NShape.Commands {
 	public class AssignShapesToLayersCommand : ShapeLayersCommand {
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AssignShapesToLayersCommand(Diagram diagram, Shape shape, LayerIds layers)
 			: this(null, diagram, shape, layers) {
 		}
@@ -4831,7 +4831,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AssignShapesToLayersCommand(IRepository repository, Diagram diagram, Shape shape, LayerIds layers)
 			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), layers) {
 		}
@@ -4850,7 +4850,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AssignShapesToLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers)
 			: this(null, diagram, shapes, layers) {
 		}
@@ -4863,7 +4863,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public AssignShapesToLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, LayerIds layers)
 			: this(repository, diagram, shapes, Layer.NoLayerId, layers) {
 		}
@@ -4994,7 +4994,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public EditLayerCommand(IRepository repository, Diagram diagram, Layer layer, ChangedProperty property, string oldValue, string newValue)
 			: base(repository, diagram) {
-			if (newValue == null) throw new ArgumentNullException("newValue");
+			if (newValue == null) throw new ArgumentNullException(nameof(newValue));
 			if (property == ChangedProperty.LowerZoomThreshold || property == ChangedProperty.UpperZoomThreshold)
 				throw new ArgumentException("property");
 			this._oldStrValue = oldValue;
@@ -5221,7 +5221,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public RemoveShapesFromLayersCommand(Diagram diagram, Shape shape, LayerIds removeFromLayerIds)
 			: this(null, diagram, shape, removeFromLayerIds) {
 		}
@@ -5234,7 +5234,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public RemoveShapesFromLayersCommand(IRepository repository, Diagram diagram, Shape shape, LayerIds removeFromLayerIds)
 			: this(repository, diagram, SingleInstanceEnumerator<Shape>.Create(shape), removeFromLayerIds) {
 		}
@@ -5247,7 +5247,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public RemoveShapesFromLayersCommand(Diagram diagram, IEnumerable<Shape> shapes, LayerIds removeFromLayerIds)
 			: this(null, diagram, shapes, removeFromLayerIds) {
 		}
@@ -5260,7 +5260,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		/// <ToBeCompleted></ToBeCompleted>
-		[Obsolete("Use an overload taking home layer and supplemental layers instead.")]
+		[Obsolete("Use an overloaded version taking home layer and supplemental layers instead.")]
 		public RemoveShapesFromLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, LayerIds removeFromLayerIds)
 			: this(repository, diagram, shapes, LayerHelper.GetAllLayerIds(removeFromLayerIds)) {
 		}
@@ -5269,7 +5269,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RemoveShapesFromLayersCommand(IRepository repository, Diagram diagram, IEnumerable<Shape> shapes, IEnumerable<int> removeFromLayerIds)
 			: base(repository, shapes) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this._diagram = diagram;
 			_removeFromHomeLayers = new HashCollection<int>(removeFromLayerIds);
 			_removeFromLayers = Layer.ConvertToLayerIds(removeFromLayerIds);
@@ -5386,7 +5386,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		//public override bool IsAllowed(ISecurityManager securityManager) {
-		//    if (securityManager == null) throw new ArgumentNullException("securityManager");
+		//    if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 		//    return securityManager.IsGranted(RequiredPermission);
 		//}
 
@@ -5461,7 +5461,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		//public override bool IsAllowed(ISecurityManager securityManager) {
-		//    if (securityManager == null) throw new ArgumentNullException("securityManager");
+		//    if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 		//    for (int i = modifiedObjects.Count - 1; i >= 0; --i) {
 		//        if (!securityManager.IsGranted(RequiredPermission, modifiedObjects[i].SecurityDomainName))
 		//            return false;
@@ -5480,7 +5480,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public LayerPropertySetCommand(Diagram diagram, IEnumerable<Layer> modifiedLayers, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
 			: base(modifiedLayers, propertyInfo, oldValues, newValues) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this._diagram = diagram;
 		}
 
@@ -5488,7 +5488,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public LayerPropertySetCommand(IRepository repository, Diagram diagram, IEnumerable<Layer> modifiedLayers, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
 			: base(repository, modifiedLayers, propertyInfo, oldValues, newValues) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this._diagram = diagram;
 		}
 
@@ -5496,7 +5496,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public LayerPropertySetCommand(Diagram diagram, IEnumerable<Layer> modifiedLayers, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
 			: base(modifiedLayers, propertyInfo, oldValues, newValue) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this._diagram = diagram;
 		}
 
@@ -5504,7 +5504,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public LayerPropertySetCommand(IRepository repository, Diagram diagram, IEnumerable<Layer> modifiedLayers, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
 			: base(repository, modifiedLayers, propertyInfo, oldValues, newValue) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this._diagram = diagram;
 		}
 
@@ -5512,7 +5512,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public LayerPropertySetCommand(Diagram diagram, Layer modifiedLayer, PropertyInfo propertyInfo, object oldValue, object newValue)
 			: base(modifiedLayer, propertyInfo, oldValue, newValue) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this._diagram = diagram;
 		}
 
@@ -5520,7 +5520,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public LayerPropertySetCommand(IRepository repository, Diagram diagram, Layer modifiedLayer, PropertyInfo propertyInfo, object oldValue, object newValue)
 			: base(repository, modifiedLayer, propertyInfo, oldValue, newValue) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this._diagram = diagram;
 		}
 
@@ -5547,7 +5547,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, _diagram.SecurityDomainName);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -5628,7 +5628,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		//public override bool IsAllowed(ISecurityManager securityManager) {
-		//    if (securityManager == null) throw new ArgumentNullException("securityManager");
+		//    if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 		//    for (int i = modifiedObjects.Count - 1; i >= 0; --i) {
 		//        if (!securityManager.IsGranted(RequiredPermission, modifiedObjects[i].Shapes))
 		//            return false;
@@ -5716,7 +5716,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		//public override bool IsAllowed(ISecurityManager securityManager) {
-		//    if (securityManager == null) throw new ArgumentNullException("securityManager");
+		//    if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 		//    for (int i = modifiedObjects.Count - 1; i >= 0; --i) {
 		//        if (!securityManager.IsGranted(RequiredPermission, modifiedObjects[i].Shapes))
 		//            return false;
@@ -5796,7 +5796,7 @@ namespace Dataweb.NShape.Commands {
 
 		/// <override></override>
 		protected override bool CheckAllowedCore(ISecurityManager securityManager, bool createException, out Exception exception) {
-			if (securityManager == null) throw new ArgumentNullException("securityManager");
+			if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 			bool isGranted = securityManager.IsGranted(RequiredPermission, ModifiedObjects);
 			exception = (!isGranted && createException) ? new NShapeSecurityException(this) : null;
 			return isGranted;
@@ -5813,7 +5813,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public StylePropertySetCommand(Design design, IEnumerable<Style> modifiedStyles, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
 			: base(modifiedStyles, propertyInfo, oldValues, newValues) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			this._design = design;
 		}
 
@@ -5821,7 +5821,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public StylePropertySetCommand(IRepository repository, Design design, IEnumerable<Style> modifiedStyles, PropertyInfo propertyInfo, IEnumerable<object> oldValues, IEnumerable<object> newValues)
 			: base(repository, modifiedStyles, propertyInfo, oldValues, newValues) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			this._design = design;
 		}
 
@@ -5829,7 +5829,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public StylePropertySetCommand(Design design, IEnumerable<Style> modifiedStyles, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
 			: base(modifiedStyles, propertyInfo, oldValues, newValue) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			this._design = design;
 		}
 
@@ -5837,7 +5837,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public StylePropertySetCommand(IRepository repository, Design design, IEnumerable<Style> modifiedStyles, PropertyInfo propertyInfo, IEnumerable<object> oldValues, object newValue)
 			: base(repository, modifiedStyles, propertyInfo, oldValues, newValue) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			this._design = design;
 		}
 
@@ -5845,7 +5845,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public StylePropertySetCommand(Design design, Style modifiedStyle, PropertyInfo propertyInfo, object oldValue, object newValue)
 			: base(modifiedStyle, propertyInfo, oldValue, newValue) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			this._design = design;
 		}
 
@@ -5853,7 +5853,7 @@ namespace Dataweb.NShape.Commands {
 		/// <ToBeCompleted></ToBeCompleted>
 		public StylePropertySetCommand(IRepository repository, Design design, Style modifiedStyle, PropertyInfo propertyInfo, object oldValue, object newValue)
 			: base(repository, modifiedStyle, propertyInfo, oldValue, newValue) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			this._design = design;
 		}
 
@@ -5879,7 +5879,7 @@ namespace Dataweb.NShape.Commands {
 
 
 		//public override bool IsAllowed(ISecurityManager securityManager) {
-		//    if (securityManager == null) throw new ArgumentNullException("securityManager");
+		//    if (securityManager == null) throw new ArgumentNullException(nameof(securityManager));
 		//    return securityManager.IsGranted(RequiredPermission);
 		//}
 

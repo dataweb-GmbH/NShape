@@ -61,7 +61,7 @@ namespace Dataweb.NShape.Advanced {
 		/// See <see cref="T:Dataweb.NShape.Advanced.IEntity" />
 		/// </summary>
 		void IEntity.AssignId(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			if (this._id != null) 
 				throw new InvalidOperationException(string.Format("{0} has already an id.", GetType().Name));
 			this._id = id;

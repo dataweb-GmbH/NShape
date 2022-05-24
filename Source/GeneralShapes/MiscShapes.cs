@@ -88,7 +88,7 @@ namespace Dataweb.NShape.GeneralShapes {
 			get { return (int)Math.Round(Height * _bodyHeightRatio); }
 			set {
 				Invalidate();
-				if (value > Height) throw new ArgumentOutOfRangeException("BodyHeight");
+				if (value > Height) throw new ArgumentOutOfRangeException(nameof(BodyHeight));
 
 				if (Height == 0) _bodyHeightRatio = 0;
 				else _bodyHeightRatio = value / (float)Height;
@@ -220,7 +220,7 @@ namespace Dataweb.NShape.GeneralShapes {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			captionBounds = Rectangle.Empty;
 			captionBounds.Width = (int)Math.Round(Width - (HeadWidth / 3f));
 			captionBounds.Height = BodyHeight;

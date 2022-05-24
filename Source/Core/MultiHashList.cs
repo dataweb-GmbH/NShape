@@ -36,20 +36,28 @@ namespace Dataweb.Utilities {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public void Add(uint key, T value) {
+#if DEBUG_DIAGNOSTICS
+			_ListLength = 0;
+#endif
 			Element newElement = new Element(key, value);
-			if (_list[(int)(key % _listCapacity)] == null)
-				_list[(int)(key % _listCapacity)] = newElement;
+			int idx = (int)(key % _listCapacity);
+			if (_list[idx] == null)
+				_list[idx] = newElement;
 			else {
 				Element e;
+				for (e = _list[idx]; !(e.item.Equals(value) && e.key == key) && e.next != null; e = e.next)
 #if DEBUG_DIAGNOSTICS
-				int cnt = 0;
-				for (e = _list[(int)(key % _list.Capacity)]; !e.item.Equals(value) && e.next != null; e = e.next) 
-					++cnt;
-				if (cnt > _maxListLen) _maxListLen = cnt;
-				else if (cnt > 0 && cnt < _minListLen) _minListLen = cnt;
+				{ _ListLength += 1; }
+				if (_ListLength > 0) {
+					if (_ListLength > MaxListLength) 
+						MaxListLength = _ListLength;
+					else if (_ListLength > 0 && _ListLength < MinListLength)
+						MinListLength = _ListLength;
+				}
 #else
-				for (e = _list[(int)(key % _listCapacity)]; !(e.item.Equals(value) && e.key == key) && e.next != null; e = e.next) ;
+				{ /* Empty for loop body */ }
 #endif
+				//
 				// Do not insert the same shape with the same key a second time.
 				// TODO 2: Optimize the second comparison.
 				if (!(e.item.Equals(value) && e.key == key)) e.next = newElement;
@@ -59,13 +67,14 @@ namespace Dataweb.Utilities {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public bool Remove(uint key, T value) {
-			if (_list[(int)(key % _listCapacity)] == null) return false;
+			int idx = (int)(key % _listCapacity);
+			if (_list[idx] == null) return false;
 			Element e;
-			if (_list[(int)(key % _listCapacity)].item.Equals(value)) {
-				_list[(int)(key % _listCapacity)] = _list[(int)(key % _list.Capacity)].next;
+			if (_list[idx].item.Equals(value)) {
+				_list[idx] = _list[idx].next;
 				return true;
 			} else {
-				for (e = _list[(int)(key % _list.Capacity)]; 
+				for (e = _list[idx]; 
 					e.next != null && (e.next.key != key || !e.next.item.Equals(value)); 
 					e = e.next) ;
 				// Either e.next is null or the one we are searching for
@@ -87,21 +96,22 @@ namespace Dataweb.Utilities {
 		/// <ToBeCompleted></ToBeCompleted>
 		public IEnumerable<T> this[uint key] {
 			get {
-				if (_list[(int)(key % _listCapacity)] == null) yield break;
-				for (Element e = _list[(int)(key % _listCapacity)]; e != null; e = e.next)
+				int idx = (int)(key % _listCapacity);
+				if (_list[idx] == null) yield break;
+				for (Element e = _list[idx]; e != null; e = e.next)
 					if (e.key == key) yield return e.item;
 			}
 		}
 
 
 #if DEBUG_DIAGNOSTICS
-		
-		/// <summary>
-		/// Returns the number of entries in the longest list.
-		/// </summary>
-		public int MaxListLength {
-			get { return _maxListLen; }
-		}
+
+		/// <summary>Returns the number of entries in the longest list.</summary>
+		public int MaxListLength { get; private set; } = 0;
+
+
+		/// <summary>Returns the number of entries in the longest list.</summary>
+		public int MinListLength { get; private set; } = int.MaxValue;
 
 
 		/// <summary>
@@ -117,9 +127,11 @@ namespace Dataweb.Utilities {
 			}
 		}
 
+		private int _ListLength;
+
 #endif
-		
-		
+
+
 		private class Element {
 			public Element(uint key, T item) {
 				this.key = key;
@@ -134,10 +146,6 @@ namespace Dataweb.Utilities {
 		private const int _order = 3;
 		private int _listCapacity;
 		private List<Element> _list;
-#if DEBUG_DIAGNOSTICS
-		private int _maxListLen = 0;
-		private int _minListLen = 0;
-#endif
 	}
 
 }

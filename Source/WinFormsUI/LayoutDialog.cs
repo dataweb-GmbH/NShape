@@ -45,7 +45,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public LayoutDialog(ILayouter layouter)
 			: this() {
-			if (layouter == null) throw new ArgumentNullException("layouter");
+			if (layouter == null) throw new ArgumentNullException(nameof(layouter));
 
 			int panelIdx = -1;
 			if (layouter is ExpansionLayouter) {

@@ -777,7 +777,7 @@ namespace NShapeTest {
 
 
 		private ICapStyle CreateStyle(ICapStyle sourceStyle, Design design) {
-			if (sourceStyle == null) throw new ArgumentNullException("baseStyle");
+			if (sourceStyle == null) throw new ArgumentNullException(nameof(sourceStyle));
 			string newName = GetNewStyleName(sourceStyle, design);
 			CapStyle newStyle = new CapStyle(newName);
 			newStyle.Title = GetName(sourceStyle.Title, EditContentMode.Insert).ToLower();
@@ -794,7 +794,7 @@ namespace NShapeTest {
 
 
 		private IColorStyle CreateStyle(IColorStyle sourceStyle, Design design) {
-			if (sourceStyle == null) throw new ArgumentNullException("baseStyle");
+			if (sourceStyle == null) throw new ArgumentNullException(nameof(sourceStyle));
 			string newName = GetNewStyleName(sourceStyle, design);
 			ColorStyle newStyle = new ColorStyle(newName);
 			newStyle.Title = GetName(sourceStyle.Title, EditContentMode.Insert).ToLower();
@@ -806,7 +806,7 @@ namespace NShapeTest {
 
 
 		private IFillStyle CreateStyle(IFillStyle sourceStyle, Design design) {
-			if (sourceStyle == null) throw new ArgumentNullException("baseStyle");
+			if (sourceStyle == null) throw new ArgumentNullException(nameof(sourceStyle));
 			string newName = GetNewStyleName(sourceStyle, design);
 			FillStyle newStyle = new FillStyle(newName);
 			newStyle.Title = GetName(sourceStyle.Title, EditContentMode.Insert).ToLower();
@@ -838,7 +838,7 @@ namespace NShapeTest {
 
 
 		private ICharacterStyle CreateStyle(ICharacterStyle sourceStyle, Design design) {
-			if (sourceStyle == null) throw new ArgumentNullException("baseStyle");
+			if (sourceStyle == null) throw new ArgumentNullException(nameof(sourceStyle));
 			string newName = GetNewStyleName(sourceStyle, design);
 			CharacterStyle newStyle = new CharacterStyle(newName);
 			newStyle.Title = GetName(sourceStyle.Title, EditContentMode.Insert).ToLower();
@@ -856,7 +856,7 @@ namespace NShapeTest {
 
 
 		private ILineStyle CreateStyle(ILineStyle sourceStyle, Design design) {
-			if (sourceStyle == null) throw new ArgumentNullException("baseStyle");
+			if (sourceStyle == null) throw new ArgumentNullException(nameof(sourceStyle));
 			string newName = GetNewStyleName(sourceStyle, design);
 			LineStyle newStyle = new LineStyle(newName);
 			newStyle.Title = GetName(sourceStyle.Title, EditContentMode.Insert).ToLower();
@@ -875,7 +875,7 @@ namespace NShapeTest {
 
 
 		private IParagraphStyle CreateStyle(IParagraphStyle sourceStyle, Design design) {
-			if (sourceStyle == null) throw new ArgumentNullException("baseStyle");
+			if (sourceStyle == null) throw new ArgumentNullException(nameof(sourceStyle));
 			string newName = GetNewStyleName(sourceStyle, design);
 			ParagraphStyle newStyle = new ParagraphStyle(newName);
 			newStyle.Title = GetName(sourceStyle.Title, EditContentMode.Insert).ToLower();

@@ -111,7 +111,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void AddEntityType(IEntityType entityType) {
-			if (entityType == null) throw new ArgumentNullException("entityType");
+			if (entityType == null) throw new ArgumentNullException(nameof(entityType));
 			if (_entityTypes.ContainsKey(CalcElementName(entityType.FullName)))
 				throw new NShapeException(ResourceStrings.MessageFmt_RepositoryAlreadyContainsAnEntityType0, entityType.FullName);
 			foreach (KeyValuePair<string, IEntityType> item in _entityTypes) {
@@ -133,7 +133,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void RemoveEntityType(string entityTypeName) {
-			if (entityTypeName == null) throw new ArgumentNullException("entityTypeName");
+			if (entityTypeName == null) throw new ArgumentNullException(nameof(entityTypeName));
 			if (entityTypeName == string.Empty) throw new ArgumentException(ResourceStrings.MessageTxt_InvalidEntityTypeName);
 			_entityTypes.Remove(CalcElementName(entityTypeName));
 		}
@@ -224,14 +224,14 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public int ObtainNewBottomZOrder(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			return diagram.Shapes.MinZOrder - 10;
 		}
 
 
 		/// <override></override>
 		public int ObtainNewTopZOrder(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			return diagram.Shapes.MaxZOrder + 10;
 		}
 
@@ -244,7 +244,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public bool IsShapeTypeInUse(IEnumerable<ShapeType> shapeTypes) {
-			if (shapeTypes == null) throw new ArgumentNullException("shapeTypes");
+			if (shapeTypes == null) throw new ArgumentNullException(nameof(shapeTypes));
 			AssertOpen();
 			// Store shape types in a hash collection for better performance when searching huge amounts of shapes
 			HashCollection<ShapeType> shapeTypeSet = new HashCollection<ShapeType>();
@@ -284,7 +284,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public bool IsModelObjectTypeInUse(IEnumerable<ModelObjectType> modelObjectTypes) {
-			if (modelObjectTypes == null) throw new ArgumentNullException("modelObjectTypes");
+			if (modelObjectTypes == null) throw new ArgumentNullException(nameof(modelObjectTypes));
 			AssertOpen();
 			// Store model object types in a hash list for better performance when searching
 			HashCollection<ModelObjectType> modelObjTypeSet = new HashCollection<ModelObjectType>();
@@ -327,7 +327,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public bool IsDiagramModelObjectTypeInUse(IEnumerable<DiagramModelObjectType> diagramModelObjectTypes) {
-			if (diagramModelObjectTypes == null) throw new ArgumentNullException("diagramModelObjectTypes");
+			if (diagramModelObjectTypes == null) throw new ArgumentNullException(nameof(diagramModelObjectTypes));
 			AssertOpen();
 			// Store model object types in a hash list for better performance when searching
 			HashCollection<DiagramModelObjectType> diagramModelObjTypeSet = new HashCollection<DiagramModelObjectType>();
@@ -442,7 +442,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			AssertOpen();
 			DoInsertDesign(design, _settings, false);
 			if (DesignInserted != null) DesignInserted(this, GetDesignEventArgs(design));
@@ -451,7 +451,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void InsertAll(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			AssertOpen();
 			DoInsertDesign(design, _settings, true);
 			if (DesignInserted != null) DesignInserted(this, GetDesignEventArgs(design));
@@ -460,7 +460,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			AssertOpen();
 			AssertCanUpdate(design);
 			UpdateEntity<Design>(_loadedDesigns, _newDesigns, design);
@@ -470,7 +470,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			if (design == _projectDesign)
 				throw new InvalidOperationException(ResourceStrings.MessageTxt_CurrentProjectDesignCannotBeDeleted);
 			AssertOpen();
@@ -481,7 +481,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void DeleteAll(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			if (design == _projectDesign)
 				throw new InvalidOperationException(ResourceStrings.MessageTxt_CurrentProjectDesignCannotBeDeleted);
 			AssertOpen();
@@ -492,7 +492,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			AssertOpen();
 			DoUndeleteDesign(design, false);
 			if (DesignInserted != null) DesignInserted(this, GetDesignEventArgs(design));
@@ -501,7 +501,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UndeleteAll(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			AssertOpen();
 			DoUndeleteDesign(design, true);
 			if (DesignInserted != null) DesignInserted(this, GetDesignEventArgs(design));
@@ -530,8 +530,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(Design design, IStyle style) {
-			if (design == null) throw new ArgumentNullException("design");
-			if (style == null) throw new ArgumentNullException("style");
+			if (design == null) throw new ArgumentNullException(nameof(design));
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertOpen();
 			AssertCanInsert(SingleInstanceEnumerator<IStyle>.Create(style));
 			DoInsertStyle(design, style);
@@ -541,7 +541,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertOpen();
 			AssertCanUpdate(style);
 			DoUpdateStyle(style);
@@ -551,7 +551,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertOpen();
 			AssertCanDelete(SingleInstanceEnumerator<IStyle>.Create(style));
 			DeleteEntity<IStyle>(_loadedStyles, _newStyles, style);
@@ -561,7 +561,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(Design design, IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertOpen();
 			AssertCanUndelete(SingleInstanceEnumerator<IStyle>.Create(style));
 			DoUndeleteStyle(design, style);
@@ -594,7 +594,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(Model model) {
-			if (model == null) throw new ArgumentNullException("model");
+			if (model == null) throw new ArgumentNullException(nameof(model));
 			AssertOpen();
 			AssertCanInsert(model);
 			Model m = null;
@@ -700,7 +700,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Checks whether the given model object is still referenced by any object.
 		/// </summary>
 		private bool IsModelObjectInUse(IModelObject modelObject, IEnumerable<IModelObject> modelObjectsToDelete) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			EnsureModelIsLoaded();
 
 			// Check if there are child model objects
@@ -727,7 +727,7 @@ namespace Dataweb.NShape.Advanced {
 		// TODO 2: Should be similar to GetShape. Unify?
 		/// <override></override>
 		public IModelObject GetModelObject(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			AssertOpen();
 			IModelObject result = null;
 			EntityBucket<IModelObject> bucket;
@@ -747,7 +747,7 @@ namespace Dataweb.NShape.Advanced {
 		}
 
 		//public IModelObject GetModelObject(object id) {
-		//	if (id == null) throw new ArgumentNullException("id");
+		//	if (id == null) throw new ArgumentNullException(nameof(id));
 		//	AssertOpen();
 		//	if (TryGetModel(out Model model))
 		//		EnsureModelObjectsAreLoaded(model);
@@ -808,7 +808,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			AssertOpen();
 			RepositoryModelObjectsEventArgs e = GetModelObjectsEventArgs(modelObject);
 			DoInsertModelObjects(SingleInstanceEnumerator<IModelObject>.Create(modelObject));
@@ -818,7 +818,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(IModelObject modelObject, Template template) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			AssertOpen();
 			RepositoryModelObjectsEventArgs e = GetModelObjectsEventArgs(modelObject);
 			DoInsertModelObject(modelObject, template);
@@ -828,7 +828,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			AssertOpen();
 			RepositoryModelObjectsEventArgs e = GetModelObjectsEventArgs(modelObjects);
 			DoInsertModelObjects(modelObjects);
@@ -838,7 +838,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UpdateOwner(IModelObject modelObject, IModelObject parent) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			DoUpdateModelObjectOwner(modelObject, parent);
 			if (ModelObjectsUpdated != null) ModelObjectsUpdated(this, GetModelObjectsEventArgs(modelObject));
 		}
@@ -846,8 +846,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UpdateOwner(IModelObject modelObject, Template template) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
-			if (template == null) throw new ArgumentNullException("template");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			DoUpdateModelObjectOwner(modelObject, template);
 			if (ModelObjectsUpdated != null) ModelObjectsUpdated(this, GetModelObjectsEventArgs(modelObject));
 		}
@@ -855,7 +855,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UpdateOwner(IModelObject modelObject, Model model) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			DoUpdateModelObjectOwner(modelObject, model);
 			if (ModelObjectsUpdated != null) ModelObjectsUpdated(this, GetModelObjectsEventArgs(modelObject));
 		}
@@ -863,7 +863,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			AssertOpen();
 			RepositoryModelObjectsEventArgs e = GetModelObjectsEventArgs(modelObject);
 			DoUpdateModelObject(modelObject);
@@ -873,7 +873,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			AssertOpen();
 			RepositoryModelObjectsEventArgs e = GetModelObjectsEventArgs(modelObjects);
 			DoUpdateModelObjects(modelObjects);
@@ -883,7 +883,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			AssertOpen();
 			RepositoryModelObjectsEventArgs e = GetModelObjectsEventArgs(modelObject);
 			DoDeleteModelObject(modelObject);
@@ -893,7 +893,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			AssertOpen();
 			RepositoryModelObjectsEventArgs e = GetModelObjectsEventArgs(modelObjects);
 			DoDeleteModelObjects(modelObjects);
@@ -903,7 +903,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(IModelObject modelObject) {
-			if (modelObject == null) throw new ArgumentNullException("modelObject");
+			if (modelObject == null) throw new ArgumentNullException(nameof(modelObject));
 			AssertOpen();
 			RepositoryModelObjectsEventArgs e = GetModelObjectsEventArgs(modelObject);
 			DoUndeleteModelObjects(SingleInstanceEnumerator<IModelObject>.Create(modelObject));
@@ -913,7 +913,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			AssertOpen();
 			RepositoryModelObjectsEventArgs e = GetModelObjectsEventArgs(modelObjects);
 			DoUndeleteModelObjects(modelObjects);
@@ -923,7 +923,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Unload(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			AssertOpen();
 			foreach (IModelObject mo in modelObjects) {
 				// TODO 2: Should we allow to remove from new model objects?
@@ -961,7 +961,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Checks whether the given diagram model object is still referenced by any object.
 		/// </summary>
 		public bool IsDiagramModelObjectInUse(IDiagramModelObject diagramModelObject) {
-			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			if (diagramModelObject == null) throw new ArgumentNullException(nameof(diagramModelObject));
 			AssertOpen();
 			Model model;
 			if (TryGetModel(out model))
@@ -984,7 +984,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public IDiagramModelObject GetDiagramModelObject(object diagramModelObjectid) {
-			if (diagramModelObjectid == null) throw new ArgumentNullException("diagramModelObjectid");
+			if (diagramModelObjectid == null) throw new ArgumentNullException(nameof(diagramModelObjectid));
 			AssertOpen();
 			Model model;
 			if (TryGetModel(out model))
@@ -1003,7 +1003,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(IDiagramModelObject diagramModelObject) {
-			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			if (diagramModelObject == null) throw new ArgumentNullException(nameof(diagramModelObject));
 			AssertOpen();
 			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObject);
 			DoInsertDiagramModelObjects(SingleInstanceEnumerator<IDiagramModelObject>.Create(diagramModelObject));
@@ -1013,7 +1013,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(IEnumerable<IDiagramModelObject> diagramModelObjects) {
-			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			if (diagramModelObjects == null) throw new ArgumentNullException(nameof(diagramModelObjects));
 			AssertOpen();
 			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObjects);
 			DoInsertDiagramModelObjects(diagramModelObjects);
@@ -1023,7 +1023,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(IDiagramModelObject diagramModelObject) {
-			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			if (diagramModelObject == null) throw new ArgumentNullException(nameof(diagramModelObject));
 			AssertOpen();
 			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObject);
 			DoUpdateDiagramModelObject(diagramModelObject);
@@ -1033,7 +1033,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(IEnumerable<IDiagramModelObject> diagramModelObjects) {
-			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			if (diagramModelObjects == null) throw new ArgumentNullException(nameof(diagramModelObjects));
 			AssertOpen();
 			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObjects);
 			DoUpdateDiagramModelObjects(diagramModelObjects);
@@ -1043,7 +1043,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(IDiagramModelObject diagramModelObject) {
-			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			if (diagramModelObject == null) throw new ArgumentNullException(nameof(diagramModelObject));
 			AssertOpen();
 			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObject);
 			DoDeleteDiagramModelObject(diagramModelObject);
@@ -1053,7 +1053,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(IEnumerable<IDiagramModelObject> diagramModelObjects) {
-			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			if (diagramModelObjects == null) throw new ArgumentNullException(nameof(diagramModelObjects));
 			AssertOpen();
 			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObjects);
 			DoDeleteDiagramModelObjects(diagramModelObjects);
@@ -1063,7 +1063,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(IDiagramModelObject diagramModelObject) {
-			if (diagramModelObject == null) throw new ArgumentNullException("diagramModelObject");
+			if (diagramModelObject == null) throw new ArgumentNullException(nameof(diagramModelObject));
 			AssertOpen();
 			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObject);
 			DoUndeleteDiagramModelObjects(SingleInstanceEnumerator<IDiagramModelObject>.Create(diagramModelObject));
@@ -1073,7 +1073,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(IEnumerable<IDiagramModelObject> diagramModelObjects) {
-			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			if (diagramModelObjects == null) throw new ArgumentNullException(nameof(diagramModelObjects));
 			AssertOpen();
 			RepositoryDiagramModelObjectsEventArgs e = GetDiagramModelObjectsEventArgs(diagramModelObjects);
 			DoUndeleteDiagramModelObjects(diagramModelObjects);
@@ -1083,7 +1083,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Unload(IEnumerable<IDiagramModelObject> diagramModelObjects) {
-			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			if (diagramModelObjects == null) throw new ArgumentNullException(nameof(diagramModelObjects));
 			AssertOpen();
 			foreach (IDiagramModelObject mo in diagramModelObjects) {
 				// TODO 2: Should we allow to remove from new diagram model objects?
@@ -1125,7 +1125,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public bool IsTemplateInUse(IEnumerable<Template> templatesToCheck) {
-			if (templatesToCheck == null) throw new ArgumentNullException("templatesToCheck");
+			if (templatesToCheck == null) throw new ArgumentNullException(nameof(templatesToCheck));
 			AssertOpen();
 			// Store shape types in a hash list for better performance when searching huge amounts of shapes
 			HashCollection<Template> templateSet = new HashCollection<Template>();
@@ -1171,7 +1171,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public Template GetTemplate(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			AssertOpen();
 			EnsureTemplatesAreLoaded();
 
@@ -1186,7 +1186,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public Template GetTemplate(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			AssertOpen();
 			EnsureTemplatesAreLoaded();
 
@@ -1199,7 +1199,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(Template template) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			DoInsertTemplate(template, false);
 			if (TemplateInserted != null) TemplateInserted(this, GetTemplateEventArgs(template));
@@ -1208,7 +1208,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void InsertAll(Template template) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			DoInsertTemplate(template, true);
 			if (TemplateInserted != null) TemplateInserted(this, GetTemplateEventArgs(template));
@@ -1217,7 +1217,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(Template template) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			UpdateEntity<Template>(_loadedTemplates, _newTemplates, template);
 			if (TemplateUpdated != null) TemplateUpdated(this, GetTemplateEventArgs(template));
@@ -1226,9 +1226,9 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void ReplaceTemplateShape(Template template, Shape oldShape, Shape newShape) {
-			if (template == null) throw new ArgumentNullException("template");
-			if (oldShape == null) throw new ArgumentNullException("oldShape");
-			if (newShape == null) throw new ArgumentNullException("newShape");
+			if (template == null) throw new ArgumentNullException(nameof(template));
+			if (oldShape == null) throw new ArgumentNullException(nameof(oldShape));
+			if (newShape == null) throw new ArgumentNullException(nameof(newShape));
 			AssertOpen();
 			AssertCanUpdate(template);
 
@@ -1263,7 +1263,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(Template template) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			DoUndeleteTemplate(template, false);
 			if (TemplateInserted != null) TemplateInserted(this, GetTemplateEventArgs(template));
@@ -1272,7 +1272,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UndeleteAll(Template template) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			DoUndeleteTemplate(template, true);
 			if (TemplateInserted != null) TemplateInserted(this, GetTemplateEventArgs(template));
@@ -1298,8 +1298,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(IModelMapping modelMapping, Template template) {
-			if (modelMapping == null) throw new ArgumentNullException("modelMapping");
-			if (template == null) throw new ArgumentNullException("template");
+			if (modelMapping == null) throw new ArgumentNullException(nameof(modelMapping));
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			DoInsertModelMappings(SingleInstanceEnumerator<IModelMapping>.Create(modelMapping), template);
 			if (ModelMappingsInserted != null) ModelMappingsInserted(this, GetTemplateEventArgs(template));
@@ -1308,8 +1308,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(IEnumerable<IModelMapping> modelMappings, Template template) {
-			if (modelMappings == null) throw new ArgumentNullException("modelMappings");
-			if (template == null) throw new ArgumentNullException("template");
+			if (modelMappings == null) throw new ArgumentNullException(nameof(modelMappings));
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			DoInsertModelMappings(modelMappings, template);
 			if (ModelMappingsInserted != null) ModelMappingsInserted(this, GetTemplateEventArgs(template));
@@ -1318,7 +1318,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(IModelMapping modelMapping) {
-			if (modelMapping == null) throw new ArgumentNullException("modelMapping");
+			if (modelMapping == null) throw new ArgumentNullException(nameof(modelMapping));
 			AssertOpen();
 			DoUpdateModelMappings(SingleInstanceEnumerator<IModelMapping>.Create(modelMapping));
 			if (ModelMappingsUpdated != null) ModelMappingsUpdated(this,
@@ -1328,7 +1328,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(IEnumerable<IModelMapping> modelMappings) {
-			if (modelMappings == null) throw new ArgumentNullException("modelMapping");
+			if (modelMappings == null) throw new ArgumentNullException(nameof(modelMappings));
 			AssertOpen();
 			DoUpdateModelMappings(modelMappings);
 			if (ModelMappingsUpdated != null) {
@@ -1342,7 +1342,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(IModelMapping modelMapping) {
-			if (modelMapping == null) throw new ArgumentNullException("modelMapping");
+			if (modelMapping == null) throw new ArgumentNullException(nameof(modelMapping));
 			AssertOpen();
 			DoDeleteModelMappings(SingleInstanceEnumerator<IModelMapping>.Create(modelMapping));
 			if (ModelMappingsDeleted != null) {
@@ -1354,7 +1354,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(IEnumerable<IModelMapping> modelMappings) {
-			if (modelMappings == null) throw new ArgumentNullException("modelMapping");
+			if (modelMappings == null) throw new ArgumentNullException(nameof(modelMappings));
 			AssertOpen();
 			DoDeleteModelMappings(modelMappings);
 			if (ModelMappingsDeleted != null) {
@@ -1368,7 +1368,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(IModelMapping modelMapping, Template template) {
-			if (modelMapping == null) throw new ArgumentNullException("modelMapping");
+			if (modelMapping == null) throw new ArgumentNullException(nameof(modelMapping));
 			AssertOpen();
 			DoUndeleteModelMappings(SingleInstanceEnumerator<IModelMapping>.Create(modelMapping), template);
 			if (ModelMappingsInserted != null) ModelMappingsInserted(this, GetTemplateEventArgs(template));
@@ -1377,7 +1377,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(IEnumerable<IModelMapping> modelMappings, Template template) {
-			if (modelMappings == null) throw new ArgumentNullException("modelMapping");
+			if (modelMappings == null) throw new ArgumentNullException(nameof(modelMappings));
 			AssertOpen();
 			DoUndeleteModelMappings(modelMappings, template);
 			if (ModelMappingsInserted != null) ModelMappingsInserted(this, GetTemplateEventArgs(template));
@@ -1415,7 +1415,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public Diagram GetDiagram(object id) {
-			if (id == null) throw new ArgumentNullException("id");
+			if (id == null) throw new ArgumentNullException(nameof(id));
 			AssertOpen();
 			EnsureDiagramsAreLoaded();
 
@@ -1433,7 +1433,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public Diagram GetDiagram(string name) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			AssertOpen();
 			EnsureDiagramsAreLoaded();
 
@@ -1450,7 +1450,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			DoInsertDiagram(diagram, false);
 			if (DiagramInserted != null) DiagramInserted(this, GetDiagramEventArgs(diagram));
@@ -1459,7 +1459,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void InsertAll(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			DoInsertDiagram(diagram, true);
 			if (DiagramInserted != null) DiagramInserted(this, GetDiagramEventArgs(diagram));
@@ -1468,7 +1468,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			AssertCanUpdate(diagram);
 			UpdateEntity<Diagram>(_loadedDiagrams, _newDiagrams, diagram);
@@ -1478,7 +1478,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			DoDeleteDiagram(diagram, false);
 			if (DiagramDeleted != null) DiagramDeleted(this, GetDiagramEventArgs(diagram));
@@ -1487,7 +1487,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void DeleteAll(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			DoDeleteDiagram(diagram, true);
 			if (DiagramDeleted != null) DiagramDeleted(this, GetDiagramEventArgs(diagram));
@@ -1496,7 +1496,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			DoUndeleteDiagram(diagram, false);
 			if (DiagramInserted != null) DiagramInserted(this, GetDiagramEventArgs(diagram));
@@ -1505,7 +1505,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UndeleteAll(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			DoUndeleteDiagram(diagram, true);
 			if (DiagramInserted != null) DiagramInserted(this, GetDiagramEventArgs(diagram));
@@ -1528,7 +1528,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void GetDiagramShapes(Diagram diagram, params Rectangle[] rectangles) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			if (((IEntity)diagram).Id == null) return;
 			AssertOpen();
 			// For the time being, a diagram is either loaded or not. No partial diagram loading yet.
@@ -1542,7 +1542,13 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(Shape shape, Diagram diagram) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			Insert<Shape>(shape, diagram);
+		}
+
+
+		/// <override></override>
+		public void Insert<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			AssertOpen();
 			DoInsertShapes(SingleInstanceEnumerator<Shape>.Create(shape), diagram, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, diagram));
@@ -1550,14 +1556,14 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void Insert<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
-			Insert<Shape>(shape, diagram);
+		public void Insert(Shape shape, Shape parentShape) {
+			Insert<Shape>(shape, parentShape);
 		}
 
 
 		/// <override></override>
-		public void Insert(Shape shape, Shape parentShape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+		public void Insert<TShape>(TShape shape, Shape parentShape) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			AssertOpen();
 			DoInsertShapes(SingleInstanceEnumerator<Shape>.Create(shape), parentShape, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
@@ -1565,14 +1571,14 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void Insert<TShape>(TShape shape, Shape parentShape) where TShape : Shape {
-			Insert<Shape>(shape, parentShape);
+		public void Insert(Shape shape, Template template) {
+			Insert<Shape>(shape, template);
 		}
 
 
 		/// <override></override>
-		public void Insert(Shape shape, Template template) {
-			if (shape == null) throw new ArgumentNullException("shape");
+		public void Insert<TShape>(TShape shape, Template template) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			AssertOpen();
 			DoInsertShapes(shape, template, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
@@ -1580,15 +1586,9 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void Insert<TShape>(TShape shape, Template template) where TShape : Shape {
-			Insert<Shape>(shape, template);
-		}
-
-
-		/// <override></override>
 		public void Insert(IEnumerable<Shape> shapes, Diagram diagram) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			DoInsertShapes(shapes, diagram, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shapes, diagram));
@@ -1597,8 +1597,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Insert(IEnumerable<Shape> shapes, Shape parentShape) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
-			if (parentShape == null) throw new ArgumentNullException("parentShape");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
+			if (parentShape == null) throw new ArgumentNullException(nameof(parentShape));
 			AssertOpen();
 			DoInsertShapes(shapes, parentShape, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shapes, null));
@@ -1607,8 +1607,14 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void InsertAll(Shape shape, Diagram diagram) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			InsertAll<Shape>(shape, diagram);
+		}
+
+
+		/// <override></override>
+		public void InsertAll<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			DoInsertShapes(SingleInstanceEnumerator<Shape>.Create(shape), diagram, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, diagram));
@@ -1616,15 +1622,15 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void InsertAll<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
-			InsertAll<Shape>(shape, diagram);
+		public void InsertAll(Shape shape, Shape parentShape) {
+			InsertAll<Shape>(shape, parentShape);
 		}
 
 
 		/// <override></override>
-		public void InsertAll(Shape shape, Shape parentShape) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (parentShape == null) throw new ArgumentNullException("parentShape");
+		public void InsertAll<TShape>(TShape shape, Shape parentShape) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (parentShape == null) throw new ArgumentNullException(nameof(parentShape));
 			AssertOpen();
 			DoInsertShapes(SingleInstanceEnumerator<Shape>.Create(shape), parentShape, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
@@ -1632,15 +1638,15 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void InsertAll<TShape>(TShape shape, Shape parentShape) where TShape : Shape {
-			InsertAll<Shape>(shape, parentShape);
+		public void InsertAll(Shape shape, Template template) {
+			InsertAll<Shape>(shape, template);
 		}
 
 
 		/// <override></override>
-		public void InsertAll(Shape shape, Template template) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (template == null) throw new ArgumentNullException("template");
+		public void InsertAll<TShape>(TShape shape, Template template) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			DoInsertShapes(shape, template, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
@@ -1648,15 +1654,9 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void InsertAll<TShape>(TShape shape, Template template) where TShape : Shape {
-			InsertAll<Shape>(shape, template);
-		}
-
-
-		/// <override></override>
 		public void InsertAll(IEnumerable<Shape> shapes, Diagram diagram) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			DoInsertShapes(shapes, diagram, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shapes, diagram));
@@ -1665,8 +1665,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void InsertAll(IEnumerable<Shape> shapes, Shape parentShape) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
-			if (parentShape == null) throw new ArgumentNullException("parentShape");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
+			if (parentShape == null) throw new ArgumentNullException(nameof(parentShape));
 			AssertOpen();
 			DoInsertShapes(shapes, parentShape, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shapes, null));
@@ -1675,7 +1675,13 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Update(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			Update<Shape>(shape);
+		}
+
+
+		/// <override></override>
+		public void Update<TShape>(TShape shape) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			AssertOpen();
 			DoUpdateShapes(SingleInstanceEnumerator<Shape>.Create(shape));
 			if (ShapesUpdated != null) ShapesUpdated(this, GetShapesEventArgs(shape));
@@ -1683,14 +1689,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void Update<TShape>(TShape shape) where TShape : Shape {
-			Update<Shape>(shape);
-		}
-
-
-		/// <override></override>
 		public void Update(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			AssertOpen();
 			DoUpdateShapes(shapes);
 			if (ShapesUpdated != null) ShapesUpdated(this, GetShapesEventArgs(shapes));
@@ -1699,8 +1699,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UpdateOwner(Shape shape, Diagram diagram) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertOpen();
 			AssertCanUpdate(SingleInstanceEnumerator<Shape>.Create(shape), diagram);
 			DoUpdateShapeOwner(shape, diagram);
@@ -1710,8 +1710,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UpdateOwner(Shape shape, Shape parent) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (parent == null) throw new ArgumentNullException("parent");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (parent == null) throw new ArgumentNullException(nameof(parent));
 			AssertOpen();
 			AssertCanUpdate(SingleInstanceEnumerator<Shape>.Create(shape), parent);
 			DoUpdateShapeOwner(shape, parent);
@@ -1721,7 +1721,13 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Delete(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			Delete<Shape>(shape);
+		}
+
+
+		/// <override></override>
+		public void Delete<TShape>(TShape shape) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			// Get event args before deleting because the owner of new shapes is not accessible
 			// after deleting ( == removing) new shapes from the repository.
 			AssertOpen();
@@ -1733,14 +1739,14 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void Delete<TShape>(TShape shape) where TShape : Shape {
-			Delete<Shape>(shape);
+		public void DeleteAll(Shape shape) {
+			DeleteAll<Shape>(shape);
 		}
 
 
 		/// <override></override>
-		public void DeleteAll(Shape shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+		public void DeleteAll<TShape>(TShape shape) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			AssertOpen();
 			// Get event args before deleting because the owner of new shapes is not accessible
 			// after deleting ( == removing) new shapes from the repository.
@@ -1751,14 +1757,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void DeleteAll<TShape>(TShape shape) where TShape : Shape {
-			DeleteAll<Shape>(shape);
-		}
-
-
-		/// <override></override>
 		public void Delete(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			AssertOpen();
 			DoDeleteShapes(shapes, false);
 			if (ShapesDeleted != null) ShapesDeleted(this, GetShapesEventArgs(shapes));
@@ -1767,7 +1767,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void DeleteAll(IEnumerable<Shape> shapes) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			AssertOpen();
 			DoDeleteShapes(shapes, true);
 			if (ShapesDeleted != null) ShapesDeleted(this, GetShapesEventArgs(shapes));
@@ -1776,7 +1776,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(Shape shape, Diagram diagram) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			AssertOpen();
 			DoUndeleteShapes(shape, diagram, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape));
@@ -1784,14 +1784,14 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void Undelete<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
+		public void UndeleteAll(Shape shape, Diagram diagram) {
 			Undelete<Shape>(shape, diagram);
 		}
 
 
 		/// <override></override>
-		public void UndeleteAll(Shape shape, Diagram diagram) {
-			if (shape == null) throw new ArgumentNullException("shape");
+		public void Undelete<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			AssertOpen();
 			DoUndeleteShapes(shape, diagram, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape));
@@ -1799,15 +1799,15 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void UndeleteAll<TShape>(TShape shape, Diagram diagram) where TShape : Shape {
-			UndeleteAll<Shape>(shape, diagram);
+		public void Undelete(Shape shape, Shape parent) {
+			Undelete<Shape>(shape, parent);
 		}
 
 
 		/// <override></override>
-		public void Undelete(Shape shape, Shape parent) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (parent == null) throw new ArgumentNullException("parentShape");
+		public void Undelete<TShape>(TShape shape, Shape parent) where TShape : Shape {
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (parent == null) throw new ArgumentNullException(nameof(parent));
 			AssertOpen();
 			DoUndeleteShapes(shape, parent, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
@@ -1815,15 +1815,9 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <override></override>
-		public void Undelete<TShape>(TShape shape, Shape parent) where TShape : Shape {
-			Undelete<Shape>(shape, parent);
-		}
-
-
-		/// <override></override>
 		public void UndeleteAll(Shape shape, Shape parent) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (parent == null) throw new ArgumentNullException("parentShape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (parent == null) throw new ArgumentNullException(nameof(parent));
 			AssertOpen();
 			DoUndeleteShapes(shape, parent, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
@@ -1838,8 +1832,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(Shape shape, Template template) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (template == null) throw new ArgumentNullException("parentShape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			DoUndeleteShapes(shape, template, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
@@ -1854,8 +1848,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UndeleteAll(Shape shape, Template template) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (template == null) throw new ArgumentNullException("parentShape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertOpen();
 			DoUndeleteShapes(shape, template, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shape, null));
@@ -1870,8 +1864,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(IEnumerable<Shape> shapes, Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			AssertOpen();
 			DoUndeleteShapes(shapes, diagram, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shapes, diagram));
@@ -1880,8 +1874,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UndeleteAll(IEnumerable<Shape> shapes, Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			AssertOpen();
 			DoUndeleteShapes(shapes, diagram, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shapes, diagram));
@@ -1890,8 +1884,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Undelete(IEnumerable<Shape> shapes, Shape parent) {
-			if (parent == null) throw new ArgumentNullException("parent");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (parent == null) throw new ArgumentNullException(nameof(parent));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			AssertOpen();
 			DoUndeleteShapes(shapes, parent, false);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shapes));
@@ -1900,8 +1894,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void UndeleteAll(IEnumerable<Shape> shapes, Shape parent) {
-			if (parent == null) throw new ArgumentNullException("parent");
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (parent == null) throw new ArgumentNullException(nameof(parent));
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			AssertOpen();
 			DoUndeleteShapes(shapes, parent, true);
 			if (ShapesInserted != null) ShapesInserted(this, GetShapesEventArgs(shapes));
@@ -1910,7 +1904,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void Unload(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			DoUnloadShapes(diagram.Shapes);
 		}
 
@@ -1931,8 +1925,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void InsertConnection(Shape activeShape, ControlPointId gluePointId, Shape passiveShape, ControlPointId connectionPointId) {
-			if (activeShape == null) throw new ArgumentNullException("activeShape");
-			if (passiveShape == null) throw new ArgumentNullException("passiveShape");
+			if (activeShape == null) throw new ArgumentNullException(nameof(activeShape));
+			if (passiveShape == null) throw new ArgumentNullException(nameof(passiveShape));
 			AssertOpen();
 			AssertCanInsert(activeShape, gluePointId, passiveShape, connectionPointId);
 			ShapeConnection connection = DoInsertShapeConnection(activeShape, gluePointId, passiveShape, connectionPointId);
@@ -1942,8 +1936,8 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public void DeleteConnection(Shape activeShape, ControlPointId gluePointId, Shape passiveShape, ControlPointId connectionPointId) {
-			if (activeShape == null) throw new ArgumentNullException("activeShape");
-			if (passiveShape == null) throw new ArgumentNullException("passiveShape");
+			if (activeShape == null) throw new ArgumentNullException(nameof(activeShape));
+			if (passiveShape == null) throw new ArgumentNullException(nameof(passiveShape));
 			AssertOpen();
 			AssertCanDelete(activeShape, gluePointId, passiveShape, connectionPointId);
 			ShapeConnection connection = DoDeleteShapeConnection(activeShape, gluePointId, passiveShape, connectionPointId);
@@ -2750,7 +2744,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void DoDeleteTemplate(Template template, bool withContent) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			if (withContent) {
 				// Delete template's model object
 				IModelObject modelObject = template.Shape.ModelObject;
@@ -2880,24 +2874,24 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void DoInsertShapes(IEnumerable<Shape> shapes, Shape parentShape, bool withContent) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
-			if (parentShape == null) throw new ArgumentNullException("parentShape");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
+			if (parentShape == null) throw new ArgumentNullException(nameof(parentShape));
 			AssertCanInsert(shapes, parentShape);
 			DoInsertShapesCore(shapes, parentShape, withContent);
 		}
 
 
 		private void DoInsertShapes(IEnumerable<Shape> shapes, Diagram diagram, bool withContent) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			AssertCanInsert(shapes, diagram);
 			DoInsertShapesCore(shapes, diagram, withContent);
 		}
 
 
 		private void DoInsertShapes(Shape shape, Template template, bool withContent) {
-			if (shape == null) throw new ArgumentNullException("shape");
-			if (template == null) throw new ArgumentNullException("template");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			AssertCanInsert(GetShapes(SingleInstanceEnumerator<Shape>.Create(shape), true), template);
 			DoInsertShapesCore(SingleInstanceEnumerator<Shape>.Create(shape), template, withContent);
 		}
@@ -3671,7 +3665,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private bool IsStyleInUse(IStyle style, IEnumerable<IStyle> stylesToDelete) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			AssertOpen();
 			// First, check Styles and StyleModelMappings as they are always loaded completly,
 			// then check new shapes and laoded shapes 
@@ -4194,8 +4188,8 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private bool CanUndeleteEntity<TEntity>(TEntity entity, LoadedEntities<TEntity> loadedEntities) where TEntity : IEntity {
-			if (entity == null) throw new ArgumentNullException("entity");
-			if (loadedEntities == null) throw new ArgumentNullException("loadedEntities");
+			if (entity == null) throw new ArgumentNullException(nameof(entity));
+			if (loadedEntities == null) throw new ArgumentNullException(nameof(loadedEntities));
 			EntityBucket<TEntity> item = null;
 			if (entity.Id != null && loadedEntities.TryGetValue(entity.Id, out item)) {
 				return (item.State == ItemState.Deleted);
@@ -4578,16 +4572,16 @@ namespace Dataweb.NShape.Advanced {
 	public struct ShapeConnection : IEquatable<ShapeConnection> {
 
 		/// <summary>Implementation of the equality operator.</summary>
-		public static bool operator ==(ShapeConnection x, ShapeConnection y) {
+		public static bool operator ==(ShapeConnection a, ShapeConnection b) {
 			return (
-				x.ConnectorShape == y.ConnectorShape
-				&& x.TargetShape == y.TargetShape
-				&& x.GluePointId == y.GluePointId
-				&& x.TargetPointId == y.TargetPointId);
+				a.ConnectorShape == b.ConnectorShape
+				&& a.TargetShape == b.TargetShape
+				&& a.GluePointId == b.GluePointId
+				&& a.TargetPointId == b.TargetPointId);
 		}
 
 		/// <summary>Implementation of the unequality operator.</summary>
-		public static bool operator !=(ShapeConnection x, ShapeConnection y) { return !(x == y); }
+		public static bool operator !=(ShapeConnection a, ShapeConnection b) { return !(a == b); }
 
 		/// <summary>
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.ShapeConnection" />.
@@ -4611,10 +4605,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override int GetHashCode() {
-			int result = GluePointId.GetHashCode() ^ TargetPointId.GetHashCode();
-			if (ConnectorShape != null) result ^= ConnectorShape.GetHashCode();
-			if (TargetShape != null) result ^= TargetShape.GetHashCode();
-			return result;
+			return HashCodeGenerator.CalculateHashCode(GluePointId, ConnectorShape, TargetShape);
 		}
 
 		/// <summary>Represents an empty ShapeConnection.</summary>
@@ -4673,7 +4664,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.Advanced.RepositoryReader" />.
 		/// </summary>
 		protected RepositoryReader(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			this._cache = cache;
 		}
 
@@ -5035,7 +5026,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Resets the repositoryReader for a sequence of reads of entities of the same type.
 		/// </summary>
 		internal virtual void ResetFieldReading(IEnumerable<EntityPropertyDefinition> propertyInfos) {
-			if (propertyInfos == null) throw new ArgumentNullException("propertyInfos");
+			if (propertyInfos == null) throw new ArgumentNullException(nameof(propertyInfos));
 			this.propertyInfos.Clear();
 			this.propertyInfos.AddRange(propertyInfos);
 			_propertyIndex = int.MinValue;
@@ -5273,7 +5264,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new Iinstance of RepositoryWriter
 		/// </summary>
 		protected RepositoryWriter(IStoreCache cache) {
-			if (cache == null) throw new ArgumentNullException("cache");
+			if (cache == null) throw new ArgumentNullException(nameof(cache));
 			this._cache = cache;
 		}
 
@@ -5664,7 +5655,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Reinitializes the writer to work with given property infos.
 		/// </summary>
 		protected internal virtual void Reset(IEnumerable<EntityPropertyDefinition> propertyInfos) {
-			if (propertyInfos == null) throw new ArgumentNullException("propertyInfos");
+			if (propertyInfos == null) throw new ArgumentNullException(nameof(propertyInfos));
 			PropertyInfos.Clear();
 			PropertyInfos.AddRange(propertyInfos);
 		}

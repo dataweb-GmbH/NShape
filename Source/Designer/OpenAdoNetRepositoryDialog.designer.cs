@@ -49,8 +49,8 @@
 			// 
 			// serverNameTextBox
 			// 
-			this.serverNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-							| System.Windows.Forms.AnchorStyles.Right)));
+			this.serverNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.serverNameTextBox.Location = new System.Drawing.Point(12, 80);
 			this.serverNameTextBox.Name = "serverNameTextBox";
 			this.serverNameTextBox.Size = new System.Drawing.Size(306, 20);
@@ -109,8 +109,8 @@
 			// 
 			// providerNameComboBox
 			// 
-			this.providerNameComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-							| System.Windows.Forms.AnchorStyles.Right)));
+			this.providerNameComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.providerNameComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.providerNameComboBox.Items.AddRange(new object[] {
             "SQL Server"});
@@ -122,8 +122,8 @@
 			// 
 			// projectNameComboBox
 			// 
-			this.projectNameComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-							| System.Windows.Forms.AnchorStyles.Right)));
+			this.projectNameComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.projectNameComboBox.FormattingEnabled = true;
 			this.projectNameComboBox.Location = new System.Drawing.Point(12, 182);
 			this.projectNameComboBox.Name = "projectNameComboBox";
@@ -133,15 +133,15 @@
 			// 
 			// databaseNameComboBox
 			// 
-			this.databaseNameComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-							| System.Windows.Forms.AnchorStyles.Right)));
+			this.databaseNameComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.databaseNameComboBox.FormattingEnabled = true;
 			this.databaseNameComboBox.Location = new System.Drawing.Point(12, 131);
 			this.databaseNameComboBox.Name = "databaseNameComboBox";
 			this.databaseNameComboBox.Size = new System.Drawing.Size(194, 21);
 			this.databaseNameComboBox.TabIndex = 11;
-			this.databaseNameComboBox.SelectedIndexChanged += new System.EventHandler(this.databaseNameComboBox_TextChanged);
 			this.databaseNameComboBox.DropDown += new System.EventHandler(this.databaseNameComboBox_DropDown);
+			this.databaseNameComboBox.SelectedIndexChanged += new System.EventHandler(this.databaseNameComboBox_TextChanged);
 			this.databaseNameComboBox.TextChanged += new System.EventHandler(this.databaseNameComboBox_TextChanged);
 			// 
 			// createDbButton
@@ -183,8 +183,9 @@
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.serverNameTextBox);
 			this.Controls.Add(this.label1);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
 			this.Name = "OpenAdoNetRepositoryDialog";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Select Database Project";
 			this.Load += new System.EventHandler(this.OpenAdoNetRepositoryDialog_Load);
 			this.ResumeLayout(false);

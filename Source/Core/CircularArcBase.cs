@@ -30,6 +30,22 @@ namespace Dataweb.NShape.Advanced {
 		#region Shape Members
 
 		/// <override></override>
+		public override bool CanConnect(ControlPointId ownPointId, Shape otherShape, ControlPointId otherPointId) {
+			if (!base.CanConnect(ownPointId, otherShape, otherPointId))
+				return false;
+			// Do not allow point-to-shape connections with both glue points to the same shape
+			if (otherPointId == ControlPointId.Reference) {
+				foreach (ControlPointId gluePointId in GetControlPointIds(ControlPointCapabilities.Glue)) {
+					if (gluePointId == ownPointId) continue;
+					if (IsConnected(gluePointId, otherShape) == ControlPointId.Reference)
+						return false;
+				}
+			}
+			return true;
+		}
+
+
+		/// <override></override>
 		public override void CopyFrom(Shape source) {
 			base.CopyFrom(source);
 			if (source is CircularArcBase) {
@@ -41,7 +57,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override Point CalculateAbsolutePosition(RelativePosition relativePosition) {
-			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException("relativePosition");
+			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException(nameof(relativePosition));
 			// The relative Position of an arc is defined by...
 			// A: Tenths of percentage of the distance between StartPoint and EndPoint
 			// B: Radius offset (tenths)
@@ -107,21 +123,11 @@ namespace Dataweb.NShape.Advanced {
 		public override Point CalculateConnectionFoot(int fromX, int fromY) {
 			Point result = Geometry.InvalidPoint;
 			if (IsLine) {
-				float aSeg, bSeg, cSeg;
-				// Calculate line equation for the line segment
-				Geometry.CalcLine(StartPoint, EndPoint, out aSeg, out bSeg, out cSeg);
-				// Translate the line to point fromX/fromY:
-				float cFrom = -((aSeg * fromX) + (bSeg * fromY));
 				// Calculate perpendicular line through fromX/fromY
-				float aPer, bPer, cPer;
-				Geometry.CalcPerpendicularLine(fromX, fromY, aSeg, bSeg, cFrom, out aPer, out bPer, out cPer);
-				// intersect perpendicular line with line segment
-
-				float resX, resY;
-				if (Geometry.IntersectLineWithLineSegment(aPer, bPer, cPer, StartPoint, EndPoint, out resX, out resY)) {
-					result.X = (int)Math.Round(resX);
-					result.Y = (int)Math.Round(resY);
-				} else {
+				Geometry.CalcPerpendicularLine(StartPoint, EndPoint, fromX, fromY, out int toX, out int toY);
+				// Intersect perpendicular line with line segment
+				result = Geometry.IntersectLineWithLineSegment(fromX, fromY, toX, toY, StartPoint.X, StartPoint.Y, EndPoint.X, EndPoint.Y);
+				if (!Geometry.IsValid(result)) {
 					// if the lines do not intersect, return the nearest point of the line segment
 					result = Geometry.GetNearestPoint(fromX, fromY, StartPoint.X, StartPoint.Y, EndPoint.X, EndPoint.Y);
 				}
@@ -366,13 +372,13 @@ namespace Dataweb.NShape.Advanced {
 			if (VertexCount < MaxVertexCount) {
 				int pointIndex = GetControlPointIndex(beforePointId);
 				if (pointIndex < 0 || pointIndex > ControlPointCount)
-					throw new ArgumentOutOfRangeException("beforePointId");
+					throw new ArgumentOutOfRangeException(nameof(beforePointId));
 				// Insert Radius Point
 				InsertControlPoint(pointIndex, ctrlPoint);
 			} else {
 				int pointIndex = GetControlPointIndex(GetPreviousVertexId(beforePointId));
 				if (pointIndex < 0 || pointIndex > VertexCount || pointIndex > MaxVertexCount)
-					throw new ArgumentOutOfRangeException("beforePointId");
+					throw new ArgumentOutOfRangeException(nameof(beforePointId));
 				// replace Radius Point
 				SetControlPoint(pointIndex, ctrlPoint);
 			}
@@ -451,7 +457,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			UpdateDrawCache();
 			if (VertexCount > 1) {
 				// GDI+ behaviour:
@@ -493,35 +499,34 @@ namespace Dataweb.NShape.Advanced {
 				//// Draw bounding rectangle / line cap bounds
 				//graphics.DrawRectangle(Pens.Red, GetBoundingRectangle(true));
 				//if (StartCapBounds != Geometry.InvalidRectangle)
-				//    graphics.DrawRectangle(Pens.Red, StartCapBounds);
+				//	graphics.DrawRectangle(Pens.Red, StartCapBounds);
 				//if (EndCapBounds != Geometry.InvalidRectangle)
-				//    graphics.DrawRectangle(Pens.Red, EndCapBounds);
-
+				//	graphics.DrawRectangle(Pens.Red, EndCapBounds);
 
 				//if (!IsLine) {
-				//    // Draw start- and sweep angle of the arc
-				//    using (Brush sweepAngBrush = new SolidBrush(Color.FromArgb(128, Color.Blue)))
-				//        GdiHelpers.DrawAngle(graphics, sweepAngBrush, Center, arcStartAngle, arcSweepAngle, (int)Math.Round(3 * (Radius / 4)));
-				//    using (Brush startAngBrush = new SolidBrush(Color.FromArgb(128, Color.Navy)))
-				//        GdiHelpers.DrawAngle(graphics, startAngBrush, Center, arcStartAngle, (int)Math.Round(Radius / 2));
+				//	// Draw start- and sweep angle of the arc
+				//	using (Brush sweepAngBrush = new SolidBrush(Color.FromArgb(128, Color.Blue)))
+				//		GdiHelpers.DrawAngle(graphics, sweepAngBrush, Center, _arcStartAngle, _arcSweepAngle, (int)Math.Round(3 * (Radius / 4)));
+				//	using (Brush startAngBrush = new SolidBrush(Color.FromArgb(128, Color.Navy)))
+				//		GdiHelpers.DrawAngle(graphics, startAngBrush, Center, _arcStartAngle, (int)Math.Round(Radius / 2));
 
-				//    // Draw the arc's vertices
-				//    GdiHelpers.DrawPoint(graphics, Pens.Lime, StartPoint.X, StartPoint.Y, 10);
-				//    GdiHelpers.DrawPoint(graphics, Pens.Blue, RadiusPoint.X, RadiusPoint.Y, 10);
-				//    GdiHelpers.DrawPoint(graphics, Pens.Green, EndPoint.X, EndPoint.Y, 10);
+				//	// Draw the arc's vertices
+				//	GdiHelpers.DrawPoint(graphics, Pens.Lime, StartPoint.X, StartPoint.Y, 10);
+				//	GdiHelpers.DrawPoint(graphics, Pens.Blue, RadiusPoint.X, RadiusPoint.Y, 10);
+				//	GdiHelpers.DrawPoint(graphics, Pens.Green, EndPoint.X, EndPoint.Y, 10);
 
-				//    // Draw the arc's shapePoints
-				//    for (int i = 0; i < shapePoints.Length; ++i)
-				//        GdiHelpers.DrawPoint(graphics, Pens.Red, shapePoints[i].X, shapePoints[i].Y, 3);
-				//    GdiHelpers.DrawPoint(graphics, Pens.Red, Center.X, Center.Y, 3);
-				//    graphics.DrawRectangle(Pens.Red, arcBounds.X, arcBounds.Y, arcBounds.Width, arcBounds.Height);
+				//	// Draw the arc's shapePoints
+				//	for (int i = 0; i < ShapePoints.Length; ++i)
+				//		GdiHelpers.DrawPoint(graphics, Pens.Red, ShapePoints[i].X, ShapePoints[i].Y, 3);
+				//	GdiHelpers.DrawPoint(graphics, Pens.Red, Center.X, Center.Y, 3);
+				//	graphics.DrawRectangle(Pens.Red, _arcBounds.X, _arcBounds.Y, _arcBounds.Width, _arcBounds.Height);
 				//}
 
 				#endregion
 
 				#region Visualize absolute/relative positions
 
-				//// Draw relative positions from 0% - 100%
+				// Draw relative positions from 0% - 100%
 				//RelativePosition relPos = RelativePosition.Empty;
 				//Point p = Point.Empty;
 				//int size = 10;
@@ -529,80 +534,80 @@ namespace Dataweb.NShape.Advanced {
 				//relPos.A = 0;
 				//int cnt = 10;
 				//for (int i = 0; i <= cnt; ++i) {
-				//   relPos.A = i * (1000 / cnt);
-				//   p = CalculateAbsolutePosition(relPos);
-				//   GdiHelpers.DrawPoint(graphics, Pens.Green, p.X, p.Y, size);
-				//   relPos = CalculateRelativePosition(p.X, p.Y);
-				//   GdiHelpers.DrawPoint(graphics, Pens.Red, p.X, p.Y, size);
+				//	relPos.A = i * (1000 / cnt);
+				//	p = CalculateAbsolutePosition(relPos);
+				//	GdiHelpers.DrawPoint(graphics, Pens.Green, p.X, p.Y, size);
+				//	relPos = CalculateRelativePosition(p.X, p.Y);
+				//	GdiHelpers.DrawPoint(graphics, Pens.Red, p.X, p.Y, size);
 				//}
 
 				//// Draw angles to connected glue points
 				//if (!IsLine) {
-				//   foreach (ShapeConnectionInfo ci in GetConnectionInfos(ControlPointId.Reference, null)) {
-				//      Point pt = ci.OtherShape.GetControlPointPosition(ci.OtherPointId);
-				//      float angleDeg = Geometry.RadiansToDegrees(Geometry.Angle(Center.X, Center.Y, StartPoint.X, StartPoint.Y, pt.X, pt.Y));
-				//      if (angleDeg < 0) angleDeg += 360;
-				//      GdiHelpers.DrawAngle(graphics, Brushes.Red, Center, arcStartAngle + angleDeg, (int)(Radius / 2));
-				//      GdiHelpers.DrawPoint(graphics, Pens.Blue, pt.X, pt.Y, 3);
-				//   }
+				//	foreach (ShapeConnectionInfo ci in GetConnectionInfos(ControlPointId.Reference, null)) {
+				//		Point pt = ci.OtherShape.GetControlPointPosition(ci.OtherPointId);
+				//		float angleDeg = Geometry.RadiansToDegrees(Geometry.Angle(Center.X, Center.Y, StartPoint.X, StartPoint.Y, pt.X, pt.Y));
+				//		if (angleDeg < 0) angleDeg += 360;
+				//		GdiHelpers.DrawAngle(graphics, Brushes.Red, Center, _arcStartAngle + angleDeg, (int)(Radius / 2));
+				//		GdiHelpers.DrawPoint(graphics, Pens.Blue, pt.X, pt.Y, 3);
+				//	}
 				//}
 
 				//if (!IsLine) {
-				//   // Draw angle to point 0 and shapeAngle to point 2
-				//   float arcRadius;
-				//   PointF arcCenter = Geometry.CalcArcCenterAndRadius((float)StartPoint.X, (float)StartPoint.Y, (float)RadiusPoint.X, (float)RadiusPoint.Y, (float)EndPoint.X, (float)EndPoint.Y, out arcRadius);
+				//	// Draw angle to point 0 and shapeAngle to point 2
+				//	float arcRadius;
+				//	PointF arcCenter = Geometry.CalcArcCenterAndRadius((float)StartPoint.X, (float)StartPoint.Y, (float)RadiusPoint.X, (float)RadiusPoint.Y, (float)EndPoint.X, (float)EndPoint.Y, out arcRadius);
 
-				//   SolidBrush startAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Red));
-				//   SolidBrush sweepAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Blue));
-				//   SolidBrush ptAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Green));
+				//	SolidBrush startAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Red));
+				//	SolidBrush sweepAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Blue));
+				//	SolidBrush ptAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Green));
 
-				//   // Draw StartAngle
-				//   float angleToStartPt = (360 + Geometry.RadiansToDegrees(Geometry.Angle(Center.X, Center.Y, StartPoint.X, StartPoint.Y))) % 360;
-				//   GdiHelpers.DrawAngle(graphics, startAngleBrush, arcCenter, angleToStartPt, (int)(Radius / 2));
+				//	// Draw StartAngle
+				//	float angleToStartPt = (360 + Geometry.RadiansToDegrees(Geometry.Angle(Center.X, Center.Y, StartPoint.X, StartPoint.Y))) % 360;
+				//	GdiHelpers.DrawAngle(graphics, startAngleBrush, arcCenter, angleToStartPt, (int)(Radius / 2));
 
-				//   // Draw relative Position of connected shape
-				//   foreach (ShapeConnectionInfo ci in GetConnectionInfos(ControlPointId.Reference, null)) {
-				//      if (ci.OwnPointId != ControlPointId.Reference) continue;
-				//      Point oPt = ci.OtherShape.GetControlPointPosition(ci.OtherPointId);
+				//	// Draw relative Position of connected shape
+				//	foreach (ShapeConnectionInfo ci in GetConnectionInfos(ControlPointId.Reference, null)) {
+				//		if (ci.OwnPointId != ControlPointId.Reference) continue;
+				//		Point oPt = ci.OtherShape.GetControlPointPosition(ci.OtherPointId);
 
-				//      RelativePosition relativePosition = CalculateRelativePosition(oPt.X, oPt.Y);
-				//      float arcLength = Radius * Geometry.DegreesToRadians(SweepAngle);
-				//      float resAngleToPt = Geometry.RadiansToDegrees((arcLength * relativePosition.A / 1000f) / Radius);
+				//		RelativePosition relativePosition = CalculateRelativePosition(oPt.X, oPt.Y);
+				//		float arcLength = Radius * Geometry.DegreesToRadians(SweepAngle);
+				//		float resAngleToPt = Geometry.RadiansToDegrees((arcLength * relativePosition.A / 1000f) / Radius);
 
-				//      // Draw relative position
-				//      GdiHelpers.DrawAngle(graphics, sweepAngleBrush, Center, angleToStartPt, resAngleToPt, (int)(Radius - (Radius / 4)));
+				//		// Draw relative position
+				//		GdiHelpers.DrawAngle(graphics, sweepAngleBrush, Center, angleToStartPt, resAngleToPt, (int)(Radius - (Radius / 4)));
 
-				//      // Draw absolute position
-				//      Point absPtPos = CalculateAbsolutePosition(relativePosition);
-				//      GdiHelpers.DrawPoint(graphics, Pens.Red, absPtPos.X, absPtPos.Y, 13);
-				//      break;
-				//   }
+				//		// Draw absolute position
+				//		Point absPtPos = CalculateAbsolutePosition(relativePosition);
+				//		GdiHelpers.DrawPoint(graphics, Pens.Red, absPtPos.X, absPtPos.Y, 13);
+				//		break;
+				//	}
 
-				//   startAngleBrush.Dispose();
-				//   sweepAngleBrush.Dispose();
+				//	startAngleBrush.Dispose();
+				//	sweepAngleBrush.Dispose();
 				//}
 
 				//if (!IsLine) {
-				//   // Draw start angle to point 0 and sweep angle to point 2
-				//   float arcRadius;
-				//   PointF arcCenter = Geometry.CalcArcCenterAndRadius((float)StartPoint.X, (float)StartPoint.Y, (float)RadiusPoint.X, (float)RadiusPoint.Y, (float)EndPoint.X, (float)EndPoint.Y, out arcRadius);
+				//	// Draw start angle to point 0 and sweep angle to point 2
+				//	float arcRadius;
+				//	PointF arcCenter = Geometry.CalcArcCenterAndRadius((float)StartPoint.X, (float)StartPoint.Y, (float)RadiusPoint.X, (float)RadiusPoint.Y, (float)EndPoint.X, (float)EndPoint.Y, out arcRadius);
 
-				//   GdiHelpers.DrawPoint(graphics, Pens.Red, shapePoints[0].X, shapePoints[0].Y, 4);
-				//   GdiHelpers.DrawPoint(graphics, Pens.Purple, shapePoints[1].X, shapePoints[1].Y, 4);
-				//   GdiHelpers.DrawPoint(graphics, Pens.Blue, shapePoints[2].X, shapePoints[2].Y, 4);
+				//	GdiHelpers.DrawPoint(graphics, Pens.Red, ShapePoints[0].X, ShapePoints[0].Y, 4);
+				//	GdiHelpers.DrawPoint(graphics, Pens.Purple, ShapePoints[1].X, ShapePoints[1].Y, 4);
+				//	GdiHelpers.DrawPoint(graphics, Pens.Blue, ShapePoints[2].X, ShapePoints[2].Y, 4);
 
-				//   SolidBrush startAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Red));
-				//   SolidBrush sweepAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Blue));
+				//	SolidBrush startAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Red));
+				//	SolidBrush sweepAngleBrush = new SolidBrush(Color.FromArgb(96, Color.Blue));
 
-				//   float startAngle = Geometry.RadiansToDegrees(Geometry.Angle(arcCenter.X, arcCenter.Y, shapePoints[0].X, shapePoints[0].Y));
-				//   float endAngle = Geometry.RadiansToDegrees(Geometry.Angle(arcCenter.X, arcCenter.Y, shapePoints[2].X, shapePoints[2].Y));
-				//   if (!float.IsNaN(startAngle))
-				//      GdiHelpers.DrawAngle(graphics, startAngleBrush, Center, startAngle, (int)(Radius / 2));
-				//   if (!float.IsNaN(endAngle))
-				//      GdiHelpers.DrawAngle(graphics, sweepAngleBrush, Center, endAngle, (int)(Radius / 2));
+				//	float startAngle = Geometry.RadiansToDegrees(Geometry.Angle(arcCenter.X, arcCenter.Y, ShapePoints[0].X, ShapePoints[0].Y));
+				//	float endAngle = Geometry.RadiansToDegrees(Geometry.Angle(arcCenter.X, arcCenter.Y, ShapePoints[2].X, ShapePoints[2].Y));
+				//	if (!float.IsNaN(startAngle))
+				//		GdiHelpers.DrawAngle(graphics, startAngleBrush, Center, startAngle, (int)(Radius / 2));
+				//	if (!float.IsNaN(endAngle))
+				//		GdiHelpers.DrawAngle(graphics, sweepAngleBrush, Center, endAngle, (int)(Radius / 2));
 
-				//   startAngleBrush.Dispose();
-				//   sweepAngleBrush.Dispose();
+				//	startAngleBrush.Dispose();
+				//	sweepAngleBrush.Dispose();
 				//}
 
 				#endregion
@@ -611,81 +616,81 @@ namespace Dataweb.NShape.Advanced {
 
 				//ControlPointId gluePointId = ControlPointId.LastVertex;
 				//if (!IsLine && IsConnected(gluePointId, null) != ControlPointId.None) {
-				//   ShapeConnectionInfo ci = GetConnectionInfo(gluePointId, null);
-				//   Shape shape = ci.OtherShape;
-				//   Point ptPos = Geometry.InvalidPoint;
-				//   // Calculate desired arc: 
-				//   // Start point, end point, center and radius
-				//   ShapeConnectionInfo startCi = GetConnectionInfo(ControlPointId.FirstVertex, null);
-				//   ShapeConnectionInfo endCi = GetConnectionInfo(ControlPointId.LastVertex, null);
-				//   Point startPt = Point.Empty, endPt = Point.Empty;
-				//   if (startCi.IsEmpty) startPt.Offset(StartPoint.X, StartPoint.Y);
-				//   else startPt.Offset(startCi.OtherShape.X, startCi.OtherShape.Y);
-				//   if (endCi.IsEmpty) endPt.Offset(EndPoint.X, EndPoint.Y);
-				//   else endPt.Offset(endCi.OtherShape.X, endCi.OtherShape.Y);
-				//   float r;
-				//   PointF centerPt = Geometry.CalcArcCenterAndRadius(startPt, RadiusPoint, endPt, out r);
-				//   //
-				//   // Draw the base circle of the new arc
-				//   Pen tmpPen = Pens.Yellow;
-				//   GdiHelpers.DrawLine(graphics, tmpPen, centerPt, startPt);
-				//   GdiHelpers.DrawLine(graphics, tmpPen, centerPt, endPt);
-				//   GdiHelpers.DrawPoint(graphics, tmpPen, centerPt.X, centerPt.Y, 3);
-				//   graphics.DrawEllipse(tmpPen, centerPt.X - radius, centerPt.Y - radius, radius + radius, radius + radius);
+				//	ShapeConnectionInfo ci = GetConnectionInfo(gluePointId, null);
+				//	Shape shape = ci.OtherShape;
+				//	Point ptPos = Geometry.InvalidPoint;
+				//	// Calculate desired arc: 
+				//	// Start point, end point, center and radius
+				//	ShapeConnectionInfo startCi = GetConnectionInfo(ControlPointId.FirstVertex, null);
+				//	ShapeConnectionInfo endCi = GetConnectionInfo(ControlPointId.LastVertex, null);
+				//	Point startPt = Point.Empty, endPt = Point.Empty;
+				//	if (startCi.IsEmpty) startPt.Offset(StartPoint.X, StartPoint.Y);
+				//	else startPt.Offset(startCi.OtherShape.X, startCi.OtherShape.Y);
+				//	if (endCi.IsEmpty) endPt.Offset(EndPoint.X, EndPoint.Y);
+				//	else endPt.Offset(endCi.OtherShape.X, endCi.OtherShape.Y);
+				//	float r;
+				//	PointF centerPt = Geometry.CalcArcCenterAndRadius(startPt, RadiusPoint, endPt, out r);
+				//	//
+				//	// Draw the base circle of the new arc
+				//	Pen tmpPen = Pens.Yellow;
+				//	GdiHelpers.DrawLine(graphics, tmpPen, centerPt, startPt);
+				//	GdiHelpers.DrawLine(graphics, tmpPen, centerPt, endPt);
+				//	GdiHelpers.DrawPoint(graphics, tmpPen, centerPt.X, centerPt.Y, 3);
+				//	graphics.DrawEllipse(tmpPen, centerPt.X - _radius, centerPt.Y - _radius, _radius + _radius, _radius + _radius);
 
-				//   //
-				//   // Calculate tangent on the desired arc through the other shape's center
-				//   Point tangentPt = IsFirstVertex(gluePointId) ? startPt : endPt;
-				//   float a, b, c;
-				//   Geometry.CalcPerpendicularLine(centerPt.X, centerPt.Y, tangentPt.X, tangentPt.Y, out a, out b, out c);
-				//   int aT, bT, cT;
-				//   Geometry.TranslateLine((int)a, (int)b, (int)c, tangentPt, out aT, out bT, out cT);
-				//   // Draw Tangent
-				//   tmpPen = Pens.Orange;
-				//   GdiHelpers.DrawLine(graphics, tmpPen, aT, bT, cT);
-				//   GdiHelpers.DrawPoint(graphics, tmpPen, tangentPt.X, tangentPt.Y, 3);
+				//	//
+				//	// Calculate tangent on the desired arc through the other shape's center
+				//	Point tangentPt = IsFirstVertex(gluePointId) ? startPt : endPt;
+				//	float a, b, c;
+				//	Geometry.CalcPerpendicularLine(centerPt.X, centerPt.Y, tangentPt.X, tangentPt.Y, out a, out b, out c);
+				//	int aT, bT, cT;
+				//	Geometry.TranslateLine((int)a, (int)b, (int)c, tangentPt, out aT, out bT, out cT);
+				//	// Draw Tangent
+				//	tmpPen = Pens.Orange;
+				//	GdiHelpers.DrawLine(graphics, tmpPen, aT, bT, cT);
+				//	GdiHelpers.DrawPoint(graphics, tmpPen, tangentPt.X, tangentPt.Y, 3);
 
-				//   //
-				//   // Calculate intersection point of the calculated tangent and the perpendicular bisector 
-				//   // of the line through startPt and endPt
-				//   Geometry.CalcPerpendicularBisector(startPt.X, startPt.Y, endPt.X, endPt.Y, out a, out b, out c);
-				//   PointF pT = Geometry.IntersectLines(aT, bT, cT, a, b, c);
-				//   //
-				//   // Draw the calculated intersection point and the perpendicular bisector
-				//   tmpPen = Pens.OrangeRed;
-				//   GdiHelpers.DrawLine(graphics, tmpPen, a, b, c);
-				//   GdiHelpers.DrawPoint(graphics, tmpPen, (endPt.X - ((endPt.X - startPt.X) / 2)), (endPt.Y - ((endPt.Y - startPt.Y) / 2)), 3);
+				//	//
+				//	// Calculate intersection point of the calculated tangent and the perpendicular bisector 
+				//	// of the line through startPt and endPt
+				//	Geometry.CalcPerpendicularBisector(startPt.X, startPt.Y, endPt.X, endPt.Y, out a, out b, out c);
+				//	PointF pT = Geometry.IntersectLines(aT, bT, cT, a, b, c);
+				//	//
+				//	// Draw the calculated intersection point and the perpendicular bisector
+				//	tmpPen = Pens.OrangeRed;
+				//	GdiHelpers.DrawLine(graphics, tmpPen, a, b, c);
+				//	GdiHelpers.DrawPoint(graphics, tmpPen, (endPt.X - ((endPt.X - startPt.X) / 2)), (endPt.Y - ((endPt.Y - startPt.Y) / 2)), 3);
 
-				//   if (pT != Geometry.InvalidPointF) {
-				//      PointF pB = Geometry.VectorLinearInterpolation(startPt, endPt, 0.5);
-				//      ptPos = Point.Round(Geometry.VectorLinearInterpolation(pB, pT, 0.75));
+				//	if (pT != Geometry.InvalidPointF) {
+				//		PointF pB = Geometry.VectorLinearInterpolation(startPt, endPt, 0.5f);
+				//		ptPos = Point.Round(Geometry.VectorLinearInterpolation(pB, pT, 0.75f));
 
-				//      graphics.DrawLine(Pens.DarkRed, ptPos, centerPt);
-				//      // Check if the calculated point is on the right side
-				//      bool chk = Geometry.ArcIntersectsWithLine(startPt.X, startPt.Y, RadiusPoint.X, RadiusPoint.Y, endPt.X, endPt.Y, ptPos.X, ptPos.Y, centerPt.X, centerPt.Y, true);
+				//		graphics.DrawLine(Pens.DarkRed, ptPos, centerPt);
+				//		// Check if the calculated point is on the right side
+				//		bool chk = Geometry.ArcIntersectsWithLine(startPt.X, startPt.Y, RadiusPoint.X, RadiusPoint.Y, endPt.X, endPt.Y, ptPos.X, ptPos.Y, centerPt.X, centerPt.Y, true);
 
-				//      bool intersectswith = false;
-				//      List<PointF> chkPts = new List<PointF>(Geometry.IntersectArcLine(startPt, RadiusPoint, endPt, ptPos, centerPt, true));
-				//      for (int i = chkPts.Count - 1; i >= 0; --i) {
-				//         if (chkPts[i] != Geometry.InvalidPointF) {
-				//            intersectswith = true;
-				//            break;
-				//         }
-				//      }
-				//      if (!intersectswith)
-				//         ptPos = Geometry.VectorLinearInterpolation(ptPos, tangentPt, 2);
+				//		bool intersectswith = false;
+				//		List<PointF> chkPts = new List<PointF>(Geometry.IntersectArcLine(startPt, RadiusPoint, endPt, ptPos, centerPt, true));
+				//		for (int i = chkPts.Count - 1; i >= 0; --i) {
+				//			if (chkPts[i] != Geometry.InvalidPointF) {
+				//				intersectswith = true;
+				//				break;
+				//			}
+				//		}
+				//		if (!intersectswith)
+				//			ptPos = Geometry.VectorLinearInterpolation(ptPos, tangentPt, 2);
 
-				//      //
-				//      // Draw the calculated point
-				//      GdiHelpers.DrawPoint(graphics, Pens.Red, ptPos.X, ptPos.Y, 3);
-				//   }
-				//   // If the arc only has 2 points or something went wrong while calculating the desired arc
-				//   if (ptPos == Geometry.InvalidPoint)
-				//      ptPos = Geometry.VectorLinearInterpolation(StartPoint, EndPoint, 0.5d);
-				//   Point result = CalcGluePointFromPosition(gluePointId, shape, ptPos.X, ptPos.Y);
-				//   //
-				//   // Draw resulting intersection point
-				//   GdiHelpers.DrawPoint(graphics, Pens.Lime, result.X, result.Y, 3);
+				//		//
+				//		// Draw the calculated point
+				//		GdiHelpers.DrawPoint(graphics, Pens.Red, ptPos.X, ptPos.Y, 3);
+				//	}
+				//	// If the arc only has 2 points or something went wrong while calculating the desired arc
+				//	if (ptPos == Geometry.InvalidPoint)
+				//		ptPos = Geometry.VectorLinearInterpolation(StartPoint, EndPoint, 0.5f);
+				//	Point result = CalcGluePointFromPosition(gluePointId, shape, ptPos.X, ptPos.Y);
+				//	//
+				//	// Draw resulting intersection point
+				//	GdiHelpers.DrawPoint(graphics, Pens.Lime, result.X, result.Y, 3);
 				//}
 
 				#endregion
@@ -696,41 +701,41 @@ namespace Dataweb.NShape.Advanced {
 				//if (!IsLine
 				//   && IsConnected(ControlPointId.FirstVertex, null) == ControlPointId.Reference
 				//   && IsConnected(ControlPointId.LastVertex, null) == ControlPointId.Reference) {
-				//   // Get partner shapes and current glue point positions
-				//   Shape shapeA = GetConnectionInfo(ControlPointId.FirstVertex, null).OtherShape;
-				//   Shape shapeB = GetConnectionInfo(ControlPointId.LastVertex, null).OtherShape;
-				//   Point currGluePtAPos = GetControlPointPosition(ControlPointId.FirstVertex);
-				//   Point currGluePtBPos = GetControlPointPosition(ControlPointId.LastVertex);
+				//	// Get partner shapes and current glue point positions
+				//	Shape shapeA = GetConnectionInfo(ControlPointId.FirstVertex, null).OtherShape;
+				//	Shape shapeB = GetConnectionInfo(ControlPointId.LastVertex, null).OtherShape;
+				//	Point currGluePtAPos = GetControlPointPosition(ControlPointId.FirstVertex);
+				//	Point currGluePtBPos = GetControlPointPosition(ControlPointId.LastVertex);
 
-				//   float sPtAngle = Geometry.RadiansToDegrees(Geometry.Angle(shapeA.X, shapeA.Y, RadiusPoint.X, RadiusPoint.Y));
-				//   float ePtAngle = Geometry.RadiansToDegrees(Geometry.Angle(shapeB.X, shapeB.Y, RadiusPoint.X, RadiusPoint.Y));
-				//   float dist = Geometry.DistancePointPoint(shapeA.X, shapeA.Y, shapeB.X, shapeB.Y) * 2;
-				//   Point tmpPtS = Geometry.CalcPoint(shapeA.X, shapeA.Y, sPtAngle, dist);
-				//   Point tmpPtE = Geometry.CalcPoint(shapeB.X, shapeB.Y, ePtAngle, dist);
-				//   Point newRadiusPtPos = Geometry.IntersectLines(
-				//      shapeA.X, shapeA.Y, tmpPtS.X, tmpPtS.Y,
-				//      shapeB.X, shapeB.Y, tmpPtE.X, tmpPtE.Y);
-				//   if (newRadiusPtPos == Geometry.InvalidPoint)
-				//      newRadiusPtPos = Geometry.VectorLinearInterpolation(shapeA.X, shapeA.Y, shapeB.X, shapeB.Y, 0.5);
+				//	float sPtAngle = Geometry.RadiansToDegrees(Geometry.Angle(shapeA.X, shapeA.Y, RadiusPoint.X, RadiusPoint.Y));
+				//	float ePtAngle = Geometry.RadiansToDegrees(Geometry.Angle(shapeB.X, shapeB.Y, RadiusPoint.X, RadiusPoint.Y));
+				//	float dist = Geometry.DistancePointPoint(shapeA.X, shapeA.Y, shapeB.X, shapeB.Y) * 2;
+				//	Point tmpPtS = Geometry.CalcPoint(shapeA.X, shapeA.Y, sPtAngle, dist);
+				//	Point tmpPtE = Geometry.CalcPoint(shapeB.X, shapeB.Y, ePtAngle, dist);
+				//	Point newRadiusPtPos = Geometry.IntersectLines(
+				//	   shapeA.X, shapeA.Y, tmpPtS.X, tmpPtS.Y,
+				//	   shapeB.X, shapeB.Y, tmpPtE.X, tmpPtE.Y);
+				//	if (newRadiusPtPos == Geometry.InvalidPoint)
+				//		newRadiusPtPos = Geometry.VectorLinearInterpolation(shapeA.X, shapeA.Y, shapeB.X, shapeB.Y, 0.5f);
 
-				//   // Calculate a common base point for connection foot calculation
-				//   Point calcBasePtA = CalcGluePointCalculationBase(ControlPointId.FirstVertex, shapeA);
-				//   Point calcBasePtB = CalcGluePointCalculationBase(ControlPointId.LastVertex, shapeB);
-				//   Point calcBasePt = Geometry.VectorLinearInterpolation(calcBasePtA, calcBasePtB, 0.5);
-				//   // Calc new glue point positions from the common calculation base
-				//   Point newGluePtAPos = CalcGluePointFromPosition(ControlPointId.FirstVertex, shapeA, calcBasePt.X, calcBasePt.Y);
-				//   Point newGluePtBPos = CalcGluePointFromPosition(ControlPointId.LastVertex, shapeB, calcBasePt.X, calcBasePt.Y);
-				//   // Move both glue points to their final destination
+				//	// Calculate a common base point for connection foot calculation
+				//	Point calcBasePtA = CalcGluePointCalculationBase(ControlPointId.FirstVertex, shapeA);
+				//	Point calcBasePtB = CalcGluePointCalculationBase(ControlPointId.LastVertex, shapeB);
+				//	Point calcBasePt = Geometry.VectorLinearInterpolation(calcBasePtA, calcBasePtB, 0.5f);
+				//	// Calc new glue point positions from the common calculation base
+				//	Point newGluePtAPos = CalcGluePointFromPosition(ControlPointId.FirstVertex, shapeA, calcBasePt.X, calcBasePt.Y);
+				//	Point newGluePtBPos = CalcGluePointFromPosition(ControlPointId.LastVertex, shapeB, calcBasePt.X, calcBasePt.Y);
+				//	// Move both glue points to their final destination
 
-				//   Pen tmpPen;
-				//   tmpPen = Pens.Red;
-				//   GdiHelpers.DrawLine(graphics, tmpPen, StartPoint, tmpPtS);
-				//   tmpPen = Pens.Blue;
-				//   GdiHelpers.DrawLine(graphics, tmpPen, EndPoint, tmpPtE);
-				//   tmpPen = Pens.Lime;
-				//   GdiHelpers.DrawPoint(graphics, tmpPen, newRadiusPtPos, 3);
-				//   GdiHelpers.DrawPoint(graphics, tmpPen, newGluePtAPos, 3);
-				//   GdiHelpers.DrawPoint(graphics, tmpPen, newGluePtBPos, 3);
+				//	Pen tmpPen;
+				//	tmpPen = Pens.Red;
+				//	GdiHelpers.DrawLine(graphics, tmpPen, StartPoint, tmpPtS);
+				//	tmpPen = Pens.Blue;
+				//	GdiHelpers.DrawLine(graphics, tmpPen, EndPoint, tmpPtE);
+				//	tmpPen = Pens.Lime;
+				//	GdiHelpers.DrawPoint(graphics, tmpPen, newRadiusPtPos, 3);
+				//	GdiHelpers.DrawPoint(graphics, tmpPen, newGluePtAPos, 3);
+				//	GdiHelpers.DrawPoint(graphics, tmpPen, newGluePtBPos, 3);
 				//}
 
 				#endregion
@@ -762,7 +767,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void DrawThumbnail(Image image, int margin, Color transparentColor) {
-			if (image == null) throw new ArgumentNullException("image");
+			if (image == null) throw new ArgumentNullException(nameof(image));
 			using (Graphics g = Graphics.FromImage(image)) {
 				GdiHelpers.ApplyGraphicsSettings(g, RenderingQuality.MaximumQuality);
 				g.Clear(transparentColor);
@@ -972,28 +977,24 @@ namespace Dataweb.NShape.Advanced {
 					// Try to maintain angle between StartPoint and RadiusPoint
 					Point movedPtPos = GetControlPointPosition(pointId);
 					Point otherGluePtPos = GetControlPointPosition(otherGluePtId);
-					int hX = otherGluePtPos.X;
-					int hY = otherGluePtPos.Y;
-					Geometry.RotatePoint(movedPtPos.X, movedPtPos.Y, radiusPtAngle, ref hX, ref hY);
-
-					int aPb, bPb, cPb; // perpendicular bisector
-					int aR, bR, cR;	// line through start point and radius point
-					Geometry.CalcPerpendicularBisector(movedPtPos.X, movedPtPos.Y, otherGluePtPos.X, otherGluePtPos.Y, out aPb, out bPb, out cPb);
-					Geometry.CalcLine(movedPtPos.X, movedPtPos.Y, hX, hY, out aR, out bR, out cR);
-
 					Point newPos = Geometry.InvalidPoint;
 					if (radiusPtAngle % 90 == 0) {
 						// Lines are parallel or equal
 						Point newCenterPt = Geometry.VectorLinearInterpolation(movedPtPos, otherGluePtPos, 0.5f);
 						newPos = Geometry.RotatePoint(newCenterPt, radiusPtAngle, otherGluePtPos);
-					} else 
-						newPos = Geometry.IntersectLines(aPb, bPb, cPb, aR, bR, cR);
+					} else {
+						int hX = otherGluePtPos.X;
+						int hY = otherGluePtPos.Y;
+						Geometry.RotatePoint(movedPtPos.X, movedPtPos.Y, radiusPtAngle, ref hX, ref hY);
+
+						Geometry.CalcPerpendicularBisector(movedPtPos.X, movedPtPos.Y, otherGluePtPos.X, otherGluePtPos.Y, out int aPX, out int apY, out int bPX, out int bPY);
+						newPos = Geometry.IntersectLines(aPX, apY, bPX, bPY, movedPtPos.X, movedPtPos.Y, hX, hY);
+					}
 					Debug.Assert(Geometry.IsValid(newPos));
 					if (Geometry.IsValid(newPos))
 						GetControlPoint(radPointIdx).SetPosition(newPos);
 
-					// After moving the point between the glue points, we have to recalculate the glue point
-					// positions again
+					// After moving the point between the glue points, we have to recalculate the glue point positions again
 					MaintainGluePointPosition(ControlPointId.LastVertex, GetPreviousVertexId(ControlPointId.LastVertex));
 					MaintainGluePointPosition(ControlPointId.FirstVertex, GetNextVertexId(ControlPointId.FirstVertex));
 				}
@@ -1137,7 +1138,7 @@ namespace Dataweb.NShape.Advanced {
 						}
 					}
 					return GetControlPointPosition(_radiusPointId);
-				} else throw new ArgumentOutOfRangeException("VertexCount");
+				} else throw new ArgumentOutOfRangeException(nameof(VertexCount));
 			}
 		}
 
@@ -1228,10 +1229,10 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private bool CalculateAngles(PointF centerPt, Point startPt, Point radiusPt, Point endPt, out float startAngle, out float sweepAngle) {
-			if (!Geometry.IsValid(centerPt)) throw new ArgumentException("centerPt");
-			if (!Geometry.IsValid(startPt)) throw new ArgumentException("startPt");
-			if (!Geometry.IsValid(endPt)) throw new ArgumentException("endPt");
-			if (!Geometry.IsValid(radiusPt)) throw new ArgumentException("radiusPt");
+			if (!Geometry.IsValid(centerPt)) throw new ArgumentException(nameof(centerPt));
+			if (!Geometry.IsValid(startPt)) throw new ArgumentException(nameof(startPt));
+			if (!Geometry.IsValid(endPt)) throw new ArgumentException(nameof(endPt));
+			if (!Geometry.IsValid(radiusPt)) throw new ArgumentException(nameof(radiusPt));
 			startAngle = sweepAngle = float.NaN;
 
 			// Get sorted id's and positions of vertices
@@ -1415,15 +1416,12 @@ namespace Dataweb.NShape.Advanced {
 				//
 				// Calculate tangent on the desired arc through the other shape's center
 				Point tangentPt = IsFirstVertex(gluePointId) ? startPt : endPt;
-				float a, b, c;
-				Geometry.CalcPerpendicularLine(centerPt.X, centerPt.Y, tangentPt.X, tangentPt.Y, out a, out b, out c);
-				float aT, bT, cT;
-				Geometry.TranslateLine(a, b, c, tangentPt, out aT, out bT, out cT);
+				Geometry.CalcPerpendicularLine(tangentPt.X, tangentPt.Y, centerPt.X, centerPt.Y, out float t2X, out float t2Y, out float t1X, out float t1Y);
 				//
 				// Calculate intersection point of the calculated tangent and the perpendicular bisector 
 				// of the line through startPt and endPt
-				Geometry.CalcPerpendicularBisector(startPt.X, startPt.Y, endPt.X, endPt.Y, out a, out b, out c);
-				PointF pT = Geometry.IntersectLines(aT, bT, cT, a, b, c);
+				Geometry.CalcPerpendicularBisector(startPt.X, startPt.Y, endPt.X, endPt.Y, out float b1X, out float b1Y, out float b2X, out float b2Y);
+				PointF pT = Geometry.IntersectLines(t1X, t1Y, t2X, t2Y, b1X, b1Y, b2X, b2Y);
 				if (Geometry.IsValid(pT)) {
 					PointF pB = Geometry.VectorLinearInterpolation(startPt, endPt, 0.5f);
 					result = Point.Round(Geometry.VectorLinearInterpolation(pB, pT, 0.75f));
@@ -1433,7 +1431,8 @@ namespace Dataweb.NShape.Advanced {
 				}
 			}
 			// If the arc only has 2 points or something went wrong while calculating the desired arc
-			if (!Geometry.IsValid(result)) result = Geometry.VectorLinearInterpolation(StartPoint, EndPoint, 0.5f);
+			if (!Geometry.IsValid(result)) 
+				result = Geometry.VectorLinearInterpolation(StartPoint, EndPoint, 0.5f);
 			return result;
 		}
 

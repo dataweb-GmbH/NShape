@@ -75,7 +75,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="paragraphStyle">The paragraph layout of the text</param>
 		/// <returns></returns>
 		public static Size MeasureText(Graphics graphics, string text, ICharacterStyle characterStyle, Size proposedSize, IParagraphStyle paragraphStyle) {
-			if (paragraphStyle == null) throw new ArgumentNullException("paragraphStyle");
+			if (paragraphStyle == null) throw new ArgumentNullException(nameof(paragraphStyle));
 			return MeasureText(graphics, text, ToolCache.GetFont(characterStyle), proposedSize, ToolCache.GetStringFormat(paragraphStyle));
 		}
 
@@ -90,7 +90,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="paragraphStyle">The paragraph layout of the text</param>
 		/// <returns></returns>
 		public static Size MeasureText(Graphics graphics, string text, Font font, Size proposedSize, IParagraphStyle paragraphStyle) {
-			if (paragraphStyle == null) throw new ArgumentNullException("paragraphStyle");
+			if (paragraphStyle == null) throw new ArgumentNullException(nameof(paragraphStyle));
 			return MeasureText(graphics, text, font, proposedSize, ToolCache.GetStringFormat(paragraphStyle));
 		}
 
@@ -105,10 +105,10 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="format">StringFormat object defining the layout of the text</param>
 		/// <returns></returns>
 		public static Size MeasureText(Graphics graphics, string text, Font font, Size proposedSize, StringFormat format) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
-			if (font == null) throw new ArgumentNullException("font");
-			if (text == null) throw new ArgumentNullException("text");
-			if (format == null) throw new ArgumentNullException("format");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
+			if (font == null) throw new ArgumentNullException(nameof(font));
+			if (text == null) throw new ArgumentNullException(nameof(text));
+			if (format == null) throw new ArgumentNullException(nameof(format));
 			// Add Flag "Measure Trailing Spaces" if not set
 			StringFormatFlags flags = format.FormatFlags;
 			bool flagRemoved = RemoveFlag(ref flags, StringFormatFlags.MeasureTrailingSpaces);

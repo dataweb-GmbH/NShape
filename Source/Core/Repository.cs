@@ -845,7 +845,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryProjectEventArgs(ProjectSettings projectSettings) {
-			if (projectSettings == null) throw new ArgumentNullException("projectSettings");
+			if (projectSettings == null) throw new ArgumentNullException(nameof(projectSettings));
 			this._projectSettings = projectSettings;
 		}
 
@@ -868,7 +868,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryModelEventArgs(Model model) {
-			if (model == null) throw new ArgumentNullException("model");
+			if (model == null) throw new ArgumentNullException(nameof(model));
 			this._model = model;
 		}
 
@@ -891,7 +891,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryDesignEventArgs(Design design) {
-			if (design == null) throw new ArgumentNullException("design");
+			if (design == null) throw new ArgumentNullException(nameof(design));
 			this._design = design;
 		}
 
@@ -914,7 +914,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryStyleEventArgs(IStyle style) {
-			if (style == null) throw new ArgumentNullException("style");
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			this._style = style;
 		}
 
@@ -937,7 +937,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryDiagramEventArgs(Diagram diagram) {
-			if (diagram == null) throw new ArgumentNullException("diagram");
+			if (diagram == null) throw new ArgumentNullException(nameof(diagram));
 			this._diagram = diagram;
 		}
 
@@ -960,7 +960,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryTemplateEventArgs(Template template) {
-			if (template == null) throw new ArgumentNullException("template");
+			if (template == null) throw new ArgumentNullException(nameof(template));
 			this._template = template;
 		}
 
@@ -984,8 +984,8 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryTemplateShapeReplacedEventArgs(Template template, Shape oldTemplateShape, Shape newTemplateShape)
 			: base(template) {
-			if (oldTemplateShape == null) throw new ArgumentNullException("oldTemplateShape");
-			if (newTemplateShape == null) throw new ArgumentNullException("newTemplateShape");
+			if (oldTemplateShape == null) throw new ArgumentNullException(nameof(oldTemplateShape));
+			if (newTemplateShape == null) throw new ArgumentNullException(nameof(newTemplateShape));
 			this._oldTemplateShape = oldTemplateShape;
 			this._newTemplateShape = newTemplateShape;
 		}
@@ -1018,14 +1018,14 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryShapesEventArgs(IEnumerable<Shape> shapes, Diagram diagram) {
-			if (shapes == null) throw new ArgumentNullException("shapes");
+			if (shapes == null) throw new ArgumentNullException(nameof(shapes));
 			SetShapes(shapes, diagram);
 		}
 
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryShapesEventArgs(IEnumerable<KeyValuePair<Shape, Diagram>> shapesWithDiagrams) {
-			if (shapesWithDiagrams == null) throw new ArgumentNullException("shapesWithDiagrams");
+			if (shapesWithDiagrams == null) throw new ArgumentNullException(nameof(shapesWithDiagrams));
 			_shapes.Clear();
 			foreach (KeyValuePair<Shape, Diagram> item in shapesWithDiagrams)
 				_shapes.Add(item.Key, item.Value);
@@ -1090,7 +1090,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryModelObjectsEventArgs(IEnumerable<IModelObject> modelObjects) {
-			if (modelObjects == null) throw new ArgumentNullException("modelObjects");
+			if (modelObjects == null) throw new ArgumentNullException(nameof(modelObjects));
 			this._modelObjects.AddRange(modelObjects);
 		}
 
@@ -1135,7 +1135,7 @@ namespace Dataweb.NShape {
 
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryDiagramModelObjectsEventArgs(IEnumerable<IDiagramModelObject> diagramModelObjects) {
-			if (diagramModelObjects == null) throw new ArgumentNullException("diagramModelObjects");
+			if (diagramModelObjects == null) throw new ArgumentNullException(nameof(diagramModelObjects));
 			this._diagramModelObjects.AddRange(diagramModelObjects);
 		}
 
@@ -1181,8 +1181,8 @@ namespace Dataweb.NShape {
 		/// <ToBeCompleted></ToBeCompleted>
 		public RepositoryShapeConnectionEventArgs(Shape connectorShape, ControlPointId gluePointId, Shape targetShape, ControlPointId targetPointId)
 			: this() {
-			if (connectorShape == null) throw new ArgumentNullException("connectorShape");
-			if (targetShape == null) throw new ArgumentNullException("targetShape");
+			if (connectorShape == null) throw new ArgumentNullException(nameof(connectorShape));
+			if (targetShape == null) throw new ArgumentNullException(nameof(targetShape));
 			if (gluePointId == ControlPointId.Any || gluePointId == ControlPointId.None)
 				throw new ArgumentException("gluePointId");
 			if (!connectorShape.HasControlPointCapability(gluePointId, ControlPointCapabilities.Glue))

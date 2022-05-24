@@ -43,7 +43,7 @@ namespace Dataweb.NShape.WinFormsUI {
 		/// </summary>
 		public PropertyPresenter(IPropertyController propertyController)
 			: this() {
-			if (propertyController == null) throw new ArgumentNullException("propertyController");
+			if (propertyController == null) throw new ArgumentNullException(nameof(propertyController));
 			this.PropertyController = propertyController;
 		}
 
@@ -122,7 +122,7 @@ namespace Dataweb.NShape.WinFormsUI {
 				case 1:
 					propertyGrid = _secondaryPropertyGrid;
 					break;
-				default: throw new ArgumentOutOfRangeException("pageIndex");
+				default: throw new ArgumentOutOfRangeException(nameof(pageIndex));
 			}
 		}
 
@@ -133,8 +133,8 @@ namespace Dataweb.NShape.WinFormsUI {
 
 
 		private PropertyInfo GetPropertyInfo(PropertyGrid propertyGrid, GridItem item) {
-			if (propertyGrid == null) throw new ArgumentNullException("propertyGrid");
-			if (item == null) throw new ArgumentNullException("item");
+			if (propertyGrid == null) throw new ArgumentNullException(nameof(propertyGrid));
+			if (item == null) throw new ArgumentNullException(nameof(item));
 			PropertyInfo result = null;
 			int cnt = propertyGrid.SelectedObjects.Length;
 			Type selectedObjectsType = propertyGrid.SelectedObject.GetType();

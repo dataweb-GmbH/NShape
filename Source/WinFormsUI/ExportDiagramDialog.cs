@@ -40,7 +40,7 @@ namespace Dataweb.NShape.WinFormsUI {
 			InitializeComponent();
 			Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			this._diagramPresenter = diagramPresenter;
 			InitializeDialog();
 		}

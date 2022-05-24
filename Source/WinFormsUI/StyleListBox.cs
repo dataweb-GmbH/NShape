@@ -56,24 +56,24 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		public StyleListBox(IWindowsFormsEditorService editorService)
 			: this() {
-			if (editorService == null) throw new ArgumentNullException("editorService");
+			if (editorService == null) throw new ArgumentNullException(nameof(editorService));
 			this._editorService = editorService;
 		}
 
 
 		public StyleListBox(IStyleSet styleSet, Style style, bool showDefaultStyleItem, bool showOpenDesignerItem) :
 			this() {
-			if (styleSet == null) throw new ArgumentNullException("design");
-			if (style == null) throw new ArgumentNullException("style");
+			if (styleSet == null) throw new ArgumentNullException(nameof(styleSet));
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			Initialize(styleSet, showDefaultStyleItem, showOpenDesignerItem, style.GetType(), style);
 		}
 
 
 		public StyleListBox(IWindowsFormsEditorService editorService, IStyleSetProvider styleSetProvider, IStyleSet styleSet, Style style, bool showDefaultStyleItem, bool showOpenDesignerItem)
 			: this(editorService) {
-			if (styleSetProvider == null) throw new ArgumentNullException("styleSetProvider");
-			if (styleSet == null) throw new ArgumentNullException("styleSet");
-			if (style == null) throw new ArgumentNullException("style");
+			if (styleSetProvider == null) throw new ArgumentNullException(nameof(styleSetProvider));
+			if (styleSet == null) throw new ArgumentNullException(nameof(styleSet));
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			this._styleSetProvider = styleSetProvider;
 			Initialize(styleSet, showDefaultStyleItem, showOpenDesignerItem, style.GetType(), style);
 		}
@@ -81,9 +81,9 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		public StyleListBox(IWindowsFormsEditorService editorService, IStyleSetProvider styleSetProvider, IStyleSet styleSet, Type selectedStyleType, bool showDefaultStyleItem, bool showOpenDesignerItem)
 			: this(editorService) {
-			if (styleSetProvider == null) throw new ArgumentNullException("styleSetProvider");
-			if (styleSet == null) throw new ArgumentNullException("styleSet");
-			if (selectedStyleType == null) throw new ArgumentNullException("selectedStyleType");
+			if (styleSetProvider == null) throw new ArgumentNullException(nameof(styleSetProvider));
+			if (styleSet == null) throw new ArgumentNullException(nameof(styleSet));
+			if (selectedStyleType == null) throw new ArgumentNullException(nameof(selectedStyleType));
 			this._styleSetProvider = styleSetProvider;
 			Initialize(styleSet, showDefaultStyleItem, showOpenDesignerItem, selectedStyleType, null);
 		}
@@ -91,16 +91,16 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		public StyleListBox(IWindowsFormsEditorService editorService, IStyleSet styleSet, Style style, bool showDefaultStyleItem, bool showOpenDesignerItem)
 			: this(editorService) {
-			if (styleSet == null) throw new ArgumentNullException("styleSet");
-			if (style == null) throw new ArgumentNullException("style");
+			if (styleSet == null) throw new ArgumentNullException(nameof(styleSet));
+			if (style == null) throw new ArgumentNullException(nameof(style));
 			Initialize(styleSet, showDefaultStyleItem, showOpenDesignerItem, style.GetType(), style);
 		}
 
 
 		public StyleListBox(IWindowsFormsEditorService editorService, IStyleSet styleSet, Type selectedStyleType, bool showDefaultStyleItem, bool showOpenDesignerItem)
 			: this(editorService) {
-			if (styleSet == null) throw new ArgumentNullException("styleSet");
-			if (selectedStyleType == null) throw new ArgumentNullException("selectedStyleType");
+			if (styleSet == null) throw new ArgumentNullException(nameof(styleSet));
+			if (selectedStyleType == null) throw new ArgumentNullException(nameof(selectedStyleType));
 			Initialize(styleSet, showDefaultStyleItem, showOpenDesignerItem, selectedStyleType, null);
 		}
 
@@ -758,8 +758,8 @@ namespace Dataweb.NShape.WinFormsUI {
 		#region [Private] Methods: Custom item compare implementation
 
 		private int CompareItems(object a, object b) {
-			if (a == null) throw new ArgumentNullException("a");
-			if (b == null) throw new ArgumentNullException("b");
+			if (a == null) throw new ArgumentNullException(nameof(a));
+			if (b == null) throw new ArgumentNullException(nameof(b));
 			if (a is DefaultStyleItem)
 				return (b is DefaultStyleItem) ? 0 : -1;
 			else if (a is OpenDesignerItem) {

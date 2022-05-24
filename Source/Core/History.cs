@@ -31,7 +31,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		public CommandEventArgs(ICommand command, bool reverted)
 			: this() {
-			if (command == null) throw new ArgumentNullException("command");
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			this.command = command;
 			this.reverted = reverted;
 		}
@@ -73,7 +73,7 @@ namespace Dataweb.NShape.Advanced {
 		/// Initializes a new instance of <see cref="T:Dataweb.NShape.CommandsEventArgs" />.
 		/// </summary>
 		public CommandsEventArgs(IEnumerable<ICommand> commands, bool reverted) {
-			if (commands == null) throw new ArgumentNullException("commands");
+			if (commands == null) throw new ArgumentNullException(nameof(commands));
 			AddRange(commands);
 		}
 
@@ -259,7 +259,7 @@ namespace Dataweb.NShape.Advanced {
 		/// <param name="command"></param>
 		/// <returns></returns>
 		public bool IsNextUndoCommand(ICommand command) {
-			if (command == null) throw new ArgumentNullException("command");
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			return GetPreviousCommand() == command;
 		}
 
@@ -326,7 +326,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="command"></param>
 		public void ExecuteAndAddCommand(ICommand command) {
-			if (command == null) throw new ArgumentNullException("command");
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			
 			command.Execute();
 			if (CommandsExecuted != null) 
@@ -341,7 +341,7 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="command"></param>
 		public void AddCommand(ICommand command) {
-			if (command == null) throw new ArgumentNullException("command");
+			if (command == null) throw new ArgumentNullException(nameof(command));
 			if (_aggregatingCommands) {
 				Debug.Assert(_aggregatedCommand != null);
 				_aggregatedCommand.Add(command);

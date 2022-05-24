@@ -293,20 +293,19 @@ namespace Dataweb.NShape.FlowChartShapes {
 				ShapePoints[2].X = 0;
 				ShapePoints[2].Y = bottom;
 
-				int x1, x2, y1, y2;
-				int a1, b1, c1, a2, b2, c2, a, b, c;
-				Geometry.CalcLine(0, bottom, left, top, out a1, out b1, out c1);
-				Geometry.CalcLine(0, bottom, right, top, out a2, out b2, out c2);
-				Geometry.CalcLine(left, bottom - (Height / 3), right, bottom - (Height / 3), out a, out b, out c);
-				Geometry.IntersectLines(a, b, c, a1, b1, c1, out x1, out y1);
-				Geometry.IntersectLines(a, b, c, a2, b2, c2, out x2, out y2);
+				// Calculate the horizontal line
+				Point p1 = Point.Empty, p2 = Point.Empty;
+				p1.Offset(left, bottom - (Height / 3));
+				p2.Offset(right, bottom - (Height / 3));
+				Point linePt1 = Geometry.IntersectLineSegments(ShapePoints[0], ShapePoints[2], p1, p2);
+				Point linePt2 = Geometry.IntersectLineSegments(ShapePoints[1], ShapePoints[2], p1, p2);
 
 				Path.Reset();
 				Path.StartFigure();
 				Path.AddPolygon(ShapePoints);
 				Path.CloseFigure();
 				Path.StartFigure();
-				Path.AddLine(x1, y1, x2, y2);
+				Path.AddLine(linePt1, linePt2);
 				Path.CloseFigure();
 				return true;
 			} else return false;

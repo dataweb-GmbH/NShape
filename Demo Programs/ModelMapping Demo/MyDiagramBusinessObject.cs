@@ -42,16 +42,16 @@ namespace ModelMapping_Demo
 
 
 		[Category("Presentation")]
-		[DisplayName("Zoom")]
+		[DisplayName("Zoom Level")]
 		[Description("Specifies the zoom factor in percentage from 1 to 1000.")]
 		public int Zoom {
-			get { return (Display != null) ? Display.ZoomLevel : 100; }
+			get { return (Display != null) ? Display.ZoomLevelHD : 10000; }
 			set {
 				if (value < 1) value = 1;
-				else if (value > 1000) value = 1000;
+				else if (value > 1000000) value = 1000000;
 
 				if (Display != null)
-					Display.ZoomLevel = value;
+					Display.ZoomLevelHD = value;
 			}
 		}
 

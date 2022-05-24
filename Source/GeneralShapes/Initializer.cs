@@ -21,7 +21,7 @@ namespace Dataweb.NShape.GeneralShapes {
 	public static class NShapeLibraryInitializer {
 
 		public static void Initialize(IRegistrar registrar) {
-			if (registrar == null) throw new ArgumentNullException("registrar");
+			if (registrar == null) throw new ArgumentNullException(nameof(registrar));
 			// Register library
 			registrar.RegisterLibrary(namespaceName, preferredRepositoryVersion);
 

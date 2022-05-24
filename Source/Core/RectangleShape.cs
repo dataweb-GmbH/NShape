@@ -60,7 +60,7 @@ namespace Dataweb.NShape.Advanced {
 		public virtual int Width {
 			get { return _size.Width; }
 			set {
-				if (value < 0) throw new ArgumentOutOfRangeException("Width");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(Width));
 				if (value != _size.Width) {
 					Invalidate();
 					//
@@ -88,7 +88,7 @@ namespace Dataweb.NShape.Advanced {
 		public virtual int Height {
 			get { return _size.Height; }
 			set {
-				if (value < 0) throw new ArgumentOutOfRangeException("Height");
+				if (value < 0) throw new ArgumentOutOfRangeException(nameof(Height));
 				if (value != _size.Height) {
 					Invalidate();
 					//
@@ -148,7 +148,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override Point CalculateAbsolutePosition(RelativePosition relativePosition) {
-			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException("relativePosition");
+			if (relativePosition == RelativePosition.Empty) throw new ArgumentOutOfRangeException(nameof(relativePosition));
 			// The RelativePosition of a RectangleBased shape is:
 			// A = Tenths of percent of Width
 			// B = Tenths of percent of Height
@@ -293,7 +293,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Draw(Graphics graphics) {
-			if (graphics == null) throw new ArgumentNullException("graphics");
+			if (graphics == null) throw new ArgumentNullException(nameof(graphics));
 			DrawPath(graphics, LineStyle, FillStyle);
 			DrawCaption(graphics);
 			base.Draw(graphics);
@@ -468,7 +468,7 @@ namespace Dataweb.NShape.Advanced {
 						result = false;
 					break;
 				default:
-					throw new ArgumentOutOfRangeException("pointId");
+					throw new ArgumentOutOfRangeException(nameof(pointId));
 			}
 			System.Diagnostics.Debug.Assert(newWidth >= 0 && newHeight >= 0);
 			// Perform Resizing
@@ -517,7 +517,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			captionBounds = Rectangle.Empty;
 			captionBounds.X = (int)Math.Round(-Width / 2f);
 			captionBounds.Y = (int)Math.Round(-Height / 2f);
@@ -785,7 +785,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			captionBounds = Rectangle.Empty;
 			captionBounds.X = (int)Math.Round((-Width / 2f) + (Width / 8f));
 			captionBounds.Y = (int)Math.Round((-Height / 2f) + (Height / 8f));
@@ -953,7 +953,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		protected override void CalcCaptionBounds(int index, out Rectangle captionBounds) {
-			if (index != 0) throw new ArgumentOutOfRangeException("index");
+			if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
 			float insetX = Width / 8f;
 			float insetY = Height / 8f;
 			captionBounds = Rectangle.Empty;

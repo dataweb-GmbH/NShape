@@ -43,7 +43,7 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		public TemplateController(Project project, Template template)
 			: this() {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 			Initialize(project, template);
 		}
 
@@ -268,7 +268,7 @@ namespace Dataweb.NShape.Controllers {
 			}
 			try {
 				_isInitializing = true;
-				if (project == null) throw new ArgumentNullException("project");
+				if (project == null) throw new ArgumentNullException(nameof(project));
 				if (this._project != project) Project = project;
 
 #if DEBUG_DIAGNOSTICS
@@ -373,7 +373,7 @@ namespace Dataweb.NShape.Controllers {
 		/// Set the given shape as the template's shape.
 		/// </summary>
 		public void SetTemplateShape(Shape newShape) {
-			if (newShape == null) throw new ArgumentNullException("newShape");
+			if (newShape == null) throw new ArgumentNullException(nameof(newShape));
 			// buffer the current template shape
 			Shape oldShape = _workTemplate.Shape;
 			if (oldShape != null)
@@ -423,7 +423,7 @@ namespace Dataweb.NShape.Controllers {
 		/// Define a new model-to-shape property mapping.
 		/// </summary>
 		public void SetModelMapping(IModelMapping modelMapping) {
-			if (modelMapping == null) throw new ArgumentNullException("modelMapping");
+			if (modelMapping == null) throw new ArgumentNullException(nameof(modelMapping));
 			_workTemplate.MapProperties(modelMapping);
 			TemplateWasChanged = true;
 			if (TemplateShapePropertyMappingSet != null) {
@@ -439,7 +439,7 @@ namespace Dataweb.NShape.Controllers {
 		/// </summary>
 		/// <param name="modelMapping"></param>
 		public void DeleteModelMapping(IModelMapping modelMapping) {
-			if (modelMapping == null) throw new ArgumentNullException("modelMapping");
+			if (modelMapping == null) throw new ArgumentNullException(nameof(modelMapping));
 			_workTemplate.UnmapProperties(modelMapping);
 			TemplateWasChanged = true;
 			if (TemplateShapePropertyMappingDeleted != null) {

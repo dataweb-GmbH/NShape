@@ -843,7 +843,7 @@
 			this.showDisplaySettingsToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Fuchsia;
 			this.showDisplaySettingsToolStripMenuItem.Name = "showDisplaySettingsToolStripMenuItem";
 			this.showDisplaySettingsToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
-			this.showDisplaySettingsToolStripMenuItem.Text = "Display Settings";
+			this.showDisplaySettingsToolStripMenuItem.Text = "Display Settings...";
 			this.showDisplaySettingsToolStripMenuItem.Click += new System.EventHandler(this.showDisplaySettingsItem_Click);
 			// 
 			// toolStripMenuItem3
@@ -857,14 +857,14 @@
 			this.editDesignsAndStylesToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Fuchsia;
 			this.editDesignsAndStylesToolStripMenuItem.Name = "editDesignsAndStylesToolStripMenuItem";
 			this.editDesignsAndStylesToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
-			this.editDesignsAndStylesToolStripMenuItem.Text = "Show Design Editor";
+			this.editDesignsAndStylesToolStripMenuItem.Text = "Show Design Editor...";
 			this.editDesignsAndStylesToolStripMenuItem.Click += new System.EventHandler(this.editDesignsAndStylesToolStripMenuItem_Click);
 			// 
 			// viewShowLayoutControlToolStripMenuItem
 			// 
 			this.viewShowLayoutControlToolStripMenuItem.Name = "viewShowLayoutControlToolStripMenuItem";
 			this.viewShowLayoutControlToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
-			this.viewShowLayoutControlToolStripMenuItem.Text = "Show Layout Control";
+			this.viewShowLayoutControlToolStripMenuItem.Text = "Show Layout Control...";
 			this.viewShowLayoutControlToolStripMenuItem.Click += new System.EventHandler(this.viewShowLayoutControlToolStripMenuItem_Click);
 			// 
 			// toolStripMenuItem4
@@ -910,14 +910,14 @@
 			// 
 			this.adoNetDatabaseGeneratorToolStripMenuItem.Name = "adoNetDatabaseGeneratorToolStripMenuItem";
 			this.adoNetDatabaseGeneratorToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
-			this.adoNetDatabaseGeneratorToolStripMenuItem.Text = "ADO.NET Database Generator";
+			this.adoNetDatabaseGeneratorToolStripMenuItem.Text = "ADO.NET Database Generator...";
 			this.adoNetDatabaseGeneratorToolStripMenuItem.Click += new System.EventHandler(this.adoNetDatabaseGeneratorToolStripMenuItem_Click);
 			// 
 			// testDataGeneratorToolStripMenuItem
 			// 
 			this.testDataGeneratorToolStripMenuItem.Name = "testDataGeneratorToolStripMenuItem";
 			this.testDataGeneratorToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
-			this.testDataGeneratorToolStripMenuItem.Text = "Test Data Generator";
+			this.testDataGeneratorToolStripMenuItem.Text = "Test Data Generator...";
 			this.testDataGeneratorToolStripMenuItem.Click += new System.EventHandler(this.testDataGeneratorToolStripMenuItem_Click);
 			// 
 			// toolStripMenuItem12
@@ -930,7 +930,7 @@
 			this.nShapeEventMonitorToolStripMenuItem.CheckOnClick = true;
 			this.nShapeEventMonitorToolStripMenuItem.Name = "nShapeEventMonitorToolStripMenuItem";
 			this.nShapeEventMonitorToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
-			this.nShapeEventMonitorToolStripMenuItem.Text = "NShape Event Monitor";
+			this.nShapeEventMonitorToolStripMenuItem.Text = "NShape Event Monitor...";
 			this.nShapeEventMonitorToolStripMenuItem.Click += new System.EventHandler(this.nShapeEventMonitorToolStripMenuItem_Click);
 			// 
 			// toolStripMenuItem9
@@ -1435,9 +1435,7 @@
 			this.zoomToolStripComboBox.AutoSize = false;
 			this.zoomToolStripComboBox.DropDownWidth = 66;
 			this.zoomToolStripComboBox.Items.AddRange(new object[] {
-            "1000 %",
-            "800 %",
-            "600 %",
+            "500 %",
             "400 %",
             "300 %",
             "200 %",
@@ -1453,12 +1451,21 @@
             "40 %",
             "30 %",
             "20 %",
-            "10 %"});
+            "10 %",
+			"5 %",
+			"1 %",
+			"0.75 %",
+			"0.5 %",
+			"0.4 %",
+			"0.3 %",
+			"0.2 %",
+			"0.1 %",
+			});
 			this.zoomToolStripComboBox.Name = "zoomToolStripComboBox";
 			this.zoomToolStripComboBox.Size = new System.Drawing.Size(66, 23);
 			this.zoomToolStripComboBox.Text = "100 %";
 			this.zoomToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.zoomToolStripComboBox_SelectedIndexChanged);
-			this.zoomToolStripComboBox.TextChanged += new System.EventHandler(this.toolStripComboBox1_TextChanged);
+			this.zoomToolStripComboBox.TextChanged += new System.EventHandler(this.ZoomToolStripComboBox_TextChanged);
 			// 
 			// displaySettingsToolStripButton
 			// 

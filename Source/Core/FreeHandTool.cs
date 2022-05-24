@@ -55,13 +55,10 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override bool ProcessMouseEvent(IDiagramPresenter diagramPresenter, MouseEventArgsDg e) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			bool result = false;
 
-			MouseState newMouseState = MouseState.Empty;
-			newMouseState.Buttons = e.Buttons;
-			newMouseState.Modifiers = e.Modifiers;
-			diagramPresenter.ControlToDiagram(e.Position, out newMouseState.Position);
+			MouseState newMouseState = MouseState.Create(diagramPresenter, e);
 
 			diagramPresenter.SuspendUpdate();
 			try {
@@ -110,21 +107,21 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void EnterDisplay(IDiagramPresenter diagramPresenter) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			// nothing to do
 		}
 
 
 		/// <override></override>
 		public override void LeaveDisplay(IDiagramPresenter diagramPresenter) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			// nothing to do
 		}
 
 
 		/// <override></override>
 		public override void Draw(IDiagramPresenter diagramPresenter) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			diagramPresenter.ResetTransformation();
 			try {
 				// draw stroke(s)
@@ -141,7 +138,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override void Invalidate(IDiagramPresenter diagramPresenter) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			int x = int.MaxValue;
 			int y = int.MaxValue;
 			int width = int.MinValue;
@@ -166,7 +163,7 @@ namespace Dataweb.NShape.Advanced {
 
 		/// <override></override>
 		public override IEnumerable<MenuItemDef> GetMenuItemDefs(IDiagramPresenter diagramPresenter) {
-			if (diagramPresenter == null) throw new ArgumentNullException("diagramPresenter");
+			if (diagramPresenter == null) throw new ArgumentNullException(nameof(diagramPresenter));
 			yield break;
 		}
 
@@ -204,7 +201,7 @@ namespace Dataweb.NShape.Advanced {
 
 
 		private void Construct(Project project) {
-			if (project == null) throw new ArgumentNullException("project");
+			if (project == null) throw new ArgumentNullException(nameof(project));
 
 			Title = "Freehand Pen";
 			ToolTipText = "Draw the symbol of the object which should be created.";

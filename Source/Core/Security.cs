@@ -332,14 +332,14 @@ namespace Dataweb.NShape {
 
 		/// <override></override>
 		public bool IsGranted(Permission permission, ISecurityDomainObject shape) {
-			if (shape == null) throw new ArgumentNullException("shape");
+			if (shape == null) throw new ArgumentNullException(nameof(shape));
 			return IsGranted(permission, shape.SecurityDomainName);
 		}
 
 
 		/// <override></override>
 		public bool IsGranted(Permission permission, SecurityAccess access, ISecurityDomainObject securityDomainObject) {
-			if (securityDomainObject == null) throw new ArgumentNullException("shape");
+			if (securityDomainObject == null) throw new ArgumentNullException(nameof(securityDomainObject));
 			return IsGranted(permission, access, securityDomainObject.SecurityDomainName);
 		}
 
@@ -376,7 +376,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		public void AddDomain(char name, string description) {
 			if (!IsValidDomainName(name)) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ThisIsNotAnAllowedDomainName);
-			if (description == null) throw new ArgumentNullException("description");
+			if (description == null) throw new ArgumentNullException(nameof(description));
 			if (domains[name - 'A'] != null) throw new ArgumentException(Dataweb.NShape.Properties.Resources.MessageTxt_ADomainWithThisNameExistsAlready);
 			domains[name - 'A'] = description;
 		}
@@ -396,7 +396,7 @@ namespace Dataweb.NShape {
 		/// Adds a role to the security.
 		/// </summary>
 		public void AddRole(string name, string description) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			roles.Add(name.ToLowerInvariant(), new UserRole(name, description));
 		}
 
@@ -405,7 +405,7 @@ namespace Dataweb.NShape {
 		/// Adds a new security role by copying an existing one.
 		/// </summary>
 		public void AddRole(string name, string description, string sourceRoleName) {
-			if (name == null) throw new ArgumentNullException("name");
+			if (name == null) throw new ArgumentNullException(nameof(name));
 			roles.Add(name.ToLowerInvariant(), GetRole(sourceRoleName, true).Clone());
 		}
 
@@ -443,7 +443,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>Security domain independent permissions are checked against the role permissions.</remarks>
 		public void AddPermissions(string roleName, Permission permissions, SecurityAccess access) {
-			if (roleName == null) throw new ArgumentNullException("role");
+			if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 			GetRole(roleName, true).AddPermissions(permissions, access);
 		}
 
@@ -481,7 +481,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>Security domain dependent permissions are checked against the role's domain permissions.</remarks>
 		public void AddPermissions(char domain, string roleName, Permission permissions, SecurityAccess access) {
-			if (roleName == null) throw new ArgumentNullException("role");
+			if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 			GetRole(roleName, true).AddPermissions(domain, permissions, access);
 		}
 
@@ -519,7 +519,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>Security domain independent permissions are checked against the role permissions.</remarks>
 		public void SetPermissions(string roleName, Permission permissions, SecurityAccess access) {
-			if (roleName == null) throw new ArgumentNullException("role");
+			if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 			GetRole(roleName, true).SetPermissions(permissions, access);
 		}
 
@@ -557,7 +557,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>Security domain dependent permissions are checked against the role's domain permissions.</remarks>
 		public void SetPermissions(char domain, string roleName, Permission permissions, SecurityAccess access) {
-			if (roleName == null) throw new ArgumentNullException("role");
+			if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 			GetRole(roleName, true).SetPermissions(domain, permissions, access);
 		}
 
@@ -595,7 +595,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>Security domain independent permissions are checked against the role permissions.</remarks>
 		public void RemovePermissions(string roleName, Permission permissions, SecurityAccess access) {
-			if (roleName == null) throw new ArgumentNullException("role");
+			if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 			GetRole(roleName, true).RemovePermissions(permissions, access);
 		}
 
@@ -633,7 +633,7 @@ namespace Dataweb.NShape {
 		/// </summary>
 		/// <remarks>Security domain dependent permissions are checked against the role's domain permissions.</remarks>
 		public void RemovePermissions(char domain, string roleName, Permission permissions, SecurityAccess access) {
-			if (roleName == null) throw new ArgumentNullException("role");
+			if (roleName == null) throw new ArgumentNullException(nameof(roleName));
 			GetRole(roleName, true).RemovePermissions(domain, permissions, access);
 		}
 
@@ -815,7 +815,7 @@ namespace Dataweb.NShape {
 
 			private void AssertValidDomainQualifier(Char domain) {
 				if (domain < 'A' || domain > 'Z')
-					throw new ArgumentOutOfRangeException("domain", Dataweb.NShape.Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
+					throw new ArgumentOutOfRangeException(nameof(domain), Dataweb.NShape.Properties.Resources.MessageTxt_TheDomainQualifierHasToBeAnUpperCaseANSILetterAZ);
 			}
 
 
