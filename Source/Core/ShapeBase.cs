@@ -707,6 +707,9 @@ namespace Dataweb.NShape.Advanced {
 			Point p = Point.Empty;
 			float currDistance = float.MaxValue;
 			foreach (ControlPointId id in GetControlPointIds(controlPointCapability)) {
+				// Skip reference point when searching connection points. It will be handled below!
+				if (id == ControlPointId.Reference && (controlPointCapability & ControlPointCapabilities.Connect) != 0)
+					continue;
 				p = GetControlPointPosition(id);
 				float d = Geometry.DistancePointPoint(x, y, p.X, p.Y);
 				if (d <= distance && d < currDistance) {
@@ -937,7 +940,7 @@ namespace Dataweb.NShape.Advanced {
 			ZOrder = reader.ReadInt32();
 			if (version >= 6)
 				HomeLayer = reader.ReadInt32();
-			SupplementalLayers = (LayerIds)reader.ReadInt32();
+			SupplementalLayers = Layer.Int32ToLayerIds(reader.ReadInt32()); 
 			SecurityDomainName = reader.ReadChar();
 			_privateLineStyle = reader.ReadLineStyle();
 			if (version >= 5) _data = reader.ReadString();
@@ -959,7 +962,7 @@ namespace Dataweb.NShape.Advanced {
 			writer.WriteInt32(ZOrder);
 			if (version >= 6)
 				writer.WriteInt32(HomeLayer);
-			writer.WriteInt32((int)SupplementalLayers);
+			writer.WriteInt32(Layer.LayerIdsToInt32(SupplementalLayers));
 			writer.WriteChar(SecurityDomainName);
 			writer.WriteStyle(_privateLineStyle);
 			if (version >= 5) writer.WriteString(_data);

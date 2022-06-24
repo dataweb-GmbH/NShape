@@ -655,6 +655,7 @@ namespace Dataweb.NShape.Advanced {
 			yield return new EntityFieldDefinition("X", typeof(int));
 			yield return new EntityFieldDefinition("Y", typeof(int));
 			yield return new EntityFieldDefinition("ZOrder", typeof(int));
+			if (version >= 8) yield return new EntityFieldDefinition("HomeLayer", typeof(int));
 			yield return new EntityFieldDefinition("Layers", typeof(int));
 			yield return new EntityFieldDefinition("Angle", typeof(int));
 			if (version >= 5) yield return new EntityFieldDefinition("Data", typeof(string));
@@ -680,7 +681,9 @@ namespace Dataweb.NShape.Advanced {
 			int y = reader.ReadInt32();
 			MoveTo(x, y);
 			ZOrder = reader.ReadInt32();
-			SupplementalLayers = (LayerIds)reader.ReadInt32();
+			if (version >= 8)
+				HomeLayer = reader.ReadInt32();
+			SupplementalLayers = Layer.Int32ToLayerIds(reader.ReadInt32());
 			_angle = reader.ReadInt32();
 			if (version >= 5) _data = reader.ReadString();
 		}
@@ -699,7 +702,9 @@ namespace Dataweb.NShape.Advanced {
 			writer.WriteInt32(X);
 			writer.WriteInt32(Y);
 			writer.WriteInt32(ZOrder);
-			writer.WriteInt32((int)SupplementalLayers);
+			if (version >= 8)
+				writer.WriteInt32(HomeLayer);
+			writer.WriteInt32(Layer.LayerIdsToInt32(SupplementalLayers));
 			writer.WriteInt32(_angle);
 			if (version >= 5) writer.WriteString(_data);
 		}

@@ -111,12 +111,32 @@ namespace Dataweb.NShape.Advanced {
 
 
 		/// <summary>
+		/// Converts the given UInt32 based LayerIds to a singed Int32 value.
+		/// </summary>
+		public static int LayerIdsToInt32(LayerIds layerIds)
+		{
+			// The fastest way to convert from uint to int is an unchecked cast
+			return unchecked((int)layerIds);
+		}
+
+
+		/// <summary>
+		/// Converts the given signed Int32 value to UInt32 based LayerIds.
+		/// </summary>
+		public static LayerIds Int32ToLayerIds(int layerIds)
+		{
+			// The fastest way to convert from int to uint is an unchecked cast
+			return unchecked((LayerIds)layerIds);
+		}
+
+
+		/// <summary>
 		/// Converts an integer layer id to a LayerIds value.
 		/// Example: LayerId 3 will be converted to LayerIds.Layer03 which has the numeric value 0x00000004.
 		/// </summary>
 		public static LayerIds ConvertToLayerIds(int layerNo) {
 			if (layerNo < 1 || layerNo > 32) throw new ArgumentOutOfRangeException(nameof(layerNo));
-			return (layerNo != 0) ? (LayerIds)Math.Pow(2, layerNo - 1) : LayerIds.None;
+			return (layerNo != 0) ? (LayerIds)(1u << (layerNo - 1)) : LayerIds.None;
 		}
 
 
@@ -155,15 +175,26 @@ namespace Dataweb.NShape.Advanced {
 		/// </summary>
 		/// <param name="layerId">A LayerIds value.</param>
 		/// <remarks>Combinations of LayerIds values as well as LayerIds.All will lead to an ArgumentException.</remarks>
-		public static int ConvertToLayerId(LayerIds layerId) {
+		public static int ConvertToLayerId(LayerIds layerId)
+		{
 			if (layerId > LayerIds.Layer32) throw new ArgumentOutOfRangeException(nameof(layerId));
 			if (layerId == LayerIds.All) throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidLayerIdForOneSingleLayer, layerId), "layerId");
-			if (layerId == LayerIds.None) 
+			if (layerId == LayerIds.None)
 				return Layer.NoLayerId;
-			double result = Math.Round(Math.Log((uint)layerId, 2), 12);
-			if (result != (int)result)
+			int result = 0;
+			uint layerIdValue = (uint)layerId;
+			for (int i = 31; i >= 0; --i) {
+				uint r = layerIdValue >> i;
+				if (r == 1) {
+					// Accept result only if the reverse operation matches the input parameter (detect combined flags)!
+					if ((LayerIds)(1u << i) == layerId)
+						result = i + 1;
+					break;
+				}
+			}
+			if (result == 0)
 				throw new ArgumentException(string.Format(Dataweb.NShape.Properties.Resources.MessageFmt_0IsNotAValidLayerIdForOneSingleLayer, layerId), "layerId");
-			return 1 + (int)result;
+			return result;
 		}
 
 

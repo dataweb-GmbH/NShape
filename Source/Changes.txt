@@ -1,9 +1,15 @@
 ﻿====================================================================================================
-Known issues:
+Changes in 2.4.1.0:
 ====================================================================================================
-
-* Transparent bitmap images with 8 bit color depth are not rendered correctly when compiling in 
-  x64/AnyCPU configuration on x64 OS.
+Improvement: Optimized performance of static conversion functions Layer.ConvertToLayerIds and 
+		Layer.ConvertToLayerId
+Bugfix: ArithmeticOverflow when loading/saving repositories containing a shape with "SupplementalLayer" 
+		set to Layer32 (or a combination containing Layer32).
+Bugfix: Shape.FindNearestControlPoint with parameter 'capabilities' set to ControlPointCapability.Connect 
+        no longer prefers ControlPointId.Rference over other connection points
+Bugfix: ShapeGroup did not implement loading/saving HomeLayer (available in future versions)
+Bugfix: Loading/saving Int64 fields was not implemented in SQLStore
+  
 ====================================================================================================
 Changes in 2.4.0.0:
 ====================================================================================================

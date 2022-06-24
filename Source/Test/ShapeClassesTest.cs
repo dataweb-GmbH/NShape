@@ -42,7 +42,7 @@ namespace NShapeTest {
 						// Check the number of constants and their values
 						//ControlPointsBaseTest(shape);
 
-						// Get all control point id's defined by constants of the specific shape type
+						// Get all control point ids defined by constants of the specific shape type
 						// and check whether the point has the expected capabilities
 						ControlPointsByTypeTest(shape);
 					}
@@ -54,7 +54,7 @@ namespace NShapeTest {
 
 
 		[TestMethod]
-		public void GetControlPointIdsTest() {
+		public void GetControlPointCapabilityTest() {
 
 			Project project = CreateTestProject();
 			try {
@@ -64,13 +64,14 @@ namespace NShapeTest {
 						if (shape is PolylineBase polylineBase) {
 							Point startPt = polylineBase.GetControlPointPosition(ControlPointId.FirstVertex);
 							Point endPt = polylineBase.GetControlPointPosition(ControlPointId.LastVertex);
+							Point vtx = Geometry.VectorLinearInterpolation(startPt, endPt, 0.5f);
+							polylineBase.AddVertex(vtx.X, vtx.Y);
 
 							Point cp1 = Geometry.VectorLinearInterpolation(startPt, endPt, 0.3333333f);
 							Point cp2 = Geometry.VectorLinearInterpolation(startPt, endPt, 0.6666666f);
 							polylineBase.AddConnectionPoint(cp1.X, cp1.Y);
 							polylineBase.AddConnectionPoint(cp2.X, cp2.Y);
 						}
-
 
 						// Get all control point ids and store them
 						Dictionary<ControlPointCapabilities, List<ControlPointId>> ControlPointIds = new Dictionary<ControlPointCapabilities, List<ControlPointId>>();

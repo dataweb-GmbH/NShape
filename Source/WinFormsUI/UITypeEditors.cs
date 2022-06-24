@@ -223,10 +223,16 @@ namespace Dataweb.NShape.WinFormsUI {
 						listBox.SelectionMode = SelectionMode.One;
 						if (isHomeLayerProperty) {
 							listBox.SelectedIndexChanged += (sender, e) => {
+								// Uncheck all other items because the HomeLayer is not combinable
 								int idx = listBox.SelectedIndex;
-								for (int i = listBox.Items.Count - 1; i >= 0; --i)
-									if (i != idx && listBox.GetItemChecked(i))
-										listBox.SetItemChecked(i, false);
+								try {
+									listBox.SuspendLayout();
+									for (int i = listBox.Items.Count - 1; i >= 0; --i)
+										if (i != idx && listBox.GetItemChecked(i))
+											listBox.SetItemChecked(i, false);
+								} finally {
+									listBox.ResumeLayout();
+								}
 							};
 						}
 

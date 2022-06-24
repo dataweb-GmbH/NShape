@@ -149,7 +149,8 @@ namespace NShapeTest {
 					}
 
 					diagram.Shapes.Add(planarShape, project.Repository.ObtainNewTopZOrder(diagram));
-					if (withLayers) diagram.AddShapeToLayers(planarShape, planarLayerId, Layer.ConvertToLayerIds(EnumerationHelper.Enumerate(rowLayerId | colLayerId)));
+					if (withLayers) 
+						diagram.AddShapeToLayers(planarShape, planarLayerId, LayerIds.Layer32 | Layer.ConvertToLayerIds(EnumerationHelper.Enumerate(rowLayerId, colLayerId)));
 					if (connectShapes) {
 						linearTemplate = GetNextLinearTemplate(project, linearTemplate);
 						if (rowIdx > 0) {

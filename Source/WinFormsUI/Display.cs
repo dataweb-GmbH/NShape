@@ -2916,6 +2916,7 @@ namespace Dataweb.NShape.WinFormsUI {
 
 		/// <override></override>
 		protected override void OnMouseMove(MouseEventArgs e) {
+			if (e == null) throw new ArgumentNullException(nameof(e));
 			//Console.WriteLine("[{0}]\t OnMouseMove (Entering)", DateTime.Now.ToString("HH:mm:ss.ffff"));
 			base.OnMouseMove(e);
 

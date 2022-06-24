@@ -326,8 +326,12 @@ namespace Dataweb.NShape {
 		protected DbType DbTypeForDotNetType(Type type) {
 			if (type == typeof(Object))
 				return DbType.Int32;
+			else if (type == typeof(Int16))
+				return DbType.Int16;
 			else if (type == typeof(Int32))
 				return DbType.Int32;
+			else if (type == typeof(Int64))
+				return DbType.Int64;
 			else if (type == typeof(char))
 				return DbType.String;
 			else if (type == typeof(String))
@@ -342,8 +346,6 @@ namespace Dataweb.NShape {
 				return DbType.Single;
 			else if (type == typeof(Image))
 				return DbType.Binary;
-			else if (type == typeof(Int16))
-				return DbType.Int16;
 			else if (type == typeof(bool))
 				return DbType.Boolean;
 			else {
@@ -357,8 +359,12 @@ namespace Dataweb.NShape {
 		protected string SqlTypeForDotNetType(Type type) {
 			if (type == typeof(Object))
 				return "INT";
+			else if (type == typeof(Int16))
+				return "SMALLINT";
 			else if (type == typeof(Int32))
 				return "INT";
+			else if (type == typeof(Int64))
+				return "BIGINT";
 			else if (type == typeof(char))
 				return "NCHAR";
 			else if (type == typeof(String))
@@ -373,8 +379,6 @@ namespace Dataweb.NShape {
 				return "REAL";
 			else if (type == typeof(Image))
 				return "IMAGE";
-			else if (type == typeof(Int16))
-				return "SMALLINT";
 			else if (type == typeof(bool))
 				return "BIT";
 			else {
